@@ -1,0 +1,57 @@
+# ===== Go build outputs =====
+bin/
+build/
+dist/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# ===== Go test files =====
+*.test
+*.out
+coverage.out
+
+# ===== Go workspace =====
+go.work
+go.work.sum
+
+# =========================
+# macOS
+# =========================
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+
+# =========================
+# IDE / Editors
+# =========================
+.vscode/
+.idea/
+*.iml
+
+# =========================
+# Logs / temp
+# =========================
+*.log
+*.tmp
+*.swp
+*.swo
+
+
+# =========================
+# Secrets / env
+# =========================
+.env
+.env.*
+!.env.example
+
+
+# =========================
+# OS / misc
+# =========================
+*.pid
