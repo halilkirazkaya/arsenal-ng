@@ -1,0 +1,92 @@
+tool: arjun
+tags: [web, security, pentest, enumeration, fuzzing, reconnaissance, parameter-discovery]
+
+actions:
+  # === BASIC DISCOVERY ===
+  - title: arjun - basic GET parameter discovery
+    desc: |
+      Performs parameter discovery using the GET method on a single URL. 
+      This is the most common starting point for finding hidden query parameters that might lead to vulnerabilities like XSS, SQLi, or SSRF. 
+      Arjun uses a heuristic approach to determine which parameters are valid by observing changes in the HTTP response.
+    command: "arjun -u {{url}}"
+
+  - title: arjun - POST parameter discovery
+    desc: |
+      Specifically targets parameters within POST requests using standard form encoding (application/x-www-form-urlencoded). 
+      Many web applications process sensitive data or state-changing actions via POST, making this a critical scan for discovering hidden functional parameters. 
+      This is particularly useful for testing login forms, profile updates, or hidden administrative actions.
+    command: "arjun -u {{url}} -m POST"
+
+  - title: arjun - JSON parameter discovery
+    desc: |
+      Identifies parameters within a JSON-formatted request body. 
+      Modern web applications and REST APIs frequently use JSON for data exchange, and traditional parameter fuzzers often miss these. 
+      Arjun will structure its probes as JSON objects to ensure the backend API correctly parses the injected parameter names.
+    command: "arjun -u {{url}} -m JSON"
+
+  - title: arjun - XML parameter discovery
+    desc: |
+      Targets XML-based endpoints to find hidden tags or attributes that the application might be processing. 
+      This is highly effective against SOAP services or legacy enterprise applications that rely on XML data structures. 
+      It helps in identifying potential entry points for XXE (XML External Entity) or other logic-based vulnerabilities.
+    command: "arjun -u {{url}} -m XML"
+
+  # === ADVANCED SCANNING & PERFORMANCE ===
+  - title: arjun - passive discovery
+    desc: |
+      Leverages passive sources like the Wayback Machine, CommonCrawl, and AlienVault OTX to find historically used parameters. 
+      This method is completely non-intrusive as it doesn't send requests to the target server initially. 
+      It provides a significant head start by gathering parameters that were previously known to exist on the endpoint.
+    command: "arjun -u {{url}} --passive"
+
+  - title: arjun - custom wordlist and threads
+    desc: |
+      Uses a specific wordlist for parameter names and adjusts the execution speed with threads. 
+      While Arjun comes with an excellent internal database, custom wordlists are vital for environment-specific parameters (e.g., proprietary CMS attributes). 
+      Increasing threads can speed up the process, but may lead to rate-limiting or false negatives if the server cannot handle the load.
+    command: "arjun -u {{url}} -w {{wordlist|/usr/share/wordlists/dirb/common.txt}} -t {{threads|10}}"
+
+  - title: arjun - fine-tuning chunk size
+    desc: |
+      Controls how many parameters are sent in a single HTTP request. 
+      Reducing the chunk size is helpful when dealing with Web Application Firewalls (WAFs) that limit the length of the URL or the number of parameters. 
+      A smaller chunk size increases the number of requests but improves accuracy in restrictive environments.
+    command: "arjun -u {{url}} -c {{chunks|250}}"
+
+  # === AUTHENTICATION & HEADERS ===
+  - title: arjun - authenticated scan with headers
+    desc: |
+      Adds custom HTTP headers such as Cookies or Authorization tokens to every request. 
+      This is essential for discovering parameters on pages that are hidden behind a login wall. 
+      Ensure that your session token is valid throughout the scan to prevent redirected or invalid responses.
+    command: 'arjun -u {{url}} --headers "Cookie: {{session_id}}; Authorization: Bearer {{token}}"'
+
+  # === INPUT & OUTPUT ===
+  - title: arjun - bulk scanning from file
+    desc: |
+      Imports a list of URLs from a text file to perform parameter discovery on multiple targets sequentially. 
+      This is the most efficient way to handle a large attack surface during the reconnaissance phase. 
+      The input file should contain one URL per line, including the protocol (http/https).
+    command: "arjun -i {{targets_file}}"
+
+  - title: arjun - export results to JSON
+    desc: |
+      Saves the discovered parameters into a structured JSON file for further analysis or automation. 
+      The JSON output is highly recommended for integrating Arjun's findings into other tools or custom reporting scripts. 
+      It contains detailed information about the found parameters for each scanned URL.
+    command: "arjun -u {{url}} -oJ {{output_file|results.json}}"
+
+  - title: arjun - proxying to Burp Suite
+    desc: |
+      Routes all of Arjun's outgoing requests through a proxy, typically Burp Suite (127.0.0.1:8080). 
+      This allows you to manually inspect the traffic, analyze the differences in responses, and send interesting findings to the Repeater or Intruder. 
+      It is a bridge between automated discovery and manual exploitation.
+    command: "arjun -u {{url}} -oB {{proxy|127.0.0.1:8080}}"
+
+  # === STABILITY & CONSTRAINTS ===
+  - title: arjun - stable mode and rate limiting
+    desc: |
+      Forces the tool to prioritize stability over speed by implementing the --stable flag and setting a maximum request rate. 
+      The stable mode is useful for targets that return dynamic content lengths which might confuse Arjun's detection engine. 
+      Rate limiting is crucial to avoid being blocked by anti-DoS protections or WAFs on production servers.
+    command: "arjun -u {{url}} --stable --rate-limit {{rate|5}}"

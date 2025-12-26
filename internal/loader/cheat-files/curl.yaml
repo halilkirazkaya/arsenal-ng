@@ -1,0 +1,128 @@
+tool: curl
+tags: [network, web, security, transfer, api, pentest, debugging, enumeration]
+
+actions:
+# === BASIC OPERATIONS ===
+ - title: curl - simple GET request
+   desc: |
+     Performs a standard HTTP GET request to the specified URL. 
+     This is the most common way to fetch resources and verify if a web server is responding. 
+     The output is printed directly to the standard output (terminal). 
+     It is often used for quick connectivity checks or inspecting raw HTML/JSON responses.
+   command: "curl {{url}}"
+
+ - title: curl - save output to a file
+   desc: |
+     Downloads the content from the URL and saves it into a local file. 
+     The -o flag allows you to specify a custom filename for the saved content. 
+     This is essential when downloading binaries, scripts, or large datasets that shouldn't be printed to the terminal. 
+     Ensure you have write permissions in the directory where you are saving the file.
+   command: "curl -o {{filename|output.txt}} {{url}}"
+
+ - title: curl - display response headers
+   desc: |
+     Fetches the URL and displays only the HTTP response headers. 
+     This is highly useful for debugging server configurations, identifying the web server software, and checking cookies or redirect locations. 
+     Using -I triggers a HEAD request, which is faster as it does not download the body content. 
+     It is a primary step in web reconnaissance to find potential vulnerabilities in header configurations.
+   command: "curl -I {{url}}"
+
+ - title: curl - verbose output for debugging
+   desc: |
+     Enables verbose mode to show the entire request and response flow. 
+     It displays the handshake, headers sent by curl, and the headers received from the server. 
+     Lines starting with '>' indicate data sent, while '<' indicates data received. 
+     Use this when a request is failing and you need to see exactly what curl is doing under the hood.
+   command: "curl -v {{url}}"
+
+# === DATA TRANSFER & METHODS ===
+ - title: curl - send POST request with data
+   desc: |
+     Sends an HTTP POST request with specific form data to the server. 
+     The -d flag automatically sets the Content-Type to application/x-www-form-urlencoded. 
+     This is typically used for submitting web forms or login credentials. 
+     You can use multiple -d flags to send multiple key-value pairs in a single request.
+   command: "curl -d \"{{key1}}={{value1}}\" -d \"{{key2}}={{value2}}\" {{url}}"
+
+ - title: curl - send JSON data in POST
+   desc: |
+     Sends a POST request with a raw JSON payload. 
+     You must manually set the 'Content-Type: application/json' header for the server to parse the data correctly. 
+     This is the standard way to interact with modern RESTful APIs. 
+     Be careful with shell quoting when writing the JSON string directly in the terminal.
+   command: "curl -X POST -H \"Content-Type: application/json\" -d '{{json_data|{\"key\":\"value\"}}}' {{url}}"
+
+ - title: curl - upload a file
+   desc: |
+     Uploads a local file to the destination server using the -T flag. 
+     This typically uses the PUT method or specific protocols supported by the server like FTP or SFTP. 
+     It is commonly used for transferring logs, backups, or exploit payloads to a target system. 
+     Note that the remote server must be configured to accept file uploads at that specific path.
+   command: "curl -T {{local_file}} {{url}}"
+
+# === AUTHENTICATION & HEADERS ===
+ - title: curl - basic authentication
+   desc: |
+     Authenticates against a server using the HTTP Basic Authentication scheme. 
+     The -u flag takes a username and password separated by a colon. 
+     Curl handles the Base64 encoding of these credentials automatically. 
+     Be aware that Basic Auth is insecure over HTTP as credentials are sent in plain text; always use HTTPS.
+   command: "curl -u {{username}}:{{password}} {{url}}"
+
+ - title: curl - send custom headers
+   desc: |
+     Adds a custom header to the outgoing HTTP request. 
+     This is frequently used to provide API keys, Bearer tokens, or to bypass simple security filters. 
+     You can add multiple headers by repeating the -H flag. 
+     It is essential for testing how a server reacts to non-standard or missing headers.
+   command: "curl -H \"{{header_name}}: {{header_value}}\" {{url}}"
+
+ - title: curl - set custom User-Agent
+   desc: |
+     Overrides the default curl User-Agent string with a custom one. 
+     Many web applications block the 'curl' User-Agent to prevent automated scraping or bot activity. 
+     Setting this to a common browser string (like Chrome or Firefox) can help bypass such restrictions. 
+     This is a standard technique used during the initial stages of web application testing.
+   command: "curl -A \"{{user_agent|Mozilla/5.0 (Windows NT 10.0; Win64; x64)}}\" {{url}}"
+
+# === SECURITY & PROXIES ===
+ - title: curl - ignore SSL certificate errors
+   desc: |
+     Allows curl to connect to servers with invalid or self-signed SSL certificates. 
+     The -k (or --insecure) flag bypasses the certificate verification process entirely. 
+     This is useful for testing internal development servers or legacy systems. 
+     Warning: This makes the connection vulnerable to Man-in-the-Middle (MITM) attacks; use with caution.
+   command: "curl -k {{url}}"
+
+ - title: curl - use a proxy server
+   desc: |
+     Routes the entire request through a specified proxy server. 
+     This is vital for capturing traffic in tools like Burp Suite, OWASP ZAP, or for anonymizing the source IP. 
+     The proxy can be HTTP, HTTPS, or SOCKS. 
+     Ensure the proxy address and port are correct, otherwise, the connection will time out.
+   command: "curl -x {{proxy_proto|http}}://{{proxy_host}}:{{proxy_port|8080}} {{url}}"
+
+ - title: curl - use cookies from a file
+   desc: |
+     Sends cookies stored in a file along with the request. 
+     The -b flag reads cookies from the specified file, while -c can be used to write received cookies back to a file. 
+     This is necessary for maintaining sessions in multi-step web interactions. 
+     The file format should be either Netscape cookie format or simple "name=value" pairs.
+   command: "curl -b {{cookie_file|cookies.txt}} {{url}}"
+
+# === ADVANCED ===
+ - title: curl - follow redirects
+   desc: |
+     Instructs curl to follow HTTP 3xx redirects automatically. 
+     By default, curl shows the redirect page content or headers but does not move to the new location. 
+     The -L flag ensures you reach the final destination of a shortened or redirected URL. 
+     This is critical when testing URLs that use load balancers or authentication redirects.
+   command: "curl -L {{url}}"
+
+ - title: curl - limit rate of download
+   desc: |
+     Limits the speed of the data transfer to a specified rate. 
+     The rate can be specified in bytes, kilobytes (k), or megabytes (m). 
+     This is useful to prevent curl from consuming all available bandwidth on a network. 
+     It is often used when downloading large files in production environments or over slow connections.
+   command: "curl --limit-rate {{rate|100k}} {{url}}"

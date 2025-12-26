@@ -1,0 +1,106 @@
+tool: whatweb
+tags: [web, scanner, security, pentest, enumeration, fingerprinting, reconnaissance]
+
+actions:
+# === TARGET SELECTION & BASIC SCANNING ===
+
+ - title: whatweb - basic website fingerprinting
+   desc: |
+     Identify the technologies used by a specific web server using a single target.
+     This is the most common starting point for web reconnaissance to find CMS, web servers, and libraries.
+     It operates at the default stealthy aggression level (Level 1), making minimal requests.
+   command: "whatweb {{target}}"
+
+ - title: whatweb - scan multiple targets from file
+   desc: |
+     Read a list of URLs, hostnames, or IP addresses from a text file for batch processing.
+     This is highly efficient for scanning large scopes or lists generated from sub-domain discovery tools.
+     You can also pipe input directly from other tools by using -i /dev/stdin.
+   command: "whatweb -i {{input_file}}"
+
+ - title: whatweb - scan network range for web services
+   desc: |
+     Discover web servers across an entire IP range using CIDR notation.
+     This command automatically identifies which IPs have active web services and fingerprints them.
+     It is particularly useful during internal network penetration tests for asset discovery.
+   command: "whatweb --no-errors {{ip_range|192.168.1.0/24}}"
+
+# === AGGRESSION & DEPTH ===
+
+ - title: whatweb - aggressive technology detection
+   desc: |
+     Perform a deeper scan by making additional requests if a technology is detected.
+     Level 3 is useful when you need to find exact versions of CMS or plugins that are not visible in the headers.
+     Be aware that this increases traffic and is more likely to be logged by Web Application Firewalls (WAFs).
+   command: "whatweb -a 3 {{target}}"
+
+ - title: whatweb - heavy footprinting
+   desc: |
+     Execute the most thorough scan level by attempting all plugin URLs against the target.
+     Level 4 makes a significant number of HTTP requests and is not stealthy at all.
+     Use this only when you have explicit permission and need exhaustive technology mapping.
+   command: "whatweb -a 4 {{target}}"
+
+# === HTTP CONFIGURATION & AUTHENTICATION ===
+
+ - title: whatweb - scan with custom headers and user-agent
+   desc: |
+     Modify the HTTP request headers to bypass basic security filters or impersonate a specific browser.
+     You can add any custom header like 'Authorization' or 'X-Forwarded-For' to test different server behaviors.
+     This helps in identifying how the server responds to different types of clients or mobile devices.
+   command: "whatweb --user-agent \"{{user_agent|Mozilla/5.0}}\" --header \"{{header_name|X-Custom-Header}}:{{header_value|value}}\" {{target}}"
+
+ - title: whatweb - authenticated scan with cookies
+   desc: |
+     Provide session cookies or basic authentication credentials to scan pages behind a login wall.
+     This allows for fingerprinting administrative panels, internal dashboards, or authenticated application logic.
+     Use this carefully with basic auth as it might trigger account lockout policies if credentials are incorrect.
+   command: "whatweb --cookie \"{{cookies|session=123}}\" --user \"{{user_pass|admin:password}}\" {{target}}"
+
+ - title: whatweb - scan through a proxy
+   desc: |
+     Route all WhatWeb traffic through a specified proxy server like Burp Suite or Tor.
+     This is useful for debugging requests or hiding the source IP of the scanner.
+     Ensure the proxy is active and reachable before running the command to avoid connection errors.
+   command: "whatweb --proxy {{proxy_host|127.0.0.1:8080}} {{target}}"
+
+# === PLUGINS & FILTERING ===
+
+ - title: whatweb - search for specific technology with grep
+   desc: |
+     Filter the output to show only results that match a specific string or regular expression.
+     This is perfect for identifying all servers in a large scan that run a specific software like WordPress or Apache.
+     It significantly reduces terminal noise when scanning large numbers of hosts.
+   command: "whatweb --grep \"{{regex|WordPress}}\" {{target}}"
+
+ - title: whatweb - list and search plugins
+   desc: |
+     Search through the internal plugin database for a specific keyword or technology name.
+     This helps you understand what WhatWeb is capable of detecting before running a scan.
+     The search covers plugin names, descriptions, and categories.
+   command: "whatweb --search-plugins {{keyword}}"
+
+# === OUTPUT & LOGGING ===
+
+ - title: whatweb - save scan results to JSON
+   desc: |
+     Export the fingerprinting results into a JSON file for further programmatic analysis.
+     This format is ideal for integrating WhatWeb results with other automation tools or custom reporting scripts.
+     The JSON output contains detailed metadata about every detected plugin and version.
+   command: "whatweb --log-json={{output_file|results.json}} {{target}}"
+
+ - title: whatweb - verbose output for detailed analysis
+   desc: |
+     Enable verbose output to see detailed descriptions of every detected plugin.
+     This provides more context on why a specific technology was flagged and which patterns were matched.
+     It is highly recommended for manual verification of findings.
+   command: "whatweb -v {{target}}"
+
+# === PERFORMANCE ===
+
+ - title: whatweb - high speed multi-threaded scan
+   desc: |
+     Increase the number of simultaneous threads to speed up scans against multiple targets.
+     The default is 25, but you can increase it for faster processing of large network ranges.
+     Higher thread counts may increase the risk of being blocked by rate-limiting mechanisms.
+   command: "whatweb -t {{threads|50}} -i {{input_file}}"

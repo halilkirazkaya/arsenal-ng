@@ -1,0 +1,131 @@
+tool: john
+tags: [password-cracking, security, pentest, brute-force, exploitation, authentication, hash-cracking]
+
+actions:
+# === BASIC CRACKING OPERATIONS ===
+
+ - title: john - basic wordlist attack
+   desc: |
+     Perform a dictionary attack using a specific wordlist against a target hash file.
+     This is the most common method of cracking where John compares hashes of words in the list to the target.
+     It is highly effective when using large, proven wordlists like rockyou.txt.
+     If no format is specified, John will attempt to auto-detect the hash type.
+   command: "john --wordlist={{wordlist|/usr/share/wordlists/rockyou.txt}} {{hash_file}}"
+
+ - title: john - single crack mode
+   desc: |
+     Execute John's "Single Crack" mode which is often the first step in a professional engagement.
+     This mode uses information provided in the login name and GECOS fields to generate potential passwords.
+     It is extremely fast and effective for finding users who use variations of their own name as a password.
+     Note that this mode is most effective when the input file follows the standard /etc/passwd format.
+   command: "john --single {{hash_file}}"
+
+ - title: john - incremental brute force mode
+   desc: |
+     Enable the incremental mode to perform a pure brute-force attack.
+     This mode tries all possible character combinations until a match is found or the search space is exhausted.
+     It is computationally expensive and should generally be used as a last resort for short passwords.
+     You can specify a predefined character set (like Alnum or Digits) within the john.conf file.
+   command: "john --incremental {{hash_file}}"
+
+ - title: john - show cracked passwords
+   desc: |
+     Display the passwords that have already been successfully cracked for a specific hash file.
+     John stores cracked results in its 'john.pot' file, and this command retrieves them for easy viewing.
+     You can add the --format flag if you want to filter results for a specific hash type.
+     This does not start a new cracking session; it only reports on previous successes.
+   command: "john --show {{hash_file}}"
+
+# === HASH PREPARATION (CONVERTERS) ===
+
+ - title: john - unshadow linux passwords
+   desc: |
+     Combine the /etc/passwd and /etc/shadow files into a format that John can process.
+     The /etc/shadow file contains the actual hashes and is only readable by the root user.
+     This tool creates a single file containing both the username information and the password hash.
+     Root or sudo privileges are typically required to read the original shadow file.
+   command: "unshadow /etc/passwd /etc/shadow > {{output|unshadowed.txt}}"
+
+ - title: john - convert zip to crackable hash
+   desc: |
+     Extract the password hash from an encrypted ZIP archive into a John-compatible format.
+     The output must be redirected to a file, which is then passed to John for the actual cracking process.
+     This supports various ZIP encryption methods including PKZIP and WinZip AES.
+     Ensure you have the 'zip2john' utility installed as part of the John the Ripper jumbo suite.
+   command: "zip2john {{zip_file}} > {{output|zip_hash.txt}}"
+
+ - title: john - convert rar to crackable hash
+   desc: |
+     Generate a crackable hash string from a password-protected RAR archive.
+     The resulting hash file contains the metadata John needs to attempt password guesses against the archive.
+     This works for both RAR 3.x and RAR 5.x formats.
+     Cracking RAR files is generally slower than ZIP files due to the more complex derivation functions used.
+   command: "rar2john {{rar_file}} > {{output|rar_hash.txt}}"
+
+ - title: john - convert ssh private key to hash
+   desc: |
+     Extract the passphrase hash from an SSH private key (like id_rsa).
+     This is useful for recovering forgotten passphrases or during penetration testing if a key is found.
+     The output hash can be cracked using John's standard wordlist or brute-force modes.
+     Modern keys use heavy iteration, so cracking speeds may be relatively slow.
+   command: "ssh2john {{private_key_file}} > {{output|ssh_hash.txt}}"
+
+ - title: john - convert pdf to crackable hash
+   desc: |
+     Extract the security data from a password-protected PDF document.
+     The script parses the PDF structure to find the encryption dictionary and formats it for John.
+     PDF cracking speed varies significantly depending on the PDF version (standard vs. extension).
+     Once the hash is generated, run John against the output file using a high-quality wordlist.
+   command: "pdf2john {{pdf_file}} > {{output|pdf_hash.txt}}"
+
+# === ADVANCED CRACKING & RULES ===
+
+ - title: john - wordlist attack with rules
+   desc: |
+     Apply word mangling rules to a wordlist attack to significantly increase the chances of success.
+     Rules will perform operations like appending numbers, changing case, or replacing letters with symbols (e.g., 'a' to '@').
+     The default ruleset is defined in john.conf and is designed to catch common user password habits.
+     This is much more powerful than a simple wordlist attack but takes longer to process.
+   command: "john --wordlist={{wordlist}} --rules {{hash_file}}"
+
+ - title: john - mask mode attack
+   desc: |
+     Use a mask to crack passwords that follow a specific known pattern or length.
+     For example, '?u?l?l?l?d?d' would search for an uppercase letter followed by three lowercase letters and two digits.
+     This is highly efficient when you have partial information about the target password policy.
+     It is much faster than full incremental brute force as it limits the search space to a specific structure.
+   command: "john --mask={{mask|?u?l?l?l?d?d}} {{hash_file}}"
+
+ - title: john - force specific hash format
+   desc: |
+     Manually specify the hash algorithm to be used during the cracking process.
+     Use this when John fails to auto-detect the hash or when a file contains multiple hash types.
+     You can see a full list of supported formats by running 'john --list=formats'.
+     Using the correct format explicitly can prevent false positives and improve performance.
+   command: "john --format={{format|raw-md5}} --wordlist={{wordlist}} {{hash_file}}"
+
+# === SESSION & UTILITIES ===
+
+ - title: john - session management and restore
+   desc: |
+     Name a cracking session so that it can be paused and resumed later.
+     This is vital for long-running cracking jobs that might span several days or need to survive a reboot.
+     John saves its progress in a .rec file named after the session.
+     To resume, simply use the --restore flag with the session name.
+   command: "john --session={{name|work_task}} --wordlist={{wordlist}} {{hash_file}}"
+
+ - title: john - restore a session
+   desc: |
+     Resume a previously interrupted cracking session using its assigned name.
+     John will pick up exactly where it left off by reading the session's recovery file.
+     This is essential for maintaining progress during power outages or system maintenance.
+     Ensure the original wordlist and hash files are still in the same paths.
+   command: "john --restore={{name|work_task}}"
+
+ - title: john - unique wordlist utility
+   desc: |
+     A standalone utility to remove duplicate entries from a wordlist without changing the original order.
+     Cleaning wordlists is important for performance, as John shouldn't waste time hashing the same word twice.
+     The tool reads from standard input and writes the unique list to the specified output file.
+     It is often used when merging multiple wordlists found during reconnaissance.
+   command: "unique {{output_file}} < {{input_wordlist}}"

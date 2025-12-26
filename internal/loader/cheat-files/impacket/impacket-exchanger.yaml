@@ -1,0 +1,46 @@
+tool: impacket-exchanger
+tags: [pentest, security, exchange, enumeration, active-directory, impacket, exploitation]
+
+actions:
+# === BASIC AUTHENTICATION ===
+ - title: impacket-exchanger - Basic NSPI Authentication
+   desc: |
+     Connects to the Exchange server using the Name Service Provider Interface (NSPI) module with standard credentials. 
+     This is primarily used to interact with the Exchange Address Book and directory services to enumerate information. 
+     It is a common starting point for internal reconnaissance once initial domain credentials have been obtained. 
+     Ensure that the target name or IP address is reachable over the network and that the specified user has permissions to query Exchange.
+   command: "impacket-exchanger {{domain}}/{{username}}:{{password}}@{{target_ip}} nspi"
+
+ - title: impacket-exchanger - Pass-the-Hash Authentication
+   desc: |
+     Authenticates to the Exchange service using NTLM hashes instead of a cleartext password. 
+     This technique is extremely useful during post-exploitation scenarios where you have extracted hashes but do not have the original password. 
+     The format for the hashes must be LMHASH:NTHASH; if the LM hash is not available, provide an empty string or the standard null filler. 
+     This command allows you to bypass password requirements while still accessing sensitive directory information via the NSPI module.
+   command: "impacket-exchanger -hashes {{hash}} {{domain}}/{{username}}@{{target_ip}} nspi"
+
+# === ADVANCED CONFIGURATION ===
+ - title: impacket-exchanger - Custom RPC Hostname
+   desc: |
+     Specifies a custom RPC hostname, which can be provided in GUID or NetBIOS format. 
+     Exchange environments often rely on specific GUIDs for routing RPC traffic to the correct backend mailbox or directory server. 
+     Use this option if the default connection fails or if you are targeting a specific server in a DAG (Database Availability Group). 
+     Identifying the correct RPC hostname may require prior enumeration of the environment's configuration.
+   command: "impacket-exchanger -rpc-hostname {{rpc_hostname}} {{domain}}/{{username}}:{{password}}@{{target_ip}} nspi"
+
+ - title: impacket-exchanger - Debug Mode with Timestamps
+   desc: |
+     Runs the exchanger tool with extended debug output and timestamps enabled for every log entry. 
+     This is critical for troubleshooting connection issues, such as RPC communication errors or authentication failures. 
+     The debug output provides a detailed look at the underlying Impacket library calls and the Exchange server responses. 
+     It is highly recommended to use this when writing reports or documenting technical evidence during a penetration test.
+   command: "impacket-exchanger -debug -ts {{domain}}/{{username}}:{{password}}@{{target_ip}} nspi"
+
+# === NSPI MODULE OPERATIONS ===
+ - title: impacket-exchanger - NSPI List Users (Example Action)
+   desc: |
+     Executes the NSPI module to list directory objects or users from the Exchange Global Address List. 
+     The tool interacts directly with the Exchange address book provider to extract information about the organization's structure. 
+     Be aware that large-scale enumeration might be logged by security monitoring tools (SIEM) that track unusual directory queries. 
+     This action provides a powerful way to map out potential targets for further attacks like password spraying or phishing.
+   command: "impacket-exchanger {{domain}}/{{username}}:{{password}}@{{target_ip}} nspi list-users"

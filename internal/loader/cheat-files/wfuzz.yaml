@@ -1,0 +1,92 @@
+tool: wfuzz
+tags: [web, pentest, enumeration, bruteforce, fuzzing, security]
+
+actions:
+  # === BASIC ENUMERATION ===
+  - title: wfuzz - basic directory discovery
+    desc: |
+      Performs a simple directory and file search against a target URL using a specified wordlist.
+      The FUZZ keyword is replaced by entries from the wordlist to find hidden resources.
+      This is the primary way to use Wfuzz for initial reconnaissance on a web server.
+    command: "wfuzz -c -w {{wordlist|/usr/share/wordlists/dirb/common.txt}} {{url}}/FUZZ"
+
+  - title: wfuzz - filter by status code
+    desc: |
+      Hides specific HTTP response codes from the output to reduce noise.
+      Using --hc (Hide Code) followed by 404 is standard practice to ignore "Not Found" responses.
+      This makes it much easier to identify valid paths and restricted areas (like 200 OK or 403 Forbidden).
+    command: "wfuzz -c -w {{wordlist|/usr/share/wordlists/dirb/common.txt}} --hc {{code|404}} {{url}}/FUZZ"
+
+  - title: wfuzz - fuzzing multiple positions
+    desc: |
+      Utilizes multiple wordlists to fuzz different parts of the request simultaneously.
+      FUZZ is replaced by the first wordlist, and FUZ2Z is replaced by the second.
+      This is particularly useful for finding files with specific extensions or testing multiple parameters.
+    command: "wfuzz -c -w {{wordlist}} -w {{ext_list|/usr/share/wordlists/dirb/extensions_common.txt}} {{url}}/FUZZ.FUZ2Z"
+
+  # === ADVANCED DISCOVERY ===
+  - title: wfuzz - subdomain enumeration
+    desc: |
+      Discovers subdomains by fuzzing the Host header in the HTTP request.
+      This technique is effective for finding virtual hosts that are not indexed by DNS but exist on the server.
+      Note that you should often filter out the default response size (chars/words) of the main domain to see valid subdomains.
+    command: "wfuzz -c -w {{wordlist|/usr/share/wordlists/dnsutils/subdomains-top1mil.txt}} -H \"Host: FUZZ.{domain}\" {{url}}"
+
+  - title: wfuzz - recursive directory discovery
+    desc: |
+      Automatically performs discovery on subdirectories found during the initial scan.
+      The -R flag defines the depth of recursion (e.g., -R 2 scans two levels deep).
+      Use this carefully on large sites as it can generate a massive amount of traffic and take a long time.
+    command: "wfuzz -c -w {{wordlist}} -R {{depth|2}} --hc 404 {{url}}/FUZZ"
+
+  # === PARAMETER AND DATA FUZZING ===
+  - title: wfuzz - post data fuzzing
+    desc: |
+      Sends fuzzed data within the body of a POST request to test for vulnerabilities or hidden parameters.
+      The -d flag specifies the post data, where the FUZZ keyword marks the injection point.
+      This is essential for testing login forms, search fields, and API endpoints for injections.
+    command: "wfuzz -c -w {{wordlist}} -d \"{{param}}=FUZZ&submit=true\" {{url}}"
+
+  - title: wfuzz - url parameter fuzzing
+    desc: |
+      Fuzzes GET parameters within the URL to find hidden variables or test for IDOR and injection.
+      This is useful when you suspect an endpoint accepts more parameters than are visible in the UI.
+      It helps in uncovering debugging modes (e.g., ?debug=true) or administrative overrides.
+    command: "wfuzz -c -w {{wordlist}} \"{{url}}/page.php?FUZZ=test\""
+
+  # === AUTHENTICATION AND SESSIONS ===
+  - title: wfuzz - authenticated fuzzing
+    desc: |
+      Enables fuzzing on resources that require HTTP Basic, NTLM, or Digest authentication.
+      The format is "user:pass", and you can even fuzz the credentials themselves using the FUZZ keyword.
+      This allows for security testing of administrative consoles or internal developer tools.
+    command: "wfuzz -c -w {{wordlist}} --basic \"{{user|admin}}:{{pass|admin}}\" {{url}}/FUZZ"
+
+  - title: wfuzz - cookie fuzzing
+    desc: |
+      Injects fuzzed values into HTTP cookies using the -b flag to test for session management issues.
+      It is useful for discovering insecure direct object references (IDOR) or privilege escalation through cookies.
+      Multiple cookies can be set by repeating the -b flag or using a semicolon.
+    command: "wfuzz -c -w {{wordlist}} -b \"sessionid=FUZZ\" -b \"user=admin\" {{url}}"
+
+  # === PROXIES AND FILTERS ===
+  - title: wfuzz - routing through a proxy
+    desc: |
+      Routes all Wfuzz traffic through a specified proxy, such as Burp Suite or a Tor listener.
+      The format is ip:port:type (type can be HTTP, SOCKS4, or SOCKS5).
+      This is crucial for analyzing fuzzer traffic in a proxy or bypassing IP-based restrictions.
+    command: "wfuzz -c -w {{wordlist}} -p {{proxy|127.0.0.1:8080}} {{url}}/FUZZ"
+
+  - title: wfuzz - filter by response content (Regex)
+    desc: |
+      Filters or highlights responses based on a regular expression matching the content.
+      The --ss flag shows responses that contain the specified regex, while --hs hides them.
+      This is highly effective for identifying specific error messages or successful exploitation indicators.
+    command: "wfuzz -c -w {{wordlist}} --ss \"{{regex|root:x:0:0}}\" {{url}}/FUZZ"
+
+  - title: wfuzz - filter by response size
+    desc: |
+      Hides responses based on the number of characters (--hh), words (--hw), or lines (--hl).
+      This is the most common way to filter out false positives when the server returns a 200 OK for everything (custom 404 pages).
+      Check the baseline response size of a non-existent page first, then use that value to filter.
+    command: "wfuzz -c -w {{wordlist}} --hh {{char_count}} {{url}}/FUZZ"

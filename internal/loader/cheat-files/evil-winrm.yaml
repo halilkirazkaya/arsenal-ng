@@ -1,0 +1,77 @@
+tool: evil-winrm
+tags: [winrm, windows, pentest, exploitation, remote-access, powershell]
+
+actions:
+  # === AUTHENTICATION ===
+  - title: evil-winrm - basic password authentication
+    desc: |
+      Establishes a basic WinRM session using a plaintext password. 
+      This is the most common method used when you have valid user credentials for a Windows target. 
+      By default, it connects to port 5985; ensure the WinRM service is enabled on the remote host.
+    command: "evil-winrm -i {{ip}} -u {{user}} -p {{password}}"
+
+  - title: evil-winrm - pass-the-hash authentication
+    desc: |
+      Connects to the target using an NTLM hash instead of a plaintext password. 
+      This technique is vital in post-exploitation scenarios where you have dumped hashes from SAM or NTDS.dit but cannot crack them. 
+      Ensure you only provide the NT part of the hash if the tool expects a single hash string.
+    command: "evil-winrm -i {{ip}} -u {{user}} -H {{nthash}}"
+
+  - title: evil-winrm - secure connection with SSL
+    desc: |
+      Connects to the target using WinRM over SSL (WinRM-HTTPS). 
+      This is typically used for port 5986 and provides an encrypted channel for your shell activities. 
+      Use this when the target environment enforces encrypted management traffic to prevent credential sniffing.
+    command: "evil-winrm -i {{ip}} -u {{user}} -p {{password}} -S"
+
+  - title: evil-winrm - custom port connection
+    desc: |
+      Connects to a WinRM service running on a non-standard port. 
+      While 5985 (HTTP) and 5986 (HTTPS) are defaults, administrators sometimes change these to obscure the service. 
+      Always perform a port scan first to identify the correct listener port before attempting to connect.
+    command: "evil-winrm -i {{ip}} -u {{user}} -p {{password}} -P {{port|5985}}"
+
+  # === ADVANCED LOADING ===
+  - title: evil-winrm - load local powershell scripts
+    desc: |
+      Automatically loads a local directory of PowerShell scripts into the remote session memory. 
+      Once the session starts, you can invoke these scripts directly by name without uploading them to the disk. 
+      This is excellent for running tools like PowerUp or Invoke-Mimikatz while bypassing some basic disk-based detection.
+    command: "evil-winrm -i {{ip}} -u {{user}} -p {{password}} -s {{scripts_path|/usr/share/powershell-scripts/}}"
+
+  - title: evil-winrm - load local c# executables
+    desc: |
+      Enables the ability to run C# binaries directly from your local machine into the remote memory. 
+      After connecting, you can use the 'Bypass-4Ready' or simply type the name of the executable to run it. 
+      This "In-Memory" execution helps in evading AV/EDR solutions that primarily monitor files written to the physical drive.
+    command: "evil-winrm -i {{ip}} -u {{user}} -p {{password}} -e {{exes_path|/opt/csharp-bins/}}"
+
+  # === KERBEROS & ENCRYPTION ===
+  - title: evil-winrm - kerberos authentication
+    desc: |
+      Uses Kerberos tickets for authentication instead of NTLM or passwords. 
+      You must have a valid ticket in your local Kerberos cache and the realm must be correctly configured in /etc/krb5.conf. 
+      This is highly effective in Active Directory environments for lateral movement and avoiding NTLM-based logging.
+    command: "evil-winrm -i {{fqdn}} -r {{realm}} -u {{user}}"
+
+  - title: evil-winrm - public/private key authentication
+    desc: |
+      Authenticates using certificate-based authentication via public and private keys. 
+      This is a more secure method of authentication often found in hardened environments. 
+      You must provide the paths to both the public certificate and the private key to establish the handshake.
+    command: "evil-winrm -i {{ip}} -c {{pub_key_path}} -k {{priv_key_path}} -S"
+
+  # === SESSION UTILITIES ===
+  - title: evil-winrm - session logging
+    desc: |
+      Enables local logging of all inputs and outputs during the WinRM session. 
+      This is crucial for documentation, reporting, and keeping track of commands executed during a penetration test. 
+      Logs are saved to the current working directory, allowing for easy review of long-running enumeration tasks.
+    command: "evil-winrm -i {{ip}} -u {{user}} -p {{password}} -l"
+
+  - title: evil-winrm - custom user agent
+    desc: |
+      Modifies the HTTP User-Agent header used during the WinRM connection request. 
+      Changing the default 'Microsoft WinRM Client' string can help in bypassing basic WAFs or network filtering rules. 
+      It is a simple but effective technique for blending in with normal network traffic patterns.
+    command: "evil-winrm -i {{ip}} -u {{user}} -p {{password}} -a {{user_agent|Test Corp WinRM Client}}"

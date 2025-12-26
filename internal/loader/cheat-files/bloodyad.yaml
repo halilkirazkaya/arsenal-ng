@@ -1,0 +1,109 @@
+tool: bloodyad
+tags: [active-directory, pentest, security, privilege-escalation, ldap, authentication]
+
+actions:
+# === AUTHENTICATION METHODS ===
+
+ - title: bloodyad - ntlm authentication
+   desc: |
+     Performs basic authentication using a domain, username, and cleartext password.
+     This is the primary method for interacting with the Domain Controller when credentials are known.
+     Ensure that the account is not subject to lockout policies before running multiple attempts.
+   command: "bloodyAD -d {{domain}} -u {{username}} -p {{password}} --host {{dc_ip}} get info"
+
+ - title: bloodyad - pass-the-hash
+   desc: |
+     Authenticates using an NTLM hash instead of a cleartext password.
+     This is useful in post-exploitation scenarios where hashes have been dumped from memory or SAM files.
+     The password parameter accepts the format LMHASH:NTHASH or just the NTHASH.
+   command: "bloodyAD -d {{domain}} -u {{username}} -p {{nthash}} --host {{dc_ip}} get info"
+
+ - title: bloodyad - kerberos authentication (ccache)
+   desc: |
+     Uses an existing Kerberos ticket (ccache file) for authentication.
+     This method is stealthier as it does not involve sending the password or NTLM hash over the wire.
+     Ensure the KRB5CCNAME environment variable is set or provide the path directly to the tool.
+   command: "bloodyAD -d {{domain}} -k ccache={{path_to_ccache|/tmp/ticket.ccache}} --host {{dc_hostname}} get info"
+
+ - title: bloodyad - ldaps (secure ldap)
+   desc: |
+     Connects to the Domain Controller using LDAP over TLS (LDAPS) on port 636.
+     This is often required for sensitive operations like password changes or when the environment enforces LDAP signing.
+     Use the -s flag to initiate the secure connection and ensure the hostname matches the certificate.
+   command: "bloodyAD -d {{domain}} -u {{username}} -p {{password}} --host {{dc_hostname}} -s get info"
+
+# === ENUMERATION (GET) ===
+
+ - title: bloodyad - get object information
+   desc: |
+     Retrieves detailed information and attributes for a specific Active Directory object.
+     It can be used to check user properties, computer details, or group memberships.
+     This is the fundamental command for identifying potential misconfigurations on a target object.
+   command: "bloodyAD -d {{domain}} -u {{username}} -p {{password}} --host {{dc_ip}} get object {{target_dn}}"
+
+ - title: bloodyad - list group members
+   desc: |
+     Lists all users and sub-groups belonging to a specific Active Directory group.
+     This is critical for mapping out high-privilege groups like 'Domain Admins' or 'Enterprise Admins'.
+     Use this to identify which accounts you should target for lateral movement or privilege escalation.
+   command: "bloodyAD -d {{domain}} -u {{username}} -p {{password}} --host {{dc_ip}} get children {{group_dn}}"
+
+ - title: bloodyad - search for specific attributes
+   desc: |
+     Searches the directory for objects that match a specific LDAP filter.
+     This is highly versatile for finding users with specific properties, such as those with 'ServicePrincipalName' set.
+     It allows for custom reconnaissance tailored to specific attack vectors like Kerberoasting or AS-REP Roasting.
+   command: "bloodyAD -d {{domain}} -u {{username}} -p {{password}} --host {{dc_ip}} get search '{filter|(objectCategory=person)}'"
+
+# === PRIVILEGE ESCALATION & MODIFICATION (SET/ADD) ===
+
+ - title: bloodyad - add user to group
+   desc: |
+     Adds a target user to a specific group, such as Domain Admins.
+     This requires high privileges (e.g., GenericAll over the group or Account Operators membership).
+     Be aware that adding users to sensitive groups is highly noisy and will likely trigger security alerts.
+   command: "bloodyAD -d {{domain}} -u {{username}} -p {{password}} --host {{dc_ip}} add groupMember {{group_dn}} {{user_dn}}"
+
+ - title: bloodyad - set user password
+   desc: |
+     Forces a password reset for a specific user account.
+     This operation requires the 'Reset Password' permission or 'GenericAll' rights over the target object.
+     Usually requires a secure connection (-s) to the Domain Controller to succeed.
+   command: "bloodyAD -d {{domain}} -u {{username}} -p {{password}} --host {{dc_ip}} -s set password {{target_dn}} {{new_password}}"
+
+ - title: bloodyad - shadow credentials (msDS-KeyCredentialLink)
+   desc: |
+     Adds a new Key Credential to a target object to facilitate a Shadow Credentials attack.
+     This allows an attacker to take over an account by requesting a TGT using a certificate.
+     Requires 'WriteProperty' permissions over the 'msDS-KeyCredentialLink' attribute of the target.
+   command: "bloodyAD -d {{domain}} -u {{username}} -p {{password}} --host {{dc_ip}} add shadowCredentials {{target_dn}}"
+
+ - title: bloodyad - resource-based constrained delegation (RBCD)
+   desc: |
+     Configures Resource-Based Constrained Delegation by setting the 'msDS-AllowedToDelegateTo' attribute.
+     This is a common method for privilege escalation when you control a computer account.
+     It allows the controlled computer to impersonate any user (including Domain Admins) to the target machine.
+   command: "bloodyAD -d {{domain}} -u {{username}} -p {{password}} --host {{dc_ip}} set rbcd {{target_dn}} {{attacker_dn}}"
+
+ - title: bloodyad - grant genericall permissions
+   desc: |
+     Assigns 'GenericAll' permissions for one object over another.
+     GenericAll gives full control over the target object, including the ability to change its password or modify its attributes.
+     This is a powerful persistence or escalation primitive if you already have the rights to modify DACLs.
+   command: "bloodyAD -d {{domain}} -u {{username}} -p {{password}} --host {{dc_ip}} add genericAll {{target_dn}} {{grantee_dn}}"
+
+# === CLEANUP (REMOVE) ===
+
+ - title: bloodyad - remove user from group
+   desc: |
+     Removes a user from a specified group to revert changes made during exploitation.
+     This is part of the cleanup process to minimize the footprint left on the domain.
+     Always ensure you have recorded the original state before making modifications.
+   command: "bloodyAD -d {{domain}} -u {{username}} -p {{password}} --host {{dc_ip}} remove groupMember {{group_dn}} {{user_dn}}"
+
+ - title: bloodyad - remove shadow credentials
+   desc: |
+     Clears the 'msDS-KeyCredentialLink' attribute from a target object.
+     Use this to clean up after a Shadow Credentials attack to prevent detection.
+     Be careful not to delete legitimate key credentials if they were already present.
+   command: "bloodyAD -d {{domain}} -u {{username}} -p {{password}} --host {{dc_ip}} remove shadowCredentials {{target_dn}}"

@@ -1,0 +1,145 @@
+tool: feroxbuster
+tags: [web, scanner, security, pentest, enumeration, discovery, fuzzing]
+
+actions:
+  # === BASIC USAGE ===
+  - title: feroxbuster - basic directory scan
+    desc: |
+      Performs a basic recursive directory discovery scan on the target URL.
+      It uses the default wordlist and settings to find unlinked content and directories.
+      This is the standard starting point for web reconnaissance to identify hidden paths.
+      The tool will automatically recurse into any discovered directories by default.
+    command: "feroxbuster -u {{url}}"
+
+  - title: feroxbuster - scan with specific extensions
+    desc: |
+      Appends a list of file extensions to each entry in the wordlist during the scan.
+      This is essential for finding specific server-side scripts, configuration files, or backups.
+      You can provide multiple extensions separated by commas or multiple flags.
+      Common extensions to check include php, html, bak, config, and txt.
+    command: "feroxbuster -u {{url}} -x {{extensions|php,html,txt,bak}}"
+
+  - title: feroxbuster - use custom wordlist
+    desc: |
+      Specifies a custom wordlist file to be used for the brute-forcing process.
+      High-quality wordlists like SecLists improve the chances of finding sensitive endpoints.
+      If not specified, feroxbuster uses its built-in default wordlist or the one defined in the config file.
+      Ensure the path to the wordlist is correct and accessible by the current user.
+    command: "feroxbuster -u {{url}} -w {{wordlist_path|/usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt}}"
+
+  # === PERFORMANCE & RECURSION ===
+  - title: feroxbuster - non-recursive scan
+    desc: |
+      Disables the default recursive behavior, scanning only the provided base URL.
+      This is useful when you want to quickly audit a single directory without diving into subfolders.
+      It significantly reduces the total scan time and the number of requests sent to the server.
+      Use this when the target has many nested levels that are irrelevant to your scope.
+    command: "feroxbuster -u {{url}} --no-recursion"
+
+  - title: feroxbuster - high speed scanning
+    desc: |
+      Increases the number of concurrent threads to accelerate the discovery process.
+      The default thread count is 50; increasing it can speed up scans but may overwhelm the target server.
+      Use this with caution as it might trigger Rate Limiting or Web Application Firewalls (WAF).
+      It is recommended to monitor the server's response time when using high thread counts.
+    command: "feroxbuster -u {{url}} -t {{threads|100}}"
+
+  - title: feroxbuster - rate limiting
+    desc: |
+      Limits the total number of requests sent per second to prevent crashing the target.
+      This is vital when scanning fragile legacy systems or environments with strict monitoring.
+      Setting a rate limit helps in staying under the radar of automated blocking mechanisms.
+      The value is defined as requests per second per directory scan.
+    command: "feroxbuster -u {{url}} --rate-limit {{requests_per_second|10}}"
+
+  # === FILTERING RESPONSES ===
+  - title: feroxbuster - filter by status codes
+    desc: |
+      Excludes specific HTTP status codes from the output results.
+      This is useful for hiding common but irrelevant responses like 404 (Not Found) or 403 (Forbidden).
+      By default, feroxbuster shows all discovered codes unless specified otherwise.
+      You can provide a comma-separated list of codes to ignore during the scan.
+    command: "feroxbuster -u {{url}} -C {{filter_codes|403,401,500}}"
+
+  - title: feroxbuster - filter by response size
+    desc: |
+      Filters out responses that have a specific body size in bytes.
+      This is extremely helpful for bypassing "Soft 404" pages that return a 200 OK status but identical content.
+      You can identify the size of the junk response first and then use this flag to hide it.
+      Multiple sizes can be filtered simultaneously to clean up the output.
+    command: "feroxbuster -u {{url}} -S {{size_bytes}}"
+
+  - title: feroxbuster - filter similar pages (Soft 404)
+    desc: |
+      Filters out pages that are dynamically similar to a given URL's response.
+      This is the most effective way to handle custom error pages that return 200 status codes.
+      Feroxbuster will fetch the provided URL and use its structure to ignore similar results.
+      It helps in reducing false positives in modern web applications.
+    command: "feroxbuster -u {{url}} --filter-similar-to {{example_url}}"
+
+  # === AUTHENTICATION & HEADERS ===
+  - title: feroxbuster - authenticated scan with cookies
+    desc: |
+      Sends specific session cookies with every request to scan protected areas of the application.
+      This allows for the discovery of hidden administrative panels or user-specific directories.
+      The format should be a string containing the cookie name and its value.
+      Be aware that intensive scanning might trigger account lockout policies if the session expires.
+    command: "feroxbuster -u {{url}} -b {{cookie_string|session=abc123xyz}}"
+
+  - title: feroxbuster - custom headers and user-agent
+    desc: |
+      Sets custom HTTP headers or a specific User-Agent for all outgoing requests.
+      Custom headers are often required for API scanning (e.g., Authorization tokens) or bypassing WAFs.
+      Using a realistic User-Agent can help blend in with legitimate traffic.
+      You can use the --random-agent flag as an alternative for automatic rotation.
+    command: "feroxbuster -u {{url}} -H \"{{header_name|Authorization}}: {{header_value}}\" -a \"{{user_agent}}\""
+
+  # === PROXY & INTERCEPTION ===
+  - title: feroxbuster - proxy through Burp Suite
+    desc: |
+      Routes all traffic through a specified proxy, typically Burp Suite or OWASP ZAP.
+      The --burp flag is a shortcut that sets the proxy to http://127.0.0.1:8080 and disables TLS validation.
+      This allows for detailed manual inspection of interesting requests discovered by the tool.
+      Ensure your proxy tool is running and configured to listen on the specified port.
+    command: "feroxbuster -u {{url}} --burp"
+
+  - title: feroxbuster - replay proxy for specific codes
+    desc: |
+      Sends only specific successful responses (like 200 or 302) to a secondary proxy.
+      This prevents clogging your Burp Suite history with 404 errors while still capturing valid findings.
+      It is a highly efficient way to combine automated discovery with manual analysis.
+      The --replay-codes flag defines which status codes should be forwarded.
+    command: "feroxbuster -u {{url}} --replay-proxy {{proxy_url|http://127.0.0.1:8080}} --replay-codes {{codes|200,302}} --insecure"
+
+  # === ADVANCED & AUTOMATION ===
+  - title: feroxbuster - smart/thorough discovery
+    desc: |
+      Enables "Thorough" mode which activates several advanced discovery features at once.
+      This mode automatically collects new words from responses, looks for backups, and discovers extensions.
+      It is more aggressive and time-consuming but provides a much deeper level of enumeration.
+      Ideal for comprehensive security assessments where time is not the primary constraint.
+    command: "feroxbuster -u {{url}} --thorough"
+
+  - title: feroxbuster - resume a paused scan
+    desc: |
+      Resumes a previously interrupted scan using a state file generated by feroxbuster.
+      State files are created automatically during execution and saved in the current directory.
+      This feature is life-saving for long-running scans that were stopped due to network issues or manual intervention.
+      Simply point the command to the .state file to pick up exactly where it left off.
+    command: "feroxbuster --resume-from {{state_file}}"
+
+  - title: feroxbuster - read targets from STDIN
+    desc: |
+      Reads a list of URLs from standard input and processes them in parallel.
+      This is perfect for piping results from other tools like subfinder, assetfinder, or httpx.
+      The --stdin flag tells the tool to ignore the -u requirement and read from the pipe instead.
+      This enables powerful automation chains in bug bounty or large-scale internal network scans.
+    command: "cat {{targets_file}} | feroxbuster --stdin"
+
+  - title: feroxbuster - save output to file
+    desc: |
+      Writes the scan results to a specified output file for later reporting or analysis.
+      You can also use the --json flag in conjunction with this to save the output in machine-readable format.
+      Saving results is critical for documentation during a penetration test or audit.
+      The output includes the status code, response size, and the discovered URL.
+    command: "feroxbuster -u {{url}} -o {{output_file|results.txt}}"

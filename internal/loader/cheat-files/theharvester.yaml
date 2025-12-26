@@ -1,0 +1,84 @@
+tool: theHarvester
+tags: [osint, reconnaissance, security, pentest, enumeration, subdomains, email-harvesting]
+
+actions:
+  # === BASIC RECONNAISSANCE ===
+  - title: theHarvester - basic domain search
+    desc: |
+      Perform a broad search against a target domain using all available default sources. 
+      This is the primary way to collect emails, subdomains, and hostnames for initial reconnaissance. 
+      It queries multiple search engines and public databases simultaneously to build a target profile.
+    command: "theHarvester -d {{domain}} -b all"
+
+  - title: theHarvester - limit search results
+    desc: |
+      Restricts the number of results retrieved from the data sources to a specific integer. 
+      This is useful for reducing scan time or avoiding rate-limiting on search engines like Google or Bing. 
+      The default value is typically 500 if not specified by the user.
+    command: "theHarvester -d {{domain}} -l {{limit|500}} -b all"
+
+  - title: theHarvester - search using specific source
+    desc: |
+      Focus the search on a single specific data source such as google, bing, crtsh, or shodan. 
+      This is highly effective when you want to target a specific platform or use a specific API key you have configured. 
+      Refer to the help menu for a full list of supported modules like 'duckduckgo', 'virustotal', or 'github-code'.
+    command: "theHarvester -d {{domain}} -b {{source|google}}"
+
+  # === ADVANCED ENUMERATION ===
+  - title: theHarvester - DNS brute force
+    desc: |
+      Enables DNS brute-forcing to discover subdomains that might not be indexed by search engines. 
+      The tool uses an internal wordlist to guess common hostnames under the target domain. 
+      Note that this generates significant DNS traffic and can be detected by security monitoring systems.
+    command: "theHarvester -d {{domain}} -c"
+
+  - title: theHarvester - virtual host discovery
+    desc: |
+      Verifies discovered hostnames via DNS resolution and searches for virtual hosts on the same IP. 
+      This helps identify if a single server is hosting multiple websites that weren't initially visible. 
+      It is a critical step for understanding the full infrastructure and potential side-loading attack vectors.
+    command: "theHarvester -d {{domain}} -v -b all"
+
+  - title: theHarvester - DNS resolution with custom resolvers
+    desc: |
+      Performs DNS resolution on all discovered subdomains using a specific list of DNS resolvers. 
+      This helps confirm which subdomains are currently active and reachable from the internet. 
+      Using custom resolvers can sometimes bypass local DNS filtering or provide more accurate results in different geographic regions.
+    command: "theHarvester -d {{domain}} -r {{resolver_list|/path/to/resolvers.txt}}"
+
+  # === INFRASTRUCTURE & API ===
+  - title: theHarvester - Shodan integration
+    desc: |
+      Queries the Shodan database for any discovered hosts to find open ports and running services. 
+      This provides technical metadata such as server versions, technologies used, and potential vulnerabilities. 
+      A valid Shodan API key must be configured in the api-keys.yaml file for this feature to work.
+    command: "theHarvester -d {{domain}} -b all -s"
+
+  - title: theHarvester - API endpoint scanning
+    desc: |
+      Scans for common API endpoints related to the target domain using a wordlist. 
+      This is particularly useful for identifying shadow APIs or undocumented staging environments. 
+      You can provide a custom wordlist to tailor the search for specific technology stacks.
+    command: "theHarvester -d {{domain}} -a -w {{wordlist|/usr/share/wordlists/api_list.txt}}"
+
+  # === OUTPUT & VISUALIZATION ===
+  - title: theHarvester - save results to file
+    desc: |
+      Exports the findings into both XML and JSON formats for further processing or documentation. 
+      This is essential for integrating theHarvester into automated pipelines or generating professional reports. 
+      The tool will automatically append the correct file extensions to the filename provided.
+    command: "theHarvester -d {{domain}} -b all -f {{filename|results_output}}"
+
+  - title: theHarvester - take screenshots of resolved domains
+    desc: |
+      Automatically captures screenshots of all subdomains that resolve to an active web service. 
+      The screenshots are saved in the directory specified by the user for visual inspection. 
+      This is an excellent way to quickly identify login pages, "under construction" sites, or exposed management panels.
+    command: "theHarvester -d {{domain}} -b all --screenshot {{output_directory|screenshots}}"
+
+  - title: theHarvester - check for subdomain takeover
+    desc: |
+      Checks the discovered subdomains for potential takeover vulnerabilities (e.g., pointing to unused cloud services). 
+      This identifies if a subdomain's CNAME points to a service like AWS S3 or GitHub Pages that is no longer claimed. 
+      Takeover vulnerabilities are high-impact as they allow attackers to host malicious content on the target's legitimate domain.
+    command: "theHarvester -d {{domain}} -t -b all"

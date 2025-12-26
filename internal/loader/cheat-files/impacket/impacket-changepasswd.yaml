@@ -1,0 +1,83 @@
+tool: impacket-changepasswd
+tags: [active-directory, windows, pentest, authentication, security, impacket, password-management]
+
+actions:
+  # === BASIC PASSWORD CHANGES ===
+
+  - title: impacket-changepasswd - simple password change
+    desc: |
+      Changes the password of a target user by providing their current cleartext password.
+      This is the most common method used when a user is forced to change their password or when you have acquired the current credentials.
+      The tool defaults to using SMB/RPC protocols to communicate with the target's SAM or the Domain Controller.
+    command: "impacket-changepasswd {{domain}}/{{username}}:{{current_password}}@{{target_ip}} -newpass {{new_password}}"
+
+  - title: impacket-changepasswd - change password using NTLM hashes
+    desc: |
+      Perform a password change for a user by authenticating with their current NTLM hashes instead of a cleartext password.
+      This is particularly useful in "Pass-the-Hash" scenarios where the cleartext password is unknown but the hash is available.
+      The new password can be provided as cleartext using the -newpass flag.
+    command: "impacket-changepasswd {{domain}}/{{username}}@{{target_ip}} -hashes {{lm_hash:nt_hash}} -newpass {{new_password}}"
+
+  - title: impacket-changepasswd - update password to a new NTLM hash
+    desc: |
+      Updates a user's password by providing a new NTLM hash instead of a cleartext string.
+      This allows you to set a password to a known hash value directly, which can be useful for maintaining persistence or synchronizing accounts.
+      Note that the target system must support setting passwords via hash for this to succeed.
+    command: "impacket-changepasswd {{domain}}/{{username}}:{{current_password}}@{{target_ip}} -newhashes {{new_nt_hash}}"
+
+  # === ADMINISTRATIVE RESETS ===
+
+  - title: impacket-changepasswd - administrative password reset
+    desc: |
+      Resets a target user's password using a different account that possesses administrative privileges.
+      The -altuser and -altpass flags specify the privileged account (e.g., Domain Admin) performing the action.
+      This is standard procedure when an administrator needs to recover access to a locked or forgotten user account.
+    command: "impacket-changepasswd -altuser {{admin_username}} -altpass {{admin_password}} {{domain}}/{{target_username}}@{{target_ip}} -newpass {{new_password}}"
+
+  - title: impacket-changepasswd - admin reset with -reset flag
+    desc: |
+      Attempts to reset a user's password using administrative privileges while explicitly using the reset logic.
+      The -reset (or -admin) flag tells the tool to use administrative RPC calls which may bypass certain password complexity or history policies.
+      This is often required when the "change" operation (which requires knowing the old password) is not applicable.
+    command: "impacket-changepasswd -altuser {{admin_username}} -althash {{admin_nt_hash}} -reset {{domain}}/{{target_username}}@{{target_ip}} -newpass {{new_password}}"
+
+  # === PROTOCOL SPECIFIC OPERATIONS ===
+
+  - title: impacket-changepasswd - change password via LDAP
+    desc: |
+      Forces the password change operation to occur over the LDAP protocol instead of the default SMB/RPC.
+      This is useful in environments where SMB (port 445) is restricted but LDAP (port 389) or LDAPS (port 636) is accessible.
+      Ensure the target is a Domain Controller when attempting to use the LDAP protocol for domain accounts.
+    command: "impacket-changepasswd -protocol {{protocol|ldap}} {{domain}}/{{username}}:{{password}}@{{target_ip}} -newpass {{new_password}}"
+
+  - title: impacket-changepasswd - change password via Kerberos (kpasswd)
+    desc: |
+      Utilizes the kpasswd protocol (typically port 464) to perform the password change.
+      This method is native to Kerberos environments and is often used by Windows clients joined to a domain.
+      It is a good alternative if RPC-based password changes are being monitored or blocked by host-based firewalls.
+    command: "impacket-changepasswd -protocol {{protocol|kpasswd}} {{domain}}/{{username}}:{{password}}@{{target_ip}} -newpass {{new_password}}"
+
+  # === ADVANCED AUTHENTICATION ===
+
+  - title: impacket-changepasswd - change password using Kerberos tickets
+    desc: |
+      Authenticates the password change request using existing Kerberos tickets from a ccache file.
+      The -k flag instructs the tool to look for credentials in the environment variable KRB5CCNAME.
+      The -no-pass flag is used because the authentication is handled by the ticket rather than a password provided on the CLI.
+    command: "impacket-changepasswd -k -no-pass -dc-ip {{dc_ip}} {{domain}}/{{username}}@{{target_hostname}} -newpass {{new_password}}"
+
+  - title: impacket-changepasswd - change password with AES Key
+    desc: |
+      Uses a Kerberos AES key (128 or 256 bits) for authentication instead of a password or NTLM hash.
+      This is a common requirement in environments where NTLM is disabled and only AES-based Kerberos is permitted.
+      You must provide the correct FQDN for the target and the Domain Controller IP for Kerberos resolution.
+    command: "impacket-changepasswd -aesKey {{hex_key}} {{domain}}/{{username}}@{{target_hostname}} -dc-ip {{dc_ip}} -newpass {{new_password}}"
+
+  # === DEBUGGING AND LOGGING ===
+
+  - title: impacket-changepasswd - debug mode with timestamps
+    desc: |
+      Executes the password change operation with verbose debugging output and timestamps for every log entry.
+      This is essential for troubleshooting connection issues, protocol negotiation failures, or permission errors.
+      The output will show the underlying RPC or LDAP calls being made during the process.
+    command: "impacket-changepasswd -debug -ts {{domain}}/{{username}}:{{password}}@{{target_ip}} -newpass {{new_password}}"

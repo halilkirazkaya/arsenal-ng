@@ -1,0 +1,70 @@
+tool: impacket-GetNPUsers
+tags: [active-directory, kerberos, as-rep-roasting, pentest, enumeration, security, exploitation]
+
+actions:
+  # === ENUMERATION AND DISCOVERY ===
+  - title: impacket-GetNPUsers - list vulnerable users from file
+    desc: |
+      This command iterates through a list of usernames to identify accounts that do not require Kerberos preauthentication. 
+      It is a vital reconnaissance step in Active Directory environments to find targets for AS-REP roasting. 
+      If a user is found with preauth disabled, their TGT can be requested without knowing their password.
+    command: "impacket-GetNPUsers {{domain}}/ -usersfile {{users_file}} -dc-ip {{dc_ip}}"
+
+  - title: impacket-GetNPUsers - query specific user for preauth status
+    desc: |
+      Checks if a specific, known username has the 'Do not require Kerberos preauthentication' attribute set.
+      Use this when you have a high-value target account and want to verify if it's susceptible to AS-REP roasting.
+      This command does not request the hash unless the -request flag is added, making it less noisy.
+    command: "impacket-GetNPUsers {{domain}}/{{username}} -dc-ip {{dc_ip}}"
+
+  # === EXPLOITATION (AS-REP ROASTING) ===
+  - title: impacket-GetNPUsers - request and output hashes for cracking
+    desc: |
+      Requests the AS-REP (Authentication Service Response) for users without preauthentication and outputs the crackable hash.
+      The output is displayed in the terminal by default and is formatted for offline cracking tools.
+      This is the primary method for performing an AS-REP roasting attack to obtain user credentials.
+    command: "impacket-GetNPUsers {{domain}}/ -usersfile {{users_file}} -request -dc-ip {{dc_ip}}"
+
+  - title: impacket-GetNPUsers - export hashes to file for Hashcat
+    desc: |
+      Requests TGTs for vulnerable users and saves the resulting hashes into a file specifically formatted for Hashcat.
+      The default format for Hashcat (mode 18200) allows for immediate offline brute-forcing or dictionary attacks.
+      Ensure you have write permissions in the directory where the output file is being created.
+    command: "impacket-GetNPUsers {{domain}}/ -usersfile {{users_file}} -request -format hashcat -outputfile {{output_file|hashes.txt}} -dc-ip {{dc_ip}}"
+
+  - title: impacket-GetNPUsers - export hashes for John the Ripper
+    desc: |
+      Collects AS-REP hashes and saves them in a format compatible with John the Ripper.
+      This is useful if your cracking workflow involves JtR instead of Hashcat.
+      The command targets all users in the provided list and handles the communication with the Domain Controller.
+    command: "impacket-GetNPUsers {{domain}}/ -usersfile {{users_file}} -request -format john -outputfile {{output_file|hashes.jtr}} -dc-ip {{dc_ip}}"
+
+  # === AUTHENTICATED QUERIES ===
+  - title: impacket-GetNPUsers - authenticate using NTLM hashes
+    desc: |
+      Performs the query by authenticating as a specific user using their NTLM hashes instead of a plaintext password.
+      This is useful in "Pass-the-Hash" scenarios where you have the hash of a domain user and want to enumerate other accounts.
+      Note that some environments might require valid authentication to query the directory for these attributes.
+    command: "impacket-GetNPUsers {{domain}}/{{username}} -hashes {{hash}} -request -dc-ip {{dc_ip}}"
+
+  - title: impacket-GetNPUsers - authenticate using Kerberos ticket (ccache)
+    desc: |
+      Uses an existing Kerberos ticket-granting ticket (TGT) from a ccache file to authenticate the request to the DC.
+      The -k flag tells the tool to use Kerberos, and -no-pass prevents it from prompting for a password.
+      This is a more stealthy approach as it avoids NTLM authentication and leverages existing valid sessions.
+    command: "impacket-GetNPUsers {{domain}}/{{username}} -k -no-pass -dc-ip {{dc_ip}}"
+
+  # === ADVANCED OPTIONS ===
+  - title: impacket-GetNPUsers - troubleshoot with debug mode
+    desc: |
+      Runs the tool with verbose debug output enabled to help diagnose connection or authentication issues.
+      This is particularly useful when troubleshooting RPC errors, clock skew issues, or connectivity problems with the Domain Controller.
+      It provides detailed information about the underlying Impacket library calls and Kerberos exchanges.
+    command: "impacket-GetNPUsers {{domain}}/{{username}} -request -debug -dc-ip {{dc_ip}}"
+
+  - title: impacket-GetNPUsers - specify DC hostname
+    desc: |
+      Directs the request to a specific Domain Controller using its hostname instead of just its IP.
+      This can be necessary in environments where Kerberos strictness requires the SPN to match the target hostname.
+      If omitted, the tool usually tries to resolve the domain name to an IP address.
+    command: "impacket-GetNPUsers {{domain}}/ -usersfile {{users_file}} -request -dc-host {{dc_hostname}} -dc-ip {{dc_ip}}"

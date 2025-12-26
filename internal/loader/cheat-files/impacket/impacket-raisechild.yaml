@@ -1,0 +1,56 @@
+tool: impacket-raiseChild
+tags: [active-directory, pentest, privilege-escalation, impacket, security, kerberos, domain-admin]
+
+actions:
+  # === BASIC ESCALATION ===
+  - title: impacket-raiseChild - basic child to forest escalation
+    desc: |
+      This command initiates the privilege escalation process from a child domain to the forest root domain. 
+      It works by identifying the trust relationship and automating the creation of a Golden Ticket with the SID of the Enterprise Admins group. 
+      This is primarily used when you have compromised a Domain Admin account in a child domain and wish to gain full control over the entire forest.
+    command: "impacket-raiseChild {{domain}}/{{username}}:{{password}}@{{target_ip}}"
+
+  - title: impacket-raiseChild - escalation using NTLM hashes
+    desc: |
+      Performs the privilege escalation attack using NTLM hashes instead of a plaintext password. 
+      This is an essential technique in Pass-the-Hash scenarios where the cleartext password of the child domain admin is not available. 
+      The hash must be provided in the format LMHASH:NTHASH (e.g., aad3b435b51404eeaad3b435b51404ee:31d6cfe0d16ae931b73c59d7e0c089c0).
+    command: "impacket-raiseChild -hashes {{lmhash:nthash}} {{domain}}/{{username}}@{{target_ip}}"
+
+  # === ADVANCED AUTHENTICATION & PERSISTENCE ===
+  - title: impacket-raiseChild - escalation using Kerberos authentication
+    desc: |
+      Uses Kerberos tickets for authentication instead of NTLM. 
+      This requires a valid Kerberos cache (ccache) file and the environment variable KRB5CCNAME to be set correctly. 
+      Using Kerberos can help bypass environments where NTLM is disabled or heavily monitored for anomalies.
+    command: "impacket-raiseChild -k -no-pass {{domain}}/{{username}}@{{target_ip}}"
+
+  - title: impacket-raiseChild - export golden ticket to file
+    desc: |
+      Generates the escalated Golden Ticket for the forest root and saves it to a specified file path. 
+      This allows for later use with other Impacket tools like secretsdump or psexec by setting the KRB5CCNAME variable to the saved file. 
+      It is a highly effective method for maintaining persistent access to the forest root without needing to run the exploit again.
+    command: "impacket-raiseChild -w {{output_path|forest_admin.ccache}} {{domain}}/{{username}}:{{password}}@{{target_ip}}"
+
+  # === TARGETING & EXECUTION ===
+  - title: impacket-raiseChild - target specific user RID
+    desc: |
+      Specifies a target User RID to impersonate in the parent domain during the escalation process. 
+      By default, the tool targets the Administrator account with RID 500, which is the most common path to full control. 
+      Changing the RID can be useful if the default Administrator account is renamed, disabled, or if you need to impersonate a different high-privileged user.
+    command: "impacket-raiseChild -targetRID {{rid|500}} {{domain}}/{{username}}:{{password}}@{{target_ip}}"
+
+  - title: impacket-raiseChild - automatic execution on forest root
+    desc: |
+      Automatically executes a semi-interactive shell on the target forest root domain controller after successful escalation. 
+      It functions similarly to psexec, using the newly generated high-privileged credentials to gain immediate command execution. 
+      Use the IP address or hostname of the Parent Domain Controller for the target-exec argument.
+    command: "impacket-raiseChild -target-exec {{parent_dc_ip}} {{domain}}/{{username}}:{{password}}@{{target_ip}}"
+
+  # === TROUBLESHOOTING ===
+  - title: impacket-raiseChild - enable debug logging
+    desc: |
+      Runs the escalation tool with verbose debug output enabled. 
+      This is critical for troubleshooting connection issues, RPC errors, or understanding why the SID history injection might be failing. 
+      It provides detailed information about the underlying protocols and steps being performed by the script.
+    command: "impacket-raiseChild -debug {{domain}}/{{username}}:{{password}}@{{target_ip}}"

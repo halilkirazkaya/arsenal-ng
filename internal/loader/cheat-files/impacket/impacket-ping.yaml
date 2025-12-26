@@ -1,0 +1,35 @@
+tool: impacket-ping
+tags: [network, security, pentest, icmp, reconnaissance, impacket, ping, network-testing]
+
+actions:
+  # === BASIC CONNECTIVITY ===
+  - title: impacket-ping - Basic ICMP echo request
+    desc: |
+      Sends a standard ICMP Echo Request from a specified source IP to a destination IP.
+      This tool is part of the Impacket library and is used to verify network reachability between two points.
+      It is particularly useful for testing raw socket communication and ensuring that the Impacket framework can correctly craft and receive ICMP packets on the current system.
+    command: "impacket-ping {{src_ip}} {{dst_ip}}"
+
+  # === NETWORK TROUBLESHOOTING ===
+  - title: impacket-ping - Source-specific connectivity test
+    desc: |
+      Verifies if a specific source address on the local machine can communicate with a target host.
+      This is highly effective when working with multiple network interfaces or virtual private networks (VPNs) to ensure traffic is routed through the correct path.
+      Users should ensure they have the necessary privileges (usually root/sudo) to create raw sockets required for this operation.
+    command: "impacket-ping {{local_interface_ip}} {{target_ip}}"
+
+  # === RECONNAISSANCE & ENUMERATION ===
+  - title: impacket-ping - Active host discovery
+    desc: |
+      Checks if a remote target is active by requesting an ICMP Echo Reply.
+      In a penetration testing scenario, this serves as a basic reconnaissance step to map out live hosts within a subnet.
+      Be aware that many modern firewalls and EDR solutions may block or rate-limit ICMP traffic, potentially leading to false negatives.
+    command: "impacket-ping {{gateway_ip}} {{remote_host_ip}}"
+
+  # === SEGMENTATION TESTING ===
+  - title: impacket-ping - Network boundary validation
+    desc: |
+      Tests the isolation between different network segments by attempting to ping across boundaries.
+      This command helps security auditors verify if firewall rules are correctly preventing or allowing ICMP traffic between sensitive zones.
+      If the command receives a reply, it indicates that ICMP traffic is permitted between the specified source and destination IPs.
+    command: "impacket-ping {{internal_source_ip}} {{dmz_target_ip}}"

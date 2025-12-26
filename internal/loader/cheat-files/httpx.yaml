@@ -1,0 +1,114 @@
+tool: httpx
+tags: [network, web, scanner, security, pentest, enumeration, reconnaissance]
+
+actions:
+  # === BASIC ENUMERATION ===
+  - title: httpx - basic target probing
+    desc: |
+      Performs a basic HTTP probe on a single target to check for live web services. 
+      This is the simplest way to verify if a host is running a web server on default ports. 
+      It returns the URL of the active service if a successful connection is established.
+    command: "httpx -u {{target}}"
+
+  - title: httpx - bulk enumeration with status and title
+    desc: |
+      Probes a list of hosts and displays the HTTP status code, page title, and web server information. 
+      This is highly effective for large-scale reconnaissance to quickly identify interesting targets. 
+      The status codes help distinguish between accessible pages, redirects, and unauthorized areas.
+    command: "httpx -l {{list_file|subdomains.txt}} -sc -title -server"
+
+  - title: httpx - technology and content analysis
+    desc: |
+      Probes targets to detect the underlying technology stack, content length, and response time. 
+      The technology detection (Wappalyzer-based) is crucial for identifying CMS, frameworks, or specific libraries. 
+      Content length help in identifying outliers or unique pages across many subdomains.
+    command: "httpx -l {{list_file|subdomains.txt}} -td -cl -rt"
+
+  # === FILTERING AND MATCHING ===
+  - title: httpx - match specific status codes
+    desc: |
+      Filters the output to only show results that match the specified HTTP status codes. 
+      This is useful when looking specifically for successful logins (200), redirects (302), or forbidden areas (403). 
+      Multiple codes can be provided as a comma-separated list.
+    command: "httpx -l {{list_file}} -mc {{status_codes|200,301,302}}"
+
+  - title: httpx - filter out common error pages
+    desc: |
+      Excludes specific status codes from the results to reduce noise during large scans. 
+      Commonly used to hide 404 Not Found or 403 Forbidden pages when they are not relevant to the current task. 
+      This keeps the terminal output clean and focused on valid web assets.
+    command: "httpx -l {{list_file}} -fc {{filter_codes|404,400}}"
+
+  - title: httpx - search for specific strings in body
+    desc: |
+      Matches responses that contain a specific string or keyword in the body of the page. 
+      This is extremely powerful for finding sensitive keywords like "admin", "dashboard", or "internal". 
+      Be aware that this increases processing time as the full body must be inspected.
+    command: "httpx -l {{list_file}} -ms {{search_string|admin}}"
+
+  # === ADVANCED PROBING ===
+  - title: httpx - custom port and path probing
+    desc: |
+      Probes specific ports and paths for a given list of targets using Nmap-style syntax. 
+      This allows for the discovery of administrative panels or hidden APIs located on non-standard ports. 
+      Ensure you use the correct protocol prefix if you are targeting specific port ranges.
+    command: "httpx -l {{list_file}} -p {{ports|80,443,8080,8443}} -path {{paths|/admin,/api/v1}}"
+
+  - title: httpx - headless screenshots
+    desc: |
+      Captures visual screenshots of the targeted web pages using a headless browser. 
+      This provides a visual confirmation of the content, making it easier to identify login forms or parking pages. 
+      Note that this requires more system resources and may require a local Chrome installation with the -system-chrome flag.
+    command: "httpx -l {{list_file}} -ss -system-chrome -srd {{output_dir|screenshots}}"
+
+  - title: httpx - CDN and WAF detection
+    desc: |
+      Identifies if a target is behind a Content Delivery Network (CDN) or a Web Application Firewall (WAF). 
+      This information is vital for determining the feasibility of certain attacks or bypasses. 
+      The results help in mapping the infrastructure and understanding the security perimeter of the target.
+    command: "httpx -l {{list_file}} -cdn -ip -asn"
+
+  # === FILE OPERATIONS & OUTPUT ===
+  - title: httpx - comprehensive JSON output
+    desc: |
+      Exports all probe results including full request and response headers into a JSON Lines format. 
+      This format is ideal for further automated processing or for importing into databases. 
+      Including the full response data allows for offline analysis without re-sending packets to the target.
+    command: "httpx -l {{list_file}} -json -o {{output_file|results.json}} -irr"
+
+  - title: httpx - store raw responses
+    desc: |
+      Saves the actual HTTP response bodies into a specified directory for manual inspection. 
+      This is particularly useful when you need to grep through local files for sensitive data later. 
+      Be cautious about disk space when running this against thousands of large targets.
+    command: "httpx -l {{list_file}} -sr -srd {{response_dir|saved_responses}}"
+
+  # === NETWORK & INFRASTRUCTURE ===
+  - title: httpx - Favicon hash extraction
+    desc: |
+      Calculates the MurmurHash3 (mmh3) of the target's favicon.ico file. 
+      Favicon hashes are used by security researchers to identify related assets across different IP ranges via Shodan or Censys. 
+      This is a key technique in infrastructure mapping and tracking organizational footprints.
+    command: "httpx -l {{list_file}} -favicon"
+
+  - title: httpx - TLS/SSL data grabbing
+    desc: |
+      Extracts detailed information from the TLS/SSL certificates of the targets. 
+      It can reveal Subject Alternative Names (SANs), which often contain previously undiscovered subdomains. 
+      This probe is essential for understanding the certificate authority and expiration dates of web assets.
+    command: "httpx -l {{list_file}} -tls-grab -jarm"
+
+  - title: httpx - follow redirects
+    desc: |
+      Instructs the tool to follow HTTP redirects and report the final destination URL. 
+      By default, httpx may only report the initial 301/302 response; this flag shows where the user actually ends up. 
+      You can limit the number of redirects to prevent infinite loops using the -maxr flag.
+    command: "httpx -l {{list_file}} -fr -maxr {{max_redirects|5}}"
+
+  # === OPTIMIZATIONS ===
+  - title: httpx - rate limited stealth scan
+    desc: |
+      Controls the speed of the scan by limiting the number of requests per second. 
+      This is useful for avoiding rate limits, WAF blocks, or overwhelming small servers. 
+      Adjusting threads and rate-limit ensures a balance between speed and reliability.
+    command: "httpx -l {{list_file}} -t {{threads|20}} -rl {{rate_limit|50}}"

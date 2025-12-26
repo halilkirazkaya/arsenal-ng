@@ -1,0 +1,71 @@
+tool: impacket-findDelegation
+tags: [pentest, active-directory, security, enumeration, kerberos, delegation, impacket]
+
+actions:
+  # === BASIC ENUMERATION ===
+  - title: impacket-findDelegation - basic domain enumeration
+    desc: |
+      Performs a comprehensive scan of the target domain to identify all accounts with delegation rights.
+      This command identifies Unconstrained, Constrained, and Resource-Based Constrained Delegation (RBCD).
+      It is a critical reconnaissance step for finding lateral movement or privilege escalation paths.
+      The output includes the account name, the type of delegation, and the services they are allowed to delegate to.
+    command: "impacket-findDelegation {{domain}}/{{username}}:{{password}}@{{dc_ip}}"
+
+  - title: impacket-findDelegation - enumeration with NTLM hashes
+    desc: |
+      Queries the domain for delegation relationships using NTLM hashes for authentication.
+      This is particularly useful in Pass-the-Hash (PtH) scenarios where the cleartext password is unknown.
+      The hash should be provided in the format LMHASH:NTHASH.
+      If you only have the NT hash, use the empty LM representation: aad3b435b51404eeaad3b435b51404ee:{{nt_hash}}.
+    command: "impacket-findDelegation -hashes {{hash}} {{domain}}/{{username}}@{{dc_ip}}"
+
+  # === ADVANCED FILTERING & SCOPING ===
+  - title: impacket-findDelegation - query specific user
+    desc: |
+      Targets a specific user or service account to check its delegation configuration.
+      Use this when you have identified a high-privilege account and want to verify if it can be exploited via delegation.
+      This narrows down the output, making it easier to parse in large environments with many delegated accounts.
+      It helps in verifying if manual changes to an account's delegation settings have been applied correctly.
+    command: "impacket-findDelegation -user {{target_user}} {{domain}}/{{username}}:{{password}}@{{dc_ip}}"
+
+  - title: impacket-findDelegation - include disabled accounts
+    desc: |
+      Forces the tool to include accounts that are marked as disabled in Active Directory.
+      By default, many tools skip disabled accounts, but these accounts might still have dangerous delegation rights.
+      An attacker who gains the ability to re-enable an account could leverage these pre-existing delegation settings.
+      This provides a more complete security audit of the domain's historical delegation configurations.
+    command: "impacket-findDelegation -disabled {{domain}}/{{username}}:{{password}}@{{dc_ip}}"
+
+  - title: impacket-findDelegation - cross-domain enumeration
+    desc: |
+      Queries a different domain than the one used for authentication by utilizing domain trusts.
+      The -target-domain parameter specifies which domain's delegation objects should be listed.
+      This is essential in multi-domain forest environments to identify cross-domain escalation paths.
+      Ensure the provided credentials have sufficient permissions to read LDAP objects in the target domain.
+    command: "impacket-findDelegation -target-domain {{target_domain}} {{domain}}/{{username}}:{{password}}@{{dc_ip}}"
+
+  # === AUTHENTICATION VARIANTS ===
+  - title: impacket-findDelegation - kerberos authentication
+    desc: |
+      Uses Kerberos tickets (CCACHE) for authentication instead of NTLM.
+      You must have a valid Kerberos ticket in your environment (defined by the KRB5CCNAME variable).
+      The -no-pass flag ensures the tool does not prompt for a password and relies solely on the ticket.
+      This method is stealthier and helps bypass environments where NTLM authentication is restricted or disabled.
+    command: "impacket-findDelegation -k -no-pass {{domain}}/{{username}}@{{dc_ip}}"
+
+  - title: impacket-findDelegation - authenticate with AES key
+    desc: |
+      Uses a specific AES hex key (128 or 256 bits) for Kerberos authentication.
+      This is an alternative to using passwords or NTLM hashes when performing Kerberos-based attacks.
+      It is often used when an AES key has been extracted from a domain controller or a compromised host.
+      This command bypasses the need for the original cleartext password while still utilizing modern encryption.
+    command: "impacket-findDelegation -aesKey {{hex_key}} {{domain}}/{{username}}@{{dc_ip}}"
+
+  # === TROUBLESHOOTING ===
+  - title: impacket-findDelegation - debug mode with timestamps
+    desc: |
+      Executes the enumeration with verbose debug output and timestamps for every log entry.
+      This is helpful for troubleshooting connection issues, LDAP query failures, or authentication errors.
+      The timestamps help in correlating the tool's activity with domain controller logs or network captures.
+      Use this if the tool returns no results unexpectedly or if you encounter "Access Denied" errors.
+    command: "impacket-findDelegation -debug -ts {{domain}}/{{username}}:{{password}}@{{dc_ip}}"

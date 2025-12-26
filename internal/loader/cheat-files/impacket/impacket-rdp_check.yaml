@@ -1,0 +1,54 @@
+tool: impacket-rdp_check
+tags: [network, security, pentest, enumeration, authentication, rdp, impacket]
+
+actions:
+  # === BASIC AUTHENTICATION ===
+  - title: impacket-rdp_check - basic local authentication
+    desc: |
+      This command checks if a specific local user account is valid on the target system using the RDP protocol. 
+      It is an essential tool for verifying credentials discovered during an engagement without the need for a full GUI session.
+      Using this method helps avoid the overhead of a desktop environment while testing for valid access. 
+      Be cautious as multiple failed attempts may trigger account lockout policies on the target.
+    command: "impacket-rdp_check {{username}}:{{password}}@{{target_ip}}"
+
+  - title: impacket-rdp_check - domain authentication
+    desc: |
+      Verifies domain account credentials against a target host over the RDP protocol.
+      This is frequently used in Active Directory environments to see if a specific domain user has rights to access a server or workstation.
+      The format requires the domain to be prepended to the username.
+      It is a quick way to map out lateral movement possibilities within a network.
+    command: "impacket-rdp_check {{domain}}/{{username}}:{{password}}@{{target_ip}}"
+
+  # === ADVANCED AUTHENTICATION ===
+  - title: impacket-rdp_check - pass-the-hash authentication
+    desc: |
+      Performs authentication using NTLM hashes instead of a cleartext password.
+      This is a powerful post-exploitation technique used when you have extracted hashes from memory or the SAM database.
+      The hash must be provided in the LMHASH:NTHASH format; if the LM hash is unavailable, use 32 zeros.
+      This allows an attacker to verify access without needing to crack the password.
+    command: "impacket-rdp_check {{domain|.}}/{{username}}@{{target_ip}} -hashes {{hash}}"
+
+  # === NETWORK & TROUBLESHOOTING ===
+  - title: impacket-rdp_check - test over ipv6
+    desc: |
+      Enables the tool to communicate with the target using the IPv6 protocol.
+      This is useful in modern networks where IPv6 might be enabled and potentially less monitored than IPv4.
+      Ensure that the target address provided is a valid IPv6 representation.
+      It helps in identifying misconfigurations in dual-stack environments.
+    command: "impacket-rdp_check -6 {{username}}:{{password}}@{{target_ipv6}}"
+
+  - title: impacket-rdp_check - verbose debug mode with timestamps
+    desc: |
+      Runs the RDP check with full debug output and prepends timestamps to every log line.
+      Debug mode is crucial when the connection is failing for unknown reasons, such as network resets or protocol mismatches.
+      The timestamps help in correlating the tool's activity with other network logs or packet captures.
+      This is the recommended way to troubleshoot Impacket-specific library errors.
+    command: "impacket-rdp_check -debug -ts {{username}}:{{password}}@{{target_ip}}"
+
+  - title: impacket-rdp_check - check without password (blank password)
+    desc: |
+      Attempts to verify if an account has a blank password or if the system allows passwordless RDP access.
+      While rare in modern hardened systems, it is a common misconfiguration in older or laboratory environments.
+      The trailing colon after the username indicates an empty password field.
+      Testing for blank passwords should be part of any comprehensive internal security assessment.
+    command: "impacket-rdp_check {{username}}:@{{target_ip}}"

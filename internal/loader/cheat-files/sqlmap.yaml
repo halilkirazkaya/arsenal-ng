@@ -1,0 +1,121 @@
+tool: sqlmap
+tags: [security, pentest, exploitation, vulnerability-scanner, database, sql-injection, enumeration]
+
+actions:
+  # === TARGET SPECIFICATION ===
+  - title: sqlmap - basic GET request scan
+    desc: |
+      Performs a standard automated scan against a specific URL with GET parameters. 
+      It is the most common entry point for testing a suspected SQL injection vulnerability. 
+      The tool will automatically test all parameters in the query string to find injectable points.
+    command: "sqlmap -u \"{{url}}\""
+
+  - title: sqlmap - scan POST request
+    desc: |
+      Tests a target using POST data instead of URL parameters. 
+      This is essential for testing login forms, search boxes, or any data submission that doesn't appear in the URL. 
+      The data string should be formatted exactly as it is sent in the HTTP body (e.g., "id=1&user=admin").
+    command: "sqlmap -u \"{{url}}\" --data=\"{{post_data}}\""
+
+  - title: sqlmap - scan from HTTP request file
+    desc: |
+      Loads a full HTTP request from a text file for comprehensive testing. 
+      This is the most professional way to use sqlmap as it preserves all headers, cookies, and complex structures captured from tools like Burp Suite. 
+      Simply copy the raw request into a file and point sqlmap to it using the -r flag.
+    command: "sqlmap -r {{request_file|request.txt}}"
+
+  # === REQUEST CONFIGURATION ===
+  - title: sqlmap - scan with authenticated session
+    desc: |
+      Specifies a session cookie to access pages that require authentication. 
+      Without this, sqlmap might be redirected to a login page, preventing it from reaching the vulnerable code. 
+      Ensure the cookie is valid and hasn't expired before starting the scan.
+    command: "sqlmap -u \"{{url}}\" --cookie=\"{{cookie_string}}\""
+
+  - title: sqlmap - use random user-agent
+    desc: |
+      Sends a randomly selected User-Agent header with every request. 
+      This helps in bypassing basic security filters that block the default 'sqlmap' user-agent string. 
+      It makes the automated traffic look more like a variety of legitimate web browsers.
+    command: "sqlmap -u \"{{url}}\" --random-agent"
+
+  - title: sqlmap - route through Tor
+    desc: |
+      Routes all scanning traffic through the Tor anonymity network. 
+      This hides the attacker's real IP address but significantly slows down the testing process due to network latency. 
+      Requires the Tor service to be running locally on the default port.
+    command: "sqlmap -u \"{{url}}\" --tor"
+
+  # === DETECTION AND TUNING ===
+  - title: sqlmap - increase detection level and risk
+    desc: |
+      Increases the depth and aggressiveness of the tests. 
+      Level 3 adds testing for HTTP headers like Referer and User-Agent, while risk 3 adds heavy OR-based tests which can potentially modify database content. 
+      Use higher values only if the default settings fail to find a confirmed vulnerability.
+    command: "sqlmap -u \"{{url}}\" --level={{level|3}} --risk={{risk|2}}"
+
+  - title: sqlmap - bypass WAF with tamper scripts
+    desc: |
+      Uses obfuscation scripts to bypass Web Application Firewalls (WAF) and Intrusion Prevention Systems (IPS). 
+      Tamper scripts like 'space2comment' or 'randomcase' modify the payloads to evade signature-based detection. 
+      Multiple scripts can be combined with commas if necessary.
+    command: "sqlmap -u \"{{url}}\" --tamper=\"{{script_name|space2comment}}\""
+
+  # === ENUMERATION ===
+  - title: sqlmap - list all databases
+    desc: |
+      Retrieves a list of all databases available on the backend Database Management System (DBMS). 
+      This is typically the first step of enumeration after a vulnerability is successfully exploited. 
+      It allows the pentester to identify the primary application database versus system databases.
+    command: "sqlmap -u \"{{url}}\" --dbs"
+
+  - title: sqlmap - list tables in a database
+    desc: |
+      Enumerates all tables within a specific database. 
+      The database name must be specified using the -D flag to narrow down the scope. 
+      Identifying table names helps in locating sensitive data like 'users', 'passwords', or 'configurations'.
+    command: "sqlmap -u \"{{url}}\" -D {{database_name}} --tables"
+
+  - title: sqlmap - dump table content
+    desc: |
+      Downloads and saves all records from a specific table. 
+      This command effectively exfiltrates the data from the remote database to a local CSV or SQLite file. 
+      Be cautious when dumping large tables as it can be very slow and generate a massive amount of logs on the target server.
+    command: "sqlmap -u \"{{url}}\" -D {{database_name}} -T {{table_name}} --dump"
+
+  - title: sqlmap - retrieve database user passwords
+    desc: |
+      Attempts to extract the password hashes for the database users. 
+      If successful, sqlmap will often offer to perform a dictionary attack to crack the hashes. 
+      This can lead to full administrative control over the database server if the DBA account is compromised.
+    command: "sqlmap -u \"{{url}}\" --passwords"
+
+  # === OPERATING SYSTEM ACCESS ===
+  - title: sqlmap - interactive OS shell
+    desc: |
+      Attempts to gain a command-line shell on the underlying operating system. 
+      This requires high database privileges (like FILE or administrative rights) and specific DBMS configurations. 
+      If successful, it allows the attacker to execute OS commands directly on the server.
+    command: "sqlmap -u \"{{url}}\" --os-shell"
+
+  - title: sqlmap - read local file
+    desc: |
+      Reads a specific file from the server's local file system via the database. 
+      This is useful for retrieving sensitive configuration files like /etc/passwd or web.config. 
+      The database user must have the necessary 'FILE' read permissions for this action to succeed.
+    command: "sqlmap -u \"{{url}}\" --file-read=\"{{remote_file|/etc/passwd}}\""
+
+  # === MISCELLANEOUS ===
+  - title: sqlmap - automated batch mode
+    desc: |
+      Runs the tool without prompting for any user input. 
+      It automatically chooses the default behavior for every question asked during the process. 
+      This is ideal for automated scripts or CI/CD pipelines where manual intervention is not possible.
+    command: "sqlmap -u \"{{url}}\" --batch"
+
+  - title: sqlmap - flush session/cache
+    desc: |
+      Clears the session files and cache for the current target. 
+      Use this if you want to start a fresh scan from scratch, ignoring results from previous runs. 
+      This is helpful if the target environment has changed or if previous results were corrupted.
+    command: "sqlmap -u \"{{url}}\" --flush-session"

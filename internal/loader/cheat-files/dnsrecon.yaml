@@ -1,0 +1,107 @@
+tool: dnsrecon
+tags: [network, reconnaissance, dns, pentest, enumeration, security, information-gathering]
+
+actions:
+  # === BASIC ENUMERATION ===
+  - title: dnsrecon - standard enumeration
+    desc: |
+      Performs a standard DNS enumeration to gather general information about the target. 
+      It queries for common records including SOA, NS, A, AAAA, MX, and SRV. 
+      This is usually the first step in DNS reconnaissance to identify the target's primary infrastructure and mail servers.
+    command: "dnsrecon -d {{domain}} -t std"
+
+  - title: dnsrecon - zone transfer attempt
+    desc: |
+      Attempts an AXFR zone transfer against all identified name servers for the target domain. 
+      A successful zone transfer allows an attacker to see every record in a DNS zone without brute forcing. 
+      This is a critical security misconfiguration that should be tested during every penetration test.
+    command: "dnsrecon -d {{domain}} -a"
+
+  - title: dnsrecon - comprehensive scan
+    desc: |
+      Combines standard enumeration with a zone transfer attempt and certificate transparency check. 
+      This provides a broad overview of the target domain in a single command. 
+      It is highly efficient for initial data gathering but might be noisier than individual scans.
+    command: "dnsrecon -d {{domain}} -t std,crt -a"
+
+  # === BRUTE FORCE & DISCOVERY ===
+  - title: dnsrecon - dictionary brute force
+    desc: |
+      Uses a dictionary file to discover subdomains and hostnames by attempting common names. 
+      This technique is essential when DNS zone transfers are disabled by the administrator. 
+      You can increase the thread count to speed up the discovery process on larger wordlists.
+    command: "dnsrecon -d {{domain}} -D {{wordlist|/usr/share/wordlists/dnsmap.txt}} -t brt --threads {{threads|10}}"
+
+  - title: dnsrecon - brute force with wildcard filtering
+    desc: |
+      Performs a brute force attack while filtering out records that resolve to a wildcard IP address. 
+      Wildcard DNS can lead to many false positives during subdomain enumeration. 
+      Using the -f flag ensures that your results only contain unique and valid host entries.
+    command: "dnsrecon -d {{domain}} -D {{wordlist}} -t brt -f"
+
+  # === REVERSE & NETWORK MAPPING ===
+  - title: dnsrecon - reverse lookup range
+    desc: |
+      Performs a reverse DNS lookup for a specific IP range or CIDR block to identify associated hostnames. 
+      This is useful for mapping internal networks or identifying cloud-hosted assets belonging to a target. 
+      It converts IP addresses back into human-readable domain names using PTR records.
+    command: "dnsrecon -r {{ip_range}} -t rvl"
+
+  - title: dnsrecon - reverse lookup from SPF
+    desc: |
+      Extracts IP ranges from SPF (Sender Policy Framework) records and performs reverse lookups on them. 
+      SPF records often contain the IP addresses of authorized mail servers and associated networks. 
+      This provides a focused way to find infrastructure directly owned or used by the target organization.
+    command: "dnsrecon -d {{domain}} -s"
+
+  # === OSINT & EXTERNAL SOURCES ===
+  - title: dnsrecon - certificate transparency search
+    desc: |
+      Searches for subdomains and hosts using the crt.sh certificate transparency logs. 
+      This is a passive reconnaissance technique that does not interact directly with the target's DNS servers. 
+      It is excellent for finding hidden subdomains that have had SSL certificates issued in the past.
+    command: "dnsrecon -d {{domain}} -t crt"
+
+  - title: dnsrecon - search engine enumeration
+    desc: |
+      Queries search engines like Bing or Yandex to discover subdomains and hosts indexed publicly. 
+      This can reveal development or staging environments that are not listed in standard dictionaries. 
+      Note that frequent use might trigger CAPTCHAs or temporary blocks from the search providers.
+    command: "dnsrecon -d {{domain}} -t {{search_engine|bing}}"
+
+  # === ADVANCED TECHNIQUES ===
+  - title: dnsrecon - dnssec zone walk
+    desc: |
+      Attempts a DNSSEC zone walk by exploiting NSEC records to enumerate the entire DNS zone. 
+      If the target uses NSEC instead of NSEC3, it is possible to reconstruct the full list of hosts. 
+      This is a powerful method for enumerating zones that have otherwise strict access controls.
+    command: "dnsrecon -d {{domain}} -z"
+
+  - title: dnsrecon - cache snooping
+    desc: |
+      Performs DNS cache snooping against a specific name server to see if certain domains have been resolved recently. 
+      This can provide insight into the browsing habits or software updates of the users behind that DNS server. 
+      A dictionary file (-D) and a target name server (-n) must be specified for this attack.
+    command: "dnsrecon -t snoop -D {{wordlist}} -n {{nameserver}}"
+
+  - title: dnsrecon - tld expansion
+    desc: |
+      Checks the target domain name against all Top-Level Domains (TLDs) registered in IANA. 
+      This helps identify related domains, brand protection issues, or potential phishing sites. 
+      It effectively strips the original extension and brute forces all other possible TLDs.
+    command: "dnsrecon -d {{domain}} -t tld"
+
+  # === DATA MANAGEMENT ===
+  - title: dnsrecon - export to json and xml
+    desc: |
+      Runs a standard enumeration and saves the output into both JSON and XML formats. 
+      Saving results to structured files is crucial for documentation and for automated parsing by other tools. 
+      This prevents data loss and allows for easy comparison between different scan sessions.
+    command: "dnsrecon -d {{domain}} -t std --json {{json_file|results.json}} --xml {{xml_file|results.xml}}"
+
+  - title: dnsrecon - save to sqlite database
+    desc: |
+      Executes a scan and stores all discovered records directly into a SQLite database file. 
+      Using a database is ideal for large-scale reconnaissance projects where you need to query results later. 
+      This keeps the workspace organized and allows for persistent storage of gathered intelligence.
+    command: "dnsrecon -d {{domain}} -t std --db {{db_name|recon.db}}"

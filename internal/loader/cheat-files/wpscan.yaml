@@ -1,0 +1,99 @@
+tool: wpscan
+tags: [vulnerability-scanner, wordpress, security, pentest, enumeration, exploitation, web-security]
+
+actions:
+# === BASIC OPERATIONS ===
+ - title: wpscan - basic scan
+   desc: |
+     Performs a non-intrusive basic scan of the target WordPress site. 
+     This command identifies the web server, headers, and basic WordPress version information. 
+     It is the standard starting point for any WordPress security assessment to gather initial reconnaissance data.
+   command: "wpscan --url {{url}}"
+
+ - title: wpscan - update database
+   desc: |
+     Updates the local WPScan vulnerability database to the latest version.
+     Regular updates ensure that the scanner can detect the most recently discovered vulnerabilities in plugins and themes.
+     It is highly recommended to run this before starting any new penetration test.
+   command: "wpscan --update"
+
+# === ENUMERATION ===
+ - title: wpscan - enumerate vulnerable plugins
+   desc: |
+     Scans the target site specifically for plugins that have known security vulnerabilities.
+     This is more efficient than scanning for all plugins and focuses directly on potential entry points.
+     The tool checks the detected versions against its database to flag specific CVEs.
+   command: "wpscan --url {{url}} -e vp"
+
+ - title: wpscan - enumerate all plugins (aggressive)
+   desc: |
+     Attempts to discover all plugins installed on the target, not just vulnerable ones.
+     Using the aggressive detection mode will perform more requests to identify hidden or less common plugins.
+     Be aware that this may be louder in web server logs and could be blocked by WAFs.
+   command: "wpscan --url {{url}} -e ap --plugins-detection {{mode|aggressive}}"
+
+ - title: wpscan - enumerate users
+   desc: |
+     Identifies valid WordPress usernames by scanning various author archives and API endpoints.
+     Knowing valid usernames is a critical prerequisite for performing targeted password attacks later.
+     By default, it checks a range of user IDs, usually starting from 1 to 10.
+   command: "wpscan --url {{url}} -e u"
+
+ - title: wpscan - enumerate themes and backups
+   desc: |
+     Checks for vulnerable themes, timthumb files, and sensitive configuration backups.
+     Finding backup files (like wp-config.php.bak) can lead to full database credential disclosure.
+     This command combines multiple enumeration flags for a more comprehensive structural scan.
+   command: "wpscan --url {{url}} -e vt,tt,cb,dbe"
+
+# === AUTHENTICATION ATTACKS ===
+ - title: wpscan - password brute force
+   desc: |
+     Performs a password dictionary attack against the specified usernames.
+     You must provide a path to a wordlist containing potential passwords.
+     Note that frequent login attempts may trigger account lockouts or security plugin blocks (like Wordfence).
+   command: "wpscan --url {{url}} -U {{usernames|admin}} -P {{wordlist_path|/usr/share/wordlists/rockyou.txt}}"
+
+ - title: wpscan - xmlrpc multicall attack
+   desc: |
+     Uses the XML-RPC multicall method to attempt hundreds of password combinations in a single HTTP request.
+     This method is significantly faster than standard wp-login attacks and can often bypass simple rate limiting.
+     It only works if the target's xmlrpc.php file is enabled and not restricted.
+   command: "wpscan --url {{url}} --password-attack xmlrpc-multicall -U {{username|admin}} -P {{wordlist_path}}"
+
+# === ADVANCED CONFIGURATION ===
+ - title: wpscan - scan with api token
+   desc: |
+     Executes a scan while utilizing a WPScan API token to show detailed vulnerability data.
+     Without an API token, the scanner will identify versions but won't provide specific vulnerability descriptions or links.
+     You can obtain a free or paid token from the official wpscan.com website.
+   command: "wpscan --url {{url}} --api-token {{your_api_token}}"
+
+ - title: wpscan - stealthy scan
+   desc: |
+     Runs a scan using settings designed to minimize the footprint and avoid detection.
+     It uses a random user-agent and passive detection modes to stay under the radar of basic monitoring.
+     This is an alias for using several stealth-related flags simultaneously.
+   command: "wpscan --url {{url}} --stealthy"
+
+ - title: wpscan - use proxy and custom headers
+   desc: |
+     Routes all scan traffic through a specified proxy server and adds custom HTTP headers.
+     This is useful for bypassing IP-based restrictions or testing the site from a specific geographical location.
+     Adding custom headers can also help in bypassing certain WAF configurations or identifying internal routes.
+   command: "wpscan --url {{url}} --proxy {{proxy_proto_ip_port|http://127.0.0.1:8080}} --headers '{{header_name|X-Forwarded-For}}: {{header_value|127.0.0.1}}'"
+
+ - title: wpscan - custom content directory
+   desc: |
+     Specifies custom paths for the wp-content or plugins directories if the target uses a non-standard structure.
+     Many security-conscious WordPress installations rename these folders to avoid automated discovery.
+     Manually providing these paths allows WPScan to function correctly on hardened targets.
+   command: "wpscan --url {{url}} --wp-content-dir {{content_dir|wp-content}} --wp-plugins-dir {{plugins_dir|wp-content/plugins}}"
+
+# === OUTPUT ===
+ - title: wpscan - save results to file
+   desc: |
+     Saves the entire scan output into a file for later analysis or reporting.
+     The JSON format is particularly useful if you intend to parse the results with other automated tools or scripts.
+     Standard CLI format is also available for human-readable reports.
+   command: "wpscan --url {{url}} -o {{output_file|results.json}} -f {{format|json}}"

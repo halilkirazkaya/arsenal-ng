@@ -1,0 +1,71 @@
+tool: impacket-rbcd
+tags: [active-directory, kerberos, pentest, exploitation, privilege-escalation, rbcd, impacket, security]
+
+actions:
+  # === RECONNAISSANCE AND READING ===
+  - title: impacket-rbcd - Read RBCD status
+    desc: |
+      Reads the msDS-AllowedToActOnBehalfOfOtherIdentity attribute of a target computer account. 
+      This is the initial step to verify existing delegations or to confirm if a previous write operation was successful.
+      It helps identify if the target is already vulnerable or has been tampered with during an engagement.
+      You must have sufficient privileges to read the DACL of the target computer object.
+    command: "impacket-rbcd -delegate-to {{target_computer}} -action read -dc-ip {{dc_ip}} {{domain}}/{{username}}:{{password}}"
+
+  # === EXPLOITATION / WRITING ===
+  - title: impacket-rbcd - Grant delegation permission (Write)
+    desc: |
+      Configures Resource-Based Constrained Delegation by writing to the msDS-AllowedToActOnBehalfOfOtherIdentity attribute.
+      This command allows the 'delegate-from' account (usually an attacker-controlled machine account) to impersonate users against the 'delegate-to' target.
+      This is the core command used in the RBCD attack path once a machine account is created or compromised.
+      Note that this requires 'GenericWrite' or 'WriteProperty' permissions over the target computer object.
+    command: "impacket-rbcd -delegate-to {{target_computer}} -delegate-from {{attacker_computer}} -action write -dc-ip {{dc_ip}} {{domain}}/{{username}}:{{password}}"
+
+  - title: impacket-rbcd - Write delegation using NTLM hashes
+    desc: |
+      Performs the RBCD write action using NTLM hashes for authentication instead of a plaintext password.
+      This is particularly useful when you have performed credential dumping and only possess the NT hash of a user.
+      The LM hash can be filled with zeroes if it is not available or disabled in the environment.
+      Always ensure the 'dc-ip' points to a valid Domain Controller reachable from your current network position.
+    command: "impacket-rbcd -delegate-to {{target_computer}} -delegate-from {{attacker_computer}} -action write -hashes {{lmhash|00000000000000000000000000000000}}:{{nthash}} -dc-ip {{dc_ip}} {{domain}}/{{username}}"
+
+  - title: impacket-rbcd - Write delegation via LDAPS
+    desc: |
+      Executes the RBCD write operation over an encrypted LDAPS (LDAP over SSL) connection.
+      Many modern Domain Controllers enforce LDAP signing or require LDAPS for certain attribute modifications for security reasons.
+      Use the -use-ldaps flag to bypass issues related to "LDAP Signing Required" errors.
+      Ensure you are using the correct port (usually 636) or that the DC-IP provided supports SSL.
+    command: "impacket-rbcd -delegate-to {{target_computer}} -delegate-from {{attacker_computer}} -action write -use-ldaps -dc-ip {{dc_ip}} {{domain}}/{{username}}:{{password}}"
+
+  # === POST-EXPLOITATION / CLEANUP ===
+  - title: impacket-rbcd - Remove specific delegation
+    desc: |
+      Removes a specific attacker-controlled machine account from the target's delegation list.
+      This is used for surgical cleanup to remove only your specific entry while leaving other potential delegations intact.
+      It is a critical step in maintaining stealth and restoring the environment to its original configuration after testing.
+      This action requires the same write permissions as the initial delegation setup.
+    command: "impacket-rbcd -delegate-to {{target_computer}} -delegate-from {{attacker_computer}} -action remove -dc-ip {{dc_ip}} {{domain}}/{{username}}:{{password}}"
+
+  - title: impacket-rbcd - Flush all delegations
+    desc: |
+      Completely clears the msDS-AllowedToActOnBehalfOfOtherIdentity attribute on the target computer.
+      Use this command to remove all configured RBCD entries at once, effectively resetting the attribute to null.
+      Be careful when using this in production environments, as it might remove legitimate delegations configured by admins.
+      It is the most thorough way to ensure no accounts can act on behalf of others for the specified target.
+    command: "impacket-rbcd -delegate-to {{target_computer}} -action flush -dc-ip {{dc_ip}} {{domain}}/{{username}}:{{password}}"
+
+  # === ADVANCED AUTHENTICATION ===
+  - title: impacket-rbcd - Kerberos authentication (Pass-the-Ticket)
+    desc: |
+      Uses Kerberos tickets for authentication instead of providing a password or hash on the command line.
+      This requires a valid Kerberos cache file (ccache) to be exported to the KRB5CCNAME environment variable.
+      The -k flag tells the tool to use Kerberos, and -no-pass prevents it from prompting for a password.
+      This is the preferred method when operating in environments with Kerberos enforcement or when using tools like Rubeus for ticket management.
+    command: "impacket-rbcd -delegate-to {{target_computer|TARGET_SRV}} -delegate-from {{attacker_computer|EVIL_PC}} -action write -k -no-pass -dc-ip {{dc_ip}} {{domain}}/{{username}}"
+
+  - title: impacket-rbcd - Debugging and Timestamps
+    desc: |
+      Enables verbose debug output and adds timestamps to the logging information.
+      This is extremely helpful for troubleshooting connection issues, authentication failures, or LDAP errors.
+      The debug output reveals the underlying Impacket logic and precise error codes returned by the Domain Controller.
+      Use this when the tool fails silently or returns generic "Access Denied" messages to find the root cause.
+    command: "impacket-rbcd -delegate-to {{target_computer}} -action read -debug -ts -dc-ip {{dc_ip}} {{domain}}/{{username}}:{{password}}"

@@ -1,0 +1,90 @@
+tool: uncover
+tags: [recon, scanner, security, pentest, osint, enumeration, shodan, censys]
+
+actions:
+# === BASIC SEARCH OPERATIONS ===
+
+ - title: uncover - basic query search
+   desc: |
+     Performs a basic search using the default engine (Shodan). This is the primary method for finding assets matching a specific dork or keyword across the internet. 
+     The tool requires valid API keys for the engines configured in its provider configuration file. 
+     By default, it returns results in 'ip:port' format.
+   command: "uncover -q {{query}}"
+
+ - title: uncover - search with specific engines
+   desc: |
+     Queries specific search engines or a comma-separated list of engines using the engine flag. This allows you to aggregate data from multiple sources like Censys, FOFA, and Quake simultaneously. 
+     Useful when one engine might have indexed a target that others missed.
+     Common engine values include shodan, censys, fofa, zoomeye, and quake.
+   command: "uncover -q {{query}} -e {{engine|shodan,censys,fofa}}"
+
+ - title: uncover - limit result count
+   desc: |
+     Restricts the number of results returned from the search engine APIs. This is crucial for managing API credit usage and focusing on the most relevant targets. 
+     The default limit is 100, but it can be increased for broad reconnaissance or decreased for quick checks. 
+     Be mindful that high limits may consume significant API credits depending on the provider.
+   command: "uncover -q {{query}} -l {{limit|200}}"
+
+# === ADVANCED DISCOVERY ===
+
+ - title: uncover - use awesome search queries
+   desc: |
+     Utilizes the "Awesome Search Queries" feature to discover exposed assets based on technology names. This abstraction layer allows you to search for 'jira' or 'grafana' without knowing the specific dorks for each engine. 
+     It automatically translates the keyword into the most effective query for the selected engines. 
+     This is highly effective for rapid technology fingerprinting during initial reconnaissance.
+   command: "uncover -asq {{technology_name|jenkins}}"
+
+ - title: uncover - engine specific query flags
+   desc: |
+     Provides a way to pass engine-specific query strings directly using dedicated flags. This is useful when you want to utilize the native syntax of a specific engine like Shodan or ZoomEye directly. 
+     Each engine has its own flag (e.g., -s for Shodan, -ff for FOFA, -cs for Censys). 
+     This bypasses the general query flag for more granular control over engine-specific features.
+   command: "uncover -s {{shodan_query|product:Apache}}"
+
+# === OUTPUT AND FORMATTING ===
+
+ - title: uncover - filter output fields
+   desc: |
+     Customizes the output to display only specific pieces of information for each result. Supported fields include 'ip', 'port', and 'host'. 
+     Filtering for just 'ip' or 'host' is extremely useful when piping the output into other automation tools like httpx or nuclei. 
+     Multiple fields can be combined using commas if needed.
+   command: "uncover -q {{query}} -f {{field|ip}}"
+
+ - title: uncover - save results to file
+   desc: |
+     Writes the findings to a specified output file for later analysis. This prevents losing results in the terminal buffer and facilitates documentation. 
+     It can be combined with other flags to save either the default text output or structured JSON data. 
+     Standard practice is to save results to a text file before starting vulnerability scanning.
+   command: "uncover -q {{query}} -o {{output_file|results.txt}}"
+
+ - title: uncover - export as JSON
+   desc: |
+     Outputs results in JSONL (JSON Lines) format, which provides more metadata than the standard text output. This format includes additional details provided by the API, such as organization, ISP, and full banner information. 
+     JSON output is ideal for programmatic processing, custom scripts, or importing into databases. 
+     Use this when you need the most comprehensive data possible for each asset.
+   command: "uncover -q {{query}} -j -o {{output_file|results.json}}"
+
+# === NETWORK AND PERFORMANCE ===
+
+ - title: uncover - rate limit and timeout
+   desc: |
+     Configures the request rate and timeout settings to prevent being blocked or timing out on slow connections. Setting a rate limit per second or minute helps in respecting API provider limitations and avoiding account suspension. 
+     The timeout flag ensures the tool doesn't hang indefinitely on unresponsive APIs. 
+     Adjust these settings based on your network conditions and the stability of the API provider.
+   command: "uncover -q {{query}} -rl {{rate_limit|10}} -timeout {{timeout|60}}"
+
+ - title: uncover - proxy configuration
+   desc: |
+     Routes all outgoing API requests through a specified HTTP proxy. This is useful for bypassing regional restrictions, masking your source IP, or auditing traffic through tools like Burp Suite. 
+     Ensure the proxy URL is correctly formatted (e.g., http://127.0.0.1:8080). 
+     This is a vital feature for maintaining operational security during sensitive engagements.
+   command: "uncover -q {{query}} -proxy {{proxy_url}}"
+
+# === PIPING AND INPUT ===
+
+ - title: uncover - process queries from stdin
+   desc: |
+     Reads queries from standard input (stdin), allowing for seamless integration with other command-line tools. You can pipe a list of dorks from a file or another command directly into uncover for batch processing. 
+     This enables powerful workflows, such as generating dorks dynamically and feeding them into the discovery engine. 
+     It is the most efficient way to handle large-scale reconnaissance tasks.
+   command: "cat {{query_list_file}} | uncover"

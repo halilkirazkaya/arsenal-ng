@@ -1,0 +1,119 @@
+tool: windapsearch
+tags: [active-directory, ldap, enumeration, pentest, security, network, discovery]
+
+actions:
+  # === BASIC ENUMERATION ===
+  - title: windapsearch - check domain functionality
+    desc: |
+      Enumerates the Domain Functionality level of the target Active Directory environment.
+      This is often possible through an anonymous bind and provides the first glimpse into the domain's age and features.
+      It helps in determining which modern AD attacks might be applicable based on the functional level.
+    command: "windapsearch --dc-ip {{dc_ip}} --functionality"
+
+  - title: windapsearch - list all domain users
+    desc: |
+      Performs a full enumeration of all user objects within the Active Directory domain.
+      This is a fundamental reconnaissance step used to build a list of valid usernames for password spraying.
+      Requires a valid domain account or an environment where anonymous LDAP binds are permitted.
+    command: "windapsearch --dc-ip {{dc_ip}} -u {{username}} -p {{password}} -U"
+
+  - title: windapsearch - list all domain groups
+    desc: |
+      Retrieves a complete list of all security and distribution groups within the domain.
+      Useful for mapping the organizational structure and identifying groups that may hold sensitive permissions.
+      Analysts use this to find non-standard groups that might be overlooked during basic enumeration.
+    command: "windapsearch --dc-ip {{dc_ip}} -u {{username}} -p {{password}} -G"
+
+  - title: windapsearch - list all computer objects
+    desc: |
+      Queries LDAP to find all computer objects registered in the Active Directory domain.
+      This command is essential for identifying workstations and servers that can be targeted for lateral movement.
+      It helps in visualizing the network topology and identifying high-value servers like SQL or Exchange.
+    command: "windapsearch --dc-ip {{dc_ip}} -u {{username}} -p {{password}} -C"
+
+  # === PRIVILEGE & ACCESS ENUMERATION ===
+  - title: windapsearch - recursive domain admin members
+    desc: |
+      Specifically targets the "Domain Admins" group and lists all its members recursively.
+      Recursion is critical here because it finds users who are members of other groups that are nested inside Domain Admins.
+      This identifies the highest-privileged users in the domain, making them primary targets for credential theft.
+    command: "windapsearch --dc-ip {{dc_ip}} -u {{username}} -p {{password}} --da"
+
+  - title: windapsearch - enumerate privileged users
+    desc: |
+      Finds all users who have high-level privileges within the Active Directory forest.
+      This command performs recursive lookups for nested members across various administrative groups.
+      It is a comprehensive way to identify the "Keys to the Kingdom" beyond just the standard Domain Admins group.
+    command: "windapsearch --dc-ip {{dc_ip}} -u {{username}} -p {{password}} -PU"
+
+  - title: windapsearch - search for admin objects (Protected ACLs)
+    desc: |
+      Enumerates all objects that have protected Access Control Lists (ACLs).
+      In AD, objects with `adminCount=1` are protected by the AdminSDHolder process, typically signifying administrative accounts.
+      This helps identify accounts that might not be in standard admin groups but still possess elevated rights.
+    command: "windapsearch --dc-ip {{dc_ip}} -u {{username}} -p {{password}} --admin-objects"
+
+  - title: windapsearch - group membership lookup
+    desc: |
+      Lists all members of a specific, user-defined Active Directory group.
+      This is useful when you find an interesting group name (e.g., "IT_Admins" or "Finance_Access") and want to see who belongs to it.
+      Replace the placeholder with the exact group name you wish to investigate.
+    command: "windapsearch --dc-ip {{dc_ip}} -u {{username}} -p {{password}} -m {{group_name}}"
+
+  # === VULNERABILITY & MISCONFIGURATION DISCOVERY ===
+  - title: windapsearch - identify kerberoastable users
+    desc: |
+      Enumerates all user objects that have a Service Principal Name (SPN) set.
+      These accounts are vulnerable to Kerberoasting, allowing an attacker to request a service ticket and attempt to crack the password offline.
+      This is one of the most common and effective ways to escalate privileges in an AD environment.
+    command: "windapsearch --dc-ip {{dc_ip}} -u {{username}} -p {{password}} --user-spns"
+
+  - title: windapsearch - users with unconstrained delegation
+    desc: |
+      Identifies user accounts configured with unconstrained delegation.
+      When a user with unconstrained delegation is compromised, an attacker can impersonate any user who authenticates to that service.
+      This is a major security risk and a common finding in security audits of older AD environments.
+    command: "windapsearch --dc-ip {{dc_ip}} -u {{username}} -p {{password}} --unconstrained-users"
+
+  - title: windapsearch - computers with unconstrained delegation
+    desc: |
+      Lists computer objects in the domain that are allowed to perform unconstrained delegation.
+      Compromising such a machine allows an attacker to harvest TGTs of any user who connects to it (e.g., via the Printer Bug).
+      This is frequently used in modern AD exploitation chains to move from a domain user to a domain admin.
+    command: "windapsearch --dc-ip {{dc_ip}} -u {{username}} -p {{password}} --unconstrained-computers"
+
+  - title: windapsearch - list group policy objects (GPOs)
+    desc: |
+      Enumerate all Group Policy Objects (GPOs) defined in the Active Directory.
+      GPOs control the security configuration of the entire domain and can contain sensitive information like scripts or registry settings.
+      Understanding GPOs helps an attacker identify how security policies are enforced and where they might be bypassed.
+    command: "windapsearch --dc-ip {{dc_ip}} -u {{username}} -p {{password}} --gpos"
+
+  # === ADVANCED QUERIES & OUTPUT ===
+  - title: windapsearch - custom LDAP filter
+    desc: |
+      Executes a completely custom LDAP query against the target Domain Controller.
+      This allows for highly specific searches, such as finding users with specific Account Control flags or custom attributes.
+      The user must provide a valid LDAP filter string to ensure the query executes correctly.
+    command: "windapsearch --dc-ip {{dc_ip}} -u {{username}} -p {{password}} --custom \"{{ldap_filter|(objectClass=user)}}\""
+
+  - title: windapsearch - search with custom attributes
+    desc: |
+      Performs a user search while only returning specific LDAP attributes.
+      By default, LDAP returns many fields; this narrows it down to specific data like 'lastLogon' or 'badPwdCount'.
+      This is useful for gathering targeted intel without sifting through massive amounts of redundant data.
+    command: "windapsearch --dc-ip {{dc_ip}} -u {{username}} -p {{password}} -U --attrs {{attributes|sAMAccountName,description,memberOf}}"
+
+  - title: windapsearch - fuzzy search for objects
+    desc: |
+      Performs a fuzzy search across the directory for all entries matching a specific term.
+      This is helpful when you know part of a name or a service but aren't sure of its exact DN or object class.
+      It scans multiple fields to find the most relevant matches for the provided search term.
+    command: "windapsearch --dc-ip {{dc_ip}} -u {{username}} -p {{password}} -s {{search_term}}"
+
+  - title: windapsearch - full attribute dump to file
+    desc: |
+      Dumps every single available LDAP attribute for all users and saves the output to a directory.
+      The `--full` flag ensures no data is left behind, which is vital for deep offline analysis.
+      The output is saved in TSV format, making it easy to import into spreadsheets or other analysis tools.
+    command: "windapsearch --dc-ip {{dc_ip}} -u {{username}} -p {{password}} -U --full -o {{output_dir|results}}"

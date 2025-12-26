@@ -1,0 +1,62 @@
+tool: impacket-sambapipe
+tags: [network, pentest, exploitation, smb, samba, cve-2017-7494, remote-code-execution]
+
+actions:
+  # === BASIC EXPLOITATION ===
+  - title: impacket-sambaPipe - basic exploitation with password
+    desc: |
+      This command initiates the exploitation of the SambaCry vulnerability (CVE-2017-7494). 
+      It uploads a specified shared object (.so) file to a writable share on the target server and triggers its execution. 
+      This is the most common usage when you have valid cleartext credentials for a user with write access to at least one share.
+    command: "impacket-sambaPipe -so {{so_file|exploit.so}} {{domain|.}}/{{username}}:{{password}}@{{target}}"
+
+  - title: impacket-sambaPipe - exploitation using NTLM hashes
+    desc: |
+      Performs the exploit using Pass-the-Hash authentication instead of a cleartext password. 
+      This is useful in scenarios where you have extracted NTLM hashes from memory or a database but cannot crack them. 
+      The hash should be provided in the LMHASH:NTHASH format; if you only have the NT hash, leave the LM part empty.
+    command: "impacket-sambaPipe -so {{so_file|exploit.so}} -hashes {{hash}} {{domain|.}}/{{username}}@{{target}}"
+
+  # === ADVANCED AUTHENTICATION ===
+  - title: impacket-sambaPipe - Kerberos authentication
+    desc: |
+      Executes the exploit using Kerberos tickets for authentication in an Active Directory environment. 
+      This command requires a valid Kerberos cache file (ccache) to be present and pointed to by the KRB5CCNAME environment variable. 
+      It is often used to bypass NTLM-specific monitoring or when NTLM authentication is disabled on the target.
+    command: "impacket-sambaPipe -so {{so_file|exploit.so}} -k -no-pass {{domain}}/{{username}}@{{target}}"
+
+  - title: impacket-sambaPipe - Kerberos with AES key
+    desc: |
+      Authenticates using a specific Kerberos AES key (128 or 256 bits). 
+      This method is useful when you have intercepted or extracted the AES keys for a specific account. 
+      It allows for Kerberos authentication without needing the original cleartext password or a pre-generated ccache file.
+    command: "impacket-sambaPipe -so {{so_file|exploit.so}} -aesKey {{hex_key}} {{domain}}/{{username}}@{{target}}"
+
+  # === CONNECTION & TROUBLESHOOTING ===
+  - title: impacket-sambaPipe - custom target IP and port
+    desc: |
+      Manually specifies the target IP address and destination port for the SMB connection. 
+      Use this when the target's NetBIOS name cannot be resolved or when the Samba service is running on a non-standard port. 
+      Explicitly defining the target-ip is also helpful when routing through complex network segments or tunnels.
+    command: "impacket-sambaPipe -so {{so_file|exploit.so}} -target-ip {{ip_address}} -port {{port|445}} {{domain|.}}/{{username}}:{{password}}@{{target_name}}"
+
+  - title: impacket-sambaPipe - domain controller specification
+    desc: |
+      Specifies the IP address of the Domain Controller to be used for authentication. 
+      This is particularly important in multi-homed environments or when DNS resolution for the domain name fails. 
+      Providing the DC-IP ensures that the authentication request is sent directly to the correct identity provider.
+    command: "impacket-sambaPipe -so {{so_file|exploit.so}} -dc-ip {{dc_ip}} {{domain}}/{{username}}:{{password}}@{{target}}"
+
+  - title: impacket-sambaPipe - verbose debug output
+    desc: |
+      Enables debug mode to provide highly detailed information about the SMB handshake and exploit sequence. 
+      This is critical for troubleshooting failed exploitation attempts or connection resets. 
+      The output will show the specific pipe names being attempted and the server's response to the module loading request.
+    command: "impacket-sambaPipe -debug -so {{so_file|exploit.so}} {{domain|.}}/{{username}}:{{password}}@{{target}}"
+
+  - title: impacket-sambaPipe - exploit with timestamped logging
+    desc: |
+      Adds a timestamp to every line of the logging output during the exploitation process. 
+      This is useful for documentation purposes and for correlating exploit attempts with server-side logs during a red team engagement. 
+      It helps in tracking exactly when the .so file was uploaded and when the trigger command was sent.
+    command: "impacket-sambaPipe -ts -so {{so_file|exploit.so}} {{domain|.}}/{{username}}:{{password}}@{{target}}"

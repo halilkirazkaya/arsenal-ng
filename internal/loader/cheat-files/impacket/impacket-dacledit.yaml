@@ -1,0 +1,112 @@
+tool: impacket-dacledit
+tags: [active-directory, pentest, exploitation, dacl, security, impacket, privilege-escalation]
+
+actions:
+  # === ENUMERATION & INSPECTION ===
+  - title: impacket-dacledit - read target dacl
+    desc: |
+      Displays the Access Control List (ACL) of a specific target object in the domain. 
+      This is the primary reconnaissance step to identify which users or groups have permissions over an object. 
+      It helps in finding misconfigurations that can be exploited for privilege escalation. 
+      Use this to verify existing rights before attempting any modification or removal.
+    command: "impacket-dacledit -action read -target {{target_name}} {{identity}}"
+
+  - title: impacket-dacledit - filter dacl by principal
+    desc: |
+      Reads the DACL of a target object but filters the output to show only entries related to a specific principal.
+      This is extremely useful when you want to see exactly what permissions a specific compromised user has over a target.
+      It reduces noise in large environments where objects might have dozens of ACEs.
+      Specify the principal using its sAMAccountName with the -principal flag.
+    command: "impacket-dacledit -action read -target {{target_name}} -principal {{principal_name}} {{identity}}"
+
+  # === PERMISSION MODIFICATION ===
+  - title: impacket-dacledit - grant dcsync rights
+    desc: |
+      Assigns the necessary extended rights to a principal to perform a DCSync attack.
+      This action grants 'DS-Replication-Get-Changes' and 'DS-Replication-Get-Changes-All' permissions.
+      It is one of the most powerful techniques for domain dominance as it allows the principal to dump hashes from the DC.
+      Exercise extreme caution as this creates a significant security risk and is easily detectable by modern EDR/SIEM.
+    command: "impacket-dacledit -action write -rights DCSync -principal {{principal_name}} -target-dn {{domain_dn}} {{identity}}"
+
+  - title: impacket-dacledit - grant full control
+    desc: |
+      Grants 'FullControl' (GenericAll) permissions over a target object to a specified principal.
+      This allows the principal to perform any action on the object, including changing its owner or modifying its DACL further.
+      It is commonly used when you need total control over a computer object or a user account for lateral movement.
+      Ensure you have sufficient privileges (like WriteDacl) to perform this write operation.
+    command: "impacket-dacledit -action write -rights FullControl -principal {{principal_name}} -target {{target_name}} {{identity}}"
+
+  - title: impacket-dacledit - grant reset password rights
+    desc: |
+      Grants the permission to reset the password of a target user account.
+      This is a common path for account takeover where you don't need to know the original password.
+      Once granted, you can use other tools to perform the actual password reset.
+      This is particularly useful when targeting accounts that are members of high-privileged groups.
+    command: "impacket-dacledit -action write -rights ResetPassword -principal {{principal_name}} -target {{target_user}} {{identity}}"
+
+  - title: impacket-dacledit - grant write members rights
+    desc: |
+      Allows a principal to modify the membership of a target group object.
+      By adding yourself or another controlled account to a sensitive group, you can inherit that group's privileges.
+      This is a standard technique for escalating privileges from a regular user to a group like 'Server Operators'.
+      The target must be a group object for this permission to be meaningful.
+    command: "impacket-dacledit -action write -rights WriteMembers -principal {{principal_name}} -target {{group_name}} {{identity}}"
+
+  # === ADVANCED OPERATIONS ===
+  - title: impacket-dacledit - grant rights with inheritance
+    desc: |
+      Applies permissions to a target (like an OU or Container) and enables inheritance.
+      This ensures that all objects created within that container will inherit the specified rights.
+      It is an effective way to maintain persistence across multiple objects within an Organizational Unit.
+      Note that objects with 'adminCount=1' (protected groups) might not inherit these permissions depending on system settings.
+    command: "impacket-dacledit -action write -rights {{rights|FullControl}} -principal {{principal_name}} -target-dn {{ou_dn}} -inheritance {{identity}}"
+
+  - title: impacket-dacledit - grant custom right via guid
+    desc: |
+      Allows granting a specific extended right using its unique GUID.
+      This is used for permissions not covered by the standard shortcuts (like DCSync or ResetPassword).
+      You must provide the exact GUID for the Active Directory right you wish to assign.
+      Use this for granular control or when targeting non-standard AD object classes.
+    command: "impacket-dacledit -action write -rights Custom -rights-guid {{guid}} -principal {{principal_name}} -target {{target_name}} {{identity}}"
+
+  # === MAINTENANCE & CLEANUP ===
+  - title: impacket-dacledit - backup dacl to file
+    desc: |
+      Exports the current DACL of a target object to a local file for backup purposes.
+      This is a critical safety step before making any modifications to Active Directory permissions.
+      If an exploit fails or causes issues, the backup file can be used to restore the original state.
+      Always perform a backup in production environments to minimize the risk of permanent disruption.
+    command: "impacket-dacledit -action backup -target {{target_name}} -file {{backup_filename|backup.json}} {{identity}}"
+
+  - title: impacket-dacledit - restore dacl from file
+    desc: |
+      Restores the DACL of an object using a previously created backup file.
+      This action overwrites the existing DACL with the state captured in the backup.
+      It is the primary method for cleaning up after an engagement and returning the environment to its original state.
+      Requires the JSON file generated during the backup phase.
+    command: "impacket-dacledit -action restore -target {{target_name}} -file {{backup_filename}} {{identity}}"
+
+  - title: impacket-dacledit - remove specific ace
+    desc: |
+      Removes a specific Access Control Entry (ACE) from a target object's DACL.
+      This is used to revoke rights previously granted or to remove legitimate access that interferes with an operation.
+      You must specify the principal whose rights are being removed.
+      Be careful not to remove essential administrative access which could lock out legitimate administrators.
+    command: "impacket-dacledit -action remove -rights {{rights_to_remove|FullControl}} -principal {{principal_name}} -target {{target_name}} {{identity}}"
+
+  # === AUTHENTICATION VARIANTS ===
+  - title: impacket-dacledit - authenticate with NTLM hashes
+    desc: |
+      Performs DACL operations using NTLM hashes instead of a cleartext password.
+      This is the standard 'Pass-the-Hash' (PtH) method for authentication.
+      It is useful when you have extracted hashes but do not have the plaintext password.
+      Ensure the hash format is LMHASH:NTHASH (use empty LM hash if unknown).
+    command: "impacket-dacledit -hashes {{lmhash:nthash}} -target {{target_name}} -action read {{identity}}"
+
+  - title: impacket-dacledit - authenticate with Kerberos
+    desc: |
+      Uses Kerberos authentication for the connection to the Domain Controller.
+      The tool will attempt to use credentials from the ccache file specified in the KRB5CCNAME environment variable.
+      This is often required in environments where NTLM is disabled or for more stealthy operations.
+      You must provide the -dc-ip or -dc-host flag to ensure correct ticket routing.
+    command: "impacket-dacledit -k -no-pass -dc-ip {{dc_ip}} -target {{target_name}} -action read {{identity}}"

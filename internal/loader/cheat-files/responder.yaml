@@ -1,0 +1,96 @@
+tool: responder
+tags: [network, security, pentest, poisoning, ntlm, enumeration, exploitation]
+
+actions:
+  # === RECONNAISSANCE & ANALYSIS ===
+  - title: responder - analyze mode
+    desc: |
+      Analyze mode allows you to see NBT-NS, BROWSER, and LLMNR requests without actively responding to them. 
+      This is a passive reconnaissance step used to identify if there is any vulnerable traffic on the network.
+      It is highly recommended to run this first to avoid detection and understand the network dynamics.
+      No hashes will be captured in this mode as it does not poison the requests.
+    command: "responder -I {{interface|eth0}} -A"
+
+  # === CORE POISONING ACTIONS ===
+  - title: responder - basic poisoning
+    desc: |
+      Starts the default poisoning process for LLMNR, NBT-NS, and MDNS protocols. 
+      This is the most common usage of the tool to capture NTLMv1/v2 hashes from network clients.
+      The tool will automatically start various servers like SMB, HTTP, and SQL to collect credentials.
+      Ensure you are running this in an environment where you have permission, as it can be disruptive.
+    command: "responder -I {{interface|eth0}}"
+
+  - title: responder - basic poisoning with verbosity
+    desc: |
+      Runs the standard poisoning modules with increased verbosity to see more detailed output.
+      This is helpful for troubleshooting connection issues or seeing specific request details from targets.
+      It helps in identifying which specific protocol (e.g., SMB vs HTTP) a target is using to communicate.
+      The verbose mode provides real-time feedback on every packet intercepted and processed.
+    command: "responder -I {{interface|eth0}} -v"
+
+  # === WPAD & PROXY EXPLOITATION ===
+  - title: responder - wpad exploitation
+    desc: |
+      Starts a rogue WPAD (Web Proxy Auto-Discovery) server to intercept web traffic.
+      When clients attempt to discover proxy settings, Responder will provide a malicious wpad.dat file.
+      This directs the client's web traffic through the attacker's machine for credential harvesting.
+      This is one of the most effective ways to capture credentials from modern Windows environments.
+    command: "responder -I {{interface|eth0}} -w"
+
+  - title: responder - force wpad authentication
+    desc: |
+      Forces NTLM or Basic authentication when a target attempts to retrieve the wpad.dat file.
+      While this may cause a login prompt to appear on the victim's machine, it significantly increases the chance of hash capture.
+      Use this when standard WPAD poisoning is not yielding results.
+      Be aware that a login prompt might alert more technically savvy users to the attack.
+    command: "responder -I {{interface|eth0}} -wF"
+
+  - title: responder - force proxy authentication
+    desc: |
+      Forces NTLM (transparently) or Basic (via prompt) authentication for the rogue proxy.
+      This option is highly effective because it doesn't strictly require the WPAD server to be active.
+      It intercepts proxy-aware applications and forces them to authenticate against the attacker.
+      Note that this can be very intrusive and might break internet connectivity for the victim if handled improperly.
+    command: "responder -I {{interface|eth0}} -P"
+
+  # === DHCP EXPLOITATION ===
+  - title: responder - dhcp poisoning
+    desc: |
+      Enables answers for DHCP broadcast requests to inject a rogue WPAD server in the DHCP response.
+      This is a powerful technique that works even if LLMNR or NBT-NS are disabled on the network.
+      By becoming the "DHCP server" for a moment, you can tell the client exactly where to look for proxy settings.
+      Requires the attacker to be on the same broadcast domain as the victim requesting an IP.
+    command: "responder -I {{interface|eth0}} -d"
+
+  - title: responder - dhcp dns poisoning
+    desc: |
+      Injects a rogue DNS server address into the DHCP response instead of a WPAD server.
+      This can allow for further DNS spoofing attacks against the target machine.
+      It is an alternative to the standard DHCP WPAD injection method.
+      Use this when you want to redirect all DNS queries from the target to a controlled DNS server.
+    command: "responder -I {{interface|eth0}} -D"
+
+  # === ADVANCED CONFIGURATIONS ===
+  - title: responder - use external ip redirection
+    desc: |
+      Tells Responder to poison requests with a specific external IP address rather than its own interface IP.
+      This is useful when the attacker's machine is behind a NAT or when traffic needs to be redirected to a different server.
+      Ensure the external IP provided is reachable by the victims on the network.
+      It is commonly used in complex pivoting scenarios during internal engagements.
+    command: "responder -I {{interface|eth0}} -e {{external_ip}}"
+
+  - title: responder - force lm hashing downgrade
+    desc: |
+      Forces a downgrade to the older and much weaker LM (LAN Manager) hashing for Windows XP/2003 and earlier.
+      LM hashes are significantly easier to crack than modern NTLMv2 hashes.
+      This is generally only useful in legacy environments where old Windows versions are still in use.
+      Modern Windows systems will typically ignore this downgrade attempt due to security policies.
+    command: "responder -I {{interface|eth0}} --lm"
+
+  - title: responder - webdav authentication prompt
+    desc: |
+      Changes the SMB error code to STATUS_LOGON_FAILURE to trigger WebDAV authentications.
+      By default, Responder returns ACCESS_DENIED, but some services like WebClient require a logon failure to prompt.
+      This is particularly useful for capturing hashes from the Windows WebClient service.
+      It can help bypass certain SMB signing requirements by forcing the client to use HTTP-based WebDAV.
+    command: "responder -I {{interface|eth0}} -E"

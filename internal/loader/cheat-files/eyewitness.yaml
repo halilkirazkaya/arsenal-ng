@@ -1,0 +1,96 @@
+tool: eyewitness
+tags: [web, reconnaissance, enumeration, scanner, pentest, osint, security, automation]
+
+actions:
+  # === BASIC USAGE ===
+  - title: eyewitness - scan urls from file
+    desc: |
+      Take screenshots of multiple URLs provided in a line-separated text file. 
+      This is the most common way to use the tool during the initial discovery phase of a penetration test to visualize the attack surface. 
+      The headless flag is used to run the process in the background without opening a visible browser window.
+      Results are saved in the specified directory, creating an easy-to-navigate HTML report.
+    command: "eyewitness -f {{url_file}} -d {{output_dir|screens}} --headless"
+
+  - title: eyewitness - scan single url
+    desc: |
+      Capture a screenshot, server headers, and basic info for a single specific target URL. 
+      Use this when you want to quickly document the state of a specific web application without processing a full list. 
+      It provides a rapid way to verify if a site is active and what technology stack it might be running.
+      This is particularly useful for verifying findings discovered during manual testing.
+    command: "eyewitness --single {{url}} -d {{output_dir|single_scan}}"
+
+  # === INTEGRATION & INPUTS ===
+  - title: eyewitness - scan from nmap xml
+    desc: |
+      Parse an Nmap XML output file to identify and screenshot web services discovered during a port scan. 
+      This bridge between network scanning and web reconnaissance saves time by automatically targeting discovered HTTP/HTTPS services. 
+      It is highly effective for large internal network ranges where many web interfaces might be hidden on non-standard ports.
+      Ensure the Nmap scan was run with the -oX flag to generate the required XML format.
+    command: "eyewitness -x {{nmap_xml_file}} -d {{output_dir|nmap_results}} --web"
+
+  - title: eyewitness - scan from nessus file
+    desc: |
+      Import and process a .nessus scan file to capture screenshots of identified web applications.
+      This allows security professionals to visually triage vulnerabilities reported by Nessus and prioritize manual verification.
+      It helps in distinguishing between false positives and actual exploitable web interfaces.
+      The tool will extract host and port information directly from the Nessus XML structure.
+    command: "eyewitness -x {{nessus_file}} -d {{output_dir|nessus_results}} --web"
+
+  # === PERFORMANCE & TIMING ===
+  - title: eyewitness - high performance scan
+    desc: |
+      Increase the number of concurrent threads and adjust the timeout for faster processing of large URL lists. 
+      Increasing threads can significantly speed up the scan but may cause stability issues on the local machine or the target network.
+      Adjusting the timeout is useful when dealing with slow-responding applications or high-latency network connections.
+      Be careful with high thread counts as they might trigger rate limiting or DoS protections on the target.
+    command: "eyewitness -f {{url_file}} --threads {{thread_count|10}} --timeout {{timeout_seconds|15}} -d {{output_dir|fast_scan}}"
+
+  - title: eyewitness - stealthy scan with jitter
+    desc: |
+      Add random delays (jitter) between requests to mimic human behavior and avoid detection. 
+      This is essential during red team engagements where avoiding automated detection systems and WAF alerts is a priority. 
+      The jitter flag adds a random number of seconds to the delay, making the traffic pattern less predictable.
+      Note that using jitter and delays will significantly increase the total time required to complete the scan.
+    command: "eyewitness -f {{url_file}} --jitter {{jitter_seconds|5}} --delay {{delay_seconds|2}} -d {{output_dir|stealth_scan}}"
+
+  # === ADVANCED CONFIGURATION ===
+  - title: eyewitness - scan through proxy
+    desc: |
+      Route all web requests through a specified proxy server such as Burp Suite, Zap, or a SOCKS5 proxy. 
+      This is necessary when targets are only accessible through a specific gateway or when you want to capture the traffic for further analysis. 
+      Ensure the proxy is active and reachable; otherwise, all requests within EyeWitness will fail.
+      You can specify the type as 'socks5' or 'http' depending on your proxy configuration.
+    command: "eyewitness -f {{url_file}} --proxy-ip {{proxy_host|127.0.0.1}} --proxy-port {{proxy_port|8080}} --proxy-type {{proxy_type|socks5}} -d {{output_dir|proxy_scan}}"
+
+  - title: eyewitness - custom user-agent and cookies
+    desc: |
+      Use a custom User-Agent string and session cookies for the requests. 
+      Providing a custom User-Agent can help bypass filters that block default automation headers or mimic specific browser versions. 
+      Adding cookies allows EyeWitness to take screenshots of pages that require authentication or specific session states.
+      Format cookies as a comma-separated list of key=value pairs.
+    command: "eyewitness -f {{url_file}} --user-agent \"{{user_agent|Mozilla/5.0}}\" --cookies \"{{cookie_string|sessionid=12345}}\" -d {{output_dir|authenticated_scan}}"
+
+  - title: eyewitness - scan custom web ports
+    desc: |
+      Instruct EyeWitness to treat specific non-standard ports as HTTP or HTTPS services. 
+      By default, the tool only looks for common ports like 80, 443, 8080, etc. 
+      This option ensures you don't miss administrative interfaces or dev environments running on unusual ports like 8443 or 9000.
+      It is particularly useful for identifying hidden management consoles on IoT devices or cloud instances.
+    command: "eyewitness -f {{url_file}} --add-http-ports {{http_ports|8001,8002}} --add-https-ports {{https_ports|9443}} -d {{output_dir|custom_ports}}"
+
+  # === MAINTENANCE & RESUME ===
+  - title: eyewitness - resume interrupted scan
+    desc: |
+      Resume a previously interrupted or crashed scan using the local database file generated during the initial run. 
+      EyeWitness automatically creates a database (usually ew.db) to track progress, preventing the need to restart large scans from scratch. 
+      This feature is a lifesaver when dealing with thousands of targets where network stability or system resources might be an issue.
+      Simply point the tool to the path of the existing .db file to pick up where it left off.
+    command: "eyewitness --resume {{db_file|ew.db}}"
+
+  - title: eyewitness - auto-prepend protocol
+    desc: |
+      Automatically add http:// and https:// prefixes to a list of raw domain names or IP addresses. 
+      This eliminates the need to manually format target lists that are exported from other tools without a protocol specified. 
+      It ensures that EyeWitness attempts to connect to both secure and insecure versions of the target to find the active web service.
+      This is a great time-saver when working with raw OSINT data or domain enumeration results.
+    command: "eyewitness -f {{domain_file}} --prepend-https -d {{output_dir|prepended_scan}}"

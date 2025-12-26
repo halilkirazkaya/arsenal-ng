@@ -1,0 +1,98 @@
+tool: searchsploit
+tags: [security, exploitation, pentest, vulnerability, exploit-db, reconnaissance, enumeration]
+
+actions:
+  # === SEARCHING OPERATIONS ===
+  - title: searchsploit - basic exploit search
+    desc: |
+      Search for exploits and shellcodes in the local Exploit-DB database using one or more keywords. 
+      This is the most common starting point for finding public proof-of-concept code for a target service. 
+      By default, the tool performs a case-insensitive search across both titles and file paths.
+    command: "searchsploit {{search_terms}}"
+
+  - title: searchsploit - search by exploit title only
+    desc: |
+      Perform a search restricted solely to the exploit titles, ignoring the file path. 
+      This is extremely useful for reducing false positives when searching for version numbers like "2.0". 
+      Folder names often contain numbers that can clutter results if path searching is enabled.
+    command: "searchsploit -t {{search_term}}"
+
+  - title: searchsploit - exact title match
+    desc: |
+      Perform an exact and order-sensitive match on the exploit title. 
+      Use this when you know the specific name of a vulnerability or software and want to avoid similar but irrelevant results. 
+      For example, searching for "WordPress 4.1" with this flag will not return "WordPress Core 4.1".
+    command: "searchsploit -e {{exact_title}}"
+
+  - title: searchsploit - search using cve identifier
+    desc: |
+      Search the database for exploits associated with a specific Common Vulnerabilities and Exposures (CVE) ID. 
+      This is highly effective after running vulnerability scanners like Nessus or OpenVAS that provide CVE numbers. 
+      It directly links identified vulnerabilities to available exploitation scripts in the repository.
+    command: "searchsploit --cve {{cve_id|2021-44228}}"
+
+  - title: searchsploit - case sensitive search
+    desc: |
+      Execute a search where the case of the letters in the search term matters. 
+      Standard searches are case-insensitive, but specific software names might require case sensitivity to filter results. 
+      This helps narrow down results when a common word is part of a specific product name.
+    command: "searchsploit -c {{search_term}}"
+
+  - title: searchsploit - exclude specific terms
+    desc: |
+      Filter out unwanted results from the search output by defining terms to exclude. 
+      You can chain multiple exclusion terms using the pipe symbol within the quotes. 
+      This is useful for removing "Denial of Service" (DoS) exploits or "PoC" files when looking for functional remote exploits.
+    command: "searchsploit {{search_term}} --exclude={{exclude_pattern|'(PoC)|/dos/'}}"
+
+  # === FILE & CONTENT OPERATIONS ===
+  - title: searchsploit - mirror exploit to current directory
+    desc: |
+      Copy a specific exploit file from the local repository directly to your current working directory. 
+      This eliminates the need to manually navigate the file system to find the script location. 
+      Once mirrored, you can easily modify, compile, or execute the exploit for your engagement.
+    command: "searchsploit -m {{edb_id}}"
+
+  - title: searchsploit - examine exploit content
+    desc: |
+      Open the source code of an exploit using the system's default pager (usually 'less'). 
+      This allows you to quickly inspect the exploit's requirements, usage instructions, and potential risks. 
+      Always examine exploit code before execution to ensure it does not contain malicious payloads or destructive behavior.
+    command: "searchsploit -x {{edb_id}}"
+
+  - title: searchsploit - show exploit path and copy to clipboard
+    desc: |
+      Display the full absolute path of an exploit file on the local system. 
+      On supported systems, this command also attempts to copy the file path to the clipboard for easy pasting. 
+      It is useful when you need to provide the path to another tool or manual compiler.
+    command: "searchsploit -p {{edb_id}}"
+
+  # === OUTPUT FORMATTING ===
+  - title: searchsploit - display results as json
+    desc: |
+      Generate search results in JSON format instead of the standard tabular view. 
+      This is essential for automation scripts or when you need to pipe data into other tools like 'jq'. 
+      JSON output provides detailed metadata about each exploit entry including ID, title, and platform.
+    command: "searchsploit -j {{search_term}}"
+
+  - title: searchsploit - show exploit-db urls
+    desc: |
+      Display the full web URLs to the Exploit-DB website for each search result instead of local file paths. 
+      This is helpful if you are working on a machine without the full database or need to share a link with a colleague. 
+      It allows for quick access to the online documentation and comments section for each exploit.
+    command: "searchsploit -w {{search_term}}"
+
+  # === AUTOMATION & MAINTENANCE ===
+  - title: searchsploit - analyze nmap xml output
+    desc: |
+      Read an Nmap XML scan file and automatically search for exploits for all detected service versions. 
+      This significantly speeds up the transition from scanning to the exploitation phase of a pentest. 
+      It checks the version strings identified by Nmap's service detection against the local exploit database.
+    command: "searchsploit --nmap {{nmap_xml_file}}"
+
+  - title: searchsploit - update exploit database
+    desc: |
+      Update the local exploit-database repository to the latest available version. 
+      This command fetches new exploits and shellcodes from the central Git repository or package manager. 
+      Regular updates are critical to ensure you have access to the most recent public exploits for newly discovered vulnerabilities.
+    command: "searchsploit -u"

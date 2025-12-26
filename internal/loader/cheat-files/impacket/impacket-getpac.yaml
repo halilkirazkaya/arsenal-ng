@@ -1,0 +1,49 @@
+tool: impacket-getpac
+tags: [active-directory, kerberos, security, pentest, enumeration, impacket, pac]
+
+actions:
+  # === AUTHENTICATION METHODS ===
+
+  - title: impacket-getPac - basic authentication with password
+    desc: |
+      Retrieves the Privilege Attribute Certificate (PAC) of a target user by authenticating with a cleartext password. 
+      This command is used to examine the group memberships and security identifiers (SIDs) associated with a specific domain user. 
+      The tool requests a service ticket and extracts the PAC data provided by the Domain Controller. 
+      Ensure you have valid domain credentials before running this command.
+    command: "impacket-getPac -targetUser {{target_user}} {{domain}}/{{username}}:{{password}}"
+
+  - title: impacket-getPac - authentication with NTLM hashes
+    desc: |
+      Performs PAC retrieval using NTLM hashes for authentication instead of a cleartext password. 
+      This is a common technique in post-exploitation scenarios known as Pass-the-Hash (PtH). 
+      It allows an attacker or auditor to enumerate user details without knowing the actual password. 
+      If the LM hash is unknown, use the standard null provider string (32 zeros).
+    command: "impacket-getPac -targetUser {{target_user}} -hashes {{hash}} {{domain}}/{{username}}"
+
+  - title: impacket-getPac - interactive password prompt
+    desc: |
+      Prompts the user to enter the password interactively rather than providing it on the command line. 
+      This is a more secure method of execution as it prevents the password from being stored in the shell history file (e.g., .bash_history). 
+      The tool will behave identically to the basic authentication method once the password is provided. 
+      Use this when operating in environments where command-line logging is strictly monitored.
+    command: "impacket-getPac -targetUser {{target_user}} {{domain}}/{{username}}"
+
+  # === ADVANCED LOGGING AND TROUBLESHOOTING ===
+
+  - title: impacket-getPac - verbose debugging with timestamps
+    desc: |
+      Runs the PAC retrieval process with debug output enabled and timestamps added to every log entry. 
+      The debug flag provides detailed information about the Kerberos handshake and any errors encountered during the request. 
+      Timestamps are highly useful for incident response correlation and keeping track of activity logs. 
+      This is recommended when troubleshooting connectivity issues or non-standard Kerberos configurations.
+    command: "impacket-getPac -debug -ts -targetUser {{target_user}} {{domain}}/{{username}}:{{password}}"
+
+  # === SPECIALIZED TARGETING ===
+
+  - title: impacket-getPac - retrieve administrator PAC
+    desc: |
+      Specifically targets the built-in Administrator account to retrieve its PAC information. 
+      Retrieving the PAC of high-privileged users can help identify sensitive group memberships or custom SIDs. 
+      The requester must still provide valid domain credentials to initiate the Kerberos request. 
+      Be aware that requesting PACs for sensitive accounts may trigger alerts in environments with robust identity monitoring.
+    command: "impacket-getPac -targetUser {{target_admin|Administrator}} {{domain}}/{{username}}:{{password}}"

@@ -1,0 +1,55 @@
+tool: impacket-mqtt_check
+tags: [network, iot, security, pentest, enumeration, mqtt, authentication]
+
+actions:
+  # === BASIC AUTHENTICATION CHECKS ===
+  - title: impacket-mqtt_check - anonymous login check
+    desc: |
+      Attempts to connect to the MQTT broker without providing any credentials.
+      This is a crucial first step in security assessments to identify misconfigured brokers that allow public access.
+      If successful, it indicates that anyone can potentially subscribe to or publish messages on the broker.
+    command: "impacket-mqtt_check {{target_ip}}"
+
+  - title: impacket-mqtt_check - basic credential check
+    desc: |
+      Tests a specific username and password against the MQTT service.
+      Use this command when you have obtained potential credentials through reconnaissance or default password lists.
+      It helps verify if the provided credentials grant access to the message queuing telemetry transport service.
+    command: "impacket-mqtt_check {{username}}:{{password}}@{{target_ip}}"
+
+  - title: impacket-mqtt_check - domain authentication check
+    desc: |
+      Performs an authentication check using domain-qualified credentials.
+      This is useful in corporate environments where MQTT brokers might be integrated with Active Directory or other identity providers.
+      The format follows the standard Impacket target syntax: domain/username:password@target.
+    command: "impacket-mqtt_check {{domain}}/{{username}}:{{password}}@{{target_ip}}"
+
+  # === ADVANCED CONNECTION OPTIONS ===
+  - title: impacket-mqtt_check - secure connection with custom port
+    desc: |
+      Connects to the MQTT broker using SSL/TLS encryption on a non-standard port.
+      Many secure MQTT (MQTTS) implementations use port 8883 instead of the default 1883.
+      Use the -ssl flag to ensure the tool attempts an encrypted handshake with the target.
+    command: "impacket-mqtt_check -ssl -port {{port|8883}} {{target_ip}}"
+
+  - title: impacket-mqtt_check - custom client identifier
+    desc: |
+      Specifies a fixed Client ID to be used during the MQTT connection phase.
+      By default, the tool generates a random ID, but some brokers may restrict connections to specific ID patterns or known devices.
+      Setting a custom ID can help in bypassing certain ACLs or simulating a specific IoT device.
+    command: "impacket-mqtt_check -client-id {{client_id|device_01}} {{target_ip}}"
+
+  # === TROUBLESHOOTING AND LOGGING ===
+  - title: impacket-mqtt_check - verbose debug with timestamps
+    desc: |
+      Runs the check in debug mode while prefixing every log entry with a timestamp.
+      This is highly recommended for troubleshooting network timeouts or protocol-level authentication errors.
+      The detailed output reveals the underlying Impacket library calls and the raw responses from the broker.
+    command: "impacket-mqtt_check -debug -ts {{target_ip}}"
+
+  - title: impacket-mqtt_check - custom port connection
+    desc: |
+      Tests the MQTT service on a specific port without using SSL.
+      This is useful when the MQTT service is hosted on an alternative port (e.g., 1884) to avoid detection or conflict.
+      Always verify the port status with a port scanner like nmap before running this command.
+    command: "impacket-mqtt_check -port {{port|1883}} {{target_ip}}"

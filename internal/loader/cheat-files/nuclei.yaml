@@ -1,0 +1,136 @@
+tool: nuclei
+tags: [vulnerability-scanner, security, pentest, automation, network, web, reconnaissance]
+
+actions:
+  # === TARGETING & BASIC SCANS ===
+  - title: nuclei - scan single target
+    desc: |
+      Runs a standard vulnerability scan against a single target URL or host.
+      This command uses the default template directory to identify misconfigurations and vulnerabilities.
+      It is the most common entry point for a quick security assessment of a specific web application.
+    command: "nuclei -u {{target}}"
+
+  - title: nuclei - scan list of targets
+    desc: |
+      Executes templates against multiple targets provided in a line-separated text file.
+      This is ideal for large-scale infrastructure scanning or bug bounty automation.
+      Ensure the file contains valid URLs or IP addresses to avoid resolution errors.
+    command: "nuclei -l {{targets_file|hosts.txt}}"
+
+  - title: nuclei - automatic scan with technology detection
+    desc: |
+      Utilizes Wappalyzer-based technology detection to automatically map relevant templates to the target.
+      This mode reduces scan time by only running templates that match the identified tech stack (e.g., WordPress, Nginx).
+      It is highly recommended for efficient scanning without manually specifying template tags.
+    command: "nuclei -u {{target}} -as"
+
+  # === TEMPLATE FILTERING & SELECTION ===
+  - title: nuclei - scan by specific tags
+    desc: |
+      Filters and runs only the templates that match specific tags like cve, exposure, or default-login.
+      This allows for surgical scanning when looking for specific classes of vulnerabilities.
+      Multiple tags can be provided as a comma-separated list to broaden the scope.
+    command: "nuclei -u {{target}} -tags {{tags|cve,config,exposure}}"
+
+  - title: nuclei - scan by severity level
+    desc: |
+      Runs templates filtered by their severity rating, such as critical, high, or medium.
+      This is extremely useful during time-sensitive engagements to prioritize the most impactful findings first.
+      Use this to ignore informational or low-severity findings that might clutter your report.
+    command: "nuclei -u {{target}} -severity {{severity|critical,high}}"
+
+  - title: nuclei - run new templates only
+    desc: |
+      Executes only the templates that were added in the latest release of the nuclei-templates repository.
+      This is a great way to stay updated with the latest 1-day vulnerabilities and zero-day disclosures.
+      It ensures you are checking for the most recent threats without re-scanning old vulnerabilities.
+    command: "nuclei -u {{target}} -nt"
+
+  - title: nuclei - run specific template directory
+    desc: |
+      Targets a specific category of vulnerabilities by pointing to a specific template folder.
+      For example, you can point to 'http/cves/' to only check for known CVEs.
+      This helps in focusing the scan on a specific protocol or vulnerability type.
+    command: "nuclei -u {{target}} -t {{template_path|http/vulnerabilities/}}"
+
+  # === ADVANCED SCANNING MODES ===
+  - title: nuclei - headless browser scanning
+    desc: |
+      Enables templates that require a headless browser to render JavaScript-heavy applications.
+      This is necessary for modern Single Page Applications (SPAs) where standard HTTP requests are insufficient.
+      Note that this requires more system resources and may be slower than standard scanning.
+    command: "nuclei -u {{target}} -headless"
+
+  - title: nuclei - DAST / Fuzzing mode
+    desc: |
+      Enables Dynamic Application Security Testing (DAST) templates focused on parameter fuzzing.
+      This mode attempts to find vulnerabilities like XSS, SQLi, and SSRF by manipulating input fields.
+      Use this with caution as it can be intrusive and might generate a significant amount of traffic.
+    command: "nuclei -u {{target}} -dast"
+
+  - title: nuclei - passive scanning
+    desc: |
+      Enables passive HTTP response processing mode, which does not send new requests for every template.
+      It analyzes the responses received from initial requests to identify vulnerabilities or exposures.
+      This is much quieter and less intrusive than active scanning, making it suitable for stealthy reconnaissance.
+    command: "nuclei -u {{target}} -passive"
+
+  # === PERFORMANCE & EVASION ===
+  - title: nuclei - rate limiting and concurrency
+    desc: |
+      Controls the speed of the scan by setting the maximum number of requests per second.
+      Adjusting rate limits is crucial to avoid triggering WAF blocks or crashing fragile legacy services.
+      'rl' sets requests per second, while 'c' sets the number of templates to run in parallel.
+    command: "nuclei -u {{target}} -rl {{rate|50}} -c {{concurrency|25}}"
+
+  - title: nuclei - custom headers and cookies
+    desc: |
+      Injects custom HTTP headers or authentication cookies into every request sent by Nuclei.
+      This is essential for scanning protected areas of an application that require an active session.
+      Format the header as 'Header-Name: value' and use multiple flags for multiple headers.
+    command: "nuclei -u {{target}} -H \"{{header|Cookie: session=12345}}\""
+
+  - title: nuclei - proxy integration
+    desc: |
+      Routes all outgoing traffic through a specified HTTP or SOCKS5 proxy.
+      This can be used to tunnel traffic through Burp Suite for deeper analysis or to mask the scanner's IP address.
+      It is also useful for reaching internal targets through a pivot host.
+    command: "nuclei -u {{target}} -proxy {{proxy_url|http://127.0.0.1:8080}}"
+
+  # === OSINT & EXTERNAL ENGINES ===
+  - title: nuclei - uncover engine (Shodan/Censys)
+    desc: |
+      Integrates with 'Uncover' to pull targets directly from search engines like Shodan, Censys, or Fofa.
+      This allows you to scan the entire internet for specific patterns or vulnerabilities based on a query.
+      You must have the respective API keys configured in your environment or config file.
+    command: "nuclei -uc -uq \"{{query|app:'Apache}}\" -ue {{engine|shodan}}"
+
+  # === REPORTING & OUTPUT ===
+  - title: nuclei - export results to JSON
+    desc: |
+      Saves the scan findings into a JSON format for easy integration with other tools or custom scripts.
+      JSON output includes detailed metadata about each finding, including request/response pairs if enabled.
+      This is the preferred format for automated pipelines and data processing.
+    command: "nuclei -u {{target}} -je {{output_file|results.json}}"
+
+  - title: nuclei - export results to Markdown
+    desc: |
+      Generates a human-readable report in Markdown format, organized by vulnerability type.
+      This is perfect for creating quick documentation or reports for clients and stakeholders.
+      The output directory will contain individual files for different findings.
+    command: "nuclei -u {{target}} -me {{output_dir|nuclei_report}}"
+
+  - title: nuclei - silent mode with only findings
+    desc: |
+      Suppresses all banner and progress information, displaying only the actual vulnerabilities found.
+      This is useful when piping Nuclei output into other command-line tools like 'notify' or 'grep'.
+      It keeps the terminal clean and focuses only on actionable data.
+    command: "nuclei -u {{target}} -silent"
+
+  # === MAINTENANCE ===
+  - title: nuclei - update templates and tool
+    desc: |
+      Updates the Nuclei engine and the community-provided templates to the latest version.
+      Regular updates are vital because the community adds dozens of new vulnerability templates every week.
+      Run this frequently to ensure your scanning capabilities remain current.
+    command: "nuclei -ut && nuclei -version"

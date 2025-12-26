@@ -1,0 +1,63 @@
+tool: impacket-lookupsid
+tags: [pentest, enumeration, security, active-directory, smb, reconnaissance, windows]
+
+actions:
+  # === BASIC ENUMERATION ===
+  - title: impacket-lookupsid - anonymous sid lookup
+    desc: |
+      This command attempts to enumerate SIDs using a null session or anonymous connection. 
+      It is highly effective against older Windows systems or misconfigured environments where LSA access is not properly restricted. 
+      If successful, it reveals valid usernames and groups by translating RIDs to their corresponding account names without requiring valid credentials.
+    command: "impacket-lookupsid {{username|''}}@{{target}}"
+
+  - title: impacket-lookupsid - authenticated enumeration
+    desc: |
+      This action uses valid domain or local credentials to perform a reliable SID enumeration. 
+      By default, the tool iterates through RIDs up to 4000 to identify users, groups, and aliases associated with the target. 
+      This is a crucial step in internal reconnaissance to map out the target's security principal structure and discover hidden accounts.
+    command: "impacket-lookupsid {{domain}}/{{username}}:{{password}}@{{target}}"
+
+  # === ADVANCED AUTHENTICATION ===
+  - title: impacket-lookupsid - pass-the-hash enumeration
+    desc: |
+      This command utilizes the Pass-the-Hash (PtH) technique to authenticate and perform SID lookups without needing a cleartext password. 
+      It is particularly useful when you have obtained NTLM hashes through techniques like LLMNR/NBT-NS poisoning or from a dumped SAM database. 
+      Ensure the LM hash is set to the standard 32-zero placeholder if only the NT hash is available.
+    command: "impacket-lookupsid -hashes {{hash}} {{domain}}/{{username}}@{{target}}"
+
+  - title: impacket-lookupsid - kerberos authentication
+    desc: |
+      This command uses Kerberos for authentication instead of NTLM, which helps in environments where NTLM is disabled or to stay under the radar. 
+      The tool will attempt to grab credentials from the ccache file specified in the KRB5CCNAME environment variable. 
+      Ensure that your system's time is synchronized with the Domain Controller and that the target name is provided as a FQDN.
+    command: "impacket-lookupsid -k -no-pass {{domain}}/{{username}}@{{target}}"
+
+  # === CUSTOM CONFIGURATION ===
+  - title: impacket-lookupsid - extended rid range
+    desc: |
+      This command allows you to specify a higher maximum Relative Identifier (RID) value to ensure no users or groups are missed. 
+      While the default value is 4000, large Active Directory environments often have accounts with significantly higher RID values. 
+      Increasing this value will cause the scan to take more time but results in a much more comprehensive user list.
+    command: "impacket-lookupsid {{domain}}/{{username}}@{{target}} {{max_rid|10000}}"
+
+  - title: impacket-lookupsid - target specific ip
+    desc: |
+      Use this command when the target's NetBIOS name is known but cannot be resolved by your current DNS settings. 
+      The -target-ip flag forces the connection to a specific IP address while maintaining the target name for authentication purposes. 
+      This is particularly useful when pivoting through different network segments or using a VPN.
+    command: "impacket-lookupsid -target-ip {{ip_address}} {{domain}}/{{username}}@{{target_name}}"
+
+  # === SPECIALIZED ENUMERATION ===
+  - title: impacket-lookupsid - domain sid enumeration
+    desc: |
+      The -domain-sids flag specifically instructs the tool to enumerate SIDs for the entire domain. 
+      This often involves the target server forwarding the LSA requests to the primary Domain Controller if the target itself is not a DC. 
+      Identifying the Domain SID is a critical prerequisite for advanced attacks like generating Golden or Silver Tickets.
+    command: "impacket-lookupsid -domain-sids {{domain}}/{{username}}@{{target}}"
+
+  - title: impacket-lookupsid - custom smb port
+    desc: |
+      This command is used when the SMB service is running on a non-standard port, which might occur during port forwarding or tunneling. 
+      Specifying the custom port ensures the tool connects to the correct service listener. 
+      This is commonly used when interacting with targets hidden behind a firewall or a proxy redirector.
+    command: "impacket-lookupsid -port {{port|445}} {{domain}}/{{username}}@{{target}}"

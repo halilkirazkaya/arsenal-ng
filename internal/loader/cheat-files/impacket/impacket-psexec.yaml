@@ -1,0 +1,78 @@
+tool: impacket-psexec
+tags: [pentaest, security, exploitation, lateral-movement, smb, windows, impacket]
+
+actions:
+  # === AUTHENTICATION METHODS ===
+  - title: impacket-psexec - basic password authentication
+    desc: |
+      Provides a remote interactive shell on the target machine using a plaintext password.
+      This is the most common way to gain SYSTEM level access if you have administrative credentials.
+      Note that this method requires the user to have administrative privileges and access to the ADMIN$ share.
+      Execution involves creating a temporary service on the target which might be flagged by AV/EDR.
+    command: "impacket-psexec {{domain|.}}/{{username}}:{{password}}@{{target_ip}}"
+
+  - title: impacket-psexec - pass-the-hash (ntlm)
+    desc: |
+      Performs authentication using NTLM hashes instead of a cleartext password.
+      This is extremely useful during lateral movement when you have extracted hashes from memory or SAM databases.
+      If you only have the NT hash, you can leave the LM hash part empty (e.g., :NTHASH).
+      This bypasses the need for the actual password while still granting full administrative shell access.
+    command: "impacket-psexec -hashes {{hash}} {{domain|.}}/{{username}}@{{target_ip}}"
+
+  - title: impacket-psexec - kerberos authentication (ticket)
+    desc: |
+      Authenticates using a Kerberos ticket stored in the KRB5CCNAME environment variable.
+      The -k flag tells the tool to use Kerberos, and -no-pass ensures it doesn't prompt for a password.
+      This is essential in environments where NTLM is disabled or when performing silver/golden ticket attacks.
+      Ensure your target matches the SPN in the ticket and that DNS resolution is working correctly for the domain.
+    command: "impacket-psexec -k -no-pass {{domain}}/{{username}}@{{target_name}}"
+
+  - title: impacket-psexec - kerberos authentication (aes key)
+    desc: |
+      Uses a specific AES hex key (128 or 256 bits) for Kerberos authentication instead of a password.
+      This is often used when you have intercepted or extracted machine account keys or user AES keys.
+      It provides a more "stealthy" way to authenticate than NTLM in modern Windows environments.
+      The -dc-ip flag is often recommended here to ensure the tool knows where to send Kerberos requests.
+    command: "impacket-psexec -k -aesKey {{hex_key}} {{domain}}/{{username}}@{{target_name}}"
+
+  # === EXECUTION & FILE OPERATIONS ===
+  - title: impacket-psexec - execute local binary on target
+    desc: |
+      Uploads a local executable file to the target system and executes it.
+      The tool will copy the specified file to the remote system, run it as a service, and then remove it.
+      This is the standard way to run custom payloads, agents, or specialized diagnostic tools remotely.
+      Any arguments required by the uploaded binary can be passed at the end of the command string.
+    command: "impacket-psexec -c {{local_path}} {{domain|.}}/{{username}}@{{target_ip}} {{args}}"
+
+  - title: impacket-psexec - run specific command (non-interactive)
+    desc: |
+      Executes a single specific command on the remote target and returns the output.
+      Instead of dropping into a full interactive cmd.exe shell, it runs the provided string and exits.
+      This is ideal for automated scripts or quick reconnaissance tasks like checking the current user or network config.
+      The default command if none is specified is always cmd.exe.
+    command: "impacket-psexec {{domain|.}}/{{username}}@{{target_ip}} {{command|whoami /all}}"
+
+  # === ADVANCED CONFIGURATION & STEALTH ===
+  - title: impacket-psexec - custom service and binary names
+    desc: |
+      Customizes the name of the service and the binary uploaded to the target.
+      By default, PSEXEC uses "RemComSvc" and "RemComSvc.exe", which are easily detected by security software.
+      Changing these to something more benign (like "SvcHostUpdate") can help in bypassing basic signature-based detection.
+      This is a simple but effective technique for basic obfuscation during an engagement.
+    command: "impacket-psexec -service-name {{service_name|SystemUpdate}} -remote-binary-name {{binary_name|update.exe}} {{domain|.}}/{{username}}@{{target_ip}}"
+
+  - title: impacket-psexec - specify domain controller and target ip
+    desc: |
+      Manually specifies the Domain Controller IP and the target machine's IP address.
+      Use -dc-ip when the domain name cannot be resolved via DNS or when targeting a specific DC.
+      Use -target-ip when the target's NetBIOS/DNS name is known but not resolvable in the current network context.
+      This ensures the SMB connection goes to the correct host while the authentication context remains valid.
+    command: "impacket-psexec -dc-ip {{dc_ip}} -target-ip {{target_ip}} {{domain}}/{{username}}@{{target_name}}"
+
+  - title: impacket-psexec - change default smb port
+    desc: |
+      Connects to the remote SMB server on a non-standard port.
+      While SMB traditionally runs on port 445, some environments might use port forwarding or non-standard configurations.
+      This option allows you to redirect the tool's traffic to the specific port where the SMB service is listening.
+      Useful for bypassing certain firewall restrictions or when targeting forwarded services in lab environments.
+    command: "impacket-psexec -port {{port|445}} {{domain|.}}/{{username}}@{{target_ip}}"

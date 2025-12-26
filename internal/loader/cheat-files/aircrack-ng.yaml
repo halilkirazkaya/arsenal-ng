@@ -1,0 +1,139 @@
+tool: aircrack-ng
+tags: [wireless, security, pentest, wifi, enumeration, exploitation, cracking]
+
+actions:
+# === INTERFACE MANAGEMENT ===
+
+ - title: airmon-ng - check and kill interfering processes
+   desc: |
+     Identifies and terminates background processes that could interfere with the wireless card's monitor mode.
+     Processes like NetworkManager, dhclient, and wpa_supplicant often try to manage the interface, causing issues during packet injection.
+     Running this command is a highly recommended first step before starting any wireless assessment to ensure stability.
+   command: "airmon-ng check kill"
+
+ - title: airmon-ng - start monitor mode
+   desc: |
+     Enables monitor mode on a specific wireless interface, allowing the card to listen to all traffic on a channel.
+     The command usually creates a new logical interface named with a 'mon' suffix (e.g., wlan0mon).
+     You can optionally specify a channel to lock the interface to that frequency immediately.
+   command: "airmon-ng start {{interface|wlan0}} {{channel}}"
+
+ - title: airmon-ng - stop monitor mode
+   desc: |
+     Disables monitor mode and returns the wireless interface to managed mode.
+     This is used to clean up after an assessment or to restore standard network connectivity.
+     It removes the monitor mode virtual interface and re-enables the original hardware interface state.
+   command: "airmon-ng stop {{interface|wlan0mon}}"
+
+# === RECONNAISSANCE & CAPTURE ===
+
+ - title: airodump-ng - general network scanning
+   desc: |
+     Performs a wide-area scan of all nearby access points and connected stations.
+     It displays critical information such as BSSID, signal strength (PWR), beacons, data packets, channel, and encryption type.
+     This tool is essential for identifying targets and seeing which clients are associated with which networks.
+   command: "airodump-ng {{interface|wlan0mon}}"
+
+ - title: airodump-ng - targeted handshake capture
+   desc: |
+     Focuses the capture on a specific Access Point (BSSID) on a single channel to capture the WPA/WPA2 4-way handshake.
+     Limiting the scan to one channel increases the probability of capturing the handshake frames without missing them due to channel hopping.
+     The captured data is saved to a file prefix, which will generate several files including a .cap file used for cracking.
+   command: "airodump-ng -c {{channel}} --bssid {{bssid}} -w {{file_prefix}} {{interface|wlan0mon}}"
+
+ - title: airodump-ng - manufacturer lookup
+   desc: |
+     Displays the manufacturer of the Access Points and Stations based on the IEEE OUI list.
+     This helps identify the type of hardware being used (e.g., Cisco, Apple, TP-Link) which can be useful for tailoring attacks.
+     Ensure you run airodump-ng-oui-update periodically to keep the manufacturer database current.
+   command: "airodump-ng --manufacturer {{interface|wlan0mon}}"
+
+# === ATTACK & INJECTION ===
+
+ - title: aireplay-ng - injection test
+   desc: |
+     Tests the wireless card's ability to inject packets into the air and determines the response rate from nearby APs.
+     A successful injection test is mandatory before attempting more complex attacks like deauthentication or ARP replay.
+     It provides a percentage of successfully received responses, indicating the quality of the connection.
+   command: "aireplay-ng -9 {{interface|wlan0mon}}"
+
+ - title: aireplay-ng - deauthentication attack
+   desc: |
+     Sends deauthentication frames to one or more clients associated with an Access Point.
+     This forces the clients to disconnect and attempt to reconnect, which allows airodump-ng to capture the 4-way handshake.
+     Be careful as this causes a service disruption for the target; always ensure you have permission before use.
+   command: "aireplay-ng -0 {{count|5}} -a {{bssid}} -c {{client_mac}} {{interface|wlan0mon}}"
+
+ - title: aireplay-ng - fake authentication
+   desc: |
+     Performs a fake authentication with an Access Point to allow further packet injection.
+     This is primarily used in WEP attacks where you need an associated MAC address to inject packets, but no real clients are connected.
+     It does not actually "crack" the password but tricks the AP into thinking a client is successfully connected.
+   command: "aireplay-ng -1 0 -e {{essid}} -a {{bssid}} -h {{my_mac}} {{interface|wlan0mon}}"
+
+ - title: aireplay-ng - ARP request replay
+   desc: |
+     Listens for an ARP packet and then replays it back to the Access Point to generate new IVs (Initialization Vectors).
+     This is the classic method for speeding up WEP cracking by forcing the AP to produce many encrypted packets quickly.
+     You typically need thousands of IVs to successfully crack a WEP key.
+   command: "aireplay-ng -3 -b {{bssid}} -h {{my_mac}} {{interface|wlan0mon}}"
+
+# === CRACKING ===
+
+ - title: aircrack-ng - crack WPA/WPA2 with wordlist
+   desc: |
+     Attempts to find the pre-shared key (PSK) of a WPA/WPA2 network using a dictionary attack.
+     The tool requires a capture file containing a valid 4-way handshake and a high-quality wordlist.
+     Performance depends on CPU speed, but can be significantly boosted using pre-computed PMK databases.
+   command: "aircrack-ng -w {{wordlist|/usr/share/wordlists/rockyou.txt}} -b {{bssid}} {{capture_file.cap}}"
+
+ - title: aircrack-ng - crack WEP key
+   desc: |
+     Analyzes captured Initialization Vectors (IVs) to statistically determine the WEP key.
+     Unlike WPA, WEP cracking does not require a wordlist as it exploits mathematical vulnerabilities in the RC4 cipher.
+     The more IVs you capture using aireplay-ng, the higher the chance of a successful crack.
+   command: "aircrack-ng -b {{bssid}} {{capture_file.cap}}"
+
+# === ADVANCED UTILITIES ===
+
+ - title: airbase-ng - create fake access point
+   desc: |
+     Simulates an Access Point to perform Evil Twin attacks or "Caffe Latte" attacks against clients.
+     It creates a virtual tunnel interface (at0) which can be used to redirect traffic or serve as a gateway for MITM attacks.
+     This tool is highly versatile for attacking wireless clients rather than the infrastructure itself.
+   command: "airbase-ng -e {{essid}} -c {{channel}} {{interface|wlan0mon}}"
+
+ - title: airolib-ng - pre-calculate PMK database
+   desc: |
+     Manages a database of ESSIDs and passwords to pre-calculate Pairwise Master Keys (PMKs).
+     Pre-calculating PMKs allows aircrack-ng to process thousands of passwords per second during a WPA attack, as the heavy computation is done beforehand.
+     This is a three-step process: import ESSIDs, import passwords, and then run the batch calculation.
+   command: "airolib-ng {{db_name}} --batch"
+
+ - title: wpaclean - clean pcap for cracking
+   desc: |
+     Extracts only the essential 4-way handshake packets from a large pcap file and removes all other traffic.
+     This results in a much smaller file size, making it easier to share or upload to cloud cracking services.
+     It is a best practice to clean capture files before starting long brute-force sessions.
+   command: "wpaclean {{output.cap}} {{input.cap}}"
+
+ - title: airdecap-ng - decrypt capture files
+   desc: |
+     Decrypts WEP, WPA, or WPA2 capture files once the key or passphrase is known.
+     This allows you to view the actual network traffic (HTTP, DNS, etc.) inside a pcap analyzer like Wireshark.
+     It creates a new file with a '-dec' suffix containing the decrypted packets.
+   command: "airdecap-ng -e {{essid}} -p {{passphrase}} {{capture_file.cap}}"
+
+ - title: besside-ng - automated WPA handshake capture
+   desc: |
+     An automated tool that attempts to deauthenticate all nearby clients and capture WPA handshakes without user intervention.
+     It is extremely effective for "war-driving" or rapid assessment of multiple networks in range.
+     The handshakes are automatically saved to a file named 'wpa.cap' in the working directory.
+   command: "besside-ng -W {{interface|wlan0mon}}"
+
+ - title: airgraph-ng - visualize network relationships
+   desc: |
+     Generates a visual graph (PNG) showing the relationships between Access Points and Clients from an airodump-ng CSV file.
+     It helps in identifying which clients are probing for which networks and the overall structure of the wireless environment.
+     Supports two types of graphs: CAPR (Client to AP Relationship) and CPG (Common Probe Graph).
+   command: "airgraph-ng -i {{airodump_csv}} -o {{output_image.png}} -g CAPR"

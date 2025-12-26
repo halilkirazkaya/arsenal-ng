@@ -1,0 +1,88 @@
+tool: impacket-tstool
+tags: [pentest, security, impacket, terminal-services, rdp, enumeration, exploitation, windows, post-exploitation]
+
+actions:
+  # === ENUMERATION ACTIONS ===
+
+  - title: impacket-tstool - query session information
+    desc: |
+      Displays detailed information about Remote Desktop Services sessions on the target host.
+      This command is essential for identifying active, disconnected, or idle users and their associated session IDs.
+      It helps a pentester determine which sessions are vulnerable to hijacking or which users are currently active on the system.
+    command: "impacket-tstool {{domain/username:password|administrator}}@{{target}} qwinsta"
+
+  - title: impacket-tstool - list remote processes
+    desc: |
+      Retrieves a comprehensive list of all processes currently running on the remote Windows system.
+      The output includes the process name and the Process ID (PID), which is required for further actions like killing a process.
+      This is useful for identifying security agents, monitoring software, or specific applications running under different user contexts.
+    command: "impacket-tstool {{domain/username:password|administrator}}@{{target}} tasklist"
+
+  # === SESSION MANAGEMENT ===
+
+  - title: impacket-tstool - attach to user session (Hijack)
+    desc: |
+      Attaches a user session to another remote desktop session on the target server.
+      This is often used in RDP hijacking scenarios to take over an existing session without knowing the user's password.
+      Note that this action typically requires high privileges (System or Admin) and can be used to pivot through different user desktops.
+    command: "impacket-tstool {{domain/username:password|administrator}}@{{target}} tscon {{session_id}} --dest {{dest_session_name}}"
+
+  - title: impacket-tstool - disconnect a session
+    desc: |
+      Disconnects a specific Remote Desktop Services session without logging the user off.
+      The user's applications remain running, but their network connection to the desktop is severed.
+      This can be used to force a user to re-authenticate or to clear up session slots on a busy server.
+    command: "impacket-tstool {{domain/username:password|administrator}}@{{target}} tsdiscon {{session_id}}"
+
+  - title: impacket-tstool - force logoff session
+    desc: |
+      Forces a specific session to sign out of the Remote Desktop Services environment.
+      Unlike disconnection, this action terminates all running processes within that specific user session.
+      It is a destructive action that may result in data loss for the target user if they have unsaved work.
+    command: "impacket-tstool {{domain/username:password|administrator}}@{{target}} logoff {{session_id}}"
+
+  - title: impacket-tstool - send pop-up message
+    desc: |
+      Sends a graphical message box to a specific user session or all sessions on the target.
+      This is often used for social engineering or to provide official-looking warnings to logged-in users.
+      The message appears as a standard Windows dialog box that the user must acknowledge.
+    command: "impacket-tstool {{domain/username:password|administrator}}@{{target}} msg \"{{message|System maintenance starting soon.}}\""
+
+  # === SYSTEM CONTROL ===
+
+  - title: impacket-tstool - terminate remote process
+    desc: |
+      Terminates a running task on the remote system using its Process ID (PID) or image name.
+      This can be used to disable security software, stop stuck services, or disrupt specific user activities.
+      Be cautious as killing system-critical processes can lead to OS instability or immediate reboots.
+    command: "impacket-tstool {{domain/username:password|administrator}}@{{target}} taskkill /PID {{pid}}"
+
+  - title: impacket-tstool - remote system shutdown
+    desc: |
+      Initiates a remote shutdown of the target machine, affecting all logged-in users and sessions.
+      This is a high-impact command that completely powers down the remote host.
+      Use this only when necessary for post-exploitation or as part of a controlled environment teardown.
+    command: "impacket-tstool {{domain/username:password|administrator}}@{{target}} shutdown"
+
+  # === AUTHENTICATION & CONNECTION OPTIONS ===
+
+  - title: impacket-tstool - authenticate with NTLM hashes
+    desc: |
+      Performs Terminal Service actions using NTLM hashes instead of a plaintext password.
+      This enables Pass-the-Hash (PtH) attacks, which are crucial when only the NTLM hash has been recovered from memory.
+      The hash format should be LMHASH:NTHASH; if the LM hash is unknown, use the standard empty LM value.
+    command: "impacket-tstool -hashes {{hash}} {{domain/username|administrator}}@{{target}} {{action|qwinsta}}"
+
+  - title: impacket-tstool - authenticate with Kerberos
+    desc: |
+      Uses Kerberos authentication instead of NTLM to perform tasks on the remote host.
+      This requires a valid Kerberos ticket (TGT/TGS) available in the environment (KRB5CCNAME).
+      Using the -k flag is beneficial in environments where NTLM is disabled or to evade NTLM-specific detection mechanisms.
+    command: "impacket-tstool -k -no-pass {{domain/username|administrator}}@{{target}} -dc-ip {{dc_ip}} {{action|qwinsta}}"
+
+  - title: impacket-tstool - specify custom target IP and port
+    desc: |
+      Connects to the Terminal Services management interface using a specific IP address and SMB port.
+      This is useful when the target's NetBIOS name does not resolve or when the SMB service is running on a non-standard port.
+      Providing the -target-ip ensures that the tool connects to the correct physical machine regardless of DNS settings.
+    command: "impacket-tstool -target-ip {{target_ip}} -port {{port|445}} {{domain/username:password|administrator}}@{{target_name}} {{action|qwinsta}}"

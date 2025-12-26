@@ -1,0 +1,78 @@
+tool: cloud_enum
+tags: [cloud, osint, enumeration, aws, azure, gcp, security, pentest]
+
+actions:
+  # === BASIC ENUMERATION ===
+  - title: cloud_enum - basic keyword enumeration
+    desc: |
+      Perform a standard scan across AWS, Azure, and GCP using a single keyword.
+      The tool will automatically apply default mutations to find common naming conventions for buckets and services.
+      This is the primary method for discovering publicly accessible storage and apps belonging to a specific company.
+      It is highly effective for initial OSINT and footprinting phases during a penetration test.
+    command: "cloud_enum -k {{keyword}}"
+
+  - title: cloud_enum - multiple keyword scan
+    desc: |
+      Search for multiple keywords or brand names in a single execution.
+      This is useful when an organization uses different names for its subsidiaries or specific project identifiers.
+      Combining keywords into one command helps streamline the reconnaissance process and provides a consolidated view.
+      Ensure you use the -k flag for each unique keyword you wish to target.
+    command: "cloud_enum -k {{keyword1}} -k {{keyword2}} -k {{keyword3}}"
+
+  - title: cloud_enum - enumeration using a keyword file
+    desc: |
+      Read a list of keywords from a text file to perform bulk cloud enumeration.
+      This approach is ideal when dealing with large-scale targets or lists of subdomains harvested from other tools.
+      The input file should contain one keyword per line for the tool to process correctly.
+      It automates the search for a vast array of potential assets without manual input for each keyword.
+    command: "cloud_enum -kf {{keyfile_path}}"
+
+  # === ADVANCED CONFIGURATION ===
+  - title: cloud_enum - quick scan without mutations
+    desc: |
+      Disable all keyword mutations and second-level brute-forcing to perform a rapid check.
+      This is useful when you have the exact name of a resource and want to verify its existence and accessibility quickly.
+      It significantly reduces the number of requests sent to cloud providers, making the scan very fast.
+      Note that this will likely miss resources that follow non-standard naming patterns or use common suffixes.
+    command: "cloud_enum -k {{keyword}} -qs"
+
+  - title: cloud_enum - high performance multi-threaded scan
+    desc: |
+      Increase the number of threads used for HTTP brute-forcing to speed up the discovery process.
+      The default is set to 5 threads, but increasing this can yield faster results on high-bandwidth connections.
+      Be cautious as setting the thread count too high may trigger rate-limiting from cloud providers like AWS or Azure.
+      Monitoring the output for errors or timeouts is recommended when using high thread values.
+    command: "cloud_enum -k {{keyword}} -t {{threads|20}}"
+
+  - title: cloud_enum - custom mutation and brute-force lists
+    desc: |
+      Specify custom files for keyword mutations and Azure container brute-forcing.
+      Using a targeted wordlist instead of the default fuzzing file can significantly increase the success rate for specific industries.
+      The -m flag handles general mutations, while -b is specifically used for the second-level brute-forcing of Azure resources.
+      This is a powerful feature for advanced users who have developed their own specialized cloud resource wordlists.
+    command: "cloud_enum -k {{keyword}} -m {{mutation_file}} -b {{brute_file}}"
+
+  # === FILTERING AND OUTPUT ===
+  - title: cloud_enum - targeted provider scan
+    desc: |
+      Focus the enumeration on a specific cloud provider by disabling the others.
+      This command is useful when you already know the target's primary infrastructure and want to avoid unnecessary noise.
+      Disabling providers like AWS or Azure saves time and reduces the number of outgoing requests during the engagement.
+      You can mix and match these flags to scan exactly the environments you are interested in.
+    command: "cloud_enum -k {{keyword}} --disable-aws --disable-azure"
+
+  - title: cloud_enum - detailed logging to file
+    desc: |
+      Save the discovery results to a log file in a structured format like JSON or CSV.
+      Logging is essential for documentation and for feeding the discovered assets into other automated tools.
+      The tool appends found items to the specified file, ensuring that previous results are not accidentally overwritten.
+      This allows for long-running scans to be recorded safely for later analysis or reporting.
+    command: "cloud_enum -k {{keyword}} -l {{logfile|results.json}} -f {{format|json}}"
+
+  - title: cloud_enum - custom nameserver configuration
+    desc: |
+      Specify a custom DNS server to be used for the brute-force and discovery process.
+      This can be useful to bypass local DNS filtering or to use specialized DNS providers that may offer better performance.
+      Changing the nameserver can also help in scenarios where local DNS resolvers are rate-limiting rapid queries.
+      Ensure the provided nameserver is reliable to prevent false negatives during the enumeration phase.
+    command: "cloud_enum -k {{keyword}} -ns {{nameserver|1.1.1.1}}"

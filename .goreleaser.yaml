@@ -1,0 +1,43 @@
+version: 2
+project_name: arsenal-ng
+
+before:
+  hooks:
+    - go mod tidy
+
+builds:
+  - id: arsenal-ng
+    main: ./cmd/arsenal-ng
+    binary: "arsenal-ng"
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - darwin
+    goarch:
+      - amd64
+      - arm64
+    ldflags:
+      - "-s -w -X github.com/halilkirazkaya/arsenal-ng/internal/config.Version=v{{ .Version }}"
+
+archives:
+  - id: binary
+    formats: binary
+    name_template: "{{ .ProjectName }}_v{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+
+checksum:
+  name_template: "{{ .ProjectName }}_{{ .Version }}_checksums.txt"
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
+      - "^chore:"
+
+release:
+  github:
+    owner: halilkirazkaya
+    name: arsenal-ng
+  name_template: "arsenal-ng v{{ .Version }}"

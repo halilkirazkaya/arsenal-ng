@@ -1,0 +1,84 @@
+tool: jadx
+tags: [android, security, decompiler, reverse-engineering, java, pentest, static-analysis]
+
+actions:
+# === BASIC USAGE ===
+ - title: jadx - basic decompilation
+   desc: |
+     Decompile an APK, DEX, or JAR file into a specified output directory. 
+     This is the standard entry point for reverse engineering Android applications to view their source code.
+     The tool converts Dalvik bytecode back into readable Java classes and extracts the AndroidManifest.xml and resources.
+   command: "jadx -d {{output_dir|out}} {{input_file}}"
+
+ - title: jadx - decompile source only
+   desc: |
+     Decompile the application but skip the resource decoding process (layouts, drawables, etc.).
+     This is significantly faster than a full decompile and is useful when you only care about the Java/Kotlin logic.
+     Use this to avoid potential errors related to resource parsing in heavily obfuscated apps.
+   command: "jadx -r -s -d {{output_dir|src_only}} {{input_file}}"
+
+ - title: jadx - decompile resources only
+   desc: |
+     Extract and decode only the application resources and manifest without decompiling source code.
+     This is useful for analyzing the AndroidManifest.xml for exported components or checking strings.xml for API keys.
+     It saves time when the code logic is not the primary focus of the current analysis task.
+   command: "jadx -s -d {{output_dir|res_only}} {{input_file}}"
+
+# === ADVANCED DECOMPILATION ===
+ - title: jadx - enable deobfuscation
+   desc: |
+     Activate the internal deobfuscation engine to rename short or non-printable class and method names.
+     Jadx will generate unique names for mangled identifiers, making the code flow much easier to follow.
+     A mapping file (JOBF) is created in the output directory so you can maintain consistent names across sessions.
+   command: "jadx --deobf {{input_file}}"
+
+ - title: jadx - decompile specific class
+   desc: |
+     Target a specific class for decompilation by providing its full package name.
+     This is extremely efficient for large applications where you only need to investigate a specific logic or vulnerability.
+     It bypasses the need to wait for the entire APK to be processed, saving memory and CPU cycles.
+   command: "jadx --single-class {{class_name}} {{input_file}}"
+
+ - title: jadx - export as gradle project
+   desc: |
+     Save the decompiled source code as a structured Gradle project.
+     This allows the output to be imported directly into Android Studio or IntelliJ IDEA for advanced navigation.
+     The tool attempts to recreate the project structure, making it easier to use IDE features like "Find Usages" or "Refactor".
+   command: "jadx -e -d {{output_dir|gradle_project}} {{input_file}}"
+
+# === OUTPUT & FORMATTING ===
+ - title: jadx - output in json format
+   desc: |
+     Change the output format to JSON instead of standard Java files.
+     This is primarily used for automated analysis where other tools or scripts need to parse the structure of the app.
+     The JSON output contains metadata about classes, methods, and their relationships within the binary.
+   command: "jadx --output-format json -d {{output_dir|json_out}} {{input_file}}"
+
+ - title: jadx - fallback mode
+   desc: |
+     Force the decompiler into fallback mode to show raw instructions.
+     Use this when the standard decompilation fails or produces "bad code" that doesn't make sense.
+     It provides a more direct representation of the bytecode, which is less readable but more accurate in error scenarios.
+   command: "jadx -m fallback {{input_file}}"
+
+# === TROUBLESHOOTING & PLUGINS ===
+ - title: jadx - skip dex checksum verification
+   desc: |
+     Disable the verification of the DEX file checksum before loading.
+     This is often required for analyzing malware or APKs that have been manually tampered with to break analysis tools.
+     By skipping the check, Jadx can process files that would otherwise be rejected as "corrupted".
+   command: "jadx -Pdex-input.verify-checksum=no {{input_file}}"
+
+ - title: jadx - quiet logging
+   desc: |
+     Set the log level to QUIET to suppress all output except for critical errors.
+     This is recommended when using Jadx as part of a larger automation script or CI/CD pipeline.
+     It prevents the console from being flooded with progress percentages and informational messages.
+   command: "jadx --log-level QUIET {{input_file}}"
+
+ - title: jadx - list installed plugins
+   desc: |
+     Display a list of all currently installed Jadx plugins.
+     Plugins can extend functionality for different input formats (like Smali) or custom deobfuscation logic.
+     Use this to verify if your environment has the necessary extensions for specific reverse engineering tasks.
+   command: "jadx plugins --list"

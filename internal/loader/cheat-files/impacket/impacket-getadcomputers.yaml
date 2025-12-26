@@ -1,0 +1,70 @@
+tool: impacket-GetADComputers
+tags: [active-directory, pentest, enumeration, security, impacket, reconnaissance]
+
+actions:
+  # === AUTHENTICATION METHODS ===
+  - title: impacket-GetADComputers - basic domain computer enumeration
+    desc: |
+      Performs a standard query against Active Directory to list all computer objects in the domain.
+      This is a fundamental step during internal reconnaissance to map out the network infrastructure.
+      It requires valid domain credentials and connects to the Domain Controller to pull LDAP data.
+      Be aware that large environments might return a significant number of results.
+    command: "impacket-GetADComputers {{domain}}/{{username}}:{{password}}"
+
+  - title: impacket-GetADComputers - authenticate using NTLM hashes
+    desc: |
+      Uses Pass-the-Hash (PtH) to authenticate and query computer information from the domain.
+      This is extremely useful when cleartext passwords are unavailable but NTLM hashes have been recovered.
+      The hash must be provided in the LMHASH:NTHASH format; if the LM hash is empty, use the format :NTHASH.
+      This method allows for stealthier movements as it bypasses traditional password entry.
+    command: "impacket-GetADComputers -hashes {{hash}} {{domain}}/{{username}}"
+
+  - title: impacket-GetADComputers - use Kerberos authentication
+    desc: |
+      Authenticates using Kerberos tickets instead of a password or hash.
+      The tool will attempt to retrieve credentials from the ccache file pointed to by the KRB5CCNAME environment variable.
+      This is the preferred method in environments where Kerberos is strictly enforced or when performing Overpass-the-Hash.
+      Ensure the -no-pass flag is used if you do not want the tool to prompt for a password.
+    command: "impacket-GetADComputers -k -no-pass {{domain}}/{{username}}"
+
+  - title: impacket-GetADComputers - Kerberos authentication with AES key
+    desc: |
+      Utilizes a specific AES hex key (128 or 256 bits) for Kerberos authentication.
+      This is useful in scenarios where you have extracted the AES keys for a user or computer account.
+      Using AES keys is more robust than NTLM hashes in environments that have disabled NTLM.
+      Ensure the target parameter matches the principal associated with the AES key.
+    command: "impacket-GetADComputers -aesKey {{hex_key}} {{domain}}/{{username}}"
+
+  # === CONNECTION AND RESOLUTION ===
+  - title: impacket-GetADComputers - specify Domain Controller IP
+    desc: |
+      Directs the tool to connect to a specific Domain Controller by its IP address.
+      This is necessary when the local machine cannot resolve the domain's FQDN via DNS.
+      It is also useful for targeting a specific DC in a complex forest or multi-site environment.
+      Using the IP directly can sometimes bypass certain DNS-based security monitoring.
+    command: "impacket-GetADComputers -dc-ip {{dc_ip}} {{domain}}/{{username}}:{{password}}"
+
+  - title: impacket-GetADComputers - enumerate and resolve computer IPs
+    desc: |
+      Queries computer objects and attempts to resolve their IP addresses using nslookup on the Domain Controller.
+      This helps link hostnames to actual network addresses, providing a clearer picture of the active network layout.
+      It is particularly useful for identifying which machines are currently online and reachable.
+      Resolution is performed server-side by the DC, reducing the amount of DNS traffic originating from your source IP.
+    command: "impacket-GetADComputers -resolveIP {{domain}}/{{username}}:{{password}}"
+
+  # === FILTERING AND DEBUGGING ===
+  - title: impacket-GetADComputers - filter computer objects by user
+    desc: |
+      Requests computer data that is specifically associated with a particular domain user.
+      This can help identify the primary workstations or servers a high-privilege user typically interacts with.
+      Note that this filter depends on how the 'managedBy' or similar attributes are populated in AD.
+      It is a targeted approach to finding high-value assets related to specific personas.
+    command: "impacket-GetADComputers -user {{target_user}} {{domain}}/{{username}}:{{password}}"
+
+  - title: impacket-GetADComputers - enable debug output and timestamps
+    desc: |
+      Runs the enumeration with verbose debug logging and timestamps for every output line.
+      Debug output is essential when troubleshooting connection issues, LDAP errors, or authentication failures.
+      Timestamps are helpful for documentation and correlating activities with server-side logs during an engagement.
+      Use this when the standard output does not provide enough information to understand why a query is failing.
+    command: "impacket-GetADComputers -debug -ts {{domain}}/{{username}}:{{password}}"

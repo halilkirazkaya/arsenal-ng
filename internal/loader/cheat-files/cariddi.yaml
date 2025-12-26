@@ -1,0 +1,112 @@
+tool: cariddi
+tags: [recon, web, scanner, pentest, enumeration, security, crawling, osint]
+
+actions:
+  # === BASIC COMMANDS ===
+  - title: cariddi - print help and examples
+    desc: |
+      Displays the help menu and usage examples for the tool. 
+      This is useful for quickly checking flags and command syntax during an engagement.
+      It provides a concise summary of all available hunting and configuration options.
+    command: "cariddi -h"
+
+  - title: cariddi - version check
+    desc: |
+      Displays the current version of the cariddi installation. 
+      Use this to ensure you are running the latest version with the most up-to-date regex patterns.
+      Updating regularly is important as new secrets and vulnerability patterns are added frequently.
+    command: "cariddi -version"
+
+  # === HUNTING AND DISCOVERY ===
+  - title: cariddi - intensive crawling
+    desc: |
+      Performs an intensive crawl by searching for resources matching the second-level domain. 
+      This mode is effective for discovering subdomains and related assets that might not be linked directly.
+      It helps expand the attack surface by identifying additional hosts within the same organizational scope.
+    command: "cariddi -intensive < {{input_file|urls.txt}}"
+
+  - title: cariddi - hunt for secrets
+    desc: |
+      Scans the target URLs for sensitive information such as API keys, tokens, and hardcoded credentials. 
+      This action uses a predefined set of regex patterns to identify leaks in JavaScript files and HTML source code.
+      It is a critical step for finding unauthorized access vectors during the reconnaissance phase.
+    command: "cariddi -s < {{input_file|urls.txt}}"
+
+  - title: cariddi - hunt for endpoints
+    desc: |
+      Automates the discovery of juicy endpoints and URL parameters from the crawled pages. 
+      This helps in identifying potential API routes, administrative panels, or hidden functionalities.
+      The results can be used as input for further fuzzing or manual vulnerability assessment.
+    command: "cariddi -e < {{input_file|urls.txt}}"
+
+  - title: cariddi - find useful information and errors
+    desc: |
+      Scans for useful information (like emails or versions) and server-side error messages. 
+      Error messages often reveal backend technology stacks, database queries, or file paths that aid in exploitation.
+      Combining -info and -err flags provides a comprehensive overview of the target's technical footprint.
+    command: "cariddi -info -err < {{input_file|urls.txt}}"
+
+  - title: cariddi - search for juicy file extensions
+    desc: |
+      Searches for sensitive file extensions based on a specific "juiciness" level from 1 to 7. 
+      Lower levels (e.g., 1 or 2) focus on highly sensitive files like .bak, .conf, or .sql, while higher levels are more permissive.
+      This is highly effective for finding forgotten backups or configuration files on web servers.
+    command: "cariddi -ext {{level|2}} < {{input_file|urls.txt}}"
+
+  - title: cariddi - custom secrets and endpoints hunting
+    desc: |
+      Uses external files containing custom regex patterns for secrets and custom keywords for endpoints. 
+      This allows the user to tailor the scan for specific organizational patterns or proprietary technologies.
+      It is particularly useful when targeting a specific framework that uses non-standard naming conventions.
+    command: "cariddi -sf {{secrets_regex_file|secrets.txt}} -ef {{endpoints_file|endpoints.txt}} < {{input_file|urls.txt}}"
+
+  # === CONFIGURATION AND STEALTH ===
+  - title: cariddi - concurrency and delay control
+    desc: |
+      Adjusts the speed of the scan by setting the concurrency level and the delay between requests. 
+      High concurrency increases speed but may trigger rate limiting or WAF blocks.
+      Adding a delay helps in bypassing basic anti-bot protections by simulating more human-like traffic patterns.
+    command: "cariddi -c {{concurrency|20}} -d {{delay_seconds|1}} < {{input_file|urls.txt}}"
+
+  - title: cariddi - proxy and timeout configuration
+    desc: |
+      Routes all traffic through a specified proxy server (HTTP or SOCKS5) and sets a request timeout. 
+      This is essential for remaining anonymous or for routing traffic through tools like Burp Suite for further analysis.
+      Setting an appropriate timeout ensures the scanner doesn't hang on unresponsive or slow targets.
+    command: "cariddi -proxy {{proxy_url|http://127.0.0.1:8080}} -t {{timeout|10}} < {{input_file|urls.txt}}"
+
+  - title: cariddi - custom headers and user agents
+    desc: |
+      Injects custom HTTP headers or uses a random browser User-Agent for every request. 
+      Custom headers are necessary for scanning authenticated areas of a website (e.g., using Cookie or Authorization headers).
+      Randomizing the User-Agent helps in evading signature-based detection mechanisms.
+    command: "cariddi -headers {{headers_string|'Cookie: session=123'}} -rua < {{input_file|urls.txt}}"
+
+  - title: cariddi - ignore specific URLs or extensions
+    desc: |
+      Excludes specific extensions or URLs containing certain keywords from the scan. 
+      This prevents the tool from wasting resources on binary files (like images/fonts) or out-of-scope paths (like /blog or /forum).
+      Filtering helps keep the results clean and focused on the most relevant parts of the application.
+    command: "cariddi -ie {{ignored_exts|pdf,png,jpg}} -i {{ignored_keywords|logout,signout}} < {{input_file|urls.txt}}"
+
+  # === OUTPUT MANAGEMENT ===
+  - title: cariddi - save results to files
+    desc: |
+      Writes the scan results into structured TXT or HTML files for later reporting and analysis. 
+      The HTML output provides a user-friendly interface to browse through discovered secrets and endpoints.
+      Saving to text files is ideal for piping the output into other command-line tools in a pipeline.
+    command: "cariddi -ot {{text_output|results.txt}} -oh {{html_output|results_html}} < {{input_file|urls.txt}}"
+
+  - title: cariddi - JSON output and response storage
+    desc: |
+      Outputs the results in JSON format to stdout and stores all HTTP responses locally. 
+      JSON format is perfect for integration with custom scripts, databases, or ELK stacks.
+      Storing responses allows for offline analysis of the application's behavior without re-scanning the target.
+    command: "cariddi -json -sr < {{input_file|urls.txt}}"
+
+  - title: cariddi - depth control and debug mode
+    desc: |
+      Sets the maximum crawling depth and enables debug mode to see detailed execution logs. 
+      Controlling depth prevents the crawler from getting stuck in "infinite loops" or overly complex directory structures.
+      Debug mode is useful for troubleshooting connection issues or understanding why certain pages are being skipped.
+    command: "cariddi -md {{max_depth|3}} -debug < {{input_file|urls.txt}}"

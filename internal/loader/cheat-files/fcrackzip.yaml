@@ -1,0 +1,77 @@
+tool: fcrackzip
+tags: [password-cracking, zip, security, forensics, pentest, brute-force]
+
+# === PASSWORD RECOVERY ACTIONS ===
+
+actions:
+ - title: fcrackzip - dictionary attack
+   desc: |
+     Performs a password recovery attempt using a specified wordlist. This is generally the most efficient method if the password is a common word or part of a known leak. 
+     The -u flag is highly recommended as it uses unzip to weed out false positives, ensuring the found password actually decrypts the file.
+     This method is significantly faster than brute-force for complex but common passwords.
+   command: "fcrackzip -D -p {{wordlist|/usr/share/wordlists/rockyou.txt}} -u {{zip_file}}"
+
+ - title: fcrackzip - brute force lowercase alphabetic
+   desc: |
+     Attempts to crack the zip file using a brute-force approach with lowercase characters (a-z). 
+     Use this when dictionary attacks fail and you suspect a simple alphabetic password. 
+     The -l flag defines the length range (min-max) to search; keeping this range narrow significantly reduces completion time.
+     The -b flag explicitly enables the brute-force algorithm.
+   command: "fcrackzip -b -c a -l {{min_length|1}}-{{max_length|6}} -u {{zip_file}}"
+
+ - title: fcrackzip - brute force numeric (PIN)
+   desc: |
+     Specifically targets numeric passwords by using only the digit charset (0-9). 
+     This is much faster than a full alphanumeric search and is ideal for recovering PINs or date-based passwords. 
+     If you know the exact length of the PIN, set the min and max length to the same value to optimize performance.
+     This is often the first brute-force attempt performed after dictionary attacks.
+   command: "fcrackzip -b -c 1 -l {{min_length|4}}-{{max_length|6}} -u {{zip_file}}"
+
+ - title: fcrackzip - brute force alphanumeric
+   desc: |
+     Searches for passwords containing both lowercase letters and numbers. 
+     This increases complexity and search time significantly compared to single-charset attacks. 
+     The -v (verbose) flag is added here to monitor the progress and see the current passwords being tested.
+     Note that as the length increases, the time required grows exponentially.
+   command: "fcrackzip -b -c a1 -l {{min_length|1}}-{{max_length|6}} -u -v {{zip_file}}"
+
+ - title: fcrackzip - custom charset brute force
+   desc: |
+     Allows the user to specify a custom set of characters for the brute-force attack. 
+     This is useful if you have partial knowledge of the password composition, such as the inclusion of specific symbols or uppercase letters. 
+     Use the -c flag followed by the literal characters you want to include in the search space.
+     Be careful with shell-special characters in the charset; you may need to escape them or wrap the charset in quotes.
+   command: "fcrackzip -b -c {{charset|aA1!}} -l {{length|5}} -u {{zip_file}}"
+
+ - title: fcrackzip - resume or start from specific string
+   desc: |
+     Starts the brute-force sequence from a specific initial string. 
+     This can be used to manually resume a session that was interrupted or to skip ahead in a predictable sequence. 
+     It is particularly useful for distributed cracking where you want different machines to start at different points in the keyspace.
+     The length parameter (-l) must be compatible with the initial password provided.
+   command: "fcrackzip -b -p {{start_string|aaaa}} -l {{length|4}} -u {{zip_file}}"
+
+# === UTILITY AND PERFORMANCE ===
+
+ - title: fcrackzip - perform benchmark
+   desc: |
+     Executes a small internal benchmark to test the cracking speed on your current hardware. 
+     This helps in estimating how long a large-scale brute-force attack might take given the current CPU constraints. 
+     It does not attempt to crack a specific file but rather tests the raw performance of the internal algorithms.
+     Use this to compare performance across different systems or virtual machine configurations.
+   command: "fcrackzip -B"
+
+ - title: fcrackzip - validation check
+   desc: |
+     Performs a sanity-check on the cracking algorithm to ensure it is functioning correctly on the current architecture. 
+     This is a diagnostic tool used to verify that the software was compiled correctly and yields expected results.
+     It is rarely used in daily operations but is vital for troubleshooting unexpected behavior or false negatives.
+   command: "fcrackzip -V"
+
+ - title: fcrackzip - specific method selection
+   desc: |
+     Forces the use of a specific cracking method (e.g., zip2). 
+     Different ZIP compression tools use different encryption standards; while fcrackzip defaults to method 2 (zip2), some older or specific files might require method 0 or 1.
+     Using the wrong method will result in failed recovery even if the password is correct.
+     Check the help output to see which methods are compiled into your specific version of the tool.
+   command: "fcrackzip -m {{method_number|2}} -b -l {{length|4}} {{zip_file}}"

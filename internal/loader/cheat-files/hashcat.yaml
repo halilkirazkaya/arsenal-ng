@@ -1,0 +1,123 @@
+tool: hashcat
+tags: [security, pentest, password-cracking, forensics, cryptography, gpu-acceleration]
+
+actions:
+# === SYSTEM & IDENTIFICATION ===
+
+ - title: hashcat - system benchmark
+   desc: |
+     Runs a benchmark of various hash algorithms to test the performance of your hardware. 
+     This is essential for determining the expected cracking speed on your specific CPU or GPU.
+     It helps in estimating how long a specific attack will take before starting a real session.
+     The output displays the speed in Mega-hashes per second (MH/s) or Kilo-hashes per second (kH/s).
+   command: "hashcat -b"
+
+ - title: hashcat - identify hash type
+   desc: |
+     Automatically detects the potential hash algorithm of a given hash string or file.
+     This tool analyzes the structure, length, and character set of the input to suggest valid hash modes (-m).
+     It is the best starting point when you encounter an unknown hash format during an engagement.
+     Note that multiple algorithms might share the same format, so verify the results with context.
+   command: "hashcat --identify {{hash_file}}"
+
+ - title: hashcat - list supported hash modes
+   desc: |
+     Displays a comprehensive list of all supported hashing algorithms and their corresponding mode numbers.
+     The mode number is required for the -m flag in almost every hashcat operation.
+     Use -hh for an even more detailed list including all plugin-based hashes.
+     This is useful for finding the specific code for rare or custom hashing schemes.
+   command: "hashcat -h"
+
+# === ATTACK MODES ===
+
+# --- Attack Mode 0: Straight (Wordlist) ---
+
+ - title: hashcat - basic wordlist attack (mode 0)
+   desc: |
+     Performs a straightforward dictionary attack against a target hash file using a wordlist.
+     It reads each line from the wordlist, hashes it, and compares it to the target hash.
+     This is the most common attack type and is highly effective with leaked password lists.
+     Ensure you specify the correct hash type using the -m flag.
+   command: "hashcat -a 0 -m {{hash_mode|1000}} {{hash_file}} {{wordlist|/usr/share/wordlists/rockyou.txt}}"
+
+ - title: hashcat - wordlist attack with rules
+   desc: |
+     Applies mutation rules to every word in a wordlist to catch complex password variations.
+     Rules can perform actions like capitalizing letters, adding numbers, or toggling case.
+     This significantly increases the effectiveness of a dictionary attack without needing a massive wordlist.
+     The 'best64.rule' is a standard starting point for common password patterns.
+   command: "hashcat -a 0 -m {{hash_mode}} {{hash_file}} {{wordlist}} -r {{rule_file|/usr/share/hashcat/rules/best64.rule}}"
+
+# --- Attack Mode 1: Combinator ---
+
+ - title: hashcat - combinator attack (mode 1)
+   desc: |
+     Combines words from two different wordlists to create new password candidates.
+     For every word in the first list, it appends every word from the second list.
+     This is ideal for cracking passwords composed of two common words or names.
+     Note that this can lead to a very large keyspace if both wordlists are huge.
+   command: "hashcat -a 1 -m {{hash_mode}} {{hash_file}} {{wordlist1}} {{wordlist2}}"
+
+# --- Attack Mode 3: Brute-force (Mask) ---
+
+ - title: hashcat - mask attack (mode 3)
+   desc: |
+     Executes a brute-force attack based on a specific pattern or "mask".
+     Masks use placeholders like ?l (lowercase), ?u (uppercase), ?d (digit), and ?s (special).
+     For example, '?u?l?l?l?d?d' would try all passwords starting with one uppercase letter, three lowercase, and two digits.
+     This is much more efficient than a pure brute-force attack when the password structure is known.
+   command: "hashcat -a 3 -m {{hash_mode}} {{hash_file}} {{mask|?u?l?l?l?d?d}}"
+
+ - title: hashcat - incrementing mask attack
+   desc: |
+     Performs a mask attack that starts with a minimum length and increments to a maximum length.
+     This is useful when you know the character set but are unsure of the exact password length.
+     It prevents the tool from jumping straight to a long, time-consuming mask immediately.
+     Use --increment-min and --increment-max to define the length boundaries.
+   command: "hashcat -a 3 -m {{hash_mode}} {{hash_file}} --increment --increment-min {{min|1}} --increment-max {{max|8}} {{mask|?a?a?a?a?a?a?a?a}}"
+
+# --- Attack Mode 6/7: Hybrid Attacks ---
+
+ - title: hashcat - hybrid attack (wordlist + mask)
+   desc: |
+     Appends a mask-based pattern to the end of every word in a wordlist.
+     Commonly used to crack passwords that consist of a base word followed by a few digits or symbols.
+     For example, using a mask of '?d?d' will add '00' through '99' to every dictionary entry.
+     This attack mode is designated as -a 6.
+   command: "hashcat -a 6 -m {{hash_mode}} {{hash_file}} {{wordlist}} {{mask|?d?d?d}}"
+
+# === PERFORMANCE & OPTIMIZATION ===
+
+ - title: hashcat - optimized kernels and workload
+   desc: |
+     Uses optimized GPU kernels and adjusts the workload profile for maximum performance.
+     The -O flag enables optimized kernels which are faster but may limit maximum password length.
+     The -w flag sets the workload profile; '3' or '4' are high-performance modes that might make the system lag.
+     Only use -w 4 on dedicated cracking machines where desktop responsiveness is not required.
+   command: "hashcat -m {{hash_mode}} {{hash_file}} {{wordlist}} -O -w {{profile|3}}"
+
+# === SESSION & OUTPUT MANAGEMENT ===
+
+ - title: hashcat - resume a session
+   desc: |
+     Resumes a previously interrupted cracking session using the session name.
+     Hashcat automatically saves restore points unless explicitly disabled.
+     This is vital for long-running attacks that might be stopped due to power loss or system updates.
+     Ensure the original wordlists and hash files are in the same location.
+   command: "hashcat --session {{session_name|my_attack}} --restore"
+
+ - title: hashcat - show cracked hashes
+   desc: |
+     Displays the cracked passwords from the potfile that match the provided hash file.
+     Hashcat stores all successfully recovered passwords in a central 'hashcat.potfile'.
+     This command is useful for quickly retrieving results without re-running the attack.
+     It filters the potfile to only show results relevant to your current target list.
+   command: "hashcat -m {{hash_mode}} {{hash_file}} --show"
+
+ - title: hashcat - output results to file
+   desc: |
+     Redirects all recovered passwords and their corresponding hashes to a specific output file.
+     The --outfile-format flag can be used to customize what information is saved (e.g., hash only, plain only).
+     This is the preferred way to collect results during a large-scale engagement.
+     The default format usually includes the hash and the plain-text password separated by a colon.
+   command: "hashcat -m {{hash_mode}} {{hash_file}} {{wordlist}} -o {{output_file|cracked.txt}}"

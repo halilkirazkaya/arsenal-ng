@@ -1,0 +1,77 @@
+tool: graphw00f
+tags: [graphql, security, pentest, fingerprinting, enumeration, reconnaissance, web, discovery]
+
+actions:
+  # === Information and Setup ===
+  - title: graphw00f - list supported technologies
+    desc: |
+      Display all GraphQL technologies and engines that graphw00f is capable of detecting.
+      This command is useful for verifying if a specific backend engine is within the tool's detection database.
+      Run this before starting an engagement to understand the scope of the tool's fingerprinting capabilities.
+    command: "graphw00f -l"
+
+  # === Discovery and Fingerprinting ===
+  - title: graphw00f - detect graphql endpoints
+    desc: |
+      Perform a discovery scan to find GraphQL endpoints on the specified target URL.
+      This mode iterates through common paths to locate where the GraphQL API is hosted.
+      It is the primary step when you know a target has GraphQL but do not know the exact URI.
+    command: "graphw00f -d -t {{url}}"
+
+  - title: graphw00f - fingerprint graphql engine
+    desc: |
+      Identify the specific GraphQL engine implementation (e.g., Apollo, Graphene, Hasura) being used.
+      Fingerprinting helps security researchers identify known vulnerabilities or misconfigurations specific to that engine.
+      The output often includes a link to an Attack Surface Matrix for the detected technology.
+    command: "graphw00f -f -t {{target_url}}"
+
+  - title: graphw00f - detect and fingerprint combined
+    desc: |
+      Execute both discovery and fingerprinting in a single command execution.
+      This will first search for the GraphQL endpoint and, once found, immediately attempt to identify the underlying technology.
+      This is the most efficient way to start a GraphQL assessment on a new target.
+    command: "graphw00f -d -f -t {{url}}"
+
+  # === Advanced Scanning Options ===
+  - title: graphw00f - detect with custom wordlist
+    desc: |
+      Use a custom wordlist to search for GraphQL endpoints instead of the built-in default list.
+      This is particularly useful when dealing with non-standard naming conventions or heavily customized environments.
+      Providing a targeted wordlist can significantly increase the chances of discovery in complex infrastructures.
+    command: "graphw00f -d -t {{url}} -w {{wordlist_path}}"
+
+  - title: graphw00f - authenticated fingerprinting
+    desc: |
+      Send custom HTTP headers, such as Authorization tokens, during the fingerprinting or detection process.
+      Many GraphQL endpoints are protected by authentication and will return 401 or 403 errors without proper credentials.
+      Ensure the header is formatted correctly as a "Key: Value" pair to ensure the request is accepted by the server.
+    command: "graphw00f -f -t {{target_url}} -H \"{{header_name|Authorization}}: {{header_value}}\""
+
+  - title: graphw00f - scan through proxy
+    desc: |
+      Route all outgoing traffic from graphw00f through a specified HTTP or HTTPS proxy.
+      This is commonly used to tunnel traffic through Burp Suite for further manual analysis or to hide the source IP.
+      Make sure the proxy URL includes the protocol, host, and port correctly.
+    command: "graphw00f -f -t {{target_url}} -p {{proxy_url|http://127.0.0.1:8080}}"
+
+  - title: graphw00f - export results to csv
+    desc: |
+      Save the output of the fingerprinting or discovery process into a CSV file for reporting.
+      This allows for easier integration with other tools or for maintaining a record of findings during a penetration test.
+      The output file will contain the target details and the identified GraphQL engine if successful.
+    command: "graphw00f -f -t {{target_url}} -o {{output_file|results.csv}}"
+
+  # === Connection Tuning ===
+  - title: graphw00f - set custom timeout and user-agent
+    desc: |
+      Adjust the network timeout settings and use a custom User-Agent string for the requests.
+      Increasing the timeout is helpful for slow-responding servers or high-latency network connections.
+      Modifying the User-Agent can help bypass basic WAF rules that block the default tool signatures.
+    command: "graphw00f -f -t {{target_url}} -T {{timeout_seconds|10}} -u \"{{user_agent|Mozilla/5.0}}\""
+
+  - title: graphw00f - disable redirection following
+    desc: |
+      Prevent the tool from following HTTP 3xx redirections during the scanning process.
+      This is useful when you want to analyze the exact response of a specific URL without being redirected to a login page or a different domain.
+      It provides more control over the reconnaissance phase in environments with complex routing.
+    command: "graphw00f -f -r -t {{target_url}}"

@@ -1,0 +1,63 @@
+tool: impacket-sniffer
+tags: [network, sniffer, security, pentest, traffic-analysis, credentials, impacket]
+
+actions:
+  # === BASIC USAGE ===
+  - title: impacket-sniffer - live interface sniffing
+    desc: |
+      Captures and decodes network packets on a specified network interface in real-time. 
+      This is the primary way to monitor local network traffic for sensitive protocol communications like SMB, LDAP, and MSSQL. 
+      It is highly effective for identifying plaintext credentials or NTLM hashes being transmitted across the segment. 
+      Requires root or administrative privileges to put the network interface into promiscuous mode.
+    command: "impacket-sniffer -i {{interface|eth0}}"
+
+  - title: impacket-sniffer - verbose packet analysis
+    desc: |
+      Enables verbose output mode to provide more granular details about the captured packets. 
+      This mode displays additional protocol headers and negotiation flags that are typically hidden in the default view. 
+      It is particularly useful for troubleshooting connection issues or performing deep dive security audits of network traffic. 
+      Use this when the standard output does not provide enough context for a specific protocol exchange.
+    command: "impacket-sniffer -i {{interface|eth0}} -v"
+
+  # === FILTERING AND FORMATTING ===
+  - title: impacket-sniffer - protocol specific filtering
+    desc: |
+      Filters the sniffer output to only display traffic associated with a specific protocol. 
+      This helps reduce noise in busy network environments, allowing the user to focus on high-value targets like SMB or database traffic. 
+      Commonly used protocol filters include SMB, MSSQL, MYSQL, and LDAP. 
+      This is essential during penetration tests when you are looking for specific lateral movement or authentication attempts.
+    command: "impacket-sniffer -i {{interface|eth0}} -p {{protocol|SMB}}"
+
+  - title: impacket-sniffer - hex and ascii dumping
+    desc: |
+      Displays the raw hex and ASCII representation of every packet captured on the wire. 
+      This is critical for analyzing custom or unknown protocols that the tool might not have a built-in decoder for. 
+      It allows the researcher to manually inspect packet payloads for sensitive data or exploit patterns. 
+      Be aware that this produces a large amount of output, which can be difficult to read in high-traffic scenarios.
+    command: "impacket-sniffer -i {{interface|eth0}} -e"
+
+  # === FILE OPERATIONS ===
+  - title: impacket-sniffer - read from pcap file
+    desc: |
+      Analyzes and decodes network traffic from a previously saved PCAP file instead of a live interface. 
+      This is ideal for offline forensic analysis or when you have captured traffic from a remote system using tools like tcpdump. 
+      The tool will apply its protocol decoders to the file content, highlighting credentials and session info. 
+      It allows for repeatable analysis without needing to stay connected to the target network.
+    command: "impacket-sniffer -f {{pcap_file}}"
+
+  - title: impacket-sniffer - write capture to file
+    desc: |
+      Saves the captured live network traffic directly into a PCAP file for future inspection. 
+      This allows you to use the tool's live decoding features while simultaneously creating a permanent record for Wireshark analysis. 
+      It is a best practice during engagements to keep logs of the traffic you have monitored for reporting purposes. 
+      Ensure the destination directory has enough disk space to handle potentially large capture files.
+    command: "impacket-sniffer -i {{interface|eth0}} -w {{output_file|capture.pcap}}"
+
+  # === ADVANCED SCENARIOS ===
+  - title: impacket-sniffer - filtered pcap analysis
+    desc: |
+      Combines file reading and protocol filtering to analyze specific traffic within a large capture file. 
+      This speeds up the analysis process significantly by ignoring irrelevant packets in the trace. 
+      It is the most efficient way to extract credentials from a long-running packet capture session. 
+      Useful for security operations centers (SOC) when investigating a specific alert from a recorded timeframe.
+    command: "impacket-sniffer -f {{pcap_file}} -p {{protocol|MSSQL}}"

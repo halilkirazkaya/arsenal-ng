@@ -1,0 +1,106 @@
+tool: nikto
+tags: [web, scanner, security, pentest, vulnerability, enumeration, reconnaissance]
+
+# === BASIC SCANS ===
+
+actions:
+ - title: nikto - basic scan
+   desc: |
+     Performs a standard vulnerability scan against a target host on the default port.
+     This is the most common starting point for web server reconnaissance to identify outdated software and common misconfigurations.
+     It checks for over 6700 potentially dangerous files/programs and reports outdated server versions.
+   command: "nikto -h {{target}}"
+
+ - title: nikto - scan with ssl/tls
+   desc: |
+     Forces the use of SSL/TLS for the connection to the target server.
+     This is necessary when scanning HTTPS websites or services running on port 443.
+     Nikto will attempt to negotiate a secure connection before starting the vulnerability tests.
+   command: "nikto -h {{target}} -ssl"
+
+ - title: nikto - scan specific port
+   desc: |
+     Directs the scanner to a specific port number where the web service is running.
+     This is useful for non-standard ports like 8080, 8443, or development environments.
+     By default, if the port is 443, Nikto will automatically attempt to use SSL.
+   command: "nikto -h {{target}} -p {{port|8080}}"
+
+# === REPORTING AND OUTPUT ===
+
+ - title: nikto - export results to file
+   desc: |
+     Saves the scan results into a specific file format for later analysis or reporting.
+     Supported formats include htm, csv, json, xml, and txt.
+     This is essential for documenting findings during a penetration test or security audit.
+   command: "nikto -h {{target}} -o {{output_file|report.html}} -Format {{format|htm}}"
+
+# === SCAN TUNING AND OPTIMIZATION ===
+
+ - title: nikto - targeted tuning
+   desc: |
+     Runs only specific categories of tests to make the scan faster and more focused.
+     Tuning options include (4) Injection, (9) SQL Injection, (a) Auth Bypass, and (b) Software Identification.
+     This reduces the noise generated on the network and minimizes the risk of triggering security alerts for unrelated issues.
+   command: "nikto -h {{target}} -Tuning {{tuning_options|123bde}}"
+
+ - title: nikto - exclude specific tests
+   desc: |
+     Runs all available tests except for the ones specified in the tuning string using the 'x' flag.
+     For example, you might want to exclude Denial of Service (6) tests to ensure server stability.
+     This is a safer approach when scanning production environments where uptime is critical.
+   command: "nikto -h {{target}} -Tuning x{{exclude_options|6}}"
+
+ - title: nikto - set maximum scan time
+   desc: |
+     Limits the total duration of the scan to prevent it from running indefinitely.
+     You can specify time in hours (h), minutes (m), or seconds (s).
+     This is particularly useful in automated CI/CD pipelines or when working within strict testing windows.
+   command: "nikto -h {{target}} -maxtime {{time|1h}}"
+
+# === AUTHENTICATION AND EVASION ===
+
+ - title: nikto - authenticated scan
+   desc: |
+     Performs a scan using HTTP Basic Authentication credentials.
+     The format required is 'id:password' or 'id:password:realm'.
+     Be cautious as incorrect credentials might trigger account lockout policies on the target system.
+   command: "nikto -h {{target}} -id {{username}}:{{password}}"
+
+ - title: nikto - ids evasion techniques
+   desc: |
+     Employs various encoding and request manipulation techniques to bypass Intrusion Detection Systems (IDS).
+     Options include (1) Random URI encoding, (5) Fake parameters, and (8) Windows directory separators.
+     Note that using multiple evasion techniques will significantly slow down the overall scan speed.
+   command: "nikto -h {{target}} -evasion {{evasion_type|15}}"
+
+ - title: nikto - use proxy
+   desc: |
+     Routes all scan traffic through a defined proxy server like Burp Suite or a SOCKS proxy.
+     The proxy details must be configured in the nikto.conf file or passed as a command-line argument.
+     This is useful for intercepting Nikto's requests for manual analysis or bypassing IP-based restrictions.
+   command: "nikto -h {{target}} -useproxy http://{{proxy_ip|127.0.0.1}}:{{proxy_port|8080}}"
+
+# === ADVANCED ENUMERATION ===
+
+ - title: nikto - directory and user mutation
+   desc: |
+     Attempts to guess additional file names, directory names, or usernames via various mutation techniques.
+     Mutation (3) enumerates usernames via Apache /~user requests, while (6) guesses directory names from a dictionary.
+     This helps discover hidden assets or backup files that are not linked directly within the web application.
+   command: "nikto -h {{target}} -mutate {{mutation_type|3,6}}"
+
+ - title: nikto - virtual host scanning
+   desc: |
+     Specifies a virtual host name to be sent in the HTTP Host header.
+     This is critical when the target IP address hosts multiple websites (Shared Hosting).
+     Without this flag, the scanner might only test the default site associated with the IP address.
+   command: "nikto -h {{target}} -vhost {{domain_name}}"
+
+# === UTILITY ===
+
+ - title: nikto - list plugins
+   desc: |
+     Lists all available plugins that Nikto can use to perform security checks.
+     No actual scanning is performed when this flag is used.
+     It is a good way to verify your installation and see what specific vulnerabilities Nikto is capable of detecting.
+   command: "nikto -list-plugins"

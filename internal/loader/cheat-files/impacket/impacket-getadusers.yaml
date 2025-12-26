@@ -1,0 +1,62 @@
+tool: impacket-getadusers
+tags: [active-directory, enumeration, pentest, impacket, security, ldap, windows, reconnaissance]
+
+actions:
+  # === BASIC ENUMERATION ===
+  - title: impacket-GetADUsers - basic user enumeration
+    desc: |
+      Performs a basic enumeration of users within the target domain that have an email address configured. 
+      This is a common starting point for identifying valid usernames for further attacks like password spraying or credential stuffing. 
+      It requires valid domain credentials to successfully query the Active Directory database via the SAMR/LDAP protocols.
+    command: "impacket-GetADUsers {{domain}}/{{username}}:{{password}}"
+
+  - title: impacket-GetADUsers - enumerate all users
+    desc: |
+      Queries the domain for all user accounts, including those without email addresses and those that are currently disabled. 
+      Using the -all flag ensures that no accounts are missed during the initial reconnaissance phase, providing a complete user list. 
+      This is critical for finding service accounts or old accounts that might have been overlooked but still possess sensitive permissions.
+    command: "impacket-GetADUsers -all {{domain}}/{{username}}:{{password}}"
+
+  - title: impacket-GetADUsers - query specific user details
+    desc: |
+      Requests detailed information for a single specific username instead of listing every user in the directory. 
+      This is useful when you want to verify the existence of a high-value target or check specific attributes of a single account. 
+      If the user is disabled, you should combine this command with the -all flag to ensure the data is returned.
+    command: "impacket-GetADUsers -user {{target_user}} {{domain}}/{{username}}:{{password}}"
+
+  # === ADVANCED CONNECTION & AUTHENTICATION ===
+  - title: impacket-GetADUsers - specify domain controller IP
+    desc: |
+      Directs the tool to communicate with a specific Domain Controller IP address for the query. 
+      This is necessary in environments where the local machine cannot resolve the domain FQDN (Fully Qualified Domain Name) via DNS. 
+      It ensures the connection is established directly with the intended server, bypassing potential local name resolution issues.
+    command: "impacket-GetADUsers -dc-ip {{dc_ip}} {{domain}}/{{username}}:{{password}}"
+
+  - title: impacket-GetADUsers - authentication via NTLM hashes
+    desc: |
+      Authenticates to the target domain using NTLM hashes instead of a cleartext password. 
+      This "Pass-the-Hash" technique is ideal for scenarios where you have recovered hashes from memory or local databases. 
+      The format for the hashes must be LMHASH:NTHASH; if you only have the NTHASH, provide 32 zeros for the LM part.
+    command: "impacket-GetADUsers -hashes {{hash}} {{domain}}/{{username}}"
+
+  - title: impacket-GetADUsers - kerberos authentication
+    desc: |
+      Uses Kerberos tickets stored in a CCACHE file for authentication instead of traditional NTLM. 
+      The tool will look for a valid ticket in the path specified by the KRB5CCNAME environment variable. 
+      This is highly effective for avoiding NTLM-based detections and is commonly used in post-exploitation on Linux-based attack hosts.
+    command: "impacket-GetADUsers -k -no-pass {{domain}}/{{username}}"
+
+  - title: impacket-GetADUsers - kerberos authentication via AES key
+    desc: |
+      Authenticates using a known Kerberos AES-128 or AES-256 key to request information. 
+      This is a "Pass-the-Key" method that allows for authentication without knowing the user's cleartext password. 
+      It is particularly useful when keys have been extracted from a domain controller's NTDS.dit file or from the LSASS process on a compromised host.
+    command: "impacket-GetADUsers -aesKey {{aes_key}} {{domain}}/{{username}}"
+
+  # === LOGGING AND DEBUGGING ===
+  - title: impacket-GetADUsers - debug mode with timestamps
+    desc: |
+      Executes the enumeration with detailed debug output and timestamps for every log entry. 
+      This is helpful for troubleshooting connection errors, authentication failures, or understanding the underlying RPC/LDAP calls. 
+      Use this when the tool is behaving unexpectedly or when you need a detailed log for a penetration testing report.
+    command: "impacket-GetADUsers -debug -ts {{domain}}/{{username}}:{{password}}"

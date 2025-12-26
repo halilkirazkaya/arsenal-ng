@@ -1,0 +1,106 @@
+tool: katana
+tags: [web, scanner, reconnaissance, crawler, pentest, security, automation]
+
+actions:
+  # === BASIC CRAWLING ===
+  - title: katana - basic crawl
+    desc: |
+      Performs a standard crawl on a single target URL. It follows links within the same scope by default to discover endpoints and assets. 
+      This is the most common entry point for mapping a web application's structure during the initial reconnaissance phase. 
+      It returns a list of discovered URLs found through simple HTML parsing.
+    command: "katana -u {{target_url}}"
+
+  - title: katana - list based crawl
+    desc: |
+      Crawls multiple targets provided in a text file. This is highly efficient for large-scale reconnaissance across multiple domains or subdomains. 
+      Each URL in the list will be processed according to the default or specified configuration. 
+      It is ideal for automated pipelines where a list of active subdomains is passed from tools like subfinder.
+    command: "katana -list {{target_list_file}}"
+
+  - title: katana - crawl with specific depth
+    desc: |
+      Sets the maximum depth for the crawler to follow links from the starting point. 
+      A higher depth value leads to more thorough discovery but significantly increases execution time and resource usage. 
+      Use this when the default depth (usually 3) is insufficient for complex applications with deep directory structures.
+    command: "katana -u {{target_url}} -d {{depth|5}}"
+
+  # === ADVANCED DISCOVERY ===
+  - title: katana - javascript endpoint extraction
+    desc: |
+      Enables parsing and crawling of endpoints found within JavaScript files. 
+      This is crucial for modern single-page applications (SPAs) where many routes and API endpoints are defined in client-side code. 
+      Activating this option helps discover hidden functionalities that are not linked directly in the HTML source.
+    command: "katana -u {{target_url}} -jc"
+
+  - title: katana - intensive javascript parsing (jsluice)
+    desc: |
+      Uses the jsluice library to perform a more intensive and accurate parsing of JavaScript files. 
+      While more memory-intensive, it provides superior results in extracting URLs and secrets from complex JS bundles. 
+      This is recommended when performing deep manual assessments of modern web frameworks like React or Angular.
+    command: "katana -u {{target_url}} -jsl"
+
+  - title: katana - crawl known files
+    desc: |
+      Specifically instructs the crawler to look for and parse common files like robots.txt and sitemap.xml. 
+      These files often contain explicit paths to sensitive or hidden areas of the web application. 
+      A minimum depth of 3 is usually required to ensure these files are properly discovered and processed by the engine.
+    command: "katana -u {{target_url}} -kf {{file_type|all}}"
+
+  # === HEADLESS CRAWLING ===
+  - title: katana - headless hybrid crawling
+    desc: |
+      Uses a headless browser to crawl the target, allowing for the execution of dynamic JavaScript. 
+      This mode is essential for capturing elements, requests, and routes that are only generated during runtime. 
+      Note that headless mode consumes significantly more CPU and RAM compared to the standard Go-based crawler.
+    command: "katana -u {{target_url}} -hl"
+
+  - title: katana - headless with XHR extraction
+    desc: |
+      Runs the crawler in headless mode and specifically extracts XHR (XMLHttpRequest) and Fetch requests. 
+      This is vital for identifying internal API endpoints used by the frontend to communicate with the backend. 
+      The results are best viewed in JSONL format to see the HTTP methods associated with each XHR request.
+    command: "katana -u {{target_url}} -hl -xhr -j"
+
+  # === SCOPE AND FILTERING ===
+  - title: katana - scoped crawling with regex
+    desc: |
+      Restricts the crawler to follow only URLs that match a specific regular expression. 
+      This prevents the crawler from wandering off-target into external third-party services or social media links. 
+      It is a critical feature for staying within the legal and technical boundaries of a penetration test.
+    command: "katana -u {{target_url}} -cs {{regex_pattern}}"
+
+  - title: katana - filter output by extension
+    desc: |
+      Filters the final output to only show files that match the provided extensions. 
+      This is useful for quickly identifying specific file types like configuration files, scripts, or backups (e.g., php, js, txt). 
+      Alternatively, you can use -ef to exclude common noisy extensions like css, png, or jpg.
+    command: "katana -u {{target_url}} -em {{extensions|js,php,aspx,json}}"
+
+  # === PERFORMANCE AND OUTPUT ===
+  - title: katana - rate limited crawl
+    desc: |
+      Controls the speed of the crawl by setting a maximum number of requests per second. 
+      Lowering the rate limit is important to avoid overwhelming small servers or triggering Web Application Firewalls (WAF) and account lockouts. 
+      Always adjust this based on the stability and sensitivity of the target environment.
+    command: "katana -u {{target_url}} -rl {{rate_limit|10}}"
+
+  - title: katana - save output to JSONL
+    desc: |
+      Writes the crawl results into a JSON Lines (JSONL) format file. 
+      This format includes rich metadata for each discovered URL, such as the source link, request method, and status codes. 
+      JSONL is the preferred format for integrating Katana results into other tools or custom analysis scripts.
+    command: "katana -u {{target_url}} -j -o {{output_file|results.jsonl}}"
+
+  - title: katana - automatic form filling
+    desc: |
+      Enables an experimental feature that attempts to automatically fill and submit forms during the crawl. 
+      This can help the crawler reach areas of the site hidden behind input fields or search bars. 
+      Use with caution as it may result in unintentional data submission or state changes on the target application.
+    command: "katana -u {{target_url}} -aff"
+
+  - title: katana - technology detection
+    desc: |
+      Enables technology detection for the crawled endpoints. 
+      This helps identify the underlying stack, such as web servers, frameworks, and CMS versions. 
+      It adds valuable context to the discovery process, helping the tester prioritize specific exploitation vectors.
+    command: "katana -u {{target_url}} -td"

@@ -1,0 +1,75 @@
+tool: impacket-addcomputer
+tags: [active-directory, pentest, exploitation, security, impacket, authentication, windows]
+
+actions:
+  # === BASIC ACCOUNT CREATION ===
+
+  - title: impacket-addcomputer - basic account addition
+    desc: |
+      Adds a new computer account to the Active Directory domain with a randomly generated name and password. 
+      This is the most common use case for exploiting the default MachineAccountQuota (MAQ) setting, which typically allows any domain user to add up to 10 machines. 
+      The tool will output the name and password of the newly created account upon success. 
+      Note that this requires valid domain user credentials and network access to the Domain Controller.
+    command: "impacket-addcomputer {{domain}}/{{username}}:{{password}} -dc-ip {{dc_ip}}"
+
+  - title: impacket-addcomputer - add with specific name and password
+    desc: |
+      Creates a computer account using a specific name and a chosen password instead of random values. 
+      The computer name should ideally end with a dollar sign ($) to follow Active Directory naming conventions. 
+      This is useful when you need to match a specific naming scheme or when setting up Resource-Based Constrained Delegation (RBCD). 
+      Ensure the password meets the domain's complexity requirements to avoid errors during creation.
+    command: "impacket-addcomputer {{domain}}/{{username}}:{{password}} -computer-name {{computer_name$|NEW-MACHINE$}} -computer-pass {{computer_pass|Password123!}} -dc-ip {{dc_ip}}"
+
+  # === MAINTENANCE AND MODIFICATION ===
+
+  - title: impacket-addcomputer - reset existing computer password
+    desc: |
+      Updates the password for an existing computer account without creating a new object. 
+      The -no-add flag is essential here as it tells the tool to skip the creation phase and target an existing SAM account. 
+      This operation requires the authenticated user to have 'Reset Password' permissions over the target computer object. 
+      It is frequently used after gaining some level of control over a machine object's attributes.
+    command: "impacket-addcomputer {{domain}}/{{username}}:{{password}} -computer-name {{target_computer$|TARGET$}} -computer-pass {{new_pass|SecretPass123}} -no-add -dc-ip {{dc_ip}}"
+
+  - title: impacket-addcomputer - delete computer account
+    desc: |
+      Removes a specified computer account from the Active Directory database. 
+      This is a destructive action and should be used with caution during engagements to clean up created artifacts. 
+      The user must have the 'Delete Child' permission on the container (usually CN=Computers) or be the owner of the object. 
+      Verification of the target computer name is recommended to prevent accidental deletion of legitimate production servers.
+    command: "impacket-addcomputer {{domain}}/{{username}}:{{password}} -computer-name {{target_computer$|TARGET$}} -delete -dc-ip {{dc_ip}}"
+
+  # === ADVANCED AUTHENTICATION ===
+
+  - title: impacket-addcomputer - authenticate with NTLM hashes
+    desc: |
+      Performs computer account operations using Pass-the-Hash (PtH) authentication. 
+      This allows you to add or modify accounts even if you do not have the cleartext password for the user. 
+      The hash must be provided in the LMHASH:NTHASH format; if you only have the NT hash, use an empty LM hash (aad3b435b51404eeaad3b435b51404ee). 
+      This is standard practice when operating from a compromised machine where only hashes are available.
+    command: "impacket-addcomputer {{domain}}/{{username}} -hashes {{lm_hash|aad3b435b51404eeaad3b435b51404ee}}:{{nt_hash}} -dc-ip {{dc_ip}}"
+
+  - title: impacket-addcomputer - authenticate with Kerberos
+    desc: |
+      Uses Kerberos tickets for authentication instead of NTLM. 
+      This requires a valid Kerberos ticket in the environment's cache (ccache file) or providing an AES key. 
+      When using the -k flag, the -dc-host parameter is often required because Kerberos relies on SPNs which are tied to hostnames rather than IP addresses. 
+      This method is stealthier and works in environments where NTLM authentication has been disabled.
+    command: "impacket-addcomputer {{domain}}/{{username}} -k -no-pass -dc-host {{dc_hostname}} -dc-ip {{dc_ip}}"
+
+  # === CONNECTION METHODS ===
+
+  - title: impacket-addcomputer - use LDAPS method
+    desc: |
+      Forces the tool to use LDAPS (LDAP over SSL) instead of the default SAMR (SMB) protocol for account creation. 
+      This is necessary when the Domain Controller requires LDAP signing or when SMB (Port 445) is blocked by internal firewalls. 
+      The default LDAPS port is 636, but it can be changed using the -port flag if needed. 
+      Ensure that you have proper network connectivity to the LDAPS port and that the DC has a valid certificate installed.
+    command: "impacket-addcomputer {{domain}}/{{username}}:{{password}} -method LDAPS -port {{port|636}} -dc-ip {{dc_ip}}"
+
+  - title: impacket-addcomputer - specify custom computer group
+    desc: |
+      Adds the new computer account to a specific Organizational Unit (OU) or Container instead of the default CN=Computers. 
+      The group must be specified using its full Distinguished Name (DN) format. 
+      This is useful for bypassing certain Group Policy Objects (GPOs) that apply only to the default Computers container. 
+      The authenticated user must have the 'Create Child' permission on the specified target container.
+    command: "impacket-addcomputer {{domain}}/{{username}}:{{password}} -computer-group {{group_dn|OU=Testing,DC=example,DC=local}} -dc-ip {{dc_ip}}"

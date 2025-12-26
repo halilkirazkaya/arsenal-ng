@@ -1,0 +1,84 @@
+tool: dnsx
+tags: [dns, enumeration, reconnaissance, networking, security, pentest, subdomains]
+
+actions:
+# === BASIC RESOLUTION ===
+ - title: dnsx - basic A record resolution
+   desc: |
+     Resolve a list of subdomains to their corresponding IPv4 addresses. 
+     This is the most common starting point for reconnaissance to identify live hosts. 
+     The output provides a clean list of resolved IP addresses for the provided input.
+   command: "dnsx -l {{list|subdomains.txt}}"
+
+ - title: dnsx - query multiple record types
+   desc: |
+     Perform queries for multiple DNS record types including A, AAAA, CNAME, NS, TXT, and MX. 
+     This comprehensive scan helps in understanding the full DNS profile of a target domain. 
+     It is particularly useful for identifying mail servers, name servers, and third-party service verification strings.
+   command: "dnsx -l {{list}} -a -aaaa -cname -ns -txt -mx"
+
+ - title: dnsx - reverse DNS lookup (PTR)
+   desc: |
+     Resolve a list of IP addresses back to their associated hostnames using PTR records. 
+     This is essential during internal assessments or when scanning cloud IP ranges to identify ownership. 
+     Reverse lookups help map out the infrastructure from an IP-centric perspective.
+   command: "dnsx -l {{ip_list|ips.txt}} -ptr"
+
+# === BRUTEFORCING & ENUMERATION ===
+ - title: dnsx - subdomain bruteforcing
+   desc: |
+     Bruteforce subdomains for a specific domain using a provided wordlist. 
+     This technique discovers hidden subdomains that are not indexed by public search engines or certificate transparency logs. 
+     dnsx handles high-concurrency bruteforcing efficiently using the retryabledns library.
+   command: "dnsx -d {{domain}} -w {{wordlist|subdomains-top1000.txt}}"
+
+ - title: dnsx - zone transfer (AXFR)
+   desc: |
+     Attempt a DNS zone transfer for the specified list of domains. 
+     If successful, AXFR allows an attacker or auditor to see every DNS record hosted on a name server. 
+     Note that most modern servers are configured to block unauthorized zone transfers.
+   command: "dnsx -l {{list}} -axfr"
+
+# === FILTERING & PROBING ===
+ - title: dnsx - filter by status code
+   desc: |
+     Filter the DNS resolution results by specific response codes such as NOERROR or SERVFAIL. 
+     This helps in reducing noise by focusing only on successfully resolved domains or identifying specific server errors. 
+     Multiple status codes can be provided as a comma-separated list.
+   command: "dnsx -l {{list}} -rcode noerror,servfail"
+
+ - title: dnsx - cdn and asn enumeration
+   desc: |
+     Retrieve the CDN name and ASN information for each resolved domain. 
+     This provides critical context about the hosting environment, such as whether a site is behind Cloudflare or Akamai. 
+     It is highly valuable for scoping and identifying target infrastructure ownership.
+   command: "dnsx -l {{list}} -cdn -asn"
+
+ - title: dnsx - wildcard domain detection
+   desc: |
+     Analyze a domain for wildcard DNS records to prevent false positives during enumeration. 
+     Wildcards resolve any non-existent subdomain to a specific IP, which can clutter results. 
+     This command uses a threshold to accurately identify and filter out these misleading records.
+   command: "dnsx -wd {{domain}} -wt 5"
+
+# === ADVANCED & OPTIMIZATION ===
+ - title: dnsx - dns tracing
+   desc: |
+     Perform a full DNS trace from the root servers down to the authoritative name server. 
+     This is used to visualize the resolution path and diagnose issues like DNS hijacking or misconfigured delegations. 
+     It provides a step-by-step breakdown of how the final IP address is determined.
+   command: "dnsx -l {{list}} -trace"
+
+ - title: dnsx - custom resolvers and rate limiting
+   desc: |
+     Use a custom list of DNS resolvers and apply rate limiting to the queries. 
+     Custom resolvers (like 1.1.1.1 or 8.8.8.8) can bypass local DNS restrictions and improve speed. 
+     Rate limiting is crucial to avoid being blocked by protective DNS firewalls or overloading the network.
+   command: "dnsx -l {{list}} -r {{resolvers|resolvers.txt}} -rl {{rate|100}} -t {{threads|50}}"
+
+ - title: dnsx - structured JSON output
+   desc: |
+     Export all DNS resolution data in a structured JSONL format. 
+     JSON output includes all metadata such as timestamps, status codes, and record values in a machine-readable way. 
+     This is the preferred method for integrating dnsx into automated security pipelines and data processing scripts.
+   command: "dnsx -l {{list}} -json -o {{output|results.json}}"

@@ -1,0 +1,76 @@
+tool: impacket-getuserspns
+tags: [pentest, security, active-directory, kerberos, kerberoasting, enumeration, exploitation]
+
+actions:
+  # === ENUMERATION ===
+  - title: impacket-GetUserSPNs - list available SPNs
+    desc: |
+      Performs basic enumeration of Service Principal Names (SPNs) associated with normal user accounts in the domain.
+      This is the primary reconnaissance step of a Kerberoasting attack to identify which accounts can be targeted for ticket requests.
+      It requires valid domain credentials and queries the Domain Controller via LDAP to find accounts where the 'servicePrincipalName' attribute is set.
+    command: "impacket-GetUserSPNs {{domain}}/{{username}}:{{password}} -dc-ip {{dc_ip}}"
+
+  - title: impacket-GetUserSPNs - stealthy enumeration
+    desc: |
+      Modifies the LDAP query by removing the explicit (servicePrincipalName=*) filter to avoid detection by certain security monitoring tools.
+      While this method is stealthier, it can result in significant memory consumption or errors in very large Active Directory environments because it retrieves more objects.
+      Use this when you suspect the environment has active monitoring for standard Kerberoasting enumeration patterns.
+    command: "impacket-GetUserSPNs {{domain}}/{{username}}:{{password}} -dc-ip {{dc_ip}} -stealth"
+
+  - title: impacket-GetUserSPNs - list machine accounts only
+    desc: |
+      Adjusts the LDAP query to search for machine accounts instead of user accounts by changing the object category to 'computer'.
+      Machine accounts often have complex, randomly generated passwords that are difficult to crack, but they may still be useful in specific lateral movement scenarios.
+      Note that Active Directory may limit LDAP results to 1,000 objects by default, requiring paging for larger environments.
+    command: "impacket-GetUserSPNs {{domain}}/{{username}}:{{password}} -dc-ip {{dc_ip}} -machine-only"
+
+  # === EXPLOITATION (KERBEROASTING) ===
+  - title: impacket-GetUserSPNs - request TGS for Kerberoasting
+    desc: |
+      Requests Ticket Granting Service (TGS) tickets for all discovered service accounts and outputs them in a format compatible with cracking tools.
+      The output is displayed in the terminal in a format that can be directly used by Hashcat (mode 13100) or John the Ripper.
+      Be cautious as requesting a large number of tickets in a short time is a high-signal event that often triggers "Honeytoken" alerts or SIEM detections.
+    command: "impacket-GetUserSPNs {{domain}}/{{username}}:{{password}} -dc-ip {{dc_ip}} -request"
+
+  - title: impacket-GetUserSPNs - request and save tickets to file
+    desc: |
+      Requests TGS tickets for all eligible accounts and automatically saves the resulting hashes into a specified local file.
+      This is the most efficient way to capture hashes for offline cracking without having to manually copy-paste from the terminal output.
+      The generated file will contain the hashes in the standard Kerberoasting format ($krb5tgs$...).
+    command: "impacket-GetUserSPNs {{domain}}/{{username}}:{{password}} -dc-ip {{dc_ip}} -outputfile {{output_file|hashes.txt}}"
+
+  - title: impacket-GetUserSPNs - target specific user for ticket request
+    desc: |
+      Requests a TGS ticket for a single, specific service account identified by its username.
+      This targeted approach is much quieter than requesting tickets for every account in the domain and helps avoid detection.
+      It is highly recommended if you have already identified a high-value or likely-vulnerable service account during the enumeration phase.
+    command: "impacket-GetUserSPNs {{domain}}/{{username}}:{{password}} -dc-ip {{dc_ip}} -request-user {{target_service_user}}"
+
+  # === AUTHENTICATION VARIATIONS ===
+  - title: impacket-GetUserSPNs - authenticate using NTLM hashes
+    desc: |
+      Uses NTLM hashes for authentication to the Domain Controller instead of a cleartext password (Pass-the-Hash).
+      The hash format should be LMHASH:NTHASH; if you only have the NT hash, provide the LM part as 32 zeros or leave it blank as shown.
+      This is essential when you have recovered a user's hash from memory or a SAM database but cannot decrypt it to a plaintext password.
+    command: "impacket-GetUserSPNs {{domain}}/{{username}} -hashes {{hash}} -dc-ip {{dc_ip}} -request"
+
+  - title: impacket-GetUserSPNs - authenticate using Kerberos ticket (ccache)
+    desc: |
+      Performs the SPN query and ticket requests using an existing Kerberos ticket-granting ticket (TGT) stored in a ccache file.
+      You must set the environment variable KRB5CCNAME to the path of your .ccache file before running this command.
+      This method is useful for "Pass-the-Ticket" scenarios or when you want to avoid putting any passwords/hashes in the process command line.
+    command: "impacket-GetUserSPNs -k -no-pass {{domain}}/{{username}} -dc-ip {{dc_ip}} -request"
+
+  - title: impacket-GetUserSPNs - cross-domain Kerberoasting
+    desc: |
+      Attempts to query and request SPNs from a different domain than the one the user belongs to, leveraging domain trusts.
+      The -target-domain flag specifies the domain you want to attack, while the initial target parameter contains your current valid credentials.
+      This is a key technique for lateral movement and privilege escalation across a multi-domain forest.
+    command: "impacket-GetUserSPNs {{current_domain}}/{{username}}:{{password}} -target-domain {{target_domain}} -dc-ip {{target_dc_ip}} -request"
+
+  - title: impacket-GetUserSPNs - authenticate with AES Key
+    desc: |
+      Uses a raw AES-128 or AES-256 hex key for Kerberos authentication instead of a password or NTLM hash.
+      This provides a more modern and sometimes necessary way to authenticate in environments where NTLM is disabled or restricted.
+      The AES key is typically extracted from the LSASS process or a local secrets database on a compromised host.
+    command: "impacket-GetUserSPNs {{domain}}/{{username}} -aesKey {{hex_key}} -dc-ip {{dc_ip}} -request"

@@ -1,0 +1,46 @@
+tool: impacket-karmaSMB
+tags: [smb, pentest, exploitation, impacket, network, reconnaissance]
+
+actions:
+  # === BASIC USAGE ===
+  - title: impacket-karmaSMB - basic file delivery
+    desc: |
+      Starts an SMB server that delivers the contents of a specific local file regardless of what filename the client requests. 
+      This is primarily used in penetration testing to force clients into downloading a malicious payload or script when they attempt to access any file on a share. 
+      It effectively creates a "catch-all" file server where the requested path is ignored in favor of the specified payload. 
+      Note that binding to the default SMB port (445) usually requires root or administrative privileges on the host system.
+    command: "impacket-karmaSMB {{payload_path}}"
+
+  - title: impacket-karmaSMB - enable SMB2 support
+    desc: |
+      Enables the experimental SMB2 protocol support for the Karma SMB server. 
+      Modern Windows environments often have SMBv1 disabled by default for security reasons, making this flag necessary for compatibility with newer targets. 
+      Use this when the target machine fails to establish a connection or negotiate a protocol version during the initial handshake. 
+      As this feature is marked experimental in Impacket, it should be tested against the target environment if possible to ensure stable delivery.
+    command: "impacket-karmaSMB -smb2support {{payload_path}}"
+
+  # === ADVANCED CONFIGURATION ===
+  - title: impacket-karmaSMB - delivery via extension mapping
+    desc: |
+      Utilizes a configuration file to map specific file extensions to different local files for delivery. 
+      This allows for more sophisticated attacks where requests for .exe, .ps1, or .txt files can each result in different tailored payloads being served. 
+      For any file extension requested by the client that is not explicitly defined in the configuration file, the server will default to delivering the file specified in the positional argument. 
+      This is highly effective for mimicking a real file share structure while maintaining control over the delivered content.
+    command: "impacket-karmaSMB -config {{config_file|mappings.conf}} {{default_payload}}"
+
+  # === LOGGING AND TROUBLESHOOTING ===
+  - title: impacket-karmaSMB - delivery with timestamps
+    desc: |
+      Prefixes every line of the server's output with a timestamp for better event tracking. 
+      This is particularly useful during long-running engagements or red team operations where you need to correlate client access with other system logs. 
+      It helps in identifying exactly when a target machine or user attempted to pull a file from your malicious share. 
+      Adding timestamps simplifies the process of creating a timeline of events for final reporting.
+    command: "impacket-karmaSMB -ts {{payload_path}}"
+
+  - title: impacket-karmaSMB - debug mode
+    desc: |
+      Runs the SMB server in debug mode to provide verbose output regarding the underlying protocol exchange. 
+      This is essential for troubleshooting why a specific client might be failing to connect or why the payload is not being transferred as expected. 
+      It reveals detailed information about the SMB negotiation, session setup, and tree connect phases. 
+      Use this if you suspect firewall interference or protocol incompatibility issues are preventing the attack from succeeding.
+    command: "impacket-karmaSMB -debug {{payload_path}}"

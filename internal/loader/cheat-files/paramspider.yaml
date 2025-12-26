@@ -1,0 +1,55 @@
+tool: paramspider
+tags: [recon, web, security, pentest, enumeration, discovery, bugbounty, parameters]
+
+actions:
+  # === BASIC RECONNAISSANCE ===
+  - title: paramspider - basic domain scan
+    desc: |
+      Perform a basic parameter discovery scan against a single target domain. 
+      This command queries archival sources to find historical URLs that contain parameters. 
+      It is the most common starting point for identifying potential attack vectors like XSS, SQLi, or SSRF. 
+      The results are typically saved to a text file in the results directory.
+    command: "paramspider -d {{domain}}"
+
+  - title: paramspider - bulk domain discovery
+    desc: |
+      Scan multiple domains simultaneously by providing a list from a local file. 
+      This is highly efficient for large-scale reconnaissance or when working on bug bounty programs with expansive scopes. 
+      Ensure the input file contains one domain per line without protocol prefixes. 
+      This helps in automating the discovery phase across an entire organization's infrastructure.
+    command: "paramspider -l {{file_path}}"
+
+  # === OUTPUT AND STREAMING ===
+  - title: paramspider - stream results to terminal
+    desc: |
+      Enable streaming mode to print discovered URLs directly to the terminal output. 
+      By default, the tool might focus on file generation, but the stream flag allows for real-time monitoring. 
+      This is particularly useful when you want to pipe the output into other command-line tools like 'grep', 'httpx', or 'nuclei'. 
+      Use this for building complex automation pipelines in your terminal.
+    command: "paramspider -d {{domain}} -s"
+
+  # === ADVANCED CONFIGURATION ===
+  - title: paramspider - scan via custom proxy
+    desc: |
+      Route all outgoing web requests through a specified proxy server. 
+      This is essential when you need to monitor the discovery traffic via tools like Burp Suite or OWASP ZAP. 
+      It can also be used to route traffic through SOCKS or HTTP proxies to bypass IP-based rate limiting or regional restrictions. 
+      Ensure the proxy URL is provided in the format 'IP:PORT'.
+    command: "paramspider -d {{domain}} --proxy {{proxy_url|127.0.0.1:8080}}"
+
+  - title: paramspider - custom parameter placeholder
+    desc: |
+      Set a custom placeholder value for discovered URL parameters. 
+      While the tool defaults to 'FUZZ', you can change this to specific reflection strings or vulnerability payloads. 
+      This prepares the discovered URLs for immediate use in automated scanners or manual testing tools. 
+      Using a unique string helps in identifying where your input is reflected in the web application's response.
+    command: "paramspider -d {{domain}} -p {{placeholder|FUZZ}}"
+
+  # === PIPELINE INTEGRATION ===
+  - title: paramspider - filter and save results
+    desc: |
+      Combine streaming with output redirection to filter specific parameters. 
+      This example shows how to stream the output and then use standard Unix tools to isolate specific extensions or keywords. 
+      It allows for more granular control over what data is ultimately saved for the exploitation phase. 
+      This approach is recommended for cleaning up noise from large archival datasets.
+    command: "paramspider -d {{domain}} -s | grep {{keyword|php}} > {{output_file|results.txt}}"

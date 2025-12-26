@@ -1,0 +1,76 @@
+tool: impacket-smbclient
+tags: [network, windows, security, pentest, enumeration, exploitation, authentication, smb]
+
+actions:
+  # === AUTHENTICATION METHODS ===
+  - title: impacket-smbclient - basic authentication
+    desc: |
+      Connects to a remote SMB share using a standard username and password. 
+      This is the most common way to interact with Windows shares to list directories or manage files. 
+      The command opens an interactive mini-shell that supports operations like 'ls', 'cd', 'get', and 'put'.
+    command: "impacket-smbclient {{domain|.}}/{{username}}:{{password}}@{{target}}"
+
+  - title: impacket-smbclient - anonymous login
+    desc: |
+      Attempts to connect to the SMB service without providing a password or using a null session.
+      This is useful for identifying misconfigured servers that allow unauthenticated access to sensitive shares like IPC$ or public backups.
+      Note that many modern Windows systems have anonymous access disabled by default for security.
+    command: "impacket-smbclient {{target}} -no-pass"
+
+  - title: impacket-smbclient - pass-the-hash authentication
+    desc: |
+      Authenticates to the target using NTLM hashes instead of a plaintext password.
+      This technique is vital in post-exploitation scenarios where you have extracted hashes but cannot crack them.
+      The hash must be provided in the format 'LMHASH:NTHASH', though the LM part can be empty (e.g., 'aad3b435b51404eeaad3b435b51404ee:NTHASH').
+    command: "impacket-smbclient {{domain|.}}/{{username}}@{{target}} -hashes {{lmhash:nthash}}"
+
+  - title: impacket-smbclient - kerberos authentication
+    desc: |
+      Uses Kerberos tickets for authentication instead of NTLM.
+      This requires a valid Kerberos ticket-granting ticket (TGT) to be present in the environment (KRB5CCNAME).
+      It is highly effective in Active Directory environments where NTLM is disabled or to avoid generating NTLM-based alerts.
+    command: "impacket-smbclient -k -no-pass {{domain}}/{{username}}@{{target}}"
+
+  # === CONNECTION SETTINGS ===
+  - title: impacket-smbclient - specify domain controller ip
+    desc: |
+      Explicitly defines the IP address of the Domain Controller (DC) for authentication purposes.
+      This is necessary when the target machine cannot resolve the domain name or when you are in a different network segment.
+      It ensures that the authentication request is sent directly to the authoritative DC.
+    command: "impacket-smbclient {{domain}}/{{username}}@{{target}} -dc-ip {{dc_ip}}"
+
+  - title: impacket-smbclient - connection on custom port
+    desc: |
+      Connects to the SMB service using a non-standard port instead of the default 445.
+      This is useful when the target is behind a port forwarder, a proxy, or an SSH tunnel.
+      Specify the destination port to ensure the client reaches the intended service.
+    command: "impacket-smbclient {{domain|.}}/{{username}}@{{target}} -port {{port|445}}"
+
+  - title: impacket-smbclient - separate target ip from netbios name
+    desc: |
+      Specifies a target IP address that differs from the NetBIOS name or FQDN used in the target string.
+      This is useful when the target's hostname does not resolve via DNS but is required for the SMB protocol to function correctly.
+      It forces the connection to the provided IP while maintaining the specified target name for the session.
+    command: "impacket-smbclient {{domain|.}}/{{username}}@{{hostname}} -target-ip {{target_ip}}"
+
+  # === AUTOMATION & LOGGING ===
+  - title: impacket-smbclient - execute commands from file
+    desc: |
+      Reads a series of commands from a local text file and executes them automatically in the SMB session.
+      This is excellent for automating data exfiltration or routine enumeration tasks across multiple shares.
+      It reduces manual interaction and minimizes the time spent in the interactive shell.
+    command: "impacket-smbclient {{domain|.}}/{{username}}@{{target}} -inputfile {{commands_file}}"
+
+  - title: impacket-smbclient - log session to file
+    desc: |
+      Logs all actions and output from the smbclient session to a specified local file.
+      This is crucial for maintaining an audit trail during penetration tests or for later analysis of share contents.
+      The output file will contain every command entered and every response received from the server.
+    command: "impacket-smbclient {{domain|.}}/{{username}}@{{target}} -outputfile {{log_filename|smb_session.log}}"
+
+  - title: impacket-smbclient - debug mode and timestamps
+    desc: |
+      Enables verbose debug output and adds timestamps to every log entry.
+      This is used for troubleshooting connection issues or understanding protocol negotiation failures.
+      Debug mode provides a deeper look into the underlying Impacket library's interaction with the remote SMB provider.
+    command: "impacket-smbclient -debug -ts {{domain|.}}/{{username}}@{{target}}"

@@ -1,0 +1,89 @@
+tool: plumhound
+tags: [active-directory, bloodhound, security, pentest, blue-team, purple-team, enumeration, reporting]
+
+actions:
+  # === CONNECTIVITY & BASIC OPERATIONS ===
+  - title: PlumHound - basic connectivity test
+    desc: |
+      Use the easy mode to test the connection to the Neo4j database. It outputs all Active Directory user objects 
+      directly to the standard output. This is the fastest way to verify that your credentials and server 
+      address are correct before running complex tasks.
+    command: "PlumHound.py --easy"
+
+  - title: PlumHound - connect with custom credentials
+    desc: |
+      Specify a custom Neo4j server URI, username, and password for database interaction. This is necessary 
+      when the database is not running on the default localhost or uses non-standard credentials. 
+      Ensure the server string follows the bolt protocol format for proper communication with the Neo4j instance.
+    command: "PlumHound.py -s {{server|bolt://127.0.0.1:7687}} -u {{username|neo4j}} -p {{password|neo4jneo4j}}"
+
+  # === TASK-BASED REPORTING ===
+  - title: PlumHound - execute task list
+    desc: |
+      Run a predefined list of tasks from a file to automate multiple Cypher queries and reporting steps. 
+      Task files allow for complex auditing workflows to be executed in a single command, producing various 
+      output formats like HTML or CSV. This is highly useful for generating comprehensive security reports 
+      after a SharpHound ingest.
+    command: "PlumHound.py -x {{task_file|tasks/default.tasks}}"
+
+  - title: PlumHound - execute tasks with quiet output
+    desc: |
+      Execute a task file while suppressing standard output by setting the verbosity level to zero. 
+      This is ideal for automated environments or background jobs where you only care about the 
+      generated report files. It prevents the terminal from being flooded with progress bars and query logs.
+    command: "PlumHound.py -x {{task_file|tasks/default.tasks}} -v 0"
+
+  # === SINGLE QUERIES & EXPORTS ===
+  - title: PlumHound - single cypher query to stdout
+    desc: |
+      Execute a single custom Cypher query against the Neo4j database and display the results in the terminal. 
+      This mode is ideal for quick lookups of specific objects, relationships, or AD attributes without 
+      generating a full report. It allows researchers to interact with the BloodHound data directly from the CLI.
+    command: "PlumHound.py -q \"{{query|MATCH (n:User) RETURN n.name, n.displayname LIMIT 10}}\""
+
+  - title: PlumHound - single query HTML report
+    desc: |
+      Run a specific Cypher query and generate a formatted HTML report for easier visualization and sharing. 
+      You can specify the report title, the output file name, and the destination directory path. 
+      This helps in presenting specific findings to stakeholders or documenting critical attack paths 
+      discovered during a red or purple team engagement.
+    command: "PlumHound.py -q \"{{query}}\" --title \"{{title}}\" --of \"{{outfile|report.html}}\" --op \"{{outpath|reports/}}\" --ox HTML"
+
+  - title: PlumHound - single query CSV export
+    desc: |
+      Execute a Cypher query and export the resulting data into a CSV file for further analysis in Excel or other tools. 
+      This is useful for data manipulation, such as filtering large lists of vulnerable users or misconfigured 
+      computers. Ensure the output format is explicitly set to CSV using the --ox flag.
+    command: "PlumHound.py -q \"{{query}}\" --of \"{{outfile|data_export}}\" --ox CSV"
+
+  # === ADVANCED PATH ANALYSIS (BLUEHOUND MODULES) ===
+  - title: PlumHound - analyze paths by label
+    desc: |
+      Analyze attack paths based on object labels like User, Group, Computer, OU, or GPO. 
+      The function identifies which specific relationships (e.g., HasSession, AdminTo) must be 
+      remediated to break the path to sensitive targets. It provides blue teams with concrete, 
+      actionable steps to improve the overall AD security posture.
+    command: "PlumHound.py -ap {{label|user}}"
+
+  - title: PlumHound - analyze paths between specific nodes
+    desc: |
+      Identify and analyze all possible attack paths between a specific starting node (source) and a target end node. 
+      The output details which relationships need to be removed to effectively break the entire attack chain. 
+      This is particularly useful for verifying if a specific user or computer can reach Domain Admin privileges.
+    command: "PlumHound.py -ap \"{{start_node|domain users@example.com}}\" \"{{end_node|domain admins@example.com}}\""
+
+  - title: PlumHound - find busiest shortest paths
+    desc: |
+      Find the "busiest" shortest paths that grant the highest number of users a route to Domain Admin privileges. 
+      The command takes an algorithm type (short or all) and the number of top results to return. 
+      This helps security teams identify the most critical "choke points" in the network that attackers 
+      are likely to exploit.
+    command: "PlumHound.py -bp {{algorithm|short}} {{limit|5}}"
+
+  # === HTML CUSTOMIZATION ===
+  - title: PlumHound - generate report with custom CSS
+    desc: |
+      Apply a custom CSS template to the generated HTML reports to match corporate branding or specific design needs. 
+      This allows for professional-looking reports that are ready for executive presentation. 
+      The tool uses default templates if this path is not specified.
+    command: "PlumHound.py -x {{task_file}} --HTMLCSS {{css_file|templates/custom.css}}"

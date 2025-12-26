@@ -1,0 +1,69 @@
+tool: impacket-owneredit
+tags: [active-directory, ldap, pentest, security, exploitation, impacket, privilege-escalation, windows]
+
+actions:
+  # === RECONNAISSANCE & READING ===
+  - title: impacket-owneredit - read owner of a target object
+    desc: |
+      This command is used to retrieve the current owner of a specific Active Directory object by its sAMAccountName. 
+      It is a critical first step during reconnaissance to identify if an object is owned by a specific user, which might lead to privilege escalation.
+      The output will display the owner's SID and Distinguished Name (DN).
+    command: "impacket-owneredit -target {{target_name}} -action read {{domain}}/{{username}}:{{password}}"
+
+  - title: impacket-owneredit - read owner using SID
+    desc: |
+      This command identifies the owner of a target object by providing the target's Security Identifier (SID) instead of a name.
+      Use this when the sAMAccountName is unknown or when dealing with objects that do not have standard naming conventions.
+      Targeting by SID is often more precise in complex environments with multiple domains or renamed accounts.
+    command: "impacket-owneredit -target-sid {{target_sid}} -action read {{domain}}/{{username}}:{{password}}"
+
+  - title: impacket-owneredit - read owner using Distinguished Name (DN)
+    desc: |
+      This command retrieves the owner of an object identified by its full Distinguished Name (DN).
+      This is particularly useful for targeting specific Organizational Units (OUs) or containers that might not have a sAMAccountName.
+      Ensure the DN is correctly escaped if it contains special characters like commas or spaces.
+    command: "impacket-owneredit -target-dn {{target_dn}} -action read {{domain}}/{{username}}:{{password}}"
+
+  # === EXPLOITATION & WRITING ===
+  - title: impacket-owneredit - change owner of a target object
+    desc: |
+      This action modifies the owner attribute of a target object to a new principal specified by their sAMAccountName.
+      Changing the owner is a powerful technique because the owner of an object can typically grant themselves full control over it, regardless of existing DACL restrictions.
+      This requires the attacker to have 'Write Owner' permissions on the target object.
+    command: "impacket-owneredit -target {{target_name}} -new-owner {{new_owner_name}} -action write {{domain}}/{{username}}:{{password}}"
+
+  - title: impacket-owneredit - set new owner using SID
+    desc: |
+      This command sets a new owner for a target object using the new owner's Security Identifier (SID).
+      This is useful if you want to assign ownership to a well-known SID (like Domain Admins) or a specific user whose name you haven't resolved.
+      Note that setting a new owner may trigger alerts in environments with active Directory auditing.
+    command: "impacket-owneredit -target {{target_name}} -new-owner-sid {{new_owner_sid}} -action write {{domain}}/{{username}}:{{password}}"
+
+  # === AUTHENTICATION & CONNECTION ===
+  - title: impacket-owneredit - authentication using NTLM hashes
+    desc: |
+      This command allows performing owner operations by authenticating with NTLM hashes instead of a cleartext password.
+      This is standard practice in pass-the-hash scenarios where you have compromised a local admin or service account hash.
+      The format for the hashes parameter must be LMHASH:NTHASH.
+    command: "impacket-owneredit -target {{target_name}} -hashes {{lmhash:nthash}} -action read {{domain}}/{{username}}"
+
+  - title: impacket-owneredit - authenticate using Kerberos (Pass-the-Ticket)
+    desc: |
+      This command uses Kerberos authentication to interact with the Domain Controller.
+      It expects a valid Kerberos ticket (CCACHE) to be present in the environment (e.g., via KRB5CCNAME variable).
+      Using Kerberos is often more stealthy than NTLM and is required in environments where NTLM authentication is disabled.
+    command: "impacket-owneredit -k -no-pass -dc-ip {{dc_ip}} -target {{target_name}} -action read {{domain}}/{{username}}"
+
+  - title: impacket-owneredit - secure connection via LDAPS
+    desc: |
+      Forces the tool to use LDAP over SSL/TLS (LDAPS) for communication with the Domain Controller.
+      Modern Active Directory environments often enforce LDAP signing and encryption, making standard LDAP connections fail.
+      Using LDAPS ensures that sensitive data, including potential credentials or object SIDs, are encrypted in transit.
+    command: "impacket-owneredit -use-ldaps -dc-ip {{dc_ip}} -target {{target_name}} -action read {{domain}}/{{username}}:{{password}}"
+
+  - title: impacket-owneredit - debug mode for troubleshooting
+    desc: |
+      Runs the tool with the -debug flag to provide verbose output regarding the LDAP connection and response.
+      This is extremely helpful for troubleshooting authentication failures, permission denied errors, or network connectivity issues.
+      It will show the underlying LDAP queries and response codes from the Domain Controller.
+    command: "impacket-owneredit -debug -target {{target_name}} -action read {{domain}}/{{username}}:{{password}}"

@@ -1,0 +1,98 @@
+tool: medusa
+tags: [network, security, pentest, enumeration, brute-force, authentication]
+
+actions:
+  # === BASIC AUTHENTICATION ===
+  - title: medusa - basic authentication
+    desc: |
+      Performs a login attempt against a single host with a single username and password. 
+      This is the simplest form of authentication testing and is useful for verifying credentials or testing a specific account after manual discovery. 
+      Ensure the correct module name is provided for the service running on the host (e.g., ssh, ftp, telnet).
+    command: "medusa -h {{target}} -u {{username}} -p {{password}} -M {{module}}"
+
+  - title: medusa - password wordlist attack
+    desc: |
+      Attempts to login to a target using a single username and a list of passwords from a specified file. 
+      This is the most common use case for recovering forgotten passwords or testing for weak security configurations during a pentest. 
+      Large wordlists might significantly increase the time required and the risk of account lockout on the target system.
+    command: "medusa -h {{target}} -u {{username}} -P {{password_list|/usr/share/wordlists/rockyou.txt}} -M {{module}}"
+
+  - title: medusa - user and password wordlist attack
+    desc: |
+      Tests multiple usernames against multiple passwords on a single target host. 
+      Medusa will iterate through the user list and try every password in the password list for each user. 
+      This exhaustive search is powerful but generates a high volume of traffic and log entries on the target.
+    command: "medusa -h {{target}} -U {{user_list}} -P {{password_list}} -M {{module}}"
+
+  # === MULTI-TARGET & COMBO ATTACKS ===
+  - title: medusa - attack multiple hosts
+    desc: |
+      Reads target IP addresses or hostnames from a text file to perform concurrent attacks across a network. 
+      This is highly effective for internal network assessments where multiple servers might share similar credentials or configurations. 
+      Use the -T flag to control how many hosts are processed in parallel to manage resource consumption.
+    command: "medusa -H {{host_file}} -u {{username}} -P {{password_list}} -M {{module}}"
+
+  - title: medusa - combo file attack
+    desc: |
+      Uses a specialized 'combo' file where each line contains a username and password pair separated by a colon (user:pass). 
+      This is efficient when you have leaked credential pairs or specific combinations gathered from other reconnaissance phases. 
+      It streamlines the process by avoiding the massive cross-product of separate user and password files.
+    command: "medusa -h {{target}} -C {{combo_file}} -M {{module}}"
+
+  # === MODULE SPECIFIC EXAMPLES ===
+  - title: medusa - ssh brute-force
+    desc: |
+      Specifically targets the SSH service on a host to attempt credential discovery. 
+      SSH is a high-value target for attackers, so this module is frequently used to gain initial access to Linux/Unix systems. 
+      Be mindful of 'fail2ban' or similar Intrusion Prevention Systems (IPS) that might block your IP after several failed attempts.
+    command: "medusa -h {{target}} -u {{username|root}} -P {{password_list}} -M ssh"
+
+  - title: medusa - web form http authentication
+    desc: |
+      Performs brute-force against services using HTTP basic, digest, or NTLM authentication. 
+      It is useful for testing routers, administrative web interfaces, or protected web directories. 
+      If the service resides in a specific subdirectory, use the -m flag to pass the directory parameter to the module.
+    command: "medusa -h {{target}} -u {{username|admin}} -P {{password_list}} -M http -m {{web_path|DIR:/admin}}"
+
+  - title: medusa - mssql database attack
+    desc: |
+      Targets Microsoft SQL Server instances to find valid database administrative or user credentials. 
+      This can lead to full database compromise or even remote code execution if 'xp_cmdshell' is enabled. 
+      Always ensure you have permission to test database instances as it can impact production performance.
+    command: "medusa -h {{target}} -u {{username|sa}} -P {{password_list}} -M mssql"
+
+  # === OPTIMIZATION & ADVANCED OPTIONS ===
+  - title: medusa - check for empty or matching passwords
+    desc: |
+      Automatically checks if the password is empty (n) or identical to the username (s) before trying the wordlist. 
+      Many misconfigured systems or default installations still use these weak credential patterns. 
+      This is a quick way to find "low-hanging fruit" during the initial phase of a security audit.
+    command: "medusa -h {{target}} -u {{username}} -e {{check_type|ns}} -M {{module}}"
+
+  - title: medusa - optimized parallel scanning
+    desc: |
+      Increases the speed of the brute-force attack by adjusting the number of concurrent threads. 
+      The -t flag controls the number of login attempts per host, while -T controls the number of hosts scanned simultaneously. 
+      Setting these values too high may cause network congestion, packet loss, or crash the target service.
+    command: "medusa -h {{target}} -U {{user_file}} -P {{password_list}} -M {{module}} -t {{threads|10}} -T {{host_threads|5}}"
+
+  - title: medusa - scan over ssl with custom port
+    desc: |
+      Forces the connection to use SSL/TLS encryption and specifies a non-standard TCP port. 
+      This is mandatory for encrypted services like HTTPS (port 443), LDAPS (port 636), or custom-wrapped legacy services. 
+      Using the -s flag ensures that Medusa attempts an SSL handshake before sending authentication data.
+    command: "medusa -h {{target}} -u {{username}} -P {{password_list}} -M {{module}} -s -n {{port}}"
+
+  - title: medusa - stop on valid credentials
+    desc: |
+      Terminates the scanning process immediately after a valid set of credentials is discovered. 
+      The -f flag stops scanning the current host, while -F stops the entire audit across all hosts in the list. 
+      This is a "stealthier" and more efficient approach once your access objective is achieved.
+    command: "medusa -h {{target}} -U {{user_file}} -P {{password_list}} -M {{module}} -f"
+
+  - title: medusa - resume previous scan
+    desc: |
+      Resumes a previously interrupted scan based on a map file generated during the initial run. 
+      This is extremely useful for long-running brute-force sessions that were stopped due to network issues or time constraints. 
+      It prevents redundant testing of credentials that have already been checked.
+    command: "medusa -Z {{map_file_from_previous_scan}}"

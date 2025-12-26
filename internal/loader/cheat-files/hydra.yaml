@@ -1,0 +1,112 @@
+tool: hydra
+tags: [network, security, pentest, brute-force, authentication, exploitation, cracker]
+
+actions:
+# === BASIC AUTHENTICATION ===
+ - title: hydra - simple ssh attack
+   desc: |
+     Performs a password spray or brute-force attack against an SSH service using a single username.
+     This is the most common starting point when you have identified a valid username like 'root' or 'admin'.
+     The -t parameter controls parallelism; lowering it can help avoid triggering rate-limiting or account lockout policies.
+     Always ensure you have permission to test the target as this generates significant log traffic.
+   command: "hydra -l {{username|root}} -P {{passlist|/usr/share/wordlists/metasploit/unix_passwords.txt}} -t {{threads|4}} {{target}} ssh"
+
+ - title: hydra - multiple users and passwords
+   desc: |
+     Attempts to find valid credentials by iterating through both a list of usernames and a list of passwords.
+     The -L flag points to a file containing usernames, while -P points to a file containing passwords.
+     Hydra will test every password for the first user, then move to the next user, unless the -u flag is used to change the loop order.
+     This method is highly effective but time-consuming depending on the size of the wordlists.
+   command: "hydra -L {{user_file}} -P {{pass_file}} {{target}} {{service|ftp}}"
+
+ - title: hydra - colon separated credentials
+   desc: |
+     Uses a single file containing "login:password" pairs for the attack instead of separate files.
+     This is particularly useful when using default credential lists or output from tools like dpl4hydra.
+     It simplifies the command and ensures that only specific known combinations are tested.
+     Note that the -C flag replaces both the -L/-l and -P/-p options.
+   command: "hydra -C {{cred_file}} {{target}} {{service|http-get}}"
+
+# === HTTP FORM ATTACKS ===
+ - title: hydra - http post form attack
+   desc: |
+     Attacks a web-based login form that uses the POST method.
+     The command requires a specific string format: "URL:FORM_PARAMETERS:FAILURE_CONDITION".
+     Replace placeholders with actual form field names (e.g., user=^USER^&pass=^PASS^) and the text that appears on a failed login.
+     This is one of the most powerful features of Hydra but requires manual inspection of the target's HTML form.
+   command: "hydra -l {{username|admin}} -P {{passlist}} {{target}} http-post-form \"{{path|/login.php}}:{{user_field|user}}=^USER^&{{pass_field|pass}}=^PASS^:{{fail_string|Login failed}}\""
+
+ - title: hydra - http get with basic auth
+   desc: |
+     Targets directories or files protected by HTTP Basic Authentication.
+     The service module 'http-get' is used for targets that prompt for a username and password via the browser's native dialog.
+     If the target uses SSL/TLS (HTTPS), you should append 's' to the service name (e.g., https-get) and use the -S flag.
+     This is commonly used for attacking administrative interfaces on routers or web servers.
+   command: "hydra -L {{user_file}} -P {{pass_file}} -S {{target}} http-get {{path|/admin}}"
+
+# === SERVICE SPECIFIC ATTACKS ===
+ - title: hydra - rdp brute force
+   desc: |
+     Attacks the Remote Desktop Protocol (RDP) service, typically running on port 3389.
+     Modern Windows systems often have account lockout policies, so it is recommended to use a low thread count (-t 1).
+     RDP cracking can be slower than other protocols due to the overhead of the RDP handshake.
+     Ensure the target has RDP enabled and is reachable over the network before starting.
+   command: "hydra -L {{user_file}} -P {{pass_file}} -t {{threads|1}} {{target}} rdp"
+
+ - title: hydra - smb/domain attack
+   desc: |
+     Attempts to crack SMB credentials, which are vital for lateral movement in Windows environments.
+     You can specify a domain by adding it to the username or using specific module options.
+     Be extremely cautious as failing SMB logins frequently triggers domain-wide account lockouts.
+     This module is useful for testing weak local administrator passwords or service accounts.
+   command: "hydra -l {{username|administrator}} -P {{pass_file}} {{target}} smb"
+
+ - title: hydra - mysql/database attack
+   desc: |
+     Targets the MySQL database service to gain unauthorized administrative access.
+     Database servers are often targets for sensitive data exfiltration after initial network entry.
+     This command tries to authenticate as the 'root' user, which is the default administrative account for MySQL.
+     Make sure to check if the database allows remote connections before running this attack.
+   command: "hydra -l {{db_user|root}} -P {{pass_file}} {{target}} mysql"
+
+# === ADVANCED FEATURES ===
+ - title: hydra - password generation (brute-force)
+   desc: |
+     Generates passwords on the fly based on a defined character set instead of using a wordlist.
+     The -x syntax is MIN:MAX:CHARSET, where 'a' is lowercase, 'A' is uppercase, and '1' is numbers.
+     Example "3:5:a1" will try all combinations of lowercase letters and numbers between 3 and 5 characters long.
+     This is only recommended for very short passwords as the complexity increases exponentially.
+   command: "hydra -l {{username}} -x {{min|3}}:{{max|5}}:{{charset|a1}} {{target}} {{service|telnet}}"
+
+ - title: hydra - restore aborted session
+   desc: |
+     Resumes a previously interrupted or crashed Hydra session using the hydra.restore file.
+     Hydra automatically creates this file in the directory where the command was executed.
+     This is essential for long-running attacks that might be interrupted by network instability or system reboots.
+     Simply run hydra with the -R flag to pick up exactly where the process left off.
+   command: "hydra -R"
+
+ - title: hydra - limit search and output
+   desc: |
+     Configures Hydra to stop immediately after finding a valid credential pair and saves the result to a file.
+     The -f flag tells Hydra to exit for the current host once a pair is found, while -F exits globally across all hosts.
+     The -o flag ensures that you have a persistent record of the cracked credentials for your report.
+     Using -vV (double verbosity) is also helpful to see exactly what is being tested in real-time.
+   command: "hydra -L {{user_file}} -P {{pass_file}} -f -o {{output_file|found.txt}} {{target}} {{service}}"
+
+# === HELPER TOOLS ===
+ - title: pw-inspector - filter wordlists
+   desc: |
+     Filters a password wordlist based on specific criteria like minimum or maximum length.
+     This is used to optimize Hydra attacks by removing passwords that do not meet the target's known policy.
+     For example, if you know the target requires at least 8 characters, you can pre-filter your wordlist to save time.
+     It can also filter based on character sets like requiring numbers or uppercase letters.
+   command: "pw-inspector -i {{input_list}} -o {{output_list}} -m {{min_len|8}} -M {{max_len|20}}"
+
+ - title: dpl4hydra - generate default passwords
+   desc: |
+     A helper tool that generates a list of default usernames and passwords for various hardware brands.
+     It pulls from a local database of known default credentials (like admin/admin for Linksys).
+     The output is formatted as login:password, making it ready for use with Hydra's -C option.
+     This is highly effective during the initial stages of internal network penetration tests.
+   command: "dpl4hydra {{brand|linksys}}"

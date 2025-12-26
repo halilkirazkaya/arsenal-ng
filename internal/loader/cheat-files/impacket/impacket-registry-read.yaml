@@ -1,0 +1,41 @@
+tool: impacket-registry-read
+tags: [pentest, forensic, windows, registry, impacket, security, enumeration]
+
+actions:
+  # === BASIC ENUMERATION ===
+  - title: impacket-registry-read - enumerate subkeys
+    desc: |
+      Lists all subkeys for a specific registry path within an offline hive file. This is useful for mapping out the structure of a registry hive that has been extracted from a target system, such as via Volume Shadow Copies or manual dumping. It helps identifying installed software, system configuration nodes, or persistence locations. You must provide a valid path to a hive file like SYSTEM, SOFTWARE, or SAM.
+    command: "impacket-registry-read {{hive_path}} enum_key -keyName {{key_path}}"
+
+  - title: impacket-registry-read - enumerate values
+    desc: |
+      Retrieves all value names and their corresponding types within a specific registry key. This action is essential for identifying what data is actually stored inside a key once you have navigated to the correct path. It is commonly used during forensic analysis to find system settings, user activity logs, or network configurations. Ensure the key path is provided in the format expected by the hive (e.g., ControlSet001\Services).
+    command: "impacket-registry-read {{hive_path}} enum_values -keyName {{key_path}}"
+
+  # === DATA EXTRACTION ===
+  - title: impacket-registry-read - get specific value data
+    desc: |
+      Extracts and displays the actual data content stored in a specific registry value. This command is critical for reading sensitive information like the BootKey, service parameters, or encoded configuration strings. It requires both the specific key path and the exact value name you wish to query. This is typically the final step after identifying an interesting value via the enumeration commands.
+    command: "impacket-registry-read {{hive_path}} get_value -keyName {{key_path}} -valueName {{value_name}}"
+
+  - title: impacket-registry-read - get class information
+    desc: |
+      Retrieves the class information associated with a specified registry key. While used less frequently in standard penetration tests, it provides metadata about the registry object that can be useful for deep forensic investigations. It can help distinguish between different types of registry nodes or objects defined by the Windows Object Manager. This provides a lower-level view of how the registry hive is structured internally.
+    command: "impacket-registry-read {{hive_path}} get_class -keyName {{key_path}}"
+
+  # === ADVANCED OPERATIONS ===
+  - title: impacket-registry-read - recursive walk
+    desc: |
+      Recursively traverses the entire registry hive starting from the specified node or the root. This is the most comprehensive way to dump the structure of an entire hive for offline analysis and searching. Be aware that this can produce a very large volume of output, especially for large hives like SOFTWARE. It is highly recommended to redirect the output to a text file for later processing.
+    command: "impacket-registry-read {{hive_path}} walk -keyName {{start_key|/}}"
+
+  - title: impacket-registry-read - debug mode with timestamps
+    desc: |
+      Runs the registry parsing operation with verbose debugging output and timestamps for every log entry. This is indispensable for troubleshooting issues where the tool might fail to parse a corrupted or locked hive file. Timestamps help security researchers correlate tool activities with other system logs during a forensic timeline reconstruction. Use this if the standard commands are not returning the expected data or throwing errors.
+    command: "impacket-registry-read {{hive_path}} -debug -ts walk"
+
+  - title: impacket-registry-read - read root of a hive
+    desc: |
+      Enumerates the top-level keys available at the root of a provided hive file. This is usually the first command run when you are unsure of the internal structure of a found hive. It allows you to see the primary branches before diving deeper into subkeys. It is a safe way to verify that the hive file is valid and readable by the tool.
+    command: "impacket-registry-read {{hive_path}} enum_key -keyName {{root_path|/}}"

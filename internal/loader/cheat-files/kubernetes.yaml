@@ -1,0 +1,97 @@
+tool: kubernetes
+tags: [orchestration, cloud, containers, security, devops, administration, pentest]
+
+actions:
+  # === CONFIGURATION AND CONTEXT ===
+  - title: kubectl - list all contexts
+    desc: |
+      Retrieves a list of all contexts defined in the kubeconfig file. This is essential for identifying which clusters, users, and namespaces are currently configured for access on the local machine. It allows an operator to see the available environments like production, staging, or development.
+    command: "kubectl config get-contexts"
+
+  - title: kubectl - show current context
+    desc: |
+      Displays the name of the context currently in use by the kubectl CLI. This helps prevent running commands against the wrong cluster by mistake, which is a common source of operational errors. Always verify your current context before performing destructive actions or deployments.
+    command: "kubectl config current-context"
+
+  - title: kubectl - switch active context
+    desc: |
+      Sets the current-context in the kubeconfig file to the specified context name. This command effectively switches the active environment you are interacting with. Ensure you have the correct credentials and network connectivity for the target context to avoid connection timeouts or authentication errors.
+    command: "kubectl config use-context {{context_name}}"
+
+  - title: kubectl - explain resource schema
+    desc: |
+      Displays documentation for various Kubernetes resources and their fields directly from the API server. This is extremely helpful for understanding the structure of a YAML manifest or finding specific field names without leaving the terminal. It acts as a built-in manual for resource schemas and available versions.
+    command: "kubectl explain {{resource|pod}}"
+
+  # === ENUMERATION AND RECONNAISSANCE ===
+  - title: kubectl - get all nodes
+    desc: |
+      Lists all nodes in the cluster along with their status, roles, and version. Adding the '-o wide' flag provides additional details such as internal/external IP addresses and the OS image. This is a fundamental step for understanding the physical or virtual infrastructure underlying the cluster.
+    command: "kubectl get nodes -o {{output|wide}}"
+
+  - title: kubectl - list all namespaces
+    desc: |
+      Retrieves all namespaces available within the current Kubernetes cluster. Namespaces are used to partition cluster resources between multiple users or projects. This command is often the first step in reconnaissance to identify where different applications and services are located.
+    command: "kubectl get namespaces"
+
+  - title: kubectl - get pods in namespace
+    desc: |
+      Lists all pods within a specific namespace to check their status, IP addresses, and node placement. Use the '-o wide' flag to see more granular details like which node is hosting which pod. This is critical for troubleshooting application health and verifying that pods are running as expected.
+    command: "kubectl get pods -n {{namespace|default}} -o {{output|wide}}"
+
+  - title: kubectl - get pods from all namespaces
+    desc: |
+      Lists all pods across every namespace in the cluster simultaneously. This provides a holistic view of all running workloads, which is very useful for cluster-wide audits or identifying rogue processes. Note that this command requires significant permissions and may return a large volume of data in big clusters.
+    command: "kubectl get pods --all-namespaces"
+
+  - title: kubectl - list services
+    desc: |
+      Lists all services within a specific namespace, showing their type, cluster-IP, and external-IP. Services are the primary way to expose applications internally or externally. Checking services helps in identifying internal load balancers and network entry points for different applications.
+    command: "kubectl get services -n {{namespace|default}}"
+
+  - title: kubectl - list deployments
+    desc: |
+      Displays all deployments in a given namespace, showing the desired versus current state of replicas. Deployments manage the lifecycle of pods and provide declarative updates. This command helps in understanding how applications are scaled and what their intended availability configuration is.
+    command: "kubectl get deployments -n {{namespace|default}}"
+
+  # === DETAILED INSPECTION AND TROUBLESHOOTING ===
+  - title: kubectl - describe resource
+    desc: |
+      Provides detailed information about a specific Kubernetes resource, including its configuration, current status, and recent events. It is the most common command for debugging why a resource is failing, as it shows error messages and lifecycle events like pull failures or restarts. Use this when a resource is in a 'Pending' or 'CrashLoopBackOff' state.
+    command: "kubectl describe {{resource_type|pod}}/{{resource_name}} -n {{namespace|default}}"
+
+  - title: kubectl - stream pod logs
+    desc: |
+      Retrieves and streams logs from a specific pod to monitor application output and errors in real-time. The '-f' (follow) flag is essential for watching live logs during a deployment or while reproducing a bug. If the pod contains multiple containers, you must specify the container name using the '-c' flag.
+    command: "kubectl logs -f pods/{{pod_name}} -n {{namespace|default}}"
+
+  - title: kubectl - execute command in pod
+    desc: |
+      Allows running a command directly inside a specific container within a pod, providing an interactive shell. This is a powerful tool for debugging, exploring the internal filesystem, or checking environment variables. Use the '-it' flags to ensure an interactive terminal session is established.
+    command: "kubectl exec -it {{pod_name}} -n {{namespace|default}} -- {{command|/bin/bash}}"
+
+  # === CLUSTER MANAGEMENT AND MAINTENANCE ===
+  - title: kubectl - edit resource
+    desc: |
+      Opens the configuration of a specific resource in the default system editor for live modification. Once saved, Kubernetes will automatically attempt to apply the changes to the cluster. This is a quick way to change replica counts, image tags, or environment variables without needing a local YAML file.
+    command: "kubectl edit {{resource_type|deployment}}/{{resource_name}} -n {{namespace|default}}"
+
+  - title: kubectl - drain node for maintenance
+    desc: |
+      Prepares a node for maintenance by safely evicting all pods currently running on it. This command ensures that workloads are rescheduled on other available nodes to maintain application availability. Use this before performing OS updates or hardware repairs on a physical node.
+    command: "kubectl drain {{node_name}} --ignore-daemonsets"
+
+  - title: kubectl - cordon node
+    desc: |
+      Marks a node as unschedulable, preventing any new pods from being placed on it by the scheduler. Existing pods on the node will continue to run unaffected. This is useful when you want to stop growth on a node before eventually draining it or performing diagnostics.
+    command: "kubectl cordon {{node_name}}"
+
+  - title: kubectl - uncordon node
+    desc: |
+      Marks a previously cordoned node as schedulable again. This allows the Kubernetes scheduler to start placing new pods on the node. Use this command after maintenance is complete to bring the node back into full service within the cluster.
+    command: "kubectl uncordon {{node_name}}"
+
+  - title: kubectl - monitor resource usage
+    desc: |
+      Displays CPU and memory usage for either nodes or pods, providing a quick view of resource consumption. This command requires the Metrics Server to be installed and functioning correctly in the cluster. It is highly effective for identifying resource-hungry pods or nodes that are nearing their capacity limits.
+    command: "kubectl top {{type|pod}} -n {{namespace|default}}"

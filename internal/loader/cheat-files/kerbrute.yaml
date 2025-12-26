@@ -1,0 +1,77 @@
+tool: kerbrute
+tags: [active-directory, kerberos, pentest, enumeration, authentication, security, red-team]
+
+actions:
+# === ENUMERATION ===
+ - title: kerbrute - username enumeration
+   desc: |
+     Performs username enumeration against an Active Directory Domain Controller using Kerberos Pre-Authentication. 
+     This method is highly efficient as it does not require valid credentials and is often faster than NTLM-based enumeration. 
+     Be aware that while this doesn't "log in," it still generates event logs (Event ID 4768) on the DC which can be monitored.
+   command: "kerbrute userenum -d {{domain}} --dc {{dc_ip}} {{user_wordlist}}"
+
+ - title: kerbrute - username enumeration with hash capturing
+   desc: |
+     Enumerates valid usernames and automatically saves AS-REP hashes for accounts that do not require Kerberos Pre-Authentication. 
+     This effectively combines enumeration with AS-REP Roasting, allowing you to crack the captured hashes offline. 
+     It is a critical step for gaining initial access if accounts are configured with "Do not require Kerberos preauthentication."
+   command: "kerbrute userenum -d {{domain}} --dc {{dc_ip}} --hash-file {{hash_output_file|hashes.txt}} {{user_wordlist}}"
+
+# === BRUTE FORCE & SPRAYING ===
+ - title: kerbrute - password spraying
+   desc: |
+     Tests a single password against a list of users to find accounts with weak credentials. 
+     Password spraying is a common technique to avoid account lockouts, as it only attempts one password per user in a cycle. 
+     Always verify the domain's lockout policy (threshold and duration) before starting to ensure you don't lock out the entire organization.
+   command: "kerbrute passwordspray -d {{domain}} --dc {{dc_ip}} {{user_wordlist}} {{password}}"
+
+ - title: kerbrute - brute force single user
+   desc: |
+     Attempts to find the password for a specific target user by testing a wordlist of passwords. 
+     This is a targeted attack and is highly likely to lock out the account if the password is not discovered within the lockout threshold. 
+     Use this only when you have a specific reason to target an individual account and understand the risks of account lockout.
+   command: "kerbrute bruteuser -d {{domain}} --dc {{dc_ip}} {{pass_wordlist}} {{username}}"
+
+ - title: kerbrute - combo list brute force
+   desc: |
+     Tests a list of username and password pairs (formatted as user:pass) against the Domain Controller. 
+     This is useful for credential stuffing attacks or when you have acquired a list of potential credentials from other sources. 
+     The tool will attempt to validate each pair and report any successful authentications.
+   command: "kerbrute bruteforce -d {{domain}} --dc {{dc_ip}} {{combo_list}}"
+
+# === STEALTH & PERFORMANCE ===
+ - title: kerbrute - safe mode enumeration
+   desc: |
+     Runs the enumeration or brute force process with the 'safe' flag enabled. 
+     In safe mode, kerbrute will immediately abort the process if it detects that any user account has been locked out. 
+     This acts as a failsafe to prevent widespread account lockouts during an engagement.
+   command: "kerbrute userenum -d {{domain}} --dc {{dc_ip}} --safe {{user_wordlist}}"
+
+ - title: kerbrute - throttled enumeration with delay
+   desc: |
+     Introduces a specific delay between each request to bypass rate-limiting or avoid detection by security monitoring tools. 
+     When a delay is set, the tool will automatically switch to a single-threaded mode to maintain the timing. 
+     This is recommended for stealthier operations where speed is less important than remaining undetected.
+   command: "kerbrute userenum -d {{domain}} --dc {{dc_ip}} --delay {{delay_ms|500}} {{user_wordlist}}"
+
+ - title: kerbrute - multi-threaded attack
+   desc: |
+     Increases the number of concurrent threads used during the attack to speed up the process. 
+     The default is 10 threads, but this can be increased for faster results if the network and Domain Controller can handle the load. 
+     Higher thread counts increase the risk of detection and can potentially cause performance issues on the target KDC.
+   command: "kerbrute userenum -d {{domain}} --dc {{dc_ip}} -t {{threads|50}} {{user_wordlist}}"
+
+# === ADVANCED CONFIGURATION ===
+ - title: kerbrute - force encryption downgrade
+   desc: |
+     Forces the Kerberos exchange to use the older and weaker arcfour-hmac-md5 (RC4) encryption type. 
+     This can be useful in environments where modern AES encryption is heavily monitored or if the target DC has specific legacy configurations. 
+     Note that many modern environments might flag the use of RC4 as suspicious.
+   command: "kerbrute userenum -d {{domain}} --dc {{dc_ip}} --downgrade {{user_wordlist}}"
+
+ - title: kerbrute - verbose logging to file
+   desc: |
+     Runs the tool with verbose output and saves all log entries to a specified file. 
+     Verbose mode is helpful for debugging connection issues or seeing specific Kerberos error codes returned by the DC. 
+     Saving to an output file ensures you have a record of all attempts, including failures, for your final report.
+   command: "kerbrute userenum -d {{domain}} --dc {{dc_ip}} -v -o {{log_file|kerbrute_results.log}} {{user_wordlist}}"

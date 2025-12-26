@@ -1,0 +1,57 @@
+tool: impacket-esentutl
+tags: [windows, forensics, active-directory, esent, database, impacket, pentest]
+
+actions:
+# === DATABASE INFORMATION & RECONNAISSANCE ===
+
+ - title: "impacket-esentutl - Display general database information"
+   desc: |
+     This command retrieves general metadata and catalog information from an Extensible Storage Engine (ESE) database file.
+     It is the most common starting point for analyzing Windows-specific databases like ntds.dit or the Windows Search index.
+     Use this to verify the file structure and ensure the database is readable before attempting to extract sensitive data.
+     This action provides a high-level overview of the internal tables and system metadata without modifying the file.
+   command: "impacket-esentutl {{database_file}} info"
+
+ - title: "impacket-esentutl - List database catalog with debug output"
+   desc: |
+     This command runs the info action with debug logging enabled to provide more verbose details about the parsing process.
+     It is particularly useful when dealing with corrupted databases or non-standard ESE versions that might cause parsing errors.
+     The debug output can reveal underlying issues with the database header or page structure that are not visible in standard output.
+     This is recommended for forensic scenarios where data integrity is questionable and detailed logs are required for reports.
+   command: "impacket-esentutl -debug {{database_file}} info"
+
+# === DATA EXTRACTION ===
+
+ - title: "impacket-esentutl - Export a specific table from the database"
+   desc: |
+     This command allows for the extraction of all records within a specific table from the ESE database.
+     It is primarily used in Active Directory forensics to pull data from the 'datatable' or other internal structures.
+     The user must provide the exact name of the table as it appears in the database catalog (found via the info command).
+     Exporting tables is a critical step in manually reconstructing database objects or extracting credentials when standard tools fail.
+   command: "impacket-esentutl {{database_file}} export -table {{table_name}}"
+
+ - title: "impacket-esentutl - Export table with timestamped logging"
+   desc: |
+     This command performs a table export while adding timestamps to every line of the logging output.
+     Timestamping is essential for maintaining a clear audit trail during incident response or legal forensic investigations.
+     It helps investigators correlate the tool's actions with other system logs or network traffic captures.
+     Use this when documentation of the extraction timeline is required for chain of custody or reporting purposes.
+   command: "impacket-esentutl -ts {{database_file}} export -table {{table_name}}"
+
+# === LOW-LEVEL ANALYSIS ===
+
+ - title: "impacket-esentutl - Dump a specific database page"
+   desc: |
+     This command performs a low-level hex and ASCII dump of a specific page number within the ESE database.
+     It is used for deep dive analysis of database internals or when searching for specific data fragments in unallocated space.
+     This is an advanced feature typically used by forensic researchers to understand how data is stored or to recover deleted records.
+     Be aware that interpreting raw page data requires significant knowledge of the ESE database page format.
+   command: "impacket-esentutl {{database_file}} dump -page {{page_number}}"
+
+ - title: "impacket-esentutl - Analyze a page with debug information"
+   desc: |
+     This command combines the page dump functionality with debug output to provide a detailed view of the page's internal structure.
+     It helps in identifying page headers, flags, and pointers that define how data is organized within that specific block.
+     This method is highly effective for troubleshooting why certain records cannot be exported or are appearing as corrupted.
+     Use this when you need to validate the physical structure of the database at the block level.
+   command: "impacket-esentutl -debug -page {{page_number}} {{database_file}} dump"

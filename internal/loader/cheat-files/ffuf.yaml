@@ -1,0 +1,113 @@
+tool: ffuf
+tags: [web, scanner, fuzzer, pentest, enumeration, security, reconnaissance]
+
+actions:
+  # === DIRECTORY AND FILE ENUMERATION ===
+  - title: ffuf - basic directory discovery
+    desc: |
+      Perform a basic directory brute-force attack against a target URL. 
+      The keyword 'FUZZ' is used as a placeholder in the URL where wordlist entries will be injected.
+      This is the most common entry point for web reconnaissance to find unlinked content.
+      Be aware that high thread counts might trigger rate limiting or Web Application Firewalls (WAF).
+    command: "ffuf -u {{url}}/FUZZ -w {{wordlist|/usr/share/wordlists/dirb/common.txt}}"
+
+  - title: ffuf - file discovery with extensions
+    desc: |
+      Search for specific files by appending a list of extensions to each wordlist entry.
+      The -e flag takes a comma-separated list of extensions like .php, .html, or .txt.
+      This is essential when looking for backup files (e.g., .bak, .old) or configuration files.
+      Ensure the FUZZ keyword is placed at the end of the path without an extension if you use -e.
+    command: "ffuf -u {{url}}/FUZZ -w {{wordlist}} -e {{extensions|.php,.txt,.html,.bak}}"
+
+  - title: ffuf - recursive directory scanning
+    desc: |
+      Enable recursive scanning to automatically fuzz newly discovered directories.
+      The -recursion flag allows ffuf to start a new scan job for every directory it finds that matches the matchers.
+      You must define the maximum depth with -recursion-depth to prevent infinite loops.
+      Note that the URL must end with the FUZZ keyword for recursion to work properly.
+    command: "ffuf -u {{url}}/FUZZ -w {{wordlist}} -recursion -recursion-depth {{depth|2}}"
+
+  # === SUBDOMAIN AND VHOST DISCOVERY ===
+  - title: ffuf - virtual host (vhost) fuzzing
+    desc: |
+      Fuzz the 'Host' header to identify virtual hosts configured on the target IP or domain.
+      This technique is vital for finding internal or hidden subdomains that don't have public DNS records.
+      Since most servers return a default page for invalid hosts, you should combine this with filtering (like -fs) to remove noise.
+      It helps in identifying development, staging, or administrative interfaces hosted on the same infrastructure.
+    command: "ffuf -u http://{{target_ip}} -H \"Host: FUZZ.{domain}\" -w {{wordlist}}"
+
+  # === PARAMETER AND DATA FUZZING ===
+  - title: ffuf - GET parameter fuzzing
+    desc: |
+      Discover hidden GET parameters by fuzzing the parameter names in the query string.
+      This is useful for finding administrative flags (e.g., ?debug=true) or undocumented API features.
+      The command matches all responses by default, so using auto-calibration (-ac) is recommended to filter out constant responses.
+      Parameter fuzzing can often lead to the discovery of vulnerabilities like IDOR, SQLi, or XSS.
+    command: "ffuf -u {{url}}/page.php?FUZZ=1 -w {{wordlist}} -ac"
+
+  - title: ffuf - POST data fuzzing
+    desc: |
+      Fuzz data sent in the body of a POST request.
+      The -X flag specifies the HTTP method, and the -d flag contains the data with the FUZZ placeholder.
+      Commonly used for brute-forcing login forms, finding hidden API fields, or testing JSON inputs.
+      Remember to set the appropriate 'Content-Type' header if the application expects a specific format like JSON or XML.
+    command: "ffuf -u {{url}} -X POST -d \"username=FUZZ&password=password123\" -w {{wordlist}} -H \"Content-Type: application/x-www-form-urlencoded\""
+
+  - title: ffuf - multiple wordlist fuzzing (Clusterbomb)
+    desc: |
+      Use multiple wordlists to fuzz multiple locations simultaneously using the 'clusterbomb' mode.
+      In this mode, ffuf tries every combination of all wordlists (Cartesian product).
+      Assign custom keywords to each wordlist using the colon syntax (e.g., -w list:KEYWORD).
+      This is extremely powerful for credential stuffing attacks or multi-parameter testing but generates a very high number of requests.
+    command: "ffuf -w {{user_list}}:USER -w {{pass_list}}:PASS -u {{url}} -X POST -d \"user=USER&pass=PASS\" -mode clusterbomb"
+
+  # === FILTERING AND MATCHING ===
+  - title: ffuf - filter by response size and code
+    desc: |
+      Filter out specific response sizes and HTTP status codes to clean up the output.
+      The -fc flag filters status codes (e.g., 404, 403), while -fs filters based on the response content length.
+      Filtering is crucial when the server returns a standard length page for "Not Found" or "Unauthorized" errors.
+      You can provide comma-separated values or ranges (e.g., 100-200) to both flags.
+    command: "ffuf -u {{url}}/FUZZ -w {{wordlist}} -fc 404,403 -fs {{size_to_ignore}}"
+
+  - title: ffuf - auto-calibration
+    desc: |
+      Automatically calibrate filtering options based on the server's behavior.
+      The -ac flag sends a few initial requests to determine the standard response size and line count for non-existent pages.
+      It then automatically filters out these common patterns from your final results.
+      This is highly recommended for modern web applications that return "200 OK" for custom error pages.
+    command: "ffuf -u {{url}}/FUZZ -w {{wordlist}} -ac"
+
+  # === AUTHENTICATION AND ADVANCED HTTP ===
+  - title: ffuf - authenticated fuzzing with cookies
+    desc: |
+      Perform fuzzing while maintaining a session by providing session cookies.
+      The -b flag allows you to pass cookie strings exactly as they appear in the browser's Request headers.
+      This is necessary for discovering directories or parameters that are only accessible to authenticated users.
+      Ensure your session token remains valid during the duration of the scan to avoid false negatives.
+    command: "ffuf -u {{url}}/FUZZ -w {{wordlist}} -b \"{{cookie_name}}={{value}}; {{session_id}}=xyz\""
+
+  - title: ffuf - using a raw request file
+    desc: |
+      Import an entire HTTP request from a file, similar to the '-r' flag in SQLMap.
+      This is useful when dealing with complex requests involving many headers, cookies, and multi-line POST data.
+      Save the request from a proxy like Burp Suite, replace the target value with FUZZ, and point ffuf to it using -request.
+      You must also specify the protocol (http/https) using -request-proto if it differs from the default.
+    command: "ffuf -request {{request_file}} -request-proto http -w {{wordlist}}"
+
+  # === OUTPUT AND PROXYING ===
+  - title: ffuf - saving output to file
+    desc: |
+      Save the scan results to a file in a structured format for later analysis.
+      The -o flag defines the output filename, and -of specifies the format (json, md, csv, html, or all).
+      JSON output is particularly useful for piping into other tools or custom scripts in a pipeline.
+      Using '-of all' will generate reports in every supported format simultaneously.
+    command: "ffuf -u {{url}}/FUZZ -w {{wordlist}} -o {{output_file}}.json -of json"
+
+  - title: ffuf - proxying through Burp Suite
+    desc: |
+      Send all ffuf requests through a proxy like Burp Suite or OWASP ZAP.
+      This allows you to inspect the fuzzing traffic, use Burp's extensions, or log the requests for documentation.
+      Be careful when using high thread counts (-t) through a proxy as it can easily overwhelm the proxy application.
+      Use -replay-proxy instead of -x if you only want to send *matched* results to the proxy.
+    command: "ffuf -u {{url}}/FUZZ -w {{wordlist}} -x http://127.0.0.1:8080"

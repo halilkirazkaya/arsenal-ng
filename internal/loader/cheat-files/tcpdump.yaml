@@ -1,0 +1,109 @@
+tool: tcpdump
+tags: [network, sniffer, security, pentest, troubleshooting, packets, forensics]
+
+actions:
+# === BASIC CAPTURE ===
+
+ - title: tcpdump - list interfaces
+   desc: |
+     Lists all available network interfaces that tcpdump can capture on. 
+     This is usually the first step to identify which interface (e.g., eth0, wlan0, lo) you need to monitor.
+     The output also indicates whether an interface is up or running.
+   command: "tcpdump -D"
+
+ - title: tcpdump - basic live capture
+   desc: |
+     Starts a live capture on a specified interface without resolving hostnames.
+     The -n flag prevents DNS lookups, which speeds up the display and reduces overhead during high traffic.
+     Use 'any' as the interface to listen on all active interfaces simultaneously, though this may require root privileges.
+   command: "tcpdump -i {{interface|any}} -n"
+
+ - title: tcpdump - capture and save to file
+   desc: |
+     Captures packets from an interface and saves them to a raw pcap file.
+     This file can later be analyzed using tools like Wireshark or read back into tcpdump.
+     Ensure the user has write permissions in the target directory and monitor disk space for high-volume traffic.
+   command: "tcpdump -i {{interface|any}} -w {{output_file|capture.pcap}}"
+
+ - title: tcpdump - read from pcap file
+   desc: |
+     Reads and displays the contents of a previously saved pcap file.
+     You can apply additional filters while reading the file to isolate specific traffic without re-capturing.
+     This is standard practice for forensic analysis and offline network debugging.
+   command: "tcpdump -r {{input_file|capture.pcap}}"
+
+# === FILTERING OPTIONS ===
+
+ - title: tcpdump - filter by host
+   desc: |
+     Filters traffic to show only packets where the source or destination matches the specified IP address.
+     This is essential for focusing on a single target machine during a penetration test or investigation.
+     You can further specify 'src host' or 'dst host' to narrow down the direction of the traffic.
+   command: "tcpdump -i {{interface|any}} host {{target_ip}}"
+
+ - title: tcpdump - filter by port
+   desc: |
+     Captures traffic flowing through a specific port number.
+     Useful for monitoring specific services like HTTP (80), HTTPS (443), or SSH (22).
+     If the service uses both TCP and UDP, this filter will capture both unless a protocol is specified.
+   command: "tcpdump -i {{interface|any}} port {{port_number|80}}"
+
+ - title: tcpdump - filter by network range
+   desc: |
+     Captures traffic for an entire subnet using CIDR notation.
+     This is helpful for monitoring traffic within a specific VLAN or organizational department.
+     It captures any packet where the source or destination IP falls within the defined network range.
+   command: "tcpdump -i {{interface|any}} net {{network_range|192.168.1.0/24}}"
+
+ - title: tcpdump - protocol specific filter (ICMP)
+   desc: |
+     Isolates ICMP packets, such as Ping requests (Echo Request) and replies.
+     This is the go-to command for diagnosing connectivity issues and observing network discovery attempts.
+     It helps identify if a host is alive or if a firewall is blocking specific diagnostic traffic.
+   command: "tcpdump -i {{interface|any}} icmp"
+
+# === PAYLOAD & VERBOSITY ===
+
+ - title: tcpdump - display ASCII and Hex payload
+   desc: |
+     Displays the packet contents in both Hexadecimal and ASCII formats.
+     The -X flag is invaluable for inspecting unencrypted application-layer data like HTTP headers or telnet commands.
+     Use -s 0 to ensure the entire packet is captured (no truncation) regardless of its size.
+   command: "tcpdump -i {{interface|any}} -X -s 0"
+
+ - title: tcpdump - show ASCII only
+   desc: |
+     Prints the packet payload in ASCII format only.
+     This is particularly useful for quickly reading plain-text protocols like HTTP, SMTP, or POP3 directly in the terminal.
+     It provides a cleaner view than the hex dump when you are only interested in string-based data.
+   command: "tcpdump -i {{interface|any}} -A"
+
+ - title: tcpdump - increased verbosity
+   desc: |
+     Increases the amount of detail shown for each packet, such as TTL, ID, and length.
+     You can use multiple 'v's (e.g., -vv or -vvv) for even more exhaustive protocol decoding and information.
+     Higher verbosity levels are useful for deep packet inspection but can result in very noisy output.
+   command: "tcpdump -i {{interface|any}} -vv"
+
+# === ADVANCED FILTERS ===
+
+ - title: tcpdump - filter TCP SYN packets
+   desc: |
+     Filters for TCP packets that have only the SYN flag set.
+     This is used to identify the start of new TCP connections and is very effective for detecting port scanning activity.
+     The command uses bitwise operations on the TCP header flags field to isolate the SYN bit.
+   command: "tcpdump -i {{interface|any}} 'tcp[tcpflags] & (tcp-syn) != 0'"
+
+ - title: tcpdump - complex logical filtering
+   desc: |
+     Combines multiple filters using logical operators like 'and', 'or', and 'not'.
+     In this example, it captures traffic for a specific host that is NOT on port 22 (SSH).
+     Using quotes is mandatory to prevent the shell from misinterpreting special characters or parentheses.
+   command: "tcpdump -i {{interface|any}} 'host {{target_ip}} and not port {{exclude_port|22}}'"
+
+ - title: tcpdump - capture specific packet count
+   desc: |
+     Tells tcpdump to exit automatically after capturing a predefined number of packets.
+     This is useful for scripted environments or quick checks where you don't want the process to run indefinitely.
+     It helps prevent log files from growing excessively large during a brief observation.
+   command: "tcpdump -i {{interface|any}} -c {{count|100}}"

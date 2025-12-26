@@ -1,0 +1,97 @@
+tool: jwt_tool
+tags: [security, jwt, pentest, exploitation, authentication, scanner, enumeration]
+
+actions:
+# === RECONNAISSANCE AND INFORMATION GATHERING ===
+
+ - title: jwt_tool - decode and review token
+   desc: |
+     Decodes the provided JWT and displays its header and payload contents in a readable format. 
+     This is the primary starting point for any JWT assessment to understand the claims and algorithms being used. 
+     The tool automatically validates the token structure and highlights the internal values for manual inspection.
+   command: "jwt_tool {{jwt_token}}"
+
+ - title: jwt_tool - analyze token via web request
+   desc: |
+     Sends a JWT to a target URL within a specific cookie to analyze how the application handles it. 
+     This is useful for verifying if the application accepts the token and observing the response behavior. 
+     You can include a canary value to identify successful authentication or specific reflections in the response.
+   command: "jwt_tool -t {{url}} -rc \"jwt={{jwt_token}}\" -cv {{canary_value|Welcome}}"
+
+# === AUTOMATED SCANNING ===
+
+ - title: jwt_tool - automated playbook scan
+   desc: |
+     Performs an automated "Playbook Scan" against a target URL to identify common JWT misconfigurations. 
+     This mode tests for multiple vulnerabilities including alg:none, key confusion, and weak secrets in a single run. 
+     It is highly recommended for initial security testing as it covers the most frequent attack vectors automatically.
+   command: "jwt_tool -t {{url}} -rc \"jwt={{jwt_token}}\" -M pb"
+
+ - title: jwt_tool - scan for forced errors
+   desc: |
+     Executes a scan designed to provoke error responses from the server by sending malformed JWTs. 
+     Analyzing these errors can reveal information about the backend library, versioning, or logic flaws in the implementation. 
+     This is particularly effective when the application does not provide verbose output under normal circumstances.
+   command: "jwt_tool -t {{url}} -rc \"jwt={{jwt_token}}\" -M er"
+
+# === EXPLOITATION AND TAMPERING ===
+
+ - title: jwt_tool - alg none signature bypass
+   desc: |
+     Attempts the alg:none attack (CVE-2015-2951) by modifying the header and stripping the signature. 
+     This exploit checks if the server incorrectly trusts tokens that claim to have no signature requirement. 
+     If successful, it allows an attacker to modify any claim in the payload without needing a secret key.
+   command: "jwt_tool {{jwt_token}} -X a"
+
+ - title: jwt_tool - RSA to HMAC key confusion
+   desc: |
+     Performs the RS256 to HS256 key mismatch attack (CVE-2016-10555). 
+     It attempts to sign the token using HMAC-SHA256 with the provided public key as the shared secret. 
+     This is a critical vulnerability often found when libraries are configured to use a generic "key" for both asymmetric and symmetric validation.
+   command: "jwt_tool {{jwt_token}} -X k -pk {{public_key_file|public.pem}}"
+
+ - title: jwt_tool - inject JWKS exploit
+   desc: |
+     Exploits key injection vulnerabilities (CVE-2018-0114) by embedding a new JWKS in the header. 
+     The tool generates a new key pair, signs the token with the private key, and includes the public key in the 'jwk' header claim. 
+     Use this when the application trusts the key information provided within the token itself instead of a server-side trust store.
+   command: "jwt_tool {{jwt_token}} -X i"
+
+ - title: jwt_tool - modify payload claims
+   desc: |
+     Tampers with specific claims in the JWT payload while attempting to maintain a valid structure. 
+     You can specify the claim name and the new value to escalate privileges, such as changing a 'user' to 'admin'. 
+     This action is typically combined with an exploitation method like alg:none or a known secret key.
+   command: "jwt_tool {{jwt_token}} -I -pc {{claim_name|role}} -pv {{new_value|admin}}"
+
+# === CRYPTOGRAPHY AND KEY ATTACKS ===
+
+ - title: jwt_tool - dictionary attack on secret
+   desc: |
+     Initiates a high-speed dictionary attack to crack the HMAC secret key of a JWT. 
+     It compares the signature of the provided token against signatures generated using words from a wordlist. 
+     This is essential for testing if the application uses weak, predictable, or default secret keys for HS256.
+   command: "jwt_tool {{jwt_token}} -C -d {{wordlist|/usr/share/wordlists/rockyou.txt}}"
+
+ - title: jwt_tool - verify token with public key
+   desc: |
+     Verifies the signature of a JWT using a local public key file. 
+     This helps confirm if a token was actually signed by the expected private key during a manual assessment. 
+     Ensure the public key is in the correct PEM or JWKS format as required by the tool.
+   command: "jwt_tool {{jwt_token}} -V -pk {{public_key_file|public.pem}}"
+
+# === ADVANCED INTERACTION ===
+
+ - title: jwt_tool - scan using request file
+   desc: |
+     Reads a raw HTTP request from a file and injects the JWT into the appropriate locations automatically. 
+     This is the most reliable way to handle complex requests involving multiple headers, cookies, and POST data. 
+     It mimics the behavior of tools like SQLMap or Burp Suite by parsing the full context of the web communication.
+   command: "jwt_tool -r {{request_file|request.txt}} -M pb"
+
+ - title: jwt_tool - fuzz header claims
+   desc: |
+     Fuzzes the header claims of a JWT with custom payloads, such as SQL injection or path traversal strings. 
+     This is used to find vulnerabilities in the code that processes the JWT headers, like the 'kid' (Key ID) field. 
+     Input a file containing the fuzzing vectors to systematically test the target's processing logic.
+   command: "jwt_tool -t {{url}} -rc \"jwt={{jwt_token}}\" -I -hc {{header_claim|kid}} -hv {{fuzz_list|sqli.txt}}"

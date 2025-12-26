@@ -1,0 +1,76 @@
+tool: impacket-rpcmap
+tags: [network, security, pentest, enumeration, msrpc, active-directory, impacket]
+
+actions:
+  # === BASIC ENUMERATION ===
+  - title: impacket-rpcmap - basic tcp enumeration
+    desc: |
+      Identify MSRPC interfaces listening on a remote host via TCP. 
+      This is the most common starting point, usually targeting port 135 to list available services through the Endpoint Mapper (EPM). 
+      It helps in mapping the attack surface of a Windows machine by identifying which RPC services are reachable.
+    command: "impacket-rpcmap ncacn_ip_tcp:{{target}}"
+
+  - title: impacket-rpcmap - rpc over http enumeration
+    desc: |
+      Scan for interfaces using the RPC over HTTP protocol, typically on port 593. 
+      This method is useful when standard RPC ports (like 135) are blocked by firewalls but port 593 is left open for legacy support or specific web services. 
+      It attempts to map interfaces via the HTTP transport layer instead of direct TCP.
+    command: "impacket-rpcmap ncacn_http:{{target}}[593]"
+
+  - title: impacket-rpcmap - named pipe enumeration
+    desc: |
+      Enumerate MSRPC interfaces over a specific SMB named pipe. 
+      This action requires SMB access to the target and is effective for discovering services bound to pipes like spoolss, lsass, or samr. 
+      It is a vital step in lateral movement and internal reconnaissance to see which RPC endpoints are exposed via SMB.
+    command: "impacket-rpcmap ncacn_np:{{target}}[\\pipe\\{{pipe_name|spoolss}}]"
+
+  # === BRUTEFORCE OPERATIONS ===
+  - title: impacket-rpcmap - brute-force uuids
+    desc: |
+      Forcefully attempt to find MSRPC interfaces by bruteforcing UUIDs. 
+      This technique is used when the Management (MGMT) interface is disabled or restricted, preventing a standard listing of services. 
+      It can reveal hidden or undocumented endpoints that do not register themselves with the Endpoint Mapper.
+    command: "impacket-rpcmap -brute-uuids ncacn_ip_tcp:{{target}}"
+
+  - title: impacket-rpcmap - brute-force opnums for specific uuid
+    desc: |
+      Identify available operations (opnums) for a specific MSRPC interface. 
+      By bruteforcing opnums, you can determine the range of functions a specific service supports, which is essential for developing or using exploits. 
+      The tool will iterate through operation numbers to see which ones return a valid response rather than an "opnum out of range" error.
+    command: "impacket-rpcmap -brute-opnums -uuid {{uuid}} ncacn_ip_tcp:{{target}}"
+
+  - title: impacket-rpcmap - brute-force interface versions
+    desc: |
+      Attempt to identify the major versions of found UUIDs on the target. 
+      Different versions of an RPC interface might have different vulnerabilities or functional capabilities. 
+      You can specify the maximum version to check using the version-max flag to limit the scan range.
+    command: "impacket-rpcmap -brute-versions -version-max {{max_version|64}} ncacn_ip_tcp:{{target}}"
+
+  # === AUTHENTICATION & ADVANCED TARGETING ===
+  - title: impacket-rpcmap - authenticated enumeration
+    desc: |
+      Perform MSRPC enumeration using valid domain or local credentials. 
+      Many sensitive RPC interfaces are protected and will not disclose information to unauthenticated users. 
+      Providing credentials allows the tool to bind to more restricted interfaces and retrieve detailed information.
+    command: "impacket-rpcmap -auth-rpc {{domain}}/{{username}}:{{password}} ncacn_ip_tcp:{{target}}"
+
+  - title: impacket-rpcmap - authentication with ntlm hashes
+    desc: |
+      Use NTLM hashes for authentication instead of a cleartext password, facilitating Pass-the-Hash (PtH). 
+      This is particularly useful in post-exploitation scenarios where you have extracted hashes but do not have the plaintext password. 
+      Ensure the hash is provided in the format LMHASH:NTHASH.
+    command: "impacket-rpcmap -hashes-rpc {{hash}} ncacn_ip_tcp:{{target}}"
+
+  - title: impacket-rpcmap - targeted ip with hostname binding
+    desc: |
+      Specify a target IP address manually while using a hostname in the string binding. 
+      This is helpful when the target host's NetBIOS name or DNS name cannot be resolved by your local system. 
+      The tool will connect to the IP provided in the target-ip flag while using the name in the binding string for the RPC request.
+    command: "impacket-rpcmap -target-ip {{ip_address}} ncacn_ip_tcp:{{hostname}}"
+
+  - title: impacket-rpcmap - scan through rpc proxy
+    desc: |
+      Enumerate interfaces through an RPC Proxy, often used in Exchange or RDS environments. 
+      This allows you to test RPC connectivity through web-based proxies that expose internal RPC services to the internet. 
+      It is a specialized command for auditing the security of Outlook AnyWhere or Remote Desktop Gateway configurations.
+    command: "impacket-rpcmap ncacn_http:{{target}}[{{port|6001}},RpcProxy={{proxy_host}}:443]"

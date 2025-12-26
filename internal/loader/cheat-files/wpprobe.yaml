@@ -1,0 +1,70 @@
+tool: wpprobe
+tags: [wordpress, scanner, security, pentest, enumeration, reconnaissance, vulnerability]
+
+actions:
+  # === MAINTENANCE ACTIONS ===
+  - title: wpprobe - update tool
+    desc: |
+      Update WPProbe to the latest available version from the source.
+      This ensures that you have the newest features, performance improvements, and bug fixes.
+      It is highly recommended to run this command before starting any new security assessment.
+    command: "wpprobe update"
+
+  - title: wpprobe - update vulnerability database
+    desc: |
+      Update the local Wordfence vulnerability database used for matching.
+      This database contains information about known vulnerabilities in WordPress plugins and themes.
+      Regularly updating this database is crucial for the tool's accuracy in identifying security risks.
+    command: "wpprobe update-db"
+
+  # === SCANNING MODES ===
+  - title: wpprobe - basic stealth scan
+    desc: |
+      Perform a basic scan on a single WordPress target using the default stealthy mode.
+      This mode attempts to identify plugins and themes without triggering aggressive security alerts.
+      It is the ideal starting point for initial reconnaissance when noise reduction is a priority.
+    command: "wpprobe scan -u {{target_url}}"
+
+  - title: wpprobe - brute-force detection scan
+    desc: |
+      Execute a comprehensive scan using brute-force detection techniques.
+      This mode actively probes for a wide range of common plugins and themes to ensure maximum coverage.
+      Note that this method is noisier and more likely to be logged by the target server's web application firewall.
+    command: "wpprobe scan -u {{target_url}} --mode bruteforce"
+
+  - title: wpprobe - hybrid mode scan
+    desc: |
+      Scan a WordPress site using the hybrid mode for an optimal balance of speed and stealth.
+      The tool first attempts stealthy detection and then uses brute-force for the remaining unidentified components.
+      This is often the most effective way to get thorough results while minimizing unnecessary requests.
+    command: "wpprobe scan -u {{target_url}} --mode hybrid"
+
+  # === ADVANCED SCANNING & OUTPUT ===
+  - title: wpprobe - scan with custom plugin list
+    desc: |
+      Utilize a custom text file containing a list of plugins for brute-force or hybrid scanning.
+      This is useful when you want to target specific plugins or use a proprietary wordlist tailored for a specific environment.
+      The file should contain one plugin slug per line for the scanner to process correctly.
+    command: "wpprobe scan -u {{target_url}} --mode {{mode|bruteforce}} --plugin-list {{plugin_list_path|plugins.txt}}"
+
+  - title: wpprobe - bulk scan from file
+    desc: |
+      Scan multiple targets simultaneously by providing a text file containing target URLs.
+      The tool can process these targets in parallel using multiple threads to significantly increase speed.
+      This is the preferred method for large-scale infrastructure audits or bug bounty hunting.
+    command: "wpprobe scan -f {{targets_file|targets.txt}} -t {{threads|20}}"
+
+  - title: wpprobe - save results to file
+    desc: |
+      Export the discovery results to a structured file format such as JSON or CSV.
+      Saving results is essential for reporting purposes and for integrating findings into other security tools.
+      The tool automatically detects the desired format based on the file extension provided in the output path.
+    command: "wpprobe scan -u {{target_url}} -o {{output_file|results.json}}"
+
+  # === CONNECTIVITY ===
+  - title: wpprobe - scan through proxy
+    desc: |
+      Route all outgoing scan traffic through a specified HTTP or HTTPS proxy server.
+      This is useful for bypassing IP-based rate limiting or for monitoring the scanner's traffic through tools like Burp Suite.
+      If not specified, the tool will automatically check for standard environment proxy variables.
+    command: "wpprobe scan -u {{target_url}} --proxy {{proxy_url|http://127.0.0.1:8080}}"

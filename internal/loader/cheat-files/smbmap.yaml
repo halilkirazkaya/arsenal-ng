@@ -1,0 +1,118 @@
+tool: smbmap
+tags: [network, security, pentest, enumeration, exploitation, authentication, smb]
+
+# === BASIC ENUMERATION & AUTHENTICATION ===
+
+actions:
+ - title: smbmap - null session enumeration
+   desc: |
+     Attempts to enumerate SMB shares without providing any credentials. 
+     This is a common first step during internal penetration testing to identify misconfigured servers that allow guest access. 
+     The tool will return a list of shares and the permissions (READ/WRITE) associated with the null session.
+   command: "smbmap -H {{target}}"
+
+ - title: smbmap - authenticated enumeration
+   desc: |
+     Performs share enumeration using valid domain or local credentials. 
+     This command provides a clear view of what the specific user can access across the target host. 
+     It is essential for mapping the attack surface after gaining initial user credentials.
+   command: "smbmap -u {{username}} -p {{password}} -d {{domain|WORKGROUP}} -H {{target}}"
+
+ - title: smbmap - pass-the-hash authentication
+   desc: |
+     Authenticates using an NTLM hash instead of a plaintext password. 
+     The hash should be provided in the format LMHASH:NTHASH. 
+     This is extremely useful in lateral movement scenarios where only hashes have been harvested from memory or SAM databases.
+   command: "smbmap -u {{username}} -p {{hash}} -H {{target}}"
+
+ - title: smbmap - check administrative privileges
+   desc: |
+     Specifically checks if the provided credentials have administrative rights on the target system. 
+     This flag simplifies the process by returning a simple boolean-style result regarding admin status. 
+     Knowing if a user is an admin is a prerequisite for remote command execution and sensitive file access.
+   command: "smbmap -u {{username}} -p {{password}} -H {{target}} --admin"
+
+# === DIRECTORY & FILE DISCOVERY ===
+
+ - title: smbmap - recursive directory listing
+   desc: |
+     Recursively lists all files and directories within the shares of the target host. 
+     This action helps in identifying sensitive files like configuration files, backups, or scripts hidden deep in the folder structure. 
+     Be cautious as this can generate significant network traffic on very large file shares.
+   command: "smbmap -u {{username}} -p {{password}} -H {{target}} -r"
+
+ - title: smbmap - recursive listing for a specific share
+   desc: |
+     Focuses the recursive search on a specific share name provided by the user. 
+     This is more efficient than scanning all shares when you have already identified a target of interest (e.g., "Backups" or "Finance"). 
+     It reduces noise and speeds up the discovery process significantly.
+   command: "smbmap -u {{username}} -p {{password}} -H {{target}} -r {{share|C$}}"
+
+ - title: smbmap - limited depth enumeration
+   desc: |
+     Traverses the directory tree only up to a specified depth level. 
+     This is useful for getting a broad overview of the folder structure without getting bogged down in thousands of subdirectories. 
+     By default, the depth is 1, which only shows the root of the shares.
+   command: "smbmap -u {{username}} -p {{password}} -H {{target}} -r --depth {{depth|3}}"
+
+# === FILE OPERATIONS ===
+
+ - title: smbmap - download a remote file
+   desc: |
+     Downloads a specific file from the target SMB share to the local machine. 
+     The remote path must include the share name (e.g., 'C$\Windows\win.ini'). 
+     This is a primary method for exfiltrating sensitive data once access is confirmed.
+   command: "smbmap -u {{username}} -p {{password}} -H {{target}} --download '{{remote_path}}'"
+
+ - title: smbmap - upload a local file
+   desc: |
+     Uploads a local file to a specific destination on the remote SMB share. 
+     This requires the user to have WRITE permissions on the target share. 
+     Commonly used for transferring tools, scripts, or lateral movement payloads to a compromised host.
+   command: "smbmap -u {{username}} -p {{password}} -H {{target}} --upload '{{local_path}}' '{{remote_path}}'"
+
+ - title: smbmap - delete a remote file
+   desc: |
+     Deletes a specified file from the remote system. 
+     This action should be used with extreme caution as it is destructive and can impact system stability or evidence. 
+     The `--skip` flag can be added to bypass the confirmation prompt for faster operations.
+   command: "smbmap -u {{username}} -p {{password}} -H {{target}} --delete '{{remote_path}}'"
+
+# === ADVANCED SEARCH & RECON ===
+
+ - title: smbmap - automatic file download by pattern
+   desc: |
+     Searches for files matching a specific regex pattern and automatically downloads them when a match is found. 
+     This is highly effective for hunting for "password" files, "config" files, or "private keys" across an entire host. 
+     It combines recursive listing (-r) with automated exfiltration logic.
+   command: "smbmap -u {{username}} -p {{password}} -H {{target}} -r -A '{{pattern|(?i)pass|secret}}'"
+
+ - title: smbmap - search for file content
+   desc: |
+     Searches for a specific string pattern within the content of files on the target. 
+     This feature typically requires administrative privileges and uses PowerShell on the target host. 
+     It is extremely powerful for finding credentials or PII (Personally Identifiable Information) inside documents.
+   command: "smbmap -u {{username}} -p {{password}} -H {{target}} -F '{{pattern|[Pp]assword}}' --search-path '{{share_path|C$}}'"
+
+ - title: smbmap - check SMB signing and OS version
+   desc: |
+     Detects whether SMB signing is required, enabled, or disabled and identifies the OS version. 
+     Checking SMB signing is a critical step for determining if NTLM relay attacks are possible. 
+     The OS version information helps in selecting appropriate exploits or post-exploitation techniques.
+   command: "smbmap -H {{target}} --signing -v"
+
+# === REMOTE COMMAND EXECUTION ===
+
+ - title: smbmap - execute remote command (WMI)
+   desc: |
+     Executes an operating system command on the remote host via WMI by default. 
+     This requires administrative privileges and is often used to run 'ipconfig', 'net user', or to trigger reverse shells. 
+     Command execution is one of the final stages of exploitation via SMB.
+   command: "smbmap -u {{username}} -p {{password}} -H {{target}} -x '{{command|whoami}}'"
+
+ - title: smbmap - execute remote command (PsExec)
+   desc: |
+     Executes a command on the remote host using the PsExec method. 
+     You can switch between WMI and PsExec modes depending on what is allowed by the target's security policy. 
+     PsExec mode might be noisier and leave more artifacts on the target system compared to WMI.
+   command: "smbmap -u {{username}} -p {{password}} -H {{target}} -x '{{command}}' --mode psexec"

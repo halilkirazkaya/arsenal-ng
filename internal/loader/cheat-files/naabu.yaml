@@ -1,0 +1,109 @@
+tool: naabu
+tags: [network, scanner, security, pentest, enumeration, reconnaissance, port-scanning]
+
+actions:
+# === BASIC SCANNING ===
+
+ - title: naabu - basic scan of a single host
+   desc: |
+     Performs a basic port scan on a single target host. By default, it scans the top 100 most common ports. 
+     This is the most straightforward way to quickly check for common services on a target. 
+     It is ideal for a quick initial reconnaissance phase.
+   command: "naabu -host {{target}}"
+
+ - title: naabu - scan multiple hosts from a list
+   desc: |
+     Reads a list of targets from a file and performs port scanning on all of them. 
+     The input file should contain one host, IP, or CIDR per line. 
+     This is highly efficient for large-scale infrastructure scanning projects.
+   command: "naabu -list {{file|targets.txt}}"
+
+ - title: naabu - scan specific ports or ranges
+   desc: |
+     Scans specific ports or a range of ports defined by the user. 
+     You can provide individual ports separated by commas or define a range using a hyphen. 
+     Useful when you are looking for specific services like web servers (80, 443) or databases (3306, 5432).
+   command: "naabu -p {{ports|80,443,1000-2000}}"
+
+ - title: naabu - scan top ports
+   desc: |
+     Scans the most common ports based on frequency. 
+     Supported values are '100', '1000', or 'full' (all 65535 ports). 
+     Using 'full' takes significantly longer but ensures no hidden services are missed.
+   command: "naabu -top-ports {{count|1000}}"
+
+# === DISCOVERY & TYPES ===
+
+ - title: naabu - passive port scanning
+   desc: |
+     Retrieves port information using the Shodan InternetDB API instead of sending packets to the target. 
+     This is a completely stealthy method as no direct connection is made to the target infrastructure. 
+     It is extremely fast but may contain slightly outdated information depending on Shodan's last crawl.
+   command: "naabu -host {{target}} -passive"
+
+ - title: naabu - connect scan (TCP)
+   desc: |
+     Forces the use of a TCP Connect scan instead of the default SYN scan. 
+     Connect scans complete the three-way handshake and are generally slower and more visible in logs. 
+     Use this mode if you do not have raw socket permissions (non-root user) or if SYN scans are being dropped by a firewall.
+   command: "naabu -host {{target}} -scan-type c"
+
+ - title: naabu - service discovery and versioning
+   desc: |
+     Attempts to identify the service running on the open ports and determine its version. 
+     This adds a layer of fingerprinting to the fast port scanning process. 
+     It helps in identifying vulnerable software versions immediately after finding an open port.
+   command: "naabu -host {{target}} -sV"
+
+ - title: naabu - skip host discovery (Pn)
+   desc: |
+     Treats all hosts as online and skips the initial host discovery phase. 
+     This is useful when targets are protected by firewalls that block ICMP (ping) requests. 
+     Ensures that the tool attempts to scan ports even if the host doesn't respond to pings.
+   command: "naabu -host {{target}} -Pn"
+
+# === OPTIMIZATION & PERFORMANCE ===
+
+ - title: naabu - rate limited scan
+   desc: |
+     Controls the speed of the scan by limiting the number of packets sent per second. 
+     Setting a lower rate helps in avoiding network congestion and bypassing some basic rate-limiting IDS/IPS. 
+     Default is 1000, but it can be adjusted based on the stability of the target network.
+   command: "naabu -host {{target}} -rate {{rate|500}}"
+
+ - title: naabu - exclude CDN and WAF ports
+   desc: |
+     Automatically skips full port scans for hosts identified as belonging to a CDN or WAF. 
+     When enabled, it typically only scans ports 80 and 443 for these hosts to save time. 
+     This prevents wasting resources on infrastructure like Cloudflare or Akamai where most ports are closed or filtered.
+   command: "naabu -host {{target}} -exclude-cdn"
+
+ - title: naabu - scan all IPs associated with DNS
+   desc: |
+     Scans every IP address associated with a single hostname. 
+     Many large websites use multiple IP addresses for load balancing. 
+     This ensures that you check the security posture of every underlying server in the cluster.
+   command: "naabu -host {{target}} -scan-all-ips"
+
+# === INTEGRATION & OUTPUT ===
+
+ - title: naabu - pipe to nmap for advanced analysis
+   desc: |
+     Uses naabu for fast port discovery and then automatically triggers nmap for detailed versioning and scripting. 
+     This is the "best of both worlds" approach: speed of Go-based scanning combined with Nmap's powerful NSE engine. 
+     Requires nmap to be installed on the local system.
+   command: "naabu -host {{target}} -nmap-cli 'nmap -sV -sC -oN nmap_output.txt'"
+
+ - title: naabu - json output for automation
+   desc: |
+     Saves the scan results in a JSON lines format. 
+     This is ideal for integrating naabu into automated pipelines or custom scripts. 
+     Each line in the output file will be a valid JSON object containing host, port, and protocol info.
+   command: "naabu -host {{target}} -json -o {{output_file|results.json}}"
+
+ - title: naabu - exclude specific hosts or ports
+   desc: |
+     Excludes certain hosts or ports from the current scan. 
+     Useful for avoiding sensitive production systems or noisy ports that you've already investigated. 
+     Supports comma-separated lists for both hosts and ports.
+   command: "naabu -list {{file}} -exclude-hosts {{bad_ips}} -exclude-ports {{noisy_ports|80,443}}"

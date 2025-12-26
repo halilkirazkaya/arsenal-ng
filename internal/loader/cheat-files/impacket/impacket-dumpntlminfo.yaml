@@ -1,0 +1,41 @@
+tool: impacket-DumpNTLMInfo
+tags: [network, enumeration, security, pentest, smb, rpc, information-gathering]
+
+actions:
+  # === BASIC ENUMERATION ===
+  - title: impacket-DumpNTLMInfo - Basic SMB Information Gathering
+    desc: |
+      This command performs an NTLM handshake over the SMB protocol to retrieve target system information. 
+      It is highly effective for identifying the internal domain name, DNS hostname, and OS version without providing valid credentials. 
+      Security professionals use this as an initial reconnaissance step to map the target's network environment and identity.
+    command: "impacket-DumpNTLMInfo {{target}}"
+
+  - title: impacket-DumpNTLMInfo - RPC Protocol Enumeration
+    desc: |
+      This command targets the RPC service, which typically resides on port 135, to leak system details. 
+      It is a vital alternative when SMB (port 445) is blocked or filtered by network firewalls. 
+      By initiating an RPC bind, the tool forces an NTLM challenge that contains the same metadata as an SMB handshake.
+    command: "impacket-DumpNTLMInfo -protocol RPC -port {{port|135}} {{target}}"
+
+  # === ADVANCED TARGETING ===
+  - title: impacket-DumpNTLMInfo - Specify Target IP for NetBIOS Resolution
+    desc: |
+      Use this command when the target is specified by a NetBIOS name that your local machine cannot resolve. 
+      The `-target-ip` flag forces the tool to connect to a specific network address while maintaining the logical target name. 
+      This is particularly useful in internal pentests where DNS resolution is inconsistent or multi-homed systems are involved.
+    command: "impacket-DumpNTLMInfo -target-ip {{target_ip}} {{target_name}}"
+
+  - title: impacket-DumpNTLMInfo - Custom Port Enumeration
+    desc: |
+      This command allows the user to specify a non-standard destination port for the NTLM information leak attempt. 
+      It is useful in environments where services like SMB are proxied, port-forwarded, or hosted on non-default listener ports. 
+      Ensuring the correct port is specified allows the tool to successfully initiate the handshake required for data extraction.
+    command: "impacket-DumpNTLMInfo -port {{port}} {{target}}"
+
+  # === TROUBLESHOOTING & LOGGING ===
+  - title: impacket-DumpNTLMInfo - Debug Mode with Timestamps
+    desc: |
+      Enables verbose debug output and prepends timestamps to every logging entry for precise analysis. 
+      This mode is essential for troubleshooting failed connections or understanding packet-level NTLM SSP errors. 
+      Use this when the target does not return information to determine if the issue is network-related or protocol-specific.
+    command: "impacket-DumpNTLMInfo -debug -ts {{target}}"

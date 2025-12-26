@@ -1,0 +1,86 @@
+tool: amass
+tags: [reconnaissance, dns, enumeration, subdomains, osint, pentest, security]
+
+actions:
+  # === BASIC ENUMERATION ===
+  - title: amass - passive subdomain discovery
+    desc: |
+      Performs passive reconnaissance by gathering data from public sources without directly interacting with the target's infrastructure. 
+      This is the safest method for initial discovery to avoid detection or when the scope forbids active scanning. 
+      It aggregates results from search engines, certificate transparency logs, and web archives.
+    command: "amass enum -passive -d {{domain}}"
+
+  - title: amass - active subdomain enumeration
+    desc: |
+      Conducts a thorough search by actively attempting to resolve potential subdomains using DNS queries and certificate pulling. 
+      This mode includes techniques like brute-forcing, DNS zone transfers, and service banner grabbing if configured. 
+      Be aware that this method is much more intrusive and can be detected by security monitoring systems or trigger alerts.
+    command: "amass enum -active -d {{domain}} -brute"
+
+  # === ADVANCED CONFIGURATION ===
+  - title: amass - enumeration with config file
+    desc: |
+      Utilizes a specific configuration file to manage API keys, data source settings, and recursive depth. 
+      Loading API keys for services like Censys, BinaryEdge, or Shodan significantly increases the breadth of the results. 
+      Ensure the config file path is correct and permissions are restricted, as it usually contains sensitive credentials.
+    command: "amass enum -config {{config|~/.config/amass/config.yaml}} -d {{domain}}"
+
+  - title: amass - restricted data sources
+    desc: |
+      Runs an enumeration using only a specific subset of data sources or by excluding certain ones. 
+      This is useful when you want to troubleshoot a specific provider or speed up the process by disabling slow sources. 
+      Use the -include or -exclude flags to precisely control where Amass fetches its intelligence data.
+    command: "amass enum -include {{sources|crtsh,hackertarget}} -d {{domain}}"
+
+  # === INFRASTRUCTURE & INTEL ===
+  - title: amass - discover assets via ASN
+    desc: |
+      Identifies the Autonomous System Number (ASN) and associated IP ranges belonging to a specific organization. 
+      This helps in understanding the global network footprint and identifying hosted infrastructure that might not be linked via DNS. 
+      It is an essential step for broad scope engagements covering multiple network segments and data centers.
+    command: "amass enum -asn {{asn_number}}"
+
+  - title: amass - scan specific IP ranges
+    desc: |
+      Performs discovery against specific CIDR blocks to find associated domain names and infrastructure assets. 
+      This bridges the gap between traditional network scanning and domain enumeration by mapping IPs back to hostnames. 
+      It is particularly effective for identifying "shadow IT" hosted on company-owned address space.
+    command: "amass enum -cidr {{cidr|192.168.1.0/24}}"
+
+  # === ANALYSIS & TRACKING ===
+  - title: amass - track differences between runs
+    desc: |
+      Compares the results of the current enumeration with previous runs stored in the internal OAM database. 
+      It highlights new, moved, or removed assets, allowing security teams to monitor attack surface drift over time. 
+      This is a critical feature for continuous monitoring and identifying newly exposed services in a dynamic environment.
+    command: "amass track -d {{domain}}"
+
+  - title: amass - subdomain statistics and analysis
+    desc: |
+      Analyzes the discovered subdomains and presents a summarized view of the data. 
+      It provides insights into the distribution of IP addresses, data sources, and top-level domains. 
+      This is helpful for a quick high-level overview before diving into deep technical exploitation or for reporting purposes.
+    command: "amass subs -d {{domain}}"
+
+  # === VISUALIZATION ===
+  - title: amass - generate graph visualization
+    desc: |
+      Processes the discovered data from the database to create interactive graph visualizations. 
+      Supported formats include D3.js (web-ready), Graphistry, or files compatible with Gephi. 
+      Visualization helps in understanding complex relationships between domains, subdomains, IPs, and ASNs that are hard to spot in text logs.
+    command: "amass viz -d3 -d {{domain}}"
+
+  # === DATABASE MANAGEMENT ===
+  - title: amass - list enumeration history
+    desc: |
+      Displays a list of all previous enumeration sessions stored in the local graph database. 
+      Each session is assigned a unique index or UUID which can be used for tracking or comparative analysis. 
+      This is useful for managing multiple projects or long-term monitoring of the same target.
+    command: "amass enum -list"
+
+  - title: amass - export results to text
+    desc: |
+      Exports the discovered subdomains and their resolved IP addresses into a clean text file. 
+      This is the standard way to pipe Amass output into other tools like HTTPX, Nmap, or Nuclei. 
+      The -o flag ensures that the results are saved persistently for documentation and further processing in a pipeline.
+    command: "amass enum -d {{domain}} -o {{output_file|results.txt}}"

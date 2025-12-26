@@ -1,0 +1,95 @@
+tool: apktool
+tags: [android, reverse-engineering, security, pentest, mobile, exploitation, decompiler]
+
+actions:
+  # === DECODING ACTIONS ===
+  - title: apktool - decode apk file
+    desc: |
+      This command is used to disassemble an Android APK file into its nearly original form, including resources and smali code. 
+      It is the primary step for static analysis or modifying an application's behavior before re-building. 
+      The tool will create a folder containing the AndroidManifest.xml, assets, resources, and smali folders. 
+      Note that this does not produce Java source code, but rather smali (an assembly-like representation of dex).
+    command: "apktool d {{apk_file}}"
+
+  - title: apktool - decode to specific directory
+    desc: |
+      Use this command when you want to specify a destination folder for the decoded files instead of the default directory name. 
+      This is particularly useful for organizing multiple projects or preventing the tool from using the default folder name derived from the APK. 
+      If the destination directory already exists, you may need to add the force flag to overwrite it. 
+      It ensures all resources and source files are extracted to the path provided by the user.
+    command: "apktool d {{apk_file}} -o {{output_directory}}"
+
+  - title: apktool - decode without resources
+    desc: |
+      This option prevents the tool from decoding the resources (like layouts, strings, and drawables) and keeps them in their compiled "resources.arsc" format. 
+      It is significantly faster than a full decode and is used when the analyst is only interested in examining the smali code or the manifest. 
+      This approach helps avoid common resource disassembly errors that occur in heavily obfuscated or non-standard APKs. 
+      Use this if you do not plan on modifying UI elements or XML resource values.
+    command: "apktool d -r {{apk_file}}"
+
+  - title: apktool - decode without sources
+    desc: |
+      This command skips the disassembly of the "classes.dex" file into smali files, focusing only on the resources. 
+      It is ideal when your primary goal is to extract assets, images, or analyze the application's UI structure and XML configurations. 
+      By skipping the source code translation, the process completes much faster and results in a smaller output directory. 
+      This is often used for UI/UX research or asset extraction where the underlying logic is not required.
+    command: "apktool d -s {{apk_file}}"
+
+  - title: apktool - force delete destination during decode
+    desc: |
+      Forces the deletion of the destination directory before starting the decoding process. 
+      This is useful in automated scripts or repetitive testing environments where an existing output folder would otherwise cause the tool to stop. 
+      Be careful when using this flag as it will permanently delete any previous modifications in the target folder. 
+      It ensures a clean state for the new disassembly process.
+    command: "apktool d -f {{apk_file}} -o {{output_directory}}"
+
+  # === BUILDING ACTIONS ===
+  - title: apktool - build apk from directory
+    desc: |
+      After making modifications to the decoded files, this command reassembles the directory back into an APK file. 
+      It processes the smali code and compiles the resources back into the binary format required by Android. 
+      The resulting APK is usually placed in a "dist" folder inside the project directory unless an output path is specified. 
+      Remember that the resulting APK will be unsigned and unaligned; it must be signed with a tool like jarsigner or apksigner before it can be installed on a device.
+    command: "apktool b {{project_folder}}"
+
+  - title: apktool - build apk with custom output name
+    desc: |
+      This command builds the project directory into an APK and allows you to specify the exact name and path of the resulting file. 
+      It streamlines the workflow by avoiding the need to look into the "dist" folder and manually renaming the file. 
+      This is standard practice when creating "modded" versions of an application. 
+      Ensure that the project folder contains a valid "apktool.yml" file, which is generated during the initial decoding.
+    command: "apktool b {{project_folder}} -o {{output_apk|modified.apk}}"
+
+  # === FRAMEWORK MANAGEMENT ===
+  - title: apktool - install framework
+    desc: |
+      Certain system applications depend on specific framework files provided by device manufacturers (e.g., Samsung, LG, or Huawei). 
+      This command installs the necessary "framework-res.apk" into the local Apktool repository so that dependent apps can be decoded and built correctly. 
+      Without installing the correct vendor framework, decoding system apps often leads to resource resolution errors or "Resource ID" missing exceptions. 
+      The framework files are typically found in "/system/framework/" on the physical Android device.
+    command: "apktool if {{framework_apk}}"
+
+  - title: apktool - install framework with custom path
+    desc: |
+      Installs a framework file into a specific directory instead of the default system-wide Apktool folder. 
+      This is useful for users who do not have write permissions to the default folder or want to maintain separate framework environments for different projects. 
+      When decoding or building later, you must provide the same path using the -p flag to ensure Apktool finds the installed framework. 
+      It provides better isolation for complex reverse engineering environments.
+    command: "apktool if {{framework_apk}} -p {{custom_framework_path}}"
+
+  # === ADVANCED OPTIONS ===
+  - title: apktool - use custom framework path for decoding
+    desc: |
+      Instructs Apktool to look for framework files in a specific directory during the decoding process. 
+      This is used in conjunction with frameworks previously installed via the "if" command with a custom path. 
+      It is essential when working on multiple Android versions or vendor-specific apps that require isolated environments. 
+      Failure to point to the correct framework path will result in failed resource disassembly.
+    command: "apktool d -p {{custom_framework_path}} {{apk_file}}"
+
+  - title: apktool - show version info
+    desc: |
+      Displays the current version of Apktool along with its internal components like smali and baksmali versions. 
+      This is important for troubleshooting compatibility issues, as different versions of Apktool may handle newer Android features differently. 
+      Always check the version when reporting bugs or following specific tutorials online. 
+      It helps ensure that your environment matches the requirements for the APK you are targeting.
+    command: "apktool -version"

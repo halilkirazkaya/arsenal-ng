@@ -1,0 +1,77 @@
+tool: impacket-services
+tags: [pentest, security, impacket, windows, services, enumeration, exploitation, lateral-movement]
+
+actions:
+# === ENUMERATION ===
+
+ - title: impacket-services - list services
+   desc: |
+     Lists all available services on the remote Windows machine. This is a primary step in reconnaissance to understand the target's environment and installed software. 
+     Note that listing all services usually requires administrative privileges or specific permissions on the Service Control Manager.
+   command: "impacket-services {{domain/username:password}}@{{target}} list"
+
+ - title: impacket-services - get service status
+   desc: |
+     Queries the current running state of a specific service. This command is useful to verify if a target service is active before attempting to stop or modify it. 
+     You must provide the exact service name (e.g., 'Spooler') rather than the display name.
+   command: "impacket-services {{domain/username:password}}@{{target}} status -name {{service_name}}"
+
+ - title: impacket-services - query service configuration
+   desc: |
+     Retrieves the detailed configuration for a specific service, including its binary path and start type. 
+     This is critical for identifying privilege escalation opportunities, such as unquoted service paths or services running as SYSTEM that point to modifiable binaries. 
+     Always verify the 'BINARY_PATH_NAME' to understand what executable is being triggered.
+   command: "impacket-services {{domain/username:password}}@{{target}} config -name {{service_name}}"
+
+# === SERVICE MANIPULATION ===
+
+ - title: impacket-services - start a service
+   desc: |
+     Sends a start command to a stopped service on the target host. This can be used to trigger a malicious service you've created or to restart a legitimate service after modification. 
+     Be aware that some services may have dependencies that must be started first, otherwise the command might fail.
+   command: "impacket-services {{domain/username:password}}@{{target}} start -name {{service_name}}"
+
+ - title: impacket-services - stop a service
+   desc: |
+     Remotely stops a running service. This is often used to disable security agents, antivirus software, or logging services during a penetration test. 
+     Stopping critical system services might cause target instability or a blue screen (BSOD), so use this with caution.
+   command: "impacket-services {{domain/username:password}}@{{target}} stop -name {{service_name}}"
+
+# === EXPLOITATION & PERSISTENCE ===
+
+ - title: impacket-services - create new service
+   desc: |
+     Creates a new service on the remote system with a specified binary path. This is a common method for lateral movement, allowing an attacker to execute commands or payloads with SYSTEM privileges. 
+     The binary path can point to a local file on the target or a file hosted on a network share. 
+     Requires administrative privileges.
+   command: "impacket-services {{domain/username:password}}@{{target}} create -name {{service_name}} -display {{display_name}} -path {{bin_path}}"
+
+ - title: impacket-services - change service config
+   desc: |
+     Modifies the configuration of an existing service, most commonly used to overwrite the binary path. 
+     By changing a service that runs as SYSTEM to point to a malicious executable, you can achieve privilege escalation when the service restarts. 
+     It is a best practice to note down the original path to restore it after the engagement to avoid breaking the system.
+   command: "impacket-services {{domain/username:password}}@{{target}} change -name {{service_name}} -path {{new_bin_path}}"
+
+ - title: impacket-services - delete a service
+   desc: |
+     Permanently removes a service from the target machine's Service Control Manager. 
+     This action is typically performed as part of a cleanup process to remove any backdoors or temporary services created during the assessment. 
+     This operation is irreversible; the service must be manually recreated if deleted by mistake.
+   command: "impacket-services {{domain/username:password}}@{{target}} delete -name {{service_name}}"
+
+# === ADVANCED AUTHENTICATION ===
+
+ - title: impacket-services - pass-the-hash authentication
+   desc: |
+     Authenticates to the target using NTLM hashes instead of a cleartext password. 
+     This is the standard approach for lateral movement when you have dumped hashes from memory but do not have the original password. 
+     The hash must be provided in the format LMHASH:NTHASH.
+   command: "impacket-services {{domain/username}}@{{target}} -hashes {{lmhash:nthash|aad3b435b51404eeaad3b435b51404ee:584ee30706703640b643f1138459f20c}} list"
+
+ - title: impacket-services - kerberos authentication
+   desc: |
+     Uses Kerberos tickets for authentication, which is often more stealthy and avoids NTLM logging. 
+     You must have a valid Kerberos ticket (TGT) in your KRB5CCNAME environment variable and provide the -k flag. 
+     Ensure the target is specified as a FQDN (hostname) rather than an IP address for Kerberos to function correctly, and use -dc-ip to point to the Domain Controller.
+   command: "impacket-services -k -no-pass -dc-ip {{dc_ip}} {{domain/username}}@{{target_fqdn}} list"

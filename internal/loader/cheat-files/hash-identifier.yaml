@@ -1,0 +1,35 @@
+tool: hash-identifier
+tags: [security, pentest, hash, identification, cryptography, enumeration, forensics]
+
+actions:
+  - title: hash-identifier - interactive mode
+    desc: |
+      Launch the tool in its primary interactive mode to identify hashes manually. 
+      This is the standard way to use the tool, allowing you to paste hashes one by one and receive immediate feedback on the likely algorithm. 
+      It is highly useful during the enumeration phase of a pentest when you encounter unknown strings in databases or configuration files.
+    command: "hash-identifier"
+
+  # === AUTOMATION AND INPUT REDIRECTION ===
+
+  - title: hash-identifier - identify single hash via pipe
+    desc: |
+      Identify a single hash by piping the string directly into the tool from the command line. 
+      This method is efficient for quick checks without manually entering the interactive environment. 
+      The tool will process the piped string as if it were typed at the "HASH:" prompt and display the results immediately.
+    command: "echo {{hash_string}} | hash-identifier"
+
+  - title: hash-identifier - identify hash from a file
+    desc: |
+      Read a hash from a specific file and redirect it into the hash-identifier tool. 
+      This approach is useful when you have extracted a hash into a temporary file and want to avoid shell history logging for sensitive data. 
+      Ensure the file contains the raw hash string to get an accurate identification of the potential cryptographic signatures.
+    command: "hash-identifier < {{file_path}}"
+
+  # === CRACKING PREPARATION ===
+
+  - title: hash-identifier - credential analysis for cracking
+    desc: |
+      Use the tool to determine which format to use for password recovery tools like Hashcat or John the Ripper. 
+      Correctly identifying the hash type (e.g., MD5 vs. NTLM vs. SHA-1) is critical because using the wrong mode in cracking tools will result in zero matches. 
+      This tool provides a "Possible Hashs" list and a "Least Possible Hashs" list to help you prioritize your cracking strategy.
+    command: "hash-identifier"

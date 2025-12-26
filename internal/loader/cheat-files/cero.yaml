@@ -1,0 +1,70 @@
+tool: cero
+tags: [network, reconnaissance, scanning, security, pentest, enumeration, ssl-tls]
+
+actions:
+# === BASIC USAGE ===
+ - title: cero - basic domain certificate scraping
+   desc: |
+     Scrape TLS certificate information from a single domain to discover associated hostnames.
+     This command retrieves Subject Alternative Names (SANs) and Common Names (CN) from the target's certificate.
+     It is a highly efficient way to find subdomains that might not be listed in public DNS records.
+   command: "cero {{target}}"
+
+ - title: cero - output valid domain names only
+   desc: |
+     Filter the output to display only valid domain names, stripping out IPs and wildcards.
+     This is particularly useful when you want to pipe the output directly into other tools like httpx or subfinder.
+     Using the -d flag ensures your reconnaissance pipeline remains clean of non-routable or junk strings.
+   command: "cero -d {{target}}"
+
+ - title: cero - verbose output with detailed results
+   desc: |
+     Enable verbose mode to see which address produced which set of domain results.
+     In this mode, cero outputs results in the format 'addr -- [result list]' and sends errors to stderr.
+     This is helpful for debugging connection issues or verifying exactly which IP provided a specific certificate.
+   command: "cero -v {{target}}"
+
+# === NETWORK & RANGE SCANNING ===
+ - title: cero - scan network CIDR range
+   desc: |
+     Perform certificate scraping across an entire IPv4 or IPv6 CIDR block.
+     Cero will attempt to connect to every IP in the range and extract hostname information from any TLS services found.
+     This is an excellent technique for mapping out the infrastructure of an organization based on their IP space.
+   command: "cero {{cidr_range}}"
+
+ - title: cero - scan with custom TLS ports
+   desc: |
+     Specify a custom list of ports to check for TLS certificates beyond the default port 443.
+     You can provide a comma-separated list of ports to scan multiple common SSL/TLS services like 8443, 9443, or 10443.
+     This is essential for finding administrative panels or hidden web services running on non-standard ports.
+   command: "cero -p {{ports|443,8443,10443}} {{target}}"
+
+ - title: cero - scan IPv6 target with specific port
+   desc: |
+     Target a specific IPv6 address and port for certificate information.
+     While cero can often handle bare IPv6 addresses, using square brackets is the safest way to prevent ambiguity when adding a port.
+     This command is useful for targeted reconnaissance on modern network stacks.
+   command: "cero [{{ipv6_address}}]:{{port|443}}"
+
+# === PERFORMANCE & BULK OPERATIONS ===
+ - title: cero - bulk scanning with high concurrency
+   desc: |
+     Process a large list of targets from a file or another tool's output using multiple threads.
+     The concurrency level determines how many TLS connections are attempted simultaneously, with a default of 100.
+     Increasing this value can significantly speed up mass scanning but may require more system resources and bandwidth.
+   command: "cat {{input_file}} | cero -c {{concurrency|1000}}"
+
+ - title: cero - adjust TLS connection timeout
+   desc: |
+     Set a custom timeout for TLS handshake attempts in seconds.
+     The default timeout is 4 seconds; increasing it may help capture results from slow or high-latency servers.
+     Decreasing the timeout can make mass scans faster but might result in missing certificates from slower endpoints.
+   command: "cero -t {{timeout_seconds|10}} {{target}}"
+
+# === PIPELINE INTEGRATION ===
+ - title: cero - full mass-scraping pipeline
+   desc: |
+     Execute a comprehensive scan across a range of ports and a network block with high concurrency.
+     This example demonstrates how to combine multiple flags for an intensive reconnaissance phase.
+     Results can be redirected to a file, while errors are suppressed by redirecting stderr to /dev/null.
+   command: "cero -p {{ports|443,8443}} -c {{concurrency|500}} -d {{target_range}} 2>/dev/null > {{output_file|results.txt}}"

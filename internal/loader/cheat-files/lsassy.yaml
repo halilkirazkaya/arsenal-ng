@@ -1,0 +1,62 @@
+tool: lsassy
+tags: [active-directory, credential-dumping, pentest, security, lsass, windows, exploitation, post-exploitation]
+
+actions:
+  # === AUTHENTICATION METHODS ===
+  - title: lsassy - dump lsass using domain credentials
+    desc: |
+      Extract credentials from remote hosts using standard domain authentication. This is the primary method for retrieving passwords and hashes when you have valid administrative domain credentials. The tool will target the LSASS process on the remote machine and attempt to pull credentials remotely. Ensure you have administrative rights on the target systems for this to function.
+    command: "lsassy -d {{domain}} -u {{username}} -p {{password}} {{targets}}"
+
+  - title: lsassy - authenticate with NT hash (Pass-the-Hash)
+    desc: |
+      Perform remote credential dumping by authenticating with a user's NT hash instead of a plaintext password. This is essential for lateral movement after obtaining hashes from other sources like SAM or NTDS.dit. You can provide the hash in either LM:NT or just NT format. This technique helps bypass the need for cleartext credentials while maintaining administrative access.
+    command: "lsassy -d {{domain}} -u {{username}} -H {{nt_hash}} {{targets}}"
+
+  - title: lsassy - authenticate with Kerberos ticket
+    desc: |
+      Use an existing Kerberos TGT for authentication to perform dumping without providing a password or hash. Before running this, you must set the KRB5CCNAME environment variable to point to your valid .ccache file. This method is highly effective in environments where Kerberos is preferred and helps avoid triggering alerts related to password-based logins. Use the FQDN of the target for better compatibility with Kerberos.
+    command: "lsassy -k {{targets}}"
+
+  # === DUMPING METHODS ===
+  - title: lsassy - dump using Procdump method
+    desc: |
+      Utilize the Procdump utility from Sysinternals to dump the LSASS process memory. This method requires you to specify the local path to the procdump.exe binary which will be uploaded to the target. It is a reliable alternative when built-in methods like comsvcs.dll are being blocked or monitored by security software. Be aware that uploading binaries to a target may increase the risk of detection by EDR solutions.
+    command: "lsassy -d {{domain}} -u {{username}} -p {{password}} {{targets}} -m procdump -O procdump_path={{local_procdump_path}}"
+
+  - title: lsassy - dump using Dumpert method
+    desc: |
+      Use the Dumpert tool to dump LSASS memory via direct system calls to bypass API hooking. This method is specifically designed to evade EDR and AV solutions that monitor common Windows APIs used for memory dumping. You must provide the path to the local dumpert.exe or dumpert.dll file. It represents a more advanced and stealthy approach compared to standard dumping techniques.
+    command: "lsassy -d {{domain}} -u {{username}} -p {{password}} {{targets}} -m dumpert -O dumpert_path={{local_dumpert_path}}"
+
+  - title: lsassy - dump using nanodump method
+    desc: |
+      Employ the nanodump method for a highly specialized and often stealthier dumping process. Nanodump is designed to be a minimalist tool for dumping LSASS, often bypassing modern security controls. This is useful in hardened environments where standard administrative shares or WMI calls are heavily monitored. Like other custom methods, check if specific options are needed for the version of nanodump you are using.
+    command: "lsassy -d {{domain}} -u {{username}} -p {{password}} {{targets}} -m nanodump"
+
+  # === FILE & DATA OPERATIONS ===
+  - title: lsassy - parse existing remote dump
+    desc: |
+      Extract credentials from an LSASS dump file that is already present on the remote target system. This is useful if a dump was previously created by another tool or a manual process, preventing the need for a new dumping action. You must specify the remote directory path and the name of the dump file. Note that using --parse-only will prevent lsassy from automatically deleting the dump file after processing.
+    command: "lsassy -d {{domain}} -u {{username}} -p {{password}} {{targets}} --parse-only --dump-path {{remote_path|/Windows/Temp}} --dump-name {{dump_name|lsass.dmp}}"
+
+  - title: lsassy - harvest Kerberos tickets and DPAPI keys
+    desc: |
+      Automatically collect Kerberos tickets and DPAPI master keys from the target while dumping credentials. Tickets are saved locally in ccache format, which can be reused for further Kerberos-based attacks. DPAPI master keys are extracted in GUID:SHA1 format for offline decryption of sensitive Windows data. This significantly expands the scope of the post-exploitation phase by gathering various secrets at once.
+    command: "lsassy -d {{domain}} -u {{username}} -p {{password}} {{targets}} -K {{kerberos_dir|./tickets}} -M {{masterkeys_file|./masterkeys.txt}}"
+
+  # === OUTPUT & PERFORMANCE ===
+  - title: lsassy - output results in JSON format
+    desc: |
+      Generate the extracted credential information in JSON format for automated processing or logging. This is particularly useful when lsassy is part of a larger automation pipeline or when you need to parse results with tools like jq. You can combine this with the --outfile flag to save the results directly to a file on your disk. This avoids cluttered terminal output when dealing with a large number of targets.
+    command: "lsassy -d {{domain}} -u {{username}} -p {{password}} {{targets}} --format json --outfile {{output_file|results.json}}"
+
+  - title: lsassy - execute with multiple threads
+    desc: |
+      Increase the speed of the dumping process across multiple targets by using concurrent threads. You can set the number of threads between 1 and 256 depending on your network capacity and target list size. This is ideal for quickly scanning large network ranges or host lists found in an Active Directory environment. Use caution with very high thread counts as it might increase the noisiness of the operation.
+    command: "lsassy -d {{domain}} -u {{username}} -p {{password}} {{targets}} --threads {{thread_count|32}}"
+
+  - title: lsassy - filter output for user accounts only
+    desc: |
+      Filter the results to only display credentials belonging to user accounts, excluding computer account data. This makes the output much cleaner and easier to read during manual analysis, as it focuses on high-value targets. Computer account hashes (ending in $) are often less useful for initial lateral movement compared to domain admin or user accounts. This flag is particularly helpful when dumping a large number of machines simultaneously.
+    command: "lsassy -d {{domain}} -u {{username}} -p {{password}} {{targets}} --users"

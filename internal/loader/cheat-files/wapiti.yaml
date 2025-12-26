@@ -1,0 +1,113 @@
+tool: wapiti
+tags: [web, scanner, security, pentest, enumeration, exploitation, vulnerability-assessment]
+
+actions:
+  # === BASIC SCANS ===
+  - title: wapiti - basic scan
+    desc: |
+      Performs a default vulnerability scan against a target URL.
+      This is the most common starting point for black-box web application testing.
+      Wapiti will crawl the site starting from the base URL and attempt to find vulnerabilities like XSS and SQL injection.
+      By default, it uses the 'folder' scope, meaning it won't go above the path provided in the URL.
+    command: "wapiti -u {{url}}"
+
+  - title: wapiti - scan with specific output format
+    desc: |
+      Runs a scan and generates a report in a specific file format.
+      Supported formats include html, json, xml, txt, and csv.
+      This is essential for documenting findings or integrating Wapiti results with other automated tools.
+      The HTML report is highly recommended for manual review as it provides detailed descriptions of vulnerabilities.
+    command: "wapiti -u {{url}} -f {{format|html}} -o {{output_path|report.html}}"
+
+  # === SCAN SCOPE & CRAWLING ===
+  - title: wapiti - set scan scope
+    desc: |
+      Defines the boundaries for the crawler to prevent it from wandering off-site.
+      The scope can be set to 'page', 'folder', 'subdomain', 'domain', or 'punk'.
+      Using 'domain' or 'subdomain' is useful for comprehensive testing of a large infrastructure.
+      Be careful with 'punk' mode as it will attack every URL it finds regardless of the domain, which might lead to legal issues.
+    command: "wapiti -u {{url}} --scope {{scope|folder}}"
+
+  - title: wapiti - headless scanning
+    desc: |
+      Enables the use of a headless Firefox browser for crawling.
+      This allows Wapiti to discover links and forms that are generated dynamically via JavaScript.
+      It is significantly slower than the default crawler but much more effective for modern Single Page Applications (SPAs).
+      You can set the mode to 'hidden' to run in the background or 'visible' to see the browser actions.
+    command: "wapiti -u {{url}} --headless {{mode|hidden}}"
+
+  - title: wapiti - limit crawl depth and links
+    desc: |
+      Restricts the depth of the crawl and the number of links analyzed per page.
+      This is useful for very large websites where a full scan would take too long or consume too many resources.
+      Setting a lower depth ensures that the scanner stays focused on the most critical parts of the application.
+      Use this to fine-tune performance when working with restricted time windows.
+    command: "wapiti -u {{url}} -d {{depth|3}} --max-links-per-page {{max|20}}"
+
+  # === AUTHENTICATION ===
+  - title: wapiti - form-based authentication
+    desc: |
+      Performs an authenticated scan by submitting a login form first.
+      You must provide the login page URL and the credentials to be used.
+      Note that automated scanning with credentials carries a risk of account lockout if the site has brute-force protections.
+      Always ensure you have permission to use the provided account for automated testing.
+    command: "wapiti -u {{url}} --form-url {{login_url}} --form-user {{username}} --form-password {{password}}"
+
+  - title: wapiti - cookie-based authentication
+    desc: |
+      Uses an existing session cookie to perform an authenticated scan.
+      This is often easier than form-based authentication if the site uses complex multi-factor or JS-heavy login processes.
+      You can provide a raw cookie string or a JSON file containing exported cookies.
+      Ensure the session remains active during the duration of the scan to get accurate results.
+    command: "wapiti -u {{url}} -C \"{{cookie_string}}\""
+
+  - title: wapiti - get cookies utility
+    desc: |
+      A helper utility to capture and save cookies to a file for later use with Wapiti.
+      It can handle login forms and save the resulting session state into a JSON format.
+      This is the preferred way to handle complex authentication scenarios before starting the main scan.
+      The generated file can then be passed to Wapiti using the '-c' flag.
+    command: "wapiti-getcookie -u {{login_url}} -c {{cookie_file|cookies.json}} --form-data \"{{post_data}}\""
+
+  # === ATTACK MODULES ===
+  - title: wapiti - run specific modules
+    desc: |
+      Tells Wapiti to only run a specific set of vulnerability modules.
+      This is useful when you only want to check for a particular class of bugs, such as SQL Injection or XSS.
+      It saves time by skipping modules that might not be relevant to your current testing goals.
+      Use the '--list-modules' flag separately to see all available attack modules.
+    command: "wapiti -u {{url}} -m {{module_list|xss,sql,blindsql}}"
+
+  - title: wapiti - exclude specific URLs or parameters
+    desc: |
+      Excludes specific URLs or parameters from being crawled or attacked.
+      This is vital for avoiding 'logout' links that would end your session or destructive actions like 'delete_user'.
+      Excluding noisy parameters can also speed up the scan and reduce false positives.
+      You can use multiple '-x' flags to exclude several patterns.
+    command: "wapiti -u {{url}} -x {{exclude_url}} --skip {{parameter_name}}"
+
+  # === NETWORK & EVASION ===
+  - title: wapiti - proxy and tor integration
+    desc: |
+      Routes all traffic through a specified HTTP/SOCKS proxy or the Tor network.
+      This is useful for bypassing IP-based restrictions or for maintaining anonymity during an engagement.
+      The '--tor' flag automatically configures Wapiti to use the local Tor listener (usually 127.0.0.1:9050).
+      Using a proxy also allows you to intercept Wapiti's traffic with tools like Burp Suite for deeper analysis.
+    command: "wapiti -u {{url}} -p {{proxy_url|http://127.0.0.1:8080}}"
+
+  - title: wapiti - custom user-agent and headers
+    desc: |
+      Sets a custom User-Agent string or additional HTTP headers for every request.
+      This can be used to bypass WAF rules that block the default Wapiti user-agent or to simulate specific mobile devices.
+      Custom headers are also useful for bypassing certain access control mechanisms or identifying scanner traffic.
+      Be sure to format the header string correctly as "Name: Value".
+    command: "wapiti -u {{url}} -A \"{{user_agent}}\" -H \"{{header_name}}: {{value}}\""
+
+  # === ADVANCED CONFIGURATION ===
+  - title: wapiti - aggressive scanning
+    desc: |
+      Adjusts the 'scan-force' level to control the intensity of the attack.
+      Values range from 'paranoid' (very slow, few requests) to 'insane' (very fast, many requests).
+      Aggressive levels might overwhelm the server or trigger rate-limiting and WAF blocks.
+      Use 'polite' or 'normal' for production environments to minimize the risk of causing a Denial of Service.
+    command: "wapiti -u {{url}} -S {{force_level|aggressive}}"

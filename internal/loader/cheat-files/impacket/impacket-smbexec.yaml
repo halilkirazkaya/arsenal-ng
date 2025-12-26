@@ -1,0 +1,89 @@
+tool: impacket-smbexec
+tags: [network, security, pentest, exploitation, authentication, smb, impacket, rce]
+
+actions:
+# === AUTHENTICATION METHODS ===
+
+ - title: impacket-smbexec - password authentication
+   desc: |
+     Establishes a semi-interactive shell on the target system using standard cleartext credentials. 
+     This approach is useful when you have obtained a valid username and password through phishing or credential harvesting. 
+     The tool creates a temporary service on the target host to execute commands and returns the output to the console. 
+     Note that this method triggers service creation events (Event ID 7045), which are often monitored by SOC teams.
+   command: "impacket-smbexec {{domain|.}}/{{username}}:{{password}}@{{target}}"
+
+ - title: impacket-smbexec - pass-the-hash (PtH)
+   desc: |
+     Authenticates to the remote system using NTLM hashes instead of a plaintext password. 
+     This is the primary method used in post-exploitation after extracting hashes from the SAM database or NTDS.dit. 
+     The hash must be provided in the format LMHASH:NTHASH. 
+     If the LM hash is not available, you can use a placeholder of 32 zeros (aad3b435b51404eeaad3b435b51404ee).
+   command: "impacket-smbexec -hashes {{hash}} {{domain|.}}/{{username}}@{{target}}"
+
+ - title: impacket-smbexec - kerberos authentication
+   desc: |
+     Uses Kerberos tickets for authentication instead of NTLM, which is often preferred in modern Active Directory environments. 
+     To use this, you must have a valid Kerberos ticket in your cache (KRB5CCNAME) and ensure you are targeting the FQDN rather than the IP address. 
+     The -no-pass flag tells the tool not to prompt for a password and instead rely on the existing ticket. 
+     Specifying the -dc-ip is often necessary if the attacker machine cannot resolve the domain controller via DNS.
+   command: "impacket-smbexec -k -no-pass -dc-ip {{dc_ip}} {{domain}}/{{username}}@{{target_fqdn}}"
+
+ - title: impacket-smbexec - aes key authentication
+   desc: |
+     Authenticates using a Kerberos AES key (128 or 256 bits) instead of a password or hash. 
+     This method is used when you have intercepted or extracted an account's AES key during an assessment. 
+     Like other Kerberos methods, this requires targeting the machine by its hostname/FQDN and having proper time synchronization with the DC. 
+     It is a stealthier alternative to NTLM authentication in environments where NTLM is restricted.
+   command: "impacket-smbexec -aesKey {{hex_key}} {{domain}}/{{username}}@{{target_fqdn}}"
+
+# === EXECUTION & SHELL CONFIGURATION ===
+
+ - title: impacket-smbexec - shell type selection (powershell)
+   desc: |
+     Changes the command interpreter from the default 'cmd.exe' to 'powershell.exe'. 
+     This is highly beneficial when you need to run complex PowerShell scripts or access .NET functionality directly. 
+     Using PowerShell can sometimes bypass simple EDR rules that look for suspicious 'cmd /c' executions. 
+     However, be aware that PowerShell execution is heavily logged if Script Block Logging or Transcription is enabled.
+   command: "impacket-smbexec -shell-type {{shell|powershell}} {{target}}"
+
+ - title: impacket-smbexec - custom service name
+   desc: |
+     Specifies a custom name for the service created on the remote machine. 
+     By default, impacket uses a randomized string which can be a signature for security products. 
+     Choosing a name like 'WindowsUpdate' or 'AppMgmt' can help the service blend in with legitimate Windows services. 
+     This is a simple but effective technique to avoid detection by automated scanning tools that look for default Impacket patterns.
+   command: "impacket-smbexec -service-name {{service_name|AppMgmt}} {{target}}"
+
+ - title: impacket-smbexec - server mode for output
+   desc: |
+     Switches the tool to 'SERVER' mode, which creates a local SMB server on the attacker's machine to capture command output. 
+     This is the alternative to 'SHARE' mode, which writes output to a file on the target's C$ share. 
+     Server mode is extremely useful when the target's C$ share is not accessible or if there is a local firewall preventing the tool from reading files. 
+     Warning: You must run this as root/sudo on your local machine because it needs to bind to port 445.
+   command: "impacket-smbexec -mode SERVER {{target}}"
+
+# === ADVANCED NETWORK CONFIGURATION ===
+
+ - title: impacket-smbexec - custom smb port
+   desc: |
+     Connects to the SMB service on a non-standard port instead of the default 445. 
+     This is useful in scenarios where port forwarding, SSH tunneling, or non-standard configurations are in place. 
+     If you have tunneled SMB through a jump box, you might be pointing this at '127.0.0.1' on a custom local port. 
+     Ensure the remote end is actually listening for SMB traffic on the specified port.
+   command: "impacket-smbexec -port {{port|445}} {{target}}"
+
+ - title: impacket-smbexec - custom output share
+   desc: |
+     Specifies a different share to be used for storing command output during execution. 
+     The default is the C$ share, but if that share is disabled or the user lacks permissions, you can specify others like ADMIN$. 
+     The tool needs to be able to write the output file to this share and then read it back to display the results. 
+     If no writable shares are available, consider switching to '-mode SERVER'.
+   command: "impacket-smbexec -share {{share|ADMIN$}} {{target}}"
+
+ - title: impacket-smbexec - debug and timestamping
+   desc: |
+     Enables debug output and adds timestamps to the log entries for better troubleshooting and reporting. 
+     The -debug flag provides verbose information about the SMB connection, authentication handshake, and service creation. 
+     The -ts flag is helpful for documentation purposes during a penetration test to track exactly when actions were performed. 
+     Use this if you are encountering connection issues or authentication failures to see the underlying error codes.
+   command: "impacket-smbexec -debug -ts {{target}}"

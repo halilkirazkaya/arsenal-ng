@@ -1,0 +1,138 @@
+tool: git
+tags: [vcs, version-control, development, collaboration, devops, workflow]
+
+actions:
+  # === CONFIGURATION ===
+  - title: git - set global user identity
+    desc: |
+      Sets the global username and email address for all git repositories on the local system. 
+      This identity is used to sign your commits and is crucial for tracking who made specific changes. 
+      Ensure this matches your GitHub/GitLab profile to correctly attribute contributions.
+    command: "git config --global user.name {{name|Your Name}} && git config --global user.email {{email|user@example.com}}"
+
+  # === INITIALIZATION & CLONING ===
+  - title: git - initialize a new repository
+    desc: |
+      Initializes a brand new Git repository in the current working directory. 
+      This creates a hidden .git directory where all project history and metadata are stored. 
+      Use this command once at the start of a new project to enable version control.
+    command: "git init"
+
+  - title: git - clone a repository
+    desc: |
+      Creates a local copy of a remote repository from a URL. 
+      It automatically sets up a remote connection called 'origin' pointing back to the source. 
+      You can optionally specify a target directory name or a specific branch to clone.
+    command: "git clone -b {{branch_name|main}} {{repository_url}} {{clone_directory|repo-dir}}"
+
+  # === BASIC WORKFLOW ===
+  - title: git - check repository status
+    desc: |
+      Displays the state of the working directory and the staging area. 
+      It lets you see which changes have been staged, which haven't, and which files aren't being tracked by Git. 
+      This is the most common command used to verify what will be included in the next commit.
+    command: "git status"
+
+  - title: git - stage changes
+    desc: |
+      Adds file contents to the staging area (index) to prepare them for the next commit. 
+      You can add specific files or use a period to add all modified and new files in the current directory. 
+      Staging allows you to craft precise commits by selecting only relevant changes.
+    command: "git add {{changed_files|.}}"
+
+  - title: git - commit staged changes
+    desc: |
+      Saves the staged snapshot to the project history with a descriptive message. 
+      Commits should ideally be small and focused on a single logical change. 
+      Use the --no-verify flag if you need to bypass pre-commit hooks, though this is generally discouraged.
+    command: "git commit -m {{message|Commit description}}"
+
+  # === REMOTE MANAGEMENT ===
+  - title: git - manage remote repositories
+    desc: |
+      Lists, adds, or removes connections to remote repositories. 
+      The 'verbose' flag shows the URLs associated with each remote nickname (like origin). 
+      This is essential when collaborating with others or deploying code to different servers.
+    command: "git remote {{action|--verbose}}"
+
+  - title: git - add a new remote
+    desc: |
+      Registers a new remote repository URL under a specific shortname. 
+      Standard practice is to name the primary remote 'origin'. 
+      This allows you to push and pull code to and from hosted services like GitHub or Bitbucket.
+    command: "git remote add {{remote_name|origin}} {{remote_url}}"
+
+  # === PUSH & PULL ===
+  - title: git - push changes to remote
+    desc: |
+      Uploads local repository content to a remote repository. 
+      The -u flag sets the upstream tracking, making future pushes and pulls simpler for that branch. 
+      Be cautious with the -f (force) flag, as it can overwrite history on the remote server and disrupt teammates.
+    command: "git push -u {{remote_name|origin}} {{branch_name|main}}"
+
+  - title: git - pull latest changes
+    desc: |
+      Fetches changes from a remote server and immediately merges them into the current local branch. 
+      The --ff-only flag ensures that the pull only succeeds if it can be resolved as a fast-forward. 
+      This prevents the creation of unnecessary merge commits and keeps the history linear.
+    command: "git pull --ff-only {{remote_name|origin}} {{branch_name|main}}"
+
+  # === BRANCHING & MERGING ===
+  - title: git - create and switch branch
+    desc: |
+      Creates a new branch and immediately switches the working directory to it. 
+      Branching is used to develop features or fix bugs in isolation from the main codebase. 
+      The new branch will start from the current HEAD position.
+    command: "git checkout -b {{new_branch_name|feature-task}}"
+
+  - title: git - merge branches
+    desc: |
+      Integrates changes from a specified branch into the current active branch. 
+      Git will attempt to automatically combine changes, but manual conflict resolution may be required. 
+      Use 'git merge --abort' if the process becomes too complex and you need to return to the pre-merge state.
+    command: "git merge {{source_branch|feature-branch}}"
+
+  # === LOGGING & HISTORY ===
+  - title: git - view commit history
+    desc: |
+      Displays a list of commits in the current branch's history. 
+      The formatted version provides a visual graph, showing how branches have diverged and merged over time. 
+      This is vital for auditing changes and understanding the project's evolution.
+    command: "git log --all --decorate --oneline --graph"
+
+  - title: git - show unstaged differences
+    desc: |
+      Shows the line-by-line differences between the working directory and the staging area. 
+      It helps you review exactly what code was modified before you decide to 'git add' it. 
+      If a filename is provided, it only shows changes for that specific file.
+    command: "git diff {{file_path}}"
+
+  # === CLEANUP & MAINTENANCE ===
+  - title: git - clean untracked files
+    desc: |
+      Removes untracked files and directories from the working tree. 
+      The -d flag removes directories, and -f forces the deletion (required by default for safety). 
+      This is useful for clearing out build artifacts or temporary files not ignored by .gitignore.
+    command: "git clean -dxf"
+
+  - title: git - update submodules
+    desc: |
+      Initializes and updates nested git repositories (submodules). 
+      The --recursive flag ensures that if submodules have their own submodules, they are also updated. 
+      This is necessary when cloning projects that rely on other repositories as dependencies.
+    command: "git submodule update --init --recursive"
+
+  # === ADVANCED OPERATIONS ===
+  - title: git - interactive rebase
+    desc: |
+      Rewrites commit history by reapplying commits on top of another base. 
+      It is commonly used to "squash" multiple small commits into a single clean commit before merging. 
+      Note that rebasing shared public history is dangerous and should generally be avoided.
+    command: "git rebase {{base_branch|main}} -i"
+
+  - title: git - checkout PR from remote
+    desc: |
+      Fetches a specific Pull Request (PR) from a remote (usually origin) and creates a local branch for it. 
+      This allows you to test and review code from contributors locally. 
+      Replace the PR number with the ID found on the hosting platform (GitHub/GitLab).
+    command: "git fetch origin pull/{{pr_number}}/head:pr/{{pr_number}} && git checkout pr/{{pr_number}}"

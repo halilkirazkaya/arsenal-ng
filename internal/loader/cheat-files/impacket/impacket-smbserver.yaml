@@ -1,0 +1,70 @@
+tool: impacket-smbserver
+tags: [network, file-transfer, security, pentest, exploitation, authentication, smb]
+
+actions:
+  # === BASIC FILE SHARING ===
+  - title: impacket-smbserver - basic anonymous share
+    desc: |
+      Start a basic SMB server without any authentication requirements. 
+      This is the most common way to quickly transfer files from a Linux attack host to a Windows target. 
+      The share will be accessible to any user on the network, so avoid placing sensitive data here.
+    command: "impacket-smbserver {{share_name|SHARE}} {{path|/tmp}}"
+
+  - title: impacket-smbserver - enable smb2 support
+    desc: |
+      Launch the SMB server with support for the SMB2 protocol version. 
+      Modern Windows versions (Windows 10, Server 2016+) often disable SMB1 by default for security reasons. 
+      Use this flag if you encounter "protocol not supported" errors or connection timeouts on newer targets.
+    command: "impacket-smbserver -smb2support {{share_name|SHARE}} {{path|/tmp}}"
+
+  - title: impacket-smbserver - share with custom comment
+    desc: |
+      Create a share with a specific descriptive comment that appears in network browsing. 
+      This can be used to make the share look more legitimate or to provide context for users. 
+      It is an optional metadata field that helps in organizational tasks during internal audits.
+    command: "impacket-smbserver -comment {{comment|'Public Tools'}} {{share_name|TOOLS}} {{path|/opt/tools}}"
+
+  # === AUTHENTICATION & SECURITY ===
+  - title: impacket-smbserver - authenticated share with password
+    desc: |
+      Set up an SMB server that requires a specific username and password for access. 
+      This prevents unauthorized users on the network from browsing your files or uploading malicious content. 
+      It is a critical step when performing engagements in environments with active blue teams or multiple testers.
+    command: "impacket-smbserver -username {{user|admin}} -password {{pass|password123}} {{share_name|SECURE}} {{path|/root/loot}}"
+
+  - title: impacket-smbserver - authenticated share with NTLM hashes
+    desc: |
+      Provide access to the SMB share using NTLM hashes instead of a plaintext password. 
+      The format for the hashes must be LMHASH:NTHASH (use a string of 32 zeros for the LM hash if only NT is known). 
+      This allows you to simulate or utilize existing compromised credentials without knowing the actual password.
+    command: "impacket-smbserver -username {{user|admin}} -hashes {{hash}} {{share_name|HASH_AUTH}} {{path|/tmp}}"
+
+  # === NETWORK CONFIGURATION ===
+  - title: impacket-smbserver - custom interface and port
+    desc: |
+      Bind the SMB server to a specific network interface and a non-standard port. 
+      This is useful when the default port 445 is already in use by a local Samba service or another tool. 
+      Note that Windows clients usually expect SMB on port 445, so port forwarding might be required on the target side.
+    command: "impacket-smbserver -ip {{ip_address|0.0.0.0}} -port {{port|4445}} {{share_name|SHARE}} {{path|/tmp}}"
+
+  - title: impacket-smbserver - listen on IPv6
+    desc: |
+      Configure the SMB server to listen for incoming connections over the IPv6 protocol. 
+      This can be used to bypass certain IPv4-only firewall rules or to operate in IPv6-only environments. 
+      Ensure your network stack and the target machine are properly configured for IPv6 communication.
+    command: "impacket-smbserver -6 {{share_name|SHARE}} {{path|/tmp}}"
+
+  # === LOGGING & CAPTURE ===
+  - title: impacket-smbserver - capture hashes to file
+    desc: |
+      Redirect all output, including captured NTLM hashes from incoming authentication attempts, to a text file. 
+      When a target machine attempts to connect to this server, the NTLM challenge-response sequence is logged. 
+      These logged hashes can later be used for offline cracking with tools like Hashcat or John the Ripper.
+    command: "impacket-smbserver -outputfile {{log_file|hashes.txt}} {{share_name|RECON}} {{path|/tmp}}"
+
+  - title: impacket-smbserver - debug mode with timestamps
+    desc: |
+      Enable verbose debug output and add timestamps to every log entry produced by the server. 
+      This is extremely helpful for troubleshooting connection drops or understanding the negotiation process. 
+      The timestamps provide a clear timeline of events during an exploitation or data exfiltration phase.
+    command: "impacket-smbserver -debug -ts {{share_name|DEBUG_SHARE}} {{path|/tmp}}"

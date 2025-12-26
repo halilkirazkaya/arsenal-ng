@@ -1,0 +1,98 @@
+tool: gau
+tags: [recon, web-security, enumeration, urls, pentest, osint, scanning]
+
+actions:
+  # === BASIC RECONNAISSANCE ===
+  - title: gau - basic url fetching
+    desc: |
+      Retrieve all known URLs for a single target domain from default providers.
+      This is the primary way to use gau for initial reconnaissance of a web application.
+      It queries providers like Wayback Machine, OTX, and Common Crawl to find historical endpoints.
+    command: "gau {{domain}}"
+
+  - title: gau - fetch urls with subdomains
+    desc: |
+      Include subdomains of the target domain in the URL discovery process.
+      This expands the attack surface significantly by finding endpoints across all known sub-assets.
+      It is highly recommended for bug bounty hunting or large-scale organizational assessments.
+    command: "gau --subs {{domain}}"
+
+  - title: gau - save results to file
+    desc: |
+      Write all discovered URLs to a specific text file for further processing.
+      Saving to a file is essential when dealing with thousands of results that need to be piped into other tools.
+      Ensure you have write permissions in the directory where you want to save the output.
+    command: "gau --o {{output_file|urls.txt}} {{domain}}"
+
+  # === FILTERING AND REFINEMENT ===
+  - title: gau - filter by status codes (match)
+    desc: |
+      Only display URLs that matched specific HTTP status codes during indexing.
+      This is useful for focusing on successful requests (200) or potential server-side errors (500).
+      Provide multiple status codes as a comma-separated list without spaces.
+    command: "gau --mc {{status_codes|200,500}} {{domain}}"
+
+  - title: gau - filter by status codes (exclude)
+    desc: |
+      Exclude specific HTTP status codes from the results to reduce noise.
+      Commonly used to filter out 404 (Not Found) or 302 (Redirects) to focus on relevant content.
+      This helps in cleaning the data before passing it to vulnerability scanners.
+    command: "gau --fc {{status_codes|404,302}} {{domain}}"
+
+  - title: gau - blacklist file extensions
+    desc: |
+      Skip URLs that end with specific file extensions like images, fonts, or CSS.
+      This helps focus on functional web pages, scripts, and API endpoints rather than static assets.
+      Provide the extensions as a comma-separated list for the filter to work correctly.
+    command: "gau --blacklist {{extensions|png,jpg,gif,svg,woff,css}} {{domain}}"
+
+  - title: gau - match specific mime-types
+    desc: |
+      Filter results to only include specific mime-types such as JSON or plain text.
+      This is particularly effective when hunting for API endpoints or sensitive configuration files.
+      Common mime-types to look for include 'application/json' and 'text/plain'.
+    command: "gau --mt {{mime_types|application/json,text/plain}} {{domain}}"
+
+  - title: gau - remove duplicate parameters (fingerprint)
+    desc: |
+      Clean the output by removing different parameters belonging to the same endpoint.
+      This provides a unique list of endpoints, making it easier to understand the application structure.
+      Use this flag when you want to avoid redundancy in your URL list for manual analysis.
+    command: "gau --fp {{domain}}"
+
+  # === ADVANCED CONFIGURATION ===
+  - title: gau - fetch urls within date range
+    desc: |
+      Retrieve URLs that were indexed between a specific start and end date.
+      The date format must be YYYYMM (e.g., 202101 for January 2021).
+      This is useful for time-based analysis or finding endpoints that were active during a specific period.
+    command: "gau --from {{from_date|202101}} --to {{to_date|202201}} {{domain}}"
+
+  - title: gau - use specific providers
+    desc: |
+      Limit the URL search to specific data providers like wayback, otx, commoncrawl, or urlscan.
+      This can significantly speed up the discovery process if certain providers are slow or unreachable.
+      By default, gau uses all available providers to ensure maximum coverage.
+    command: "gau --providers {{providers|wayback,otx}} {{domain}}"
+
+  - title: gau - use http proxy
+    desc: |
+      Route all gau requests through a specified HTTP or SOCKS5 proxy.
+      This is necessary for bypassing network restrictions or masking the source of your reconnaissance traffic.
+      Ensure the proxy URL is correctly formatted, including the protocol and port.
+    command: "gau --proxy {{proxy_url|http://127.0.0.1:8080}} {{domain}}"
+
+  # === BULK PROCESSING ===
+  - title: gau - bulk processing with threads
+    desc: |
+      Read multiple domains from a file and process them using a specified number of worker threads.
+      Using multiple threads drastically reduces the time required to scan hundreds of domains.
+      Be careful not to set the thread count too high to avoid being rate-limited by the providers.
+    command: "cat {{domains_file}} | gau --threads {{threads|10}}"
+
+  - title: gau - output as json
+    desc: |
+      Format the output as JSON for easier integration with automated pipelines and custom scripts.
+      JSON output provides structured data that includes the URL and potentially other metadata.
+      Use this when building automated toolchains where the next tool expects JSON input.
+    command: "gau --json {{domain}}"

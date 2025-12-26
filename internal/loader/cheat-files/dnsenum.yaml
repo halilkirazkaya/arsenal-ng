@@ -1,0 +1,93 @@
+tool: dnsenum
+tags: [dns, enumeration, reconnaissance, pentest, network, information-gathering, security]
+
+# === BASIC ENUMERATION ===
+
+actions:
+ - title: dnsenum - basic dns enumeration
+   desc: |
+     Performs a standard DNS enumeration against the target domain. 
+     This command identifies host addresses (A), name servers (NS), and mail exchange (MX) records. 
+     It is the most common starting point for gathering technical information about a target's infrastructure. 
+     By default, it also attempts a zone transfer from all discovered name servers.
+   command: "dnsenum {{domain}}"
+
+ - title: dnsenum - skip reverse lookup
+   desc: |
+     Runs a standard enumeration but skips the reverse lookup operations. 
+     This is useful when you want to speed up the scanning process or when reverse DNS is not relevant to your current goal. 
+     It reduces the number of queries sent to the DNS servers, making the scan slightly more stealthy. 
+     Use this if the target network range is extremely large and causing performance issues.
+   command: "dnsenum --noreverse {{domain}}"
+
+# === BRUTE FORCE & DICTIONARY ATTACKS ===
+
+ - title: dnsenum - subdomain brute force
+   desc: |
+     Attempts to discover subdomains by testing entries from a provided dictionary file. 
+     If no file is specified, it typically defaults to the internal dns.txt list provided with the tool. 
+     This is essential for finding non-indexed or hidden subdomains like dev, staging, or internal portals. 
+     Ensure the wordlist is high-quality to maximize the chances of discovery without excessive noise.
+   command: "dnsenum -f {{wordlist|/usr/share/dnsenum/dns.txt}} {{domain}}"
+
+ - title: dnsenum - recursive brute force
+   desc: |
+     Enables recursion on subdomains that are discovered and have their own NS records. 
+     This allows the tool to automatically pivot and perform brute-forcing on nested subdomains. 
+     It is highly effective for large organizations with complex, delegated DNS structures. 
+     Be aware that this can significantly increase the duration of the scan and the number of queries.
+   command: "dnsenum -f {{wordlist|/usr/share/dnsenum/dns.txt}} -r {{domain}}"
+
+# === NETWORK & WHOIS ANALYSIS ===
+
+ - title: dnsenum - whois queries and reverse lookup
+   desc: |
+     Performs whois queries on Class C network ranges discovered during enumeration and runs reverse lookups. 
+     This helps in identifying the full scope of the target's IP space and other hosts residing on the same network. 
+     Warning: This operation can generate a massive amount of traffic and may take a long time to complete. 
+     Use this only when you have authorization to scan the entire network block associated with the domain.
+   command: "dnsenum -w {{domain}}"
+
+ - title: dnsenum - comprehensive enumeration shortcut
+   desc: |
+     Uses the --enum flag, which is a shortcut for a more aggressive and thorough scan. 
+     It automatically sets threads to 5, enables whois queries (-w), and sets scraping limits. 
+     This is the most efficient way to run a "full" scan with a single command. 
+     It is recommended for initial assessment phases where a broad overview of the target is required.
+   command: "dnsenum --enum {{domain}}"
+
+# === ADVANCED CONFIGURATION ===
+
+ - title: dnsenum - use specific dns server
+   desc: |
+     Forces the tool to use a specific DNS server for all A, NS, and MX queries. 
+     This is particularly useful if you want to query an internal DNS server directly or bypass a specific recursive resolver. 
+     It can also be used to test for inconsistencies between different DNS providers. 
+     Ensure the specified server is reachable and allows queries from your current IP.
+   command: "dnsenum --dnsserver {{dns_server}} {{domain}}"
+
+ - title: dnsenum - configure thread count and timeout
+   desc: |
+     Allows manual adjustment of the number of concurrent threads and the query timeout value. 
+     Increasing threads can speed up brute-forcing but may lead to rate-limiting or missed results on unstable connections. 
+     The timeout value (in seconds) should be adjusted based on the latency of the target DNS servers. 
+     Default values are usually sufficient, but optimization is key for large-scale assessments.
+   command: "dnsenum --threads {{thread_count|5}} -t {{timeout_seconds|10}} {{domain}}"
+
+# === OUTPUT & DATA MANAGEMENT ===
+
+ - title: dnsenum - save results to xml
+   desc: |
+     Exports the enumeration results into an XML format for integration with other security tools. 
+     The generated XML file can be imported into platforms like MagicTree for visualization and reporting. 
+     This is crucial for maintaining a structured record of findings during a professional penetration test. 
+     The output includes all discovered hosts, IP addresses, and DNS record types.
+   command: "dnsenum -o {{output_file|results.xml}} {{domain}}"
+
+ - title: dnsenum - write valid subdomains to file
+   desc: |
+     Specifically writes only the valid subdomains discovered during the scan to a flat text file. 
+     This is extremely useful for piping the results into other tools like HTTP probes (httpx) or vulnerability scanners. 
+     It helps in creating a clean "attack surface" list for the next stages of the assessment. 
+     Note that this focuses on the hostnames rather than the full DNS record details.
+   command: "dnsenum --subfile {{subdomain_file|subdomains.txt}} {{domain}}"

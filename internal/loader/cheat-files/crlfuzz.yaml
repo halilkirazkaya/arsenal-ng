@@ -1,0 +1,84 @@
+tool: crlfuzz
+tags: [web-security, crlf-injection, scanner, pentest, reconnaissance, bug-bounty, vulnerability-scanner]
+
+actions:
+  # === BASIC TARGETING ===
+  - title: crlfuzz - basic scan of a single URL
+    desc: |
+      Performs a targeted scan for CRLF injection vulnerabilities on a single specified URL. 
+      The tool injects various payloads into the headers to detect if the server is susceptible to HTTP Response Splitting. 
+      This is the most common starting point when you have identified a specific suspicious endpoint.
+    command: "crlfuzz -u {{url}}"
+
+  - title: crlfuzz - scan URLs from a list
+    desc: |
+      Reads multiple target URLs from a text file and performs automated fuzzing on each entry. 
+      This is highly efficient for large-scale reconnaissance and bug bounty hunting when you have a list of subdomains. 
+      Ensure the file contains one URL per line for the tool to process them correctly.
+    command: "crlfuzz -l {{file_path}}"
+
+  - title: crlfuzz - scan from standard input (stdin)
+    desc: |
+      Enables the tool to receive URLs directly from the output of other tools in a pipeline. 
+      When no input flag is provided, crlfuzz waits for data from stdin, making it perfect for chaining with tools like subfinder or httpx. 
+      This approach is essential for building fully automated vulnerability scanning workflows.
+    command: "crlfuzz {{options}}"
+
+  # === REQUEST CONFIGURATION ===
+  - title: crlfuzz - specify HTTP request method
+    desc: |
+      Allows you to define a specific HTTP method such as POST, PUT, or DELETE instead of the default GET method. 
+      CRLF vulnerabilities can often be triggered through specific methods that handle headers or data differently. 
+      Use this when testing REST APIs or endpoints that require specific interaction types.
+    command: "crlfuzz -u {{url}} -X {{method|POST}}"
+
+  - title: crlfuzz - scan with request body data
+    desc: |
+      Sends custom data within the request body, which is typically required for POST, PATCH, or DELETE methods. 
+      This allows for the testing of endpoints that require specific parameters to reach the logic where headers are processed. 
+      Be careful with the data format to ensure it matches what the target server expects (e.g., JSON or form-encoded).
+    command: "crlfuzz -u {{url}} -X {{method|POST}} -d {{data}}"
+
+  - title: crlfuzz - pass custom headers
+    desc: |
+      Includes custom HTTP headers in the outgoing request, such as specialized User-Agents or Authorization tokens. 
+      This is critical for scanning authenticated areas of an application where a session cookie or bearer token is required. 
+      You can also use this to simulate specific client environments or bypass basic header-based filters.
+    command: "crlfuzz -u {{url}} -H \"{{header_name}}: {{header_value}}\""
+
+  # === PERFORMANCE & PROXY ===
+  - title: crlfuzz - set concurrency level
+    desc: |
+      Adjusts the number of concurrent fuzzing tasks running at the same time to optimize scanning speed. 
+      The default concurrency is 25, but you can increase it for faster results on robust servers or decrease it to avoid overwhelming the target. 
+      Setting this too high might lead to rate-limiting or false negatives due to network congestion.
+    command: "crlfuzz -l {{file_path}} -c {{concurrency|50}}"
+
+  - title: crlfuzz - route traffic through a proxy
+    desc: |
+      Directs all fuzzing traffic through a specified proxy server, such as Burp Suite or OWASP ZAP. 
+      This allows you to manually inspect the payloads being sent and the responses received from the server. 
+      The proxy string must include the protocol, for example, http://127.0.0.1:8080.
+    command: "crlfuzz -u {{url}} -x {{proxy_url|http://127.0.0.1:8080}}"
+
+  # === OUTPUT & LOGGING ===
+  - title: crlfuzz - silent mode for vulnerable targets
+    desc: |
+      Activates silent mode, which suppresses all standard output except for the URLs found to be vulnerable. 
+      This is extremely useful when piping results into other tools or saving only actionable findings to a log. 
+      It reduces terminal noise significantly during large-scale automated scans.
+    command: "crlfuzz -l {{file_path}} -s"
+
+  - title: crlfuzz - verbose mode for debugging
+    desc: |
+      Enables verbose output to display detailed error messages and progress information. 
+      Use this when the tool is not behaving as expected or when you need to troubleshoot connection issues. 
+      It provides more context on why certain requests might be failing during the fuzzing process.
+    command: "crlfuzz -l {{file_path}} -v"
+
+  - title: crlfuzz - save results to a file
+    desc: |
+      Automatically saves the output of the fuzzing process to a specified text file. 
+      This is recommended for long-running scans to ensure that no findings are lost due to terminal buffer limits. 
+      The output file will contain the details of the vulnerabilities discovered for later reporting.
+    command: "crlfuzz -l {{file_path}} -o {{output_file}}"

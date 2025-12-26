@@ -1,0 +1,106 @@
+tool: bbot
+tags: [recon, scanner, pentest, subdomain-enum, web-security, osint, automation]
+
+actions:
+  # === BASIC ENUMERATION ===
+  - title: bbot - standard subdomain enumeration
+    desc: |
+      Performs a full subdomain enumeration using the predefined subdomain-enum preset.
+      This command combines multiple modules to identify as many subdomains as possible for the target.
+      It is the most common starting point for infrastructure reconnaissance and attack surface mapping.
+    command: "bbot -t {{target}} -p subdomain-enum"
+
+  - title: bbot - passive subdomain enumeration
+    desc: |
+      Conducts subdomain discovery using only passive sources without interacting directly with the target.
+      It filters modules to ensure no packets are sent to the target infrastructure by requiring the passive flag.
+      Use this when stealth is a priority or when you want to avoid triggering security alerts.
+    command: "bbot -t {{target}} -p subdomain-enum -rf passive"
+
+  - title: bbot - comprehensive kitchen sink scan
+    desc: |
+      Runs the "kitchen-sink" preset which includes subdomains, emails, cloud buckets, port scans, and nuclei.
+      This is a very intensive scan that covers almost every aspect of the target's external presence.
+      Be aware that this can generate significant traffic and may take a long time to complete.
+    command: "bbot -t {{target}} -p kitchen-sink"
+
+  # === WEB & SPIDER OPERATIONS ===
+  - title: bbot - web spidering and crawling
+    desc: |
+      Crawls the target URL recursively to extract emails, secrets, and other sensitive data.
+      The spider distance and depth are configurable to control how far the crawler goes from the starting point.
+      This is essential for identifying hidden paths and sensitive information within web applications.
+    command: "bbot -t {{url}} -p spider -c web.spider_distance={{distance|2}} web.spider_depth={{depth|2}}"
+
+  - title: bbot - subdomain enum with screenshots
+    desc: |
+      Discovers subdomains and automatically takes screenshots of any active web services found.
+      It utilizes the gowitness module to capture the visual state of the web applications.
+      This helps researchers quickly identify interesting targets or forgotten login pages.
+    command: "bbot -t {{target}} -p subdomain-enum -m gowitness -n {{scan_name|screenshot_scan}} -o {{output_path|.}}"
+
+  - title: bbot - basic non-intrusive web scan
+    desc: |
+      Runs the web-basic preset which includes wappalyzer, robots.txt, and other safe modules.
+      This provides a quick overview of the web technology stack and public files without aggressive probing.
+      It is ideal for initial profiling of a target web server's configuration and software.
+    command: "bbot -t {{target}} -p subdomain-enum web-basic"
+
+  # === SCOPE & TARGETING ===
+  - title: bbot - scan with strict scope
+    desc: |
+      Restricts the scan scope strictly to the provided target without including child subdomains.
+      By default, BBOT includes subdomains; this flag prevents it from expanding outside the specific host.
+      Use this when you are only authorized to test a single host and must avoid collateral discovery.
+    command: "bbot -t {{target}} --strict-scope -p subdomain-enum"
+
+  - title: bbot - scan with whitelist and blacklist
+    desc: |
+      Seeds a scan with a target but restricts active interactions to a specific whitelist.
+      The blacklist parameter ensures that certain sensitive or out-of-scope assets are never touched.
+      This provides granular control over the scan perimeter, which is critical for compliance and safety.
+    command: "bbot -t {{target}} --whitelist {{whitelist_cidr}} --blacklist {{blacklist_domain}} -p kitchen-sink"
+
+  - title: bbot - blacklist by regex pattern
+    desc: |
+      Prevents the scanner from interacting with any event or URL that matches a specific regular expression.
+      This is commonly used to avoid logout links (e.g., RE:signout) or specific sensitive directories.
+      The RE: prefix is required to tell BBOT to treat the string as a regular expression.
+    command: "bbot -t {{target}} --blacklist \"RE:{{regex_pattern|signout}}\""
+
+  # === ADVANCED MODULES & OUTPUT ===
+  - title: bbot - cloud resource enumeration
+    desc: |
+      Enables all modules related to cloud discovery, such as S3 buckets and Azure tenants.
+      The cloud-enum flag groups these specialized modules to find data leaks in public cloud infrastructure.
+      It is highly effective for finding misconfigured storage buckets belonging to an organization.
+    command: "bbot -t {{target}} -f cloud-enum"
+
+  - title: bbot - custom scan name and output directory
+    desc: |
+      Specifies a custom name for the scan and a custom location for all output files.
+      If the scan name is reused, BBOT will append the results to the existing files instead of overwriting.
+      This helps in organizing results for different clients or recurring assessment projects.
+    command: "bbot -t {{target}} -p subdomain-enum -n {{name}} -o {{path|./results}}"
+
+  - title: bbot - increase reporting distance
+    desc: |
+      Displays events that are further away from the initial scope by increasing the report distance.
+      By default, BBOT only shows in-scope events; distance 1 will show assets one hop away (like related IPs).
+      Use this to discover related infrastructure that might not be directly linked to the target domain.
+    command: "bbot -t {{target}} -p subdomain-enum -c scope.report_distance={{distance|1}}"
+
+  # === MAINTENANCE ===
+  - title: bbot - install all module dependencies
+    desc: |
+      Downloads and installs all external binaries and libraries required by every BBOT module.
+      This uses Ansible internally to ensure the system is fully prepared for any type of scan.
+      Run this when setting up a new pentest machine or VPS to avoid runtime installation delays.
+    command: "bbot --install-all-deps"
+
+  - title: bbot - list all available modules and flags
+    desc: |
+      Provides a comprehensive list of all installed modules, their descriptions, and associated flags.
+      This is useful for discovering new modules or checking if a specific tool is available.
+      You can also use this to see which modules are categorized under flags like 'deadly' or 'aggressive'.
+    command: "bbot -l"

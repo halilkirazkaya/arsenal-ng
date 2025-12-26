@@ -1,0 +1,88 @@
+tool: impacket-reg
+tags: [network, security, pentest, enumeration, exploitation, authentication, windows, registry]
+
+actions:
+  # === AUTHENTICATION AND CONNECTIVITY ===
+  - title: impacket-reg - query with password
+    desc: |
+      Performs a basic registry query using cleartext password authentication. 
+      This is the most straightforward way to list subkeys and values when credentials are known. 
+      The command retrieves the next tier of subkeys and entries under the specified path.
+      Be aware that using cleartext passwords might leave traces in the command history.
+    command: "impacket-reg {{domain|.}}/{{username}}:{{password}}@{{target_ip}} query -keyName {{key_path|HKLM\\SOFTWARE}}"
+
+  - title: impacket-reg - authenticate using NTLM hashes
+    desc: |
+      Connects to the remote registry using Pass-the-Hash (PtH) authentication. 
+      This is vital during post-exploitation when you have retrieved NTLM hashes but not the cleartext password. 
+      The hash should be provided in the format LMHASH:NTHASH.
+      This method allows for stealthier movement within the network as it bypasses the need for the original password.
+    command: "impacket-reg {{domain|.}}/{{username}}@{{target_ip}} -hashes {{lmhash:nthash}} query -keyName {{key_path|HKLM\\SYSTEM}}"
+
+  - title: impacket-reg - kerberos authentication
+    desc: |
+      Uses Kerberos tickets for authentication instead of NTLM. 
+      This is particularly useful in environments where NTLM is disabled or heavily monitored. 
+      The -k flag instructs the tool to use a ccache file (defined in KRB5CCNAME) or the provided credentials.
+      Ensure the target name matches the SPN in the ticket and -dc-ip is specified for proper resolution.
+    command: "impacket-reg {{domain}}/{{username}}@{{target_name}} -k -no-pass -dc-ip {{dc_ip}} query -keyName {{key_path}}"
+
+  # === ENUMERATION ===
+  - title: impacket-reg - list registry subkeys
+    desc: |
+      Enumerates all subkeys and values within a specific registry hive or path. 
+      It is a primary reconnaissance step for finding configuration weaknesses or installed application data. 
+      You can specify hives like HKLM (HKEY_LOCAL_MACHINE) or HKCU (HKEY_CURRENT_USER).
+      Requires sufficient read permissions on the target registry key.
+    command: "impacket-reg {{domain|.}}/{{username}}@{{target_ip}} query -keyName {{key_path}}"
+
+  # === DATA EXTRACTION ===
+  - title: impacket-reg - backup SAM/SYSTEM/SECURITY hives
+    desc: |
+      Specialized command to remotely back up the most critical Windows registry hives. 
+      These files (SAM, SYSTEM, SECURITY) contain the local account hashes and cached domain credentials. 
+      Once backed up to your local machine, you can use tools like secretsdump to extract credentials.
+      This action typically requires local Administrator or SYSTEM level privileges on the target.
+    command: "impacket-reg {{domain|.}}/{{username}}@{{target_ip}} backup"
+
+  - title: impacket-reg - save specific key to file
+    desc: |
+      Exports a specific registry subkey and all its recursive content to a local file. 
+      This mimics the 'reg save' functionality but works remotely over the SMB protocol. 
+      It is useful for capturing specific configurations for offline analysis without downloading the entire hive.
+      The output file can later be parsed by registry viewer tools.
+    command: "impacket-reg {{domain|.}}/{{username}}@{{target_ip}} save -keyName {{key_path}} -o {{output_filename|key_backup.reg}}"
+
+  # === MODIFICATION AND PERSISTENCE ===
+  - title: impacket-reg - add a new registry entry
+    desc: |
+      Remotely adds a new subkey or value to the target machine's registry. 
+      This is frequently used for establishing persistence, such as adding a command to the 'Run' or 'RunOnce' keys. 
+      You must specify the value name (-v), the value type (-vt), and the data (-vd).
+      Modifying the registry carries a risk of system instability if incorrect values are added to system-critical keys.
+    command: "impacket-reg {{domain|.}}/{{username}}@{{target_ip}} add -keyName {{key_path}} -v {{value_name}} -vt {{type|REG_SZ}} -vd {{value_data}}"
+
+  - title: impacket-reg - delete a registry entry
+    desc: |
+      Removes a specified registry subkey or a specific value from the remote system. 
+      This is typically used during the cleanup phase of an engagement to remove persistence mechanisms. 
+      If only the -keyName is provided, the entire key is deleted; if -v is provided, only that value is removed.
+      Exercise extreme caution, as deleting critical system keys can lead to OS corruption or failure to boot.
+    command: "impacket-reg {{domain|.}}/{{username}}@{{target_ip}} delete -keyName {{key_path}} -v {{value_name}}"
+
+  # === ADVANCED CONNECTIVITY ===
+  - title: impacket-reg - connect to custom SMB port
+    desc: |
+      Forces the tool to connect to a non-standard SMB port. 
+      This is used when a target machine has SMB listening on a port other than the default 445 (e.g., through port forwarding). 
+      It can also be useful when bypassing certain network filtering rules that block standard ports.
+      Ensure the target service is actually an SMB-based registry service.
+    command: "impacket-reg {{domain|.}}/{{username}}@{{target_ip}} -port {{port|445}} query -keyName {{key_path}}"
+
+  - title: impacket-reg - debug connection issues
+    desc: |
+      Enables verbose debug output for the connection and registry operations. 
+      Use this when you encounter authentication errors, RPC communication failures, or "Access Denied" messages. 
+      The debug logs provide detailed information about the SMB/RPC handshake and the specific error codes returned by Windows.
+      It is very helpful for troubleshooting complex Kerberos or permission-related issues.
+    command: "impacket-reg -debug {{domain|.}}/{{username}}@{{target_ip}} query -keyName {{key_path}}"

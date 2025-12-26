@@ -1,0 +1,129 @@
+tool: nmap
+tags: [network, scanner, reconnaissance, security, pentest, enumeration, discovery]
+
+actions:
+# === HOST DISCOVERY ===
+ - title: nmap - ping scan
+   desc: |
+     Identifies which hosts are alive within a network range without scanning any ports. 
+     This is the fastest method to map a network and is often the first step in reconnaissance. 
+     It sends ICMP echo requests and TCP ACK packets to determine host availability while minimizing network traffic.
+   command: "nmap -sn {{target_range|192.168.1.0/24}}"
+
+ - title: nmap - list scan
+   desc: |
+     Simply lists every host of the network specified without sending any packets to the target. 
+     This is useful for verifying that you have the correct IP addresses or hostnames before starting a heavy scan. 
+     It performs DNS resolution to provide hostnames, which helps in identifying interesting targets based on their naming convention.
+   command: "nmap -sL {{target_range}}"
+
+# === SCANNING TECHNIQUES ===
+ - title: nmap - syn stealth scan
+   desc: |
+     Performs a half-open TCP connection scan which is the most popular and efficient scanning technique. 
+     It sends a SYN packet and waits for a response; if a SYN/ACK is received, the port is open, but the connection is never completed. 
+     This method requires root/administrator privileges but is less likely to be logged by simple application-level filters.
+   command: "nmap -sS {{target}}"
+
+ - title: nmap - udp scan
+   desc: |
+     Scans for open UDP ports on the target machine. 
+     UDP scanning is generally much slower than TCP because it often relies on waiting for timeouts or receiving ICMP unreachable messages. 
+     Common UDP services like DNS (53), SNMP (161), and DHCP (67/68) are frequently overlooked, making this a crucial step in a full audit.
+   command: "nmap -sU {{target}}"
+
+ - title: nmap - specific port scan
+   desc: |
+     Restricts the scan to a specific set of ports or port ranges defined by the user. 
+     By default, Nmap scans the top 1,000 most common ports; using this flag allows you to scan all 65,535 ports or target a custom service. 
+     Use 'T:' for TCP ports and 'U:' for UDP ports when scanning both protocols simultaneously.
+   command: "nmap -p {{ports|1-65535}} {{target}}"
+
+# === ENUMERATION & DETECTION ===
+ - title: nmap - service and version detection
+   desc: |
+     Probes open ports to determine what software is running and its specific version number. 
+     This is essential for vulnerability research, as it allows the tester to look up specific exploits for the identified versions. 
+     The intensity level can be adjusted from 0 to 9 to balance speed versus accuracy.
+   command: "nmap -sV --version-intensity {{level|5}} {{target}}"
+
+ - title: nmap - os detection
+   desc: |
+     Attempts to identify the operating system of the target by analyzing TCP/IP stack fingerprinting. 
+     It examines responses to various probes such as window size, TCP options, and sequence numbers. 
+     Knowing the OS helps narrow down the potential attack surface and determine which post-exploitation tools to use.
+   command: "nmap -O {{target}}"
+
+ - title: nmap - aggressive scan
+   desc: |
+     A comprehensive scan mode that enables OS detection (-O), version detection (-sV), script scanning (-sC), and traceroute. 
+     It provides a wealth of information in a single command, making it a favorite for CTFs and internal testing. 
+     Warning: This scan is very noisy and easily detected by Intrusion Detection Systems (IDS).
+   command: "nmap -A {{target}}"
+
+# === NMAP SCRIPTING ENGINE (NSE) ===
+ - title: nmap - default script scan
+   desc: |
+     Runs a set of safe, non-intrusive scripts categorized as 'default' against detected services. 
+     It can reveal common information like SSH host keys, HTTP headers, or anonymous FTP access. 
+     This is often combined with version detection to provide a deeper look at the target's services.
+   command: "nmap -sC {{target}}"
+
+ - title: nmap - vulnerability scan
+   desc: |
+     Executes scripts from the 'vuln' category to check for known vulnerabilities on the target. 
+     These scripts look for specific flaws like Heartbleed, SMB exploits (EternalBlue), and weak configurations. 
+     Always use this with caution in production environments as some scripts might cause service instability.
+   command: "nmap --script=vuln {{target}}"
+
+ - title: nmap - brute force scripts
+   desc: |
+     Attempts to guess credentials for services like FTP, SSH, or MySQL using NSE scripts. 
+     It uses built-in or custom wordlists to identify weak passwords and default accounts. 
+     Be careful with this command as it may trigger account lockouts or security alerts on the target system.
+   command: "nmap --script=brute {{target}}"
+
+# === EVASION & TIMING ===
+ - title: nmap - timing templates
+   desc: |
+     Controls the speed and aggressiveness of the scan using templates from T0 (Paranoid) to T5 (Insane). 
+     T3 is the default, while T4 is recommended for reasonably fast and reliable networks. 
+     Using T0 or T1 can help evade IDS detection by increasing the delay between packets significantly.
+   command: "nmap -T{{level|4}} {{target}}"
+
+ - title: nmap - fragmentation and decoys
+   desc: |
+     Uses packet fragmentation (-f) and decoys (-D) to bypass firewalls and hide the scanner's true IP. 
+     Decoys send packets from multiple spoofed IP addresses, making it difficult for admins to identify the real source. 
+     This is a classic technique for bypassing simple packet filtering and stateful inspection firewalls.
+   command: "nmap -f -D {{decoy1,decoy2,ME}} {{target}}"
+
+# === OUTPUT & MAINTENANCE ===
+ - title: nmap - save all formats
+   desc: |
+     Exports the scan results into three major formats: normal (.nmap), XML (.xml), and grepable (.gnmap). 
+     The XML format is particularly important because it can be imported into tools like Metasploit, Zenmap, or custom parsers. 
+     Using '-oA' ensures you have a permanent record of the scan that is easy to search and analyze later.
+   command: "nmap -oA {{filename|output_results}} {{target}}"
+
+ - title: ndiff - compare scan results
+   desc: |
+     A utility used to compare two Nmap XML output files and highlight the differences. 
+     It shows changes in port states, new services found, or hosts that have disappeared between scans. 
+     This is vital for baseline monitoring and identifying changes in an environment over time.
+   command: "ndiff {{yesterday.xml}} {{today.xml}}"
+
+# === SUPPLEMENTARY TOOLS (NCAT & NPING) ===
+ - title: ncat - start listener
+   desc: |
+     Starts a TCP listener on a specified port, which can be used for file transfers or receiving reverse shells. 
+     The '--keep-open' flag allows the listener to accept multiple connections sequentially without terminating. 
+     Ncat is the modern, feature-rich replacement for the original Netcat (nc).
+   command: "ncat -lvp {{port|4444}} --keep-open"
+
+ - title: nping - custom tcp probe
+   desc: |
+     A powerful packet generation tool that allows users to craft custom TCP, UDP, ICMP, and ARP packets. 
+     In this example, it sends a TCP SYN packet to a specific port with a custom TTL to test network paths. 
+     Useful for troubleshooting network connectivity or testing how firewalls handle specific flag combinations.
+   command: "nping --tcp -p {{port|80}} --flags syn --ttl {{ttl|2}} {{target}}"

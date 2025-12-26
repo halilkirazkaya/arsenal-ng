@@ -1,0 +1,104 @@
+tool: gobuster
+tags: [web, scanning, enumeration, pentest, reconnaissance, dns, brute-force, s3, cloud, security]
+
+actions:
+  # === DIRECTORY AND FILE ENUMERATION ===
+  - title: gobuster - basic directory discovery
+    desc: |
+      Perform a standard directory brute-force attack against a target URL.
+      This is the most common use case for finding hidden paths, admin panels, or configuration folders.
+      It uses the 'dir' mode and requires a wordlist to iterate through potential directory names.
+      Ensure you have a reliable wordlist like those found in SecLists or Dirbuster.
+    command: "gobuster dir -u {{url}} -w {{wordlist|/usr/share/wordlists/dirb/common.txt}}"
+
+  - title: gobuster - search for specific file extensions
+    desc: |
+      Search for both directories and files with specific extensions simultaneously.
+      This is highly effective for finding source code files, backups, or configuration files (e.g., .php, .bak, .zip).
+      The -x flag appends the extensions to every word in the wordlist.
+      It helps identify the technology stack and potential sensitive data leaks.
+    command: "gobuster dir -u {{url}} -w {{wordlist}} -x {{extensions|php,html,txt,bak,zip}}"
+
+  - title: gobuster - directory scan with status code filtering
+    desc: |
+      Filter the output based on HTTP status codes to reduce noise.
+      Use the -b (blacklisted) flag to hide specific codes like 404 or 403, or -s (positive) to only show successes.
+      This is crucial when a server returns a 200 OK for every request or when you want to ignore forbidden areas.
+      It makes the results much cleaner and easier to analyze during a time-sensitive engagement.
+    command: "gobuster dir -u {{url}} -w {{wordlist}} -b {{status_codes|404,403}}"
+
+  - title: gobuster - authenticated directory scan
+    desc: |
+      Perform directory enumeration while authenticated using HTTP Basic Auth.
+      The -U and -P flags allow you to provide credentials for protected areas of the site.
+      This is necessary when the target has a 'dev' or 'staging' area behind a login prompt.
+      Failure to provide credentials usually results in 401 Unauthorized responses for all paths.
+    command: "gobuster dir -u {{url}} -w {{wordlist}} -U {{username}} -P {{password}}"
+
+  - title: gobuster - recursive directory scanning
+    desc: |
+      Automatically scan newly discovered directories in a recursive manner.
+      This is useful for deeply nested web applications where manual follow-up would be tedious.
+      Use the --depth flag to limit how deep the recursion should go to avoid infinite loops or massive scan times.
+      Be cautious as this significantly increases the number of requests sent to the server.
+    command: "gobuster dir -u {{url}} -w {{wordlist}} --recursive --depth {{depth|2}}"
+
+  # === DNS SUBDOMAIN ENUMERATION ===
+  - title: gobuster - dns subdomain enumeration
+    desc: |
+      Brute-force subdomains for a specific target domain using the 'dns' mode.
+      This helps map the external attack surface of an organization by finding hidden sub-environments.
+      It relies on DNS resolution rather than HTTP requests, making it useful for finding non-web assets.
+      Always use a high-quality subdomain wordlist for better results.
+    command: "gobuster dns -d {{domain}} -w {{wordlist|/usr/share/wordlists/dirb/subdomains-top1mil-5000.txt}}"
+
+  - title: gobuster - dns scan with wildcard handling
+    desc: |
+      Perform a DNS scan while ignoring domains that resolve to a specific 'wildcard' IP address.
+      Many organizations use wildcard DNS records, which can lead to many false positives in a standard scan.
+      Gobuster can automatically detect wildcards, but you can also manually specify IPs to ignore.
+      This ensures that the results only contain valid, uniquely configured subdomains.
+    command: "gobuster dns -d {{domain}} -w {{wordlist}} -i"
+
+  # === VIRTUAL HOST ENUMERATION ===
+  - title: gobuster - virtual host (VHOST) discovery
+    desc: |
+      Identify virtual hosts on a web server by brute-forcing the 'Host' header.
+      This is different from DNS enumeration because it checks if the server responds differently to different Host headers on the same IP.
+      It is essential for discovering sites that are hosted on the same infrastructure but not publicly indexed in DNS.
+      Usually, you should point the URL to the direct IP address of the target server.
+    command: "gobuster vhost -u {{url}} -w {{wordlist}}"
+
+  # === CLOUD BUCKET ENUMERATION ===
+  - title: gobuster - amazon s3 bucket enumeration
+    desc: |
+      Search for open or existing Amazon S3 buckets using a wordlist of potential bucket names.
+      This is a common method for finding leaked data, backups, or publicly accessible assets in the cloud.
+      It checks for bucket existence and tries to determine if the bucket is publicly listable.
+      Cloud security misconfigurations are a high-impact finding in modern pentesting.
+    command: "gobuster s3 -w {{wordlist}}"
+
+  - title: gobuster - google cloud storage (GCS) enumeration
+    desc: |
+      Search for publicly accessible Google Cloud Storage buckets.
+      Similar to the S3 module, it uses a wordlist to find bucket names that might belong to the target organization.
+      This is part of the 'gcs' command suite in newer Gobuster versions.
+      It is highly effective for identifying shadow IT or forgotten cloud resources.
+    command: "gobuster gcs -w {{wordlist}}"
+
+  # === FUZZING AND OTHER MODES ===
+  - title: gobuster - custom fuzzing mode
+    desc: |
+      Use the 'fuzz' mode to replace the 'FUZZ' keyword in a URL, Header, or Request Body.
+      This provides the most flexibility, allowing you to brute-force parameters, headers, or specific URL parts.
+      It is a lighter alternative to tools like ffuf or Burp Intruder for simple fuzzing tasks.
+      Great for testing API endpoints or specific query string parameters.
+    command: "gobuster fuzz -u {{url}}/index.php?id=FUZZ -w {{wordlist}}"
+
+  - title: gobuster - tftp server enumeration
+    desc: |
+      Brute-force filenames on a TFTP (Trivial File Transfer Protocol) server.
+      TFTP does not provide a way to list files, so you must guess the filenames to download them.
+      This is common in internal network assessments involving VoIP phones, routers, or PXE boot servers.
+      Finding configuration files via TFTP can often lead to credential disclosure.
+    command: "gobuster tftp -s {{server_ip}} -w {{wordlist}}"

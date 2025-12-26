@@ -1,0 +1,100 @@
+tool: xsser
+tags: [web, security, pentest, xss, exploitation, scanner, automation]
+
+actions:
+  # === BASIC AUDIT & RECONNAISSANCE ===
+  - title: xsser - basic url scan
+    desc: |
+      Performs a simple audit on a specific target URL. 
+      This command is the standard starting point to check if a single page is vulnerable to common XSS vectors. 
+      It uses default settings to probe the target without complex configurations.
+    command: "xsser -u \"{{url}}\""
+
+  - title: xsser - scan with crawling
+    desc: |
+      Crawls the target website to discover and audit multiple links. 
+      The depth of the crawl can be controlled to limit the scope of the security test. 
+      This is highly effective for mapping the attack surface of an entire web application automatically.
+    command: "xsser -u \"{{url}}\" -c {{depth|5}}"
+
+  - title: xsser - dorking for targets
+    desc: |
+      Uses search engine dorks to find potential targets based on a specific query. 
+      By default, it uses DuckDuckGo but can be configured to use others. 
+      This is often used by researchers to find vulnerable instances of specific software across the internet.
+    command: "xsser -d \"{{dork|index.php?id=}}\" --De {{engine|google}}"
+
+  # === INJECTION METHODS ===
+  - title: xsser - GET parameter injection
+    desc: |
+      Targets a specific GET parameter for XSS injection using the 'XSS' keyword as a placeholder. 
+      The tool replaces 'XSS' with its internal payloads to test for reflections. 
+      Use this when you have identified a specific input field in a URL query string.
+    command: "xsser -u \"{{url}}\" -g \"{{path}}?{{param}}=XSS\""
+
+  - title: xsser - POST data injection
+    desc: |
+      Sends XSS payloads through POST data instead of the URL. 
+      This is necessary for testing forms, login fields, and other data submission points that do not use GET. 
+      Ensure the data string matches the expected application/x-www-form-urlencoded format.
+    command: "xsser -u \"{{url}}\" -p \"{{param1}}=value&{{param2}}=XSS\""
+
+  # === ADVANCED TECHNIQUES ===
+  - title: xsser - cookie and header injection
+    desc: |
+      Tests for XSS vulnerabilities within HTTP headers such as Cookies, User-Agent, and Referer. 
+      These are often overlooked injection points that can lead to stored or reflected XSS in administrative dashboards. 
+      The command enables multiple special techniques simultaneously for a broad header audit.
+    command: "xsser -u \"{{url}}\" --Coo --Xsa --Xsr"
+
+  - title: xsser - DOM based XSS testing
+    desc: |
+      Focuses on discovering Document Object Model (DOM) based XSS vulnerabilities. 
+      It analyzes how the client-side scripts handle input from the URL fragment or other sources. 
+      DOM XSS is critical because the payload never reaches the server-side logs in many cases.
+    command: "xsser -u \"{{url}}\" --Dom"
+
+  # === EVASION & BYPASSING ===
+  - title: xsser - bypass WAF with specific rules
+    desc: |
+      Attempts to bypass specific Web Application Firewalls (WAF) using pre-defined rulesets. 
+      Available options include Modsec, Imperva, Barracuda, and more. 
+      Use this when a target is protected by a known security solution that blocks standard XSS payloads.
+    command: "xsser -u \"{{url}}\" --auto --{{waf_type|Modsec}}"
+
+  - title: xsser - encoding and obfuscation bypass
+    desc: |
+      Applies various encoding techniques like Hexadecimal, Decimal, or String.FromCharCode() to the payloads. 
+      Obfuscation helps in evading simple signature-based detection systems and input filters. 
+      Combining multiple encodings can increase the success rate against complex filters.
+    command: "xsser -u \"{{url}}\" --auto --Str --Hex --Une"
+
+  # === SPECIAL FEATURES ===
+  - title: xsser - generate malicious image (IMX)
+    desc: |
+      Creates an image file embedded with XSS code to test for vulnerabilities in image processing libraries. 
+      This technique is used to exploit "Image XSS" where a site renders metadata or malicious byte sequences as code. 
+      The resulting file should be uploaded to the target for testing.
+    command: "xsser --imx {{output_file|path/to/image.png}}"
+
+  - title: xsser - Denial of Service (DoS) attack
+    desc: |
+      Attempts to perform a client-side or server-side Denial of Service via XSS. 
+      This typically involves injecting scripts that consume excessive resources on the victim's browser or the server. 
+      Use with extreme caution as it can impact the availability of the target service.
+    command: "xsser -u \"{{url}}\" --Dos"
+
+  # === REPORTING & OUTPUT ===
+  - title: xsser - export results to XML
+    desc: |
+      Saves the findings of the audit into a structured XML file for further analysis or integration. 
+      This is useful for professional reporting or for feeding data into other security tools. 
+      The report includes details about the injected payloads and the vulnerable parameters.
+    command: "xsser -u \"{{url}}\" --auto --xml {{filename|report.xml}}"
+
+  - title: xsser - launch GUI mode
+    desc: |
+      Launches the graphical user interface for XSSer. 
+      This is helpful for users who prefer a visual representation of the attack configuration and results. 
+      It requires a desktop environment and the necessary GTK libraries installed.
+    command: "xsser --gtk"

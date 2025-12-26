@@ -1,0 +1,97 @@
+tool: gitleaks
+tags: [security, secrets, git, scanning, static-analysis, pentest, devsecops, reconnaissance]
+
+# === DETECTION & SCANNING ===
+
+actions:
+ - title: gitleaks - detect secrets in current directory
+   desc: |
+     Scans the current directory or git repository for hardcoded secrets. This command 
+     is the primary way to analyze git history and the current state of files for 
+     sensitive information like API keys or passwords. It uses the default rules 
+     unless a custom configuration is provided.
+   command: "gitleaks detect"
+
+ - title: gitleaks - scan a specific target source
+   desc: |
+     Runs a detection scan on a specific path provided by the user. This is useful 
+     when you want to audit a repository that is not your current working directory. 
+     Ensure that the target directory is a valid git repository for full history scanning 
+     capabilities.
+   command: "gitleaks detect --source {{source_path}}"
+
+ - title: gitleaks - verbose scan with report generation
+   desc: |
+     Performs a detailed scan and saves the findings into a structured report file. 
+     The verbose flag ensures that findings are printed to the console during the 
+     scanning process. The report is essential for documenting vulnerabilities 
+     during a penetration test or security audit.
+   command: "gitleaks detect --verbose --report-path {{report_name|results.json}} --report-format {{format|json}}"
+
+ - title: gitleaks - scan using a custom configuration file
+   desc: |
+     Initiates a scan using a user-defined TOML configuration file. This allows 
+     you to define custom regex patterns, extend default rules, or whitelist specific 
+     false positives. It is highly recommended for enterprise environments with 
+     proprietary token formats.
+   command: "gitleaks detect --config {{config_path|.gitleaks.toml}}"
+
+# === PREVENTION & PROTECTION ===
+
+ - title: gitleaks - protect uncommitted changes
+   desc: |
+     Scans only the changes that have been made but not yet committed to the git history. 
+     This command is ideal for pre-commit hooks to prevent developers from accidentally 
+     leaking secrets into the codebase. It helps in maintaining a clean repository 
+     history from the start.
+   command: "gitleaks protect --staged"
+
+ - title: gitleaks - protect with verbose output
+   desc: |
+     Runs a protection scan on staged changes while providing detailed output for 
+     any leaks found. Use this when you need to identify exactly which line and 
+     file triggered a secret detection during development. This helps in quick 
+     remediation before a push.
+   command: "gitleaks protect --verbose"
+
+# === ADVANCED FILTERING & OUTPUT ===
+
+ - title: gitleaks - redact secrets from output logs
+   desc: |
+     Scans for secrets but masks the sensitive values in the terminal output and reports. 
+     This prevents the tool itself from inadvertently exposing the secrets it finds 
+     within CI/CD logs or console history. It is a best practice for automated 
+     pipeline security.
+   command: "gitleaks detect --redact"
+
+ - title: gitleaks - skip large files during scan
+   desc: |
+     Configures the scanner to ignore files that exceed a specific size in megabytes. 
+     This is useful for improving scan performance and avoiding crashes when 
+     dealing with repositories containing large binary blobs or datasets. Files 
+     larger than the threshold will be completely bypassed.
+   command: "gitleaks detect --max-target-megabytes {{size|50}}"
+
+ - title: gitleaks - ignore known leaks with a baseline
+   desc: |
+     Uses a baseline report to ignore previously discovered secrets that have been 
+     vetted or accepted as risks. This reduces noise by ensuring that only new 
+     potential leaks are reported in subsequent scans. It is vital for managing 
+     large, older repositories with many legacy findings.
+   command: "gitleaks detect --baseline-path {{baseline_path|gitleaks-baseline.json}}"
+
+ - title: gitleaks - set custom log level
+   desc: |
+     Adjusts the granularity of the logging output during the execution of Gitleaks. 
+     Available levels include trace, debug, info, warn, error, and fatal. Higher 
+     levels like debug or trace are helpful for troubleshooting configuration 
+     issues or rule matching logic.
+   command: "gitleaks detect --log-level {{level|debug}}"
+
+ - title: gitleaks - custom exit code for automation
+   desc: |
+     Sets a specific exit code for the process if leaks are found during the scan. 
+     This is particularly useful in CI/CD scripts where you want to distinguish 
+     between a tool error and a successful scan that discovered vulnerabilities. 
+     The default exit code is usually 1 if leaks are encountered.
+   command: "gitleaks detect --exit-code {{code|1}}"

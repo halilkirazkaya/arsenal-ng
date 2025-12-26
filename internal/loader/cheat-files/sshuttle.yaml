@@ -1,0 +1,83 @@
+tool: sshuttle
+tags: [network, vpn, proxy, ssh, tunneling, security, pentest, pivoting]
+
+actions:
+  # === BASIC CONNECTION & ROUTING ===
+  - title: sshuttle - basic subnet routing
+    desc: |
+      Route traffic for a specific subnet through the SSH tunnel. This is the most common use case for accessing internal network resources without a full VPN setup. 
+      Local root privileges are required to modify iptables/nftables and create the transparent proxy.
+    command: "sshuttle -r {{user}}@{{remote_host}} {{subnet|10.0.0.0/24}}"
+
+  - title: sshuttle - route all traffic
+    desc: |
+      Forward all local traffic through the remote SSH server, acting like a full VPN. 
+      This is useful for bypassing local firewalls or hiding your local IP address for all connections. 
+      Be careful as this will redirect your internet traffic as well, which might be slow depending on the SSH connection.
+    command: "sshuttle -r {{user}}@{{remote_host}} 0.0.0.0/0"
+
+  - title: sshuttle - automatic network routing
+    desc: |
+      Automatically determine which subnets to route based on the remote server's routing table. 
+      This is extremely useful during penetration testing when you don't know the internal network layout of the target environment. 
+      It queries the remote side and sets up routes for all networks the remote host can reach.
+    command: "sshuttle -r {{user}}@{{remote_host}} -N"
+
+  # === DNS & HOSTNAME MANAGEMENT ===
+  - title: sshuttle - DNS traffic forwarding
+    desc: |
+      Capture local DNS requests and forward them to the remote DNS server. 
+      This allows you to resolve internal hostnames (like internal-db.corp.local) that are only known to the remote network. 
+      It is essential for web application testing where virtual hosts or internal domains are used.
+    command: "sshuttle --dns -r {{user}}@{{remote_host}} {{subnet|0.0.0.0/0}}"
+
+  - title: sshuttle - automatic host file update
+    desc: |
+      Continuously scan for remote hostnames and update the local /etc/hosts file. 
+      This enables you to use friendly names instead of IP addresses for remote services automatically. 
+      It works by observing the traffic and identifying hostnames associated with the IPs being accessed.
+    command: "sshuttle -H -r {{user}}@{{remote_host}} {{subnet}}"
+
+  # === ADVANCED CONFIGURATION ===
+  - title: sshuttle - exclude specific subnets
+    desc: |
+      Route traffic while explicitly excluding a specific subnet or IP address. 
+      This is useful for maintaining local connectivity to a local LAN or specific management IPs while tunneling everything else. 
+      It prevents routing loops and ensures local resources remain accessible directly.
+    command: "sshuttle -r {{user}}@{{remote_host}} 0.0.0.0/0 -x {{excluded_subnet|192.168.1.0/24}}"
+
+  - title: sshuttle - specify remote python path
+    desc: |
+      Define the path to the Python interpreter on the remote server. 
+      This is necessary when Python is not in the default PATH or when the environment requires a specific version (e.g., /usr/bin/python3). 
+      The remote server must have Python installed for sshuttle to function as it uploads a small helper script.
+    command: "sshuttle -r {{user}}@{{remote_host}} --python {{python_path|/usr/bin/python3}} {{subnet}}"
+
+  - title: sshuttle - use custom SSH command
+    desc: |
+      Specify a custom command to use for the SSH connection. 
+      This is useful for passing specific SSH options like identity files, port numbers, or disabling host key checking. 
+      It provides flexibility when the remote SSH server uses non-standard configurations.
+    command: "sshuttle -e 'ssh -i {{identity_file}} -p {{port|22}}' -r {{user}}@{{remote_host}} {{subnet}}"
+
+  # === OPERATIONAL MODES ===
+  - title: sshuttle - run in background (daemon)
+    desc: |
+      Start the sshuttle process as a background daemon. 
+      This is ideal for persistent pivoting during an engagement where you don't want to keep a dedicated terminal open. 
+      Use the pidfile option to easily track and kill the process when the session is finished.
+    command: "sshuttle -D --pidfile {{pid_file|/tmp/sshuttle.pid}} -r {{user}}@{{remote_host}} {{subnet}}"
+
+  - title: sshuttle - verbose debugging
+    desc: |
+      Increase the verbosity of the output to debug connection issues. 
+      Using multiple 'v' flags provides more detailed information about the inner workings and packet forwarding. 
+      This is helpful when the tunnel connects but traffic is not flowing as expected.
+    command: "sshuttle -vv -r {{user}}@{{remote_host}} {{subnet}}"
+
+  - title: sshuttle - specify tproxy method
+    desc: |
+      Manually specify the firewall hijacking method such as nft, nat, or tproxy. 
+      By default, sshuttle tries to guess the best method, but sometimes manual overrides are needed for specific Linux distributions. 
+      This can resolve issues where the default method fails due to kernel or firewall configuration limits.
+    command: "sshuttle --method {{method|nft}} -r {{user}}@{{remote_host}} {{subnet}}"

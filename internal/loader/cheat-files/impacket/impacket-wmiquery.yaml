@@ -1,0 +1,69 @@
+tool: impacket-wmiquery
+tags: [network, windows, pentest, enumeration, wmi, security, impacket]
+
+actions:
+  # === AUTHENTICATION METHODS ===
+  - title: impacket-wmiquery - interactive shell with password
+    desc: |
+      Establishes an interactive WQL shell using standard username and password authentication. 
+      This is the most common way to start enumerating a remote Windows host via WMI. 
+      Once connected, you can issue SELECT queries to retrieve system information, process lists, or service states.
+    command: "impacket-wmiquery {{domain}}/{{username}}:{{password}}@{{target_ip}}"
+
+  - title: impacket-wmiquery - authenticate using NTLM hashes
+    desc: |
+      Performs authentication using NTLM hashes instead of a plaintext password, enabling Pass-the-Hash (PtH) attacks. 
+      This is particularly useful during post-exploitation when you have recovered hashes from memory or the SAM database. 
+      The format for hashes is LMHASH:NTHASH; if the LM hash is empty, use the format :NTHASH.
+    command: "impacket-wmiquery -hashes {{hash}} {{domain}}/{{username}}@{{target_ip}}"
+
+  - title: impacket-wmiquery - authenticate using Kerberos
+    desc: |
+      Uses Kerberos tickets for authentication, which is often more stealthy and avoids sending NTLM traffic over the network. 
+      The -k flag instructs the tool to look for a valid TGT in the location specified by the KRB5CCNAME environment variable. 
+      It is highly recommended to use the target's FQDN (Fully Qualified Domain Name) rather than an IP address when using Kerberos.
+    command: "impacket-wmiquery -k -no-pass -dc-ip {{dc_ip}} {{domain}}/{{username}}@{{target_fqdn}}"
+
+  - title: impacket-wmiquery - authenticate using AES keys
+    desc: |
+      Authenticates using Kerberos AES-128 or AES-256 keys instead of a password or NTLM hash. 
+      This is useful in modern Active Directory environments where NTLM might be disabled or monitored. 
+      The user must provide the hex-encoded AES key and ensure the environment is configured for Kerberos.
+    command: "impacket-wmiquery -aesKey {{aes_key}} -k -no-pass {{domain}}/{{username}}@{{target_fqdn}}"
+
+  # === NAMESPACE AND QUERY OPTIONS ===
+  - title: impacket-wmiquery - query specific namespace
+    desc: |
+      Specifies a non-default WMI namespace for the connection. 
+      The default namespace is 'root/cimv2', but other namespaces like 'root/subscription' are critical for hunting WMI persistence. 
+      Navigating different namespaces allows access to hardware-specific info, virtualization data, or security settings.
+    command: "impacket-wmiquery -namespace {{namespace|root/subscription}} {{domain}}/{{username}}:{{password}}@{{target_ip}}"
+
+  - title: impacket-wmiquery - execute queries from a file
+    desc: |
+      Reads and executes a sequence of WQL queries from a local text file. 
+      This automation method is ideal for running complex audit scripts or gathering a standardized set of data across multiple hosts. 
+      Each line in the file should contain a valid WQL query to be executed by the tool.
+    command: "impacket-wmiquery -file {{query_file}} {{domain}}/{{username}}:{{password}}@{{target_ip}}"
+
+  # === ADVANCED CONFIGURATION ===
+  - title: impacket-wmiquery - set RPC authentication level
+    desc: |
+      Defines the RPC authentication level, which can be set to 'default', 'integrity', or 'privacy'. 
+      Some WMI providers, such as the Cluster provider (root/MSCluster), strictly require the 'privacy' level for successful connection. 
+      If you encounter 'Access Denied' errors despite having correct credentials, increasing the auth level to 'privacy' may resolve the issue.
+    command: "impacket-wmiquery -rpc-auth-level {{level|privacy}} {{domain}}/{{username}}:{{password}}@{{target_ip}}"
+
+  - title: impacket-wmiquery - enable debug and timestamps
+    desc: |
+      Enables verbose debug output and adds timestamps to every log entry. 
+      This is extremely helpful for troubleshooting connection issues, DCOM errors, or protocol mismatches. 
+      The timestamps help in correlating the tool's activity with network captures or system logs on the target.
+    command: "impacket-wmiquery -debug -ts {{domain}}/{{username}}:{{password}}@{{target_ip}}"
+
+  - title: impacket-wmiquery - specify DCOM version
+    desc: |
+      Manually sets the DCOM version to be used during the connection attempt. 
+      This can be used to bypass specific security patches or to interoperate with older Windows systems that expect a specific version. 
+      The format required is MAJOR:MINOR, such as 5.7 for most modern Windows environments.
+    command: "impacket-wmiquery -com-version {{version|5.7}} {{domain}}/{{username}}:{{password}}@{{target_ip}}"

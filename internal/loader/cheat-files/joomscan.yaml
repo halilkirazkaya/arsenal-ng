@@ -1,0 +1,63 @@
+tool: joomscan
+tags: [joomla, scanner, pentest, vulnerability, cms, enumeration, security, web]
+
+actions:
+  # === RECONNAISSANCE & ENUMERATION ===
+  - title: joomscan - basic website scan
+    desc: |
+      Performs a basic scan of a target Joomla website to identify the version and common vulnerabilities. 
+      It checks for known misconfigurations, firewall presence, and exposed sensitive files like configuration.php. 
+      This should be the starting point for any Joomla-specific reconnaissance to map the basic attack surface.
+    command: "joomscan --url {{url}}"
+
+  - title: joomscan - enumerate components
+    desc: |
+      Attempts to discover installed Joomla components and extensions by checking common paths. 
+      Since many Joomla vulnerabilities reside in third-party extensions rather than the core, this is a critical step. 
+      It helps identify outdated or vulnerable plugins that can be exploited for further access.
+    command: "joomscan --url {{url}} --enumerate-components"
+
+  # === EVASION & STEALTH ===
+  - title: joomscan - scan with random user-agent
+    desc: |
+      Executes the scan using a randomized User-Agent string for every request to bypass basic signature-based detection. 
+      Security systems like WAFs often block the default JoomScan identifier to prevent automated scanning. 
+      Using a random agent helps simulate traffic from various browsers, increasing the chances of staying undetected.
+    command: "joomscan --url {{url}} --random-agent"
+
+  - title: joomscan - scan with custom user-agent
+    desc: |
+      Specifies a fixed custom User-Agent string for all requests sent to the target server. 
+      This is useful when the target environment only allows specific browsers or when you need to mimic a legitimate corporate crawler. 
+      Providing a custom string allows for better control over how the scan is perceived by server logs.
+    command: "joomscan --url {{url}} --user-agent \"{{user_agent|Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36}}\""
+
+  # === AUTHENTICATION & ADVANCED CONFIGURATION ===
+  - title: joomscan - scan with cookies
+    desc: |
+      Injects a session cookie into the scan requests to perform an authenticated vulnerability assessment. 
+      This allows JoomScan to reach pages and components that are restricted to logged-in users or administrators. 
+      Useful for deep-dive testing where you already have low-level credentials and want to escalate privileges.
+    command: "joomscan --url {{url}} --cookie \"{{cookie_string}}\""
+
+  - title: joomscan - scan via proxy
+    desc: |
+      Routes all scanning traffic through a specified proxy server such as Burp Suite or a SOCKS proxy. 
+      This is essential for analyzing the tool's traffic, bypassing IP-based restrictions, or maintaining anonymity. 
+      Ensure the proxy URL includes the protocol, such as http, https, or socks.
+    command: "joomscan --url {{url}} --proxy {{proxy_url|http://127.0.0.1:8080}}"
+
+  - title: joomscan - set request timeout
+    desc: |
+      Configures a specific timeout value in seconds for the network requests made during the scan. 
+      Increasing the timeout is beneficial when scanning slow-responding servers or targets behind high-latency connections. 
+      Proper timeout management prevents the scanner from dropping valid connections prematurely.
+    command: "joomscan --url {{url}} --timeout {{seconds|10}}"
+
+  # === UTILITY ===
+  - title: joomscan - check version and help
+    desc: |
+      Displays the current version of the JoomScan tool and the help menu listing all available flags. 
+      Use this to verify that the tool is correctly installed and to see if new features have been added. 
+      It is a good practice to check the version before starting an engagement to ensure database signatures are up to date.
+    command: "joomscan --help"

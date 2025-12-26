@@ -1,0 +1,91 @@
+tool: gowitness
+tags: [web, screenshot, reconnaissance, pentest, reporting, scanner, security]
+
+actions:
+  # === BASIC SCANNING ===
+  - title: gowitness - single url scan
+    desc: |
+      Capture a screenshot of a single specified URL using the headless Chrome engine. 
+      This is the most basic command used to verify the visual state of a specific web interface. 
+      The resulting image and metadata are automatically stored in the default gowitness SQLite database.
+    command: "gowitness scan single --url {{url}}"
+
+  - title: gowitness - scan from file
+    desc: |
+      Perform batch screenshotting by providing a text file containing a list of URLs. 
+      This is highly effective during the reconnaissance phase when you have a large list of subdomains or discovered IPs. 
+      The tool will iterate through the list and attempt to capture a screenshot for every valid entry.
+    command: "gowitness scan file --file {{targets.txt}}"
+
+  - title: gowitness - scan network range (cidr)
+    desc: |
+      Scan an entire CIDR network range to discover and screenshot active web services. 
+      It automatically probes common web ports to identify reachable web servers across the network segment. 
+      This is particularly useful for internal penetration tests to identify "shadow IT" or forgotten management interfaces.
+    command: "gowitness scan cidr --cidr {{192.168.1.0/24}}"
+
+  # === THIRD PARTY INTEGRATION ===
+  - title: gowitness - scan from nmap xml
+    desc: |
+      Import and scan targets based on an existing Nmap XML output file. 
+      The tool parses the XML to find open ports associated with HTTP/HTTPS services and takes screenshots of them. 
+      This workflow saves time by avoiding redundant scanning of non-web ports already identified by Nmap.
+    command: "gowitness scan nmap --file {{scan.xml}}"
+
+  - title: gowitness - scan from nessus file
+    desc: |
+      Capture screenshots of web services identified within a Nessus scan file. 
+      This helps security professionals visually validate findings and web interfaces discovered during vulnerability assessments. 
+      It ensures that visual evidence is collected for all web-related assets found in the Nessus report.
+    command: "gowitness scan nessus --file {{report.nessus}}"
+
+  # === SCAN CONFIGURATION & OPTIMIZATION ===
+  - title: gowitness - custom resolution
+    desc: |
+      Set a specific browser window size for the screenshots to simulate different devices. 
+      This is helpful when testing responsive web designs or targeting mobile-specific layouts. 
+      Users can define both width (X) and height (Y) to ensure the entire page content is properly captured.
+    command: "gowitness scan single --url {{url}} --resolution-x {{1920}} --resolution-y {{1080}}"
+
+  - title: gowitness - scan with delay and timeout
+    desc: |
+      Apply a delay before taking the screenshot and set a maximum timeout for page loads. 
+      A delay is often necessary for modern Single Page Applications (SPAs) to allow JavaScript to finish rendering content. 
+      Increasing the timeout helps in successfully capturing screenshots from slow-responding servers or high-latency networks.
+    command: "gowitness scan single --url {{url}} --delay {{5}} --timeout {{30}}"
+
+  - title: gowitness - multi-threaded scan
+    desc: |
+      Adjust the number of concurrent threads to significantly speed up large-scale scanning operations. 
+      Each thread launches an instance of headless Chrome, so higher thread counts require more system memory and CPU power. 
+      Monitor system resources carefully when using high thread counts to prevent the local machine from becoming unresponsive.
+    command: "gowitness scan file --file {{targets.txt}} --threads {{10}}"
+
+  - title: gowitness - scan through proxy
+    desc: |
+      Route all scanning traffic through a specified HTTP or SOCKS5 proxy server. 
+      This is essential for bypassing network restrictions, testing from different geographic locations, or anonymizing the scan source. 
+      Ensure the proxy is stable, as intermittent connections can lead to failed screenshots or timeouts.
+    command: "gowitness scan single --url {{url}} --proxy {{http://127.0.0.1:8080}}"
+
+  # === REPORTING & DATA MANAGEMENT ===
+  - title: gowitness - start report server
+    desc: |
+      Launch a local web-based interface to view and organize all captured screenshots and metadata. 
+      The report viewer provides a searchable gallery, allowing users to filter results by status code, title, or domain. 
+      This is the preferred way to analyze large datasets and quickly identify interesting targets for further exploitation.
+    command: "gowitness report server --address {{127.0.0.1:8080}}"
+
+  - title: gowitness - export to csv
+    desc: |
+      Export the metadata from the gowitness database into a CSV file format. 
+      This data includes URLs, response status codes, page titles, and file paths to the screenshots. 
+      Exporting to CSV is useful for creating custom reports or importing data into other tools like Excel or specialized pentest dashboards.
+    command: "gowitness report export --format csv --file {{results.csv}}"
+
+  - title: gowitness - custom database path
+    desc: |
+      Specify a custom location for the SQLite database used to store scan results. 
+      By default, gowitness creates a database in the current directory, but a custom path allows for better organization across different projects. 
+      This is useful when you want to keep data for different clients or engagements separated.
+    command: "gowitness scan file --file {{targets.txt}} --db {{/path/to/project.sqlite}}"

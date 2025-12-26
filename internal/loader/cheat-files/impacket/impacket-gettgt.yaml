@@ -1,0 +1,71 @@
+tool: impacket-gettgt
+tags: [kerberos, active-directory, security, pentest, exploitation, authentication, impacket]
+
+actions:
+  # === BASIC AUTHENTICATION ===
+  - title: impacket-getTGT - Request TGT with password
+    desc: |
+      Requests a Kerberos Ticket Granting Ticket (TGT) using cleartext credentials for a domain user. 
+      This is a common starting point for Kerberos-based attacks or for legitimate administrative tasks from a non-joined machine. 
+      The tool authenticates with the Key Distribution Center (KDC) and saves the ticket as a .ccache file in the current directory. 
+      You can then use this file by setting the KRB5CCNAME environment variable.
+    command: "impacket-getTGT {{domain}}/{{username}}:{{password}}"
+
+  - title: impacket-getTGT - Request TGT via specific Domain Controller
+    desc: |
+      Directs the Kerberos authentication request to a specific Domain Controller (DC) IP address. 
+      This is essential when the attacking machine cannot resolve the domain name or when targeting a specific DC in a multi-DC environment. 
+      It bypasses the need for local DNS configuration or /etc/hosts entries for the domain. 
+      Ensure the DC is reachable over port 88 (Kerberos).
+    command: "impacket-getTGT -dc-ip {{dc_ip}} {{domain}}/{{username}}:{{password}}"
+
+  # === ADVANCED AUTHENTICATION ===
+  - title: impacket-getTGT - Pass-the-Hash (NTLM)
+    desc: |
+      Requests a TGT using an NTLM hash instead of a cleartext password. 
+      This is the classic Pass-the-Hash (PtH) technique applied to Kerberos authentication. 
+      If you only have the NT hash, use the format 'LMHASH:NTHASH' where LMHASH can be 32 zeros. 
+      This is highly effective for lateral movement when cleartext passwords are not available in memory.
+    command: "impacket-getTGT -hashes {{hash}} {{domain}}/{{username}}"
+
+  - title: impacket-getTGT - Authenticate with AES Key
+    desc: |
+      Authenticates to the KDC using a hex-encoded AES (128 or 256 bit) key. 
+      In modern Windows environments, AES keys are often used for Kerberos pre-authentication instead of NTLM. 
+      This method is stealthier and sometimes required if NTLM is disabled or if you have extracted AES keys from a computer account or NTDS.dit. 
+      Specify the full hex string of the key.
+    command: "impacket-getTGT -aesKey {{aes_key}} {{domain}}/{{username}}"
+
+  # === SERVICE TICKETS & SPECIAL PRINCIPALS ===
+  - title: impacket-getTGT - Direct Service Ticket Request
+    desc: |
+      Requests a Service Ticket (ST) directly through an AS-REQ (Authentication Service Request) by specifying a Service Principal Name (SPN). 
+      This is useful in scenarios where you want to target a specific service like CIFS or HTTP without manually performing a TGS-REQ later. 
+      The resulting ticket is saved to a ccache file just like a standard TGT. 
+      Note that this bypasses the standard TGT -> TGS flow for the specified service.
+    command: "impacket-getTGT -service {{spn}} {{domain}}/{{username}}:{{password}}"
+
+  - title: impacket-getTGT - Specify Principal Type
+    desc: |
+      Allows the user to specify the Principal Type of the Kerberos token being requested. 
+      This is an advanced option used when the target account is not a standard user account (e.g., NT_SRV_INST for services). 
+      Most common types include NT_PRINCIPAL (default), NT_ENTERPRISE, or NT_SRV_HST. 
+      Changing this may be necessary for successful authentication against certain non-Windows or specialized Kerberos implementations.
+    command: "impacket-getTGT -principalType {{principal_type|NT_PRINCIPAL}} {{domain}}/{{username}}:{{password}}"
+
+  # === TROUBLESHOOTING & LOGGING ===
+  - title: impacket-getTGT - Debugging with Timestamps
+    desc: |
+      Enables verbose debug output and adds timestamps to every log message. 
+      This is crucial for troubleshooting Kerberos issues such as 'KDC_ERR_S_PRINCIPAL_UNKNOWN' or clock skew problems. 
+      The timestamps help correlate Kerberos requests with packet captures (e.g., Wireshark). 
+      Use this when the tool fails silently or returns cryptic Kerberos error codes.
+    command: "impacket-getTGT -debug -ts {{domain}}/{{username}}:{{password}}"
+
+  - title: impacket-getTGT - Use existing ccache for authentication
+    desc: |
+      Uses an existing Kerberos ticket from a ccache file to authenticate the request. 
+      This requires the KRB5CCNAME environment variable to be set to the path of your valid .ccache file. 
+      If the tool cannot find valid credentials in the cache, it will fall back to the credentials provided in the command line. 
+      Useful for renewing tickets or chaining Kerberos operations.
+    command: "impacket-getTGT -k -no-pass {{domain}}/{{username}}"

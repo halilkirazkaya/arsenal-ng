@@ -1,0 +1,39 @@
+tool: impacket-split
+tags: [network, forensics, traffic-analysis, pcap, packet-manipulation, impacket, security]
+
+actions:
+# === PCAP SESSION ISOLATION ===
+
+ - title: impacket-split - split pcap by tcp session
+   desc: |
+     Splits a large PCAP file into multiple smaller PCAP files, where each file represents a single unique TCP session.
+     This is the primary use case for the tool, allowing analysts to isolate specific network conversations from a noisy capture.
+     It is extremely helpful for focusing on a single stream of traffic without the distraction of unrelated packets.
+     Each resulting file is typically named based on the source and destination IP addresses and ports involved in the session.
+   command: "impacket-split {{pcap_file}}"
+
+ - title: impacket-split - forensic traffic extraction
+   desc: |
+     Performs deep traffic isolation for forensic investigation purposes.
+     Use this command when you have a bulk capture and need to identify specific malicious payloads or unauthorized data transfers within individual streams.
+     By breaking down the capture, you can more easily perform file carving or manual inspection of protocol handshakes.
+     Ensure you run this in a dedicated directory, as a large capture file can generate hundreds or thousands of individual PCAP files.
+   command: "impacket-split {{input_capture|traffic.pcap}}"
+
+ - title: impacket-split - automated session analysis preparation
+   desc: |
+     Prepares network traffic for automated analysis by dividing a monolithic capture into granular session files.
+     This approach is often used before feeding traffic into other security tools that process individual flows rather than bulk data.
+     It helps in bypassing limitations of tools that struggle with very large files or interleaved packets from multiple sources.
+     Note that this tool specifically targets TCP sessions; other protocols like UDP may not be handled in the same session-based manner.
+   command: "impacket-split {{target_pcap}}"
+
+# === ADVANCED USAGE SCENARIOS ===
+
+ - title: impacket-split - processing pcap from specific path
+   desc: |
+     Executes the splitting process on a capture file located in a specific directory path.
+     This is useful when working with organized evidence folders or external storage drives containing large packet captures.
+     The tool will read the source file from the provided path and generate the split session files in the current working directory.
+     Always verify you have sufficient write permissions and disk space in the destination folder before starting the process.
+   command: "impacket-split {{path_to_file|/tmp/capture.pcap}}"

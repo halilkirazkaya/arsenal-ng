@@ -1,0 +1,62 @@
+tool: uro
+tags: [web, security, pentest, reconnaissance, discovery, url-normalization]
+
+actions:
+  # === BASIC USAGE ===
+  - title: uro - process URLs via stdin
+    desc: |
+      Pipe a list of URLs directly into uro to remove duplicates and noise. It is the most common way to integrate uro into a reconnaissance pipeline after tools like waybackurls, gau, or katana. This command will output a cleaned, unique list of URLs to the terminal.
+    command: "cat {{input_file|urls.txt}} | uro"
+
+  - title: uro - input and output files
+    desc: |
+      Specify an input file and an output file directly using flags. This is useful when dealing with very large datasets that you want to save for later analysis. Note that uro will not overwrite the output file if it already exists, ensuring data safety.
+    command: "uro -i {{input_file}} -o {{output_file|cleaned_urls.txt}}"
+
+  # === EXTENSION FILTERING ===
+  - title: uro - whitelist specific extensions
+    desc: |
+      Filter the URL list to only include the extensions you specifically want to see. This ignores all other extensions except the ones provided in the whitelist. Extensionless pages (like /api/v1/user) will still be included by default unless additional filters are used.
+    command: "uro -i {{input_file}} -w {{extensions|php asp html}}"
+
+  - title: uro - blacklist specific extensions
+    desc: |
+      Explicitly exclude certain file extensions from the output list. By default, uro has a built-in list of "useless" extensions it removes, but providing this flag will override that default list with your own. Use this to hide noise like images, fonts, or CSS files during manual review.
+    command: "uro -i {{input_file}} -b {{extensions|jpg png js pdf}}"
+
+  # === GRANULAR FILTERS ===
+  - title: uro - filter for parameters only
+    desc: |
+      Filter the output to only show URLs that contain query parameters. This is highly effective for preparing targets for tools like SQLMap, Dalfox, or Airix. It removes static pages and focuses purely on potentially interactive and vulnerable endpoints.
+    command: "uro -i {{input_file}} -f hasparams"
+
+  - title: uro - filter for extensions only
+    desc: |
+      Only output URLs that have a file extension in the path. This is useful when you want to ignore directory-style endpoints and focus on specific files like scripts or configuration files. It helps in mapping out the technology stack of the target.
+    command: "uro -i {{input_file}} -f hasext"
+
+  - title: uro - filter for vulnerability-prone parameters
+    desc: |
+      Filter the list to only include URLs with parameters that are historically known to be vulnerable. Uro uses a predefined list of parameter names commonly associated with XSS, SQLi, LFI, and SSRF. This allows a researcher to prioritize the most "interesting" targets first.
+    command: "uro -i {{input_file}} -f vuln"
+
+  # === ADVANCED CONFIGURATION ===
+  - title: uro - combine multiple filters
+    desc: |
+      Apply multiple filters simultaneously for granular control over the data. For example, you can filter for URLs that must have both an extension and parameters. This reduces the final list to a highly specific subset of URLs for targeted exploitation.
+    command: "uro -i {{input_file}} --filters {{filter1|hasext}} {{filter2|hasparams}}"
+
+  - title: uro - keep human-written content
+    desc: |
+      Prevent uro from removing URLs that appear to be human-written content like blog posts or articles. Normally, uro tries to deduplicate these to save time during scanning. Use this if your scope includes CMS platforms where the path structure might contain valuable keywords or unique templates.
+    command: "uro -i {{input_file}} -f keepcontent"
+
+  - title: uro - disable all extension filtering
+    desc: |
+      Tell uro not to remove any page based on its extension, including the ones it usually considers useless. This is useful when you want a completely comprehensive list and don't want to miss things like .jpg or .css files. Use this during the initial broad discovery phase.
+    command: "uro -i {{input_file}} -f allexts"
+
+  - title: uro - preserve trailing slashes
+    desc: |
+      Ensure that trailing slashes are not removed from the end of the URLs. By default, uro normalizes URLs by removing these slashes. Use this if the target web server treats `domain.com/page` and `domain.com/page/` as different resources.
+    command: "uro -i {{input_file}} -f keepslash"

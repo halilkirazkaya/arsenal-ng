@@ -1,0 +1,71 @@
+tool: username-anarchy
+tags: [pentest, reconnaissance, enumeration, usernames, osint, brute-force]
+
+actions:
+  # === BASIC NAME GENERATION ===
+  - title: username-anarchy - basic single name generation
+    desc: |
+      Generates a wide variety of username permutations for a single individual's name. 
+      This is the most common starting point during reconnaissance to identify potential login IDs for a target person.
+      The output includes standard patterns like first initial followed by last name, full names, and various delimiters.
+    command: "username-anarchy {{first_name}} {{last_name}}"
+
+  - title: username-anarchy - generation from input file
+    desc: |
+      Processes a list of names from a file to generate usernames for multiple targets at once.
+      The input file can be space, CSV, or TAB delimited and should ideally contain first and last names.
+      This is highly efficient for generating bulk wordlists during an internal or external network penetration test.
+    command: "username-anarchy -i {{input_file}}"
+
+  # === AUTOMATED DISCOVERY ===
+  - title: username-anarchy - auto-generate by country
+    desc: |
+      Automatically generates a list of likely usernames based on common names from a specific country.
+      This uses datasets like PublicProfiler to create a broad dictionary of names when specific target names are unknown.
+      Supported countries include 'us', 'uk', 'germany', 'france', and many others listed in the tool's help.
+    command: "username-anarchy -a -c {{country|us}}"
+
+  - title: username-anarchy - recognize username format
+    desc: |
+      Attempts to identify the naming convention used by an organization based on a known valid username.
+      It cross-references the input against common name datasets to determine if the format is "first.last", "flast", or others.
+      Use the verbose flag (-v) to see the progress and detailed analysis of the recognition process.
+    command: "username-anarchy -r {{known_username}}"
+
+  # === FORMATTING AND FILTERING ===
+  - title: username-anarchy - select specific format plugins
+    desc: |
+      Limits the output to specific, known username formats to keep the wordlist concise and targeted.
+      This is useful when you have identified the target's naming convention and want to avoid unnecessary permutations.
+      Common plugins include 'flastname', 'first.l', or 'first.last'; multiple plugins can be comma-separated.
+    command: "username-anarchy -f {{format_list|flastname,first.last}} {{first_name}} {{last_name}}"
+
+  - title: username-anarchy - define custom format string
+    desc: |
+      Provides the ability to define a highly specific naming convention using a format string.
+      This is used when the target organization utilizes a non-standard pattern that is not covered by built-in plugins.
+      The format string uses identifiers like 'f' for first initial and 'last' for the full surname (e.g., 'f.last').
+    command: "username-anarchy -F {{format_string|f.last}} {{first_name}} {{last_name}}"
+
+  # === OUTPUT MODIFICATIONS ===
+  - title: username-anarchy - append email domain suffix
+    desc: |
+      Appends a domain suffix to every generated username, essentially creating an email address list.
+      This is perfect for preparing candidate lists for phishing simulations or attacking cloud services like Office 365.
+      Ensure the domain provided does not include the '@' symbol as the tool handles the prefixing automatically.
+    command: "username-anarchy -@ {{domain|example.com}} -i {{input_file}}"
+
+  - title: username-anarchy - case insensitive output
+    desc: |
+      Controls the casing of the generated usernames, defaulting to lowercase.
+      Setting the case-insensitive option to False can be useful if the target system distinguishes between uppercase and lowercase.
+      By default, usernames are generated in all lowercase to match the most common Unix and Active Directory behaviors.
+    command: "username-anarchy --case-insensitive {{boolean|True}} {{first_name}} {{last_name}}"
+
+  # === ADVANCED MANIPULATION ===
+  - title: username-anarchy - name substitution
+    desc: |
+      Enables or disables name substitutions to handle common nicknames or variations.
+      When turned on, the tool may substitute names like 'Robert' with 'Bob' to catch more potential username variations.
+      This increases the list size but significantly improves the chances of finding valid usernames in diverse environments.
+    command: "username-anarchy -s {{state|on}} -m {{max_sub|3}} -i {{input_file}}"

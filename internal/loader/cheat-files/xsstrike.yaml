@@ -1,0 +1,120 @@
+tool: xsstrike
+tags: [web-security, xss, scanner, pentest, reconnaissance, vulnerability-assessment]
+
+actions:
+  # === BASIC SCANNING ===
+  - title: xsstrike - basic GET scan
+    desc: |
+      Performs a basic reflected XSS scan on a target URL using GET parameters. 
+      This is the primary way to check for vulnerabilities in search queries or page IDs. 
+      The tool analyzes the response to detect reflection points and context to generate optimized payloads.
+    command: "xsstrike.py -u \"{{url}}\""
+
+  - title: xsstrike - POST data scan
+    desc: |
+      Scans a target that requires POST data for processing instead of URL parameters. 
+      Useful for testing login forms, contact forms, or data submission modules that don't expose parameters in the URI. 
+      Ensure the data string follows the standard key=value format for proper parsing.
+    command: "xsstrike.py -u \"{{url}}\" --data \"{{post_data}}\""
+
+  - title: xsstrike - URL path injection
+    desc: |
+      Injects payloads directly into the URL path components instead of standard parameters. 
+      This is essential for modern web applications using RESTful routes where parts of the path (e.g., /user/profile/name) might be reflected in the page. 
+      It helps identify vulnerabilities in SEO-friendly URLs that conventional scanners might miss.
+    command: "xsstrike.py -u \"{{url_with_path}}\" --path"
+
+  - title: xsstrike - JSON POST scan
+    desc: |
+      Treats the provided POST data as a JSON object for vulnerability testing. 
+      Modern APIs and Single Page Applications (SPAs) often communicate using JSON payloads, and this switch ensures the payloads are handled correctly within the JSON structure. 
+      This prevents breaking the JSON syntax while attempting to inject scripts.
+    command: "xsstrike.py -u \"{{url}}\" --data '{{json_payload}}' --json"
+
+  # === AUTOMATION AND CRAWLING ===
+  - title: xsstrike - crawl and scan
+    desc: |
+      Starts crawling from the target page to find internal links and automatically tests them for XSS. 
+      This is an efficient way to map out an entire application's attack surface without manual URL discovery. 
+      It combines discovery and exploitation phases into a single automated workflow.
+    command: "xsstrike.py -u \"{{url}}\" --crawl"
+
+  - title: xsstrike - crawl with custom depth
+    desc: |
+      Specifies how deep the crawler should go into the website's directory structure. 
+      A higher level allows for more extensive discovery but increases the scan time and resource consumption. 
+      The default depth is 2, which is generally sufficient for medium-sized websites.
+    command: "xsstrike.py -u \"{{url}}\" --crawl -l {{depth|3}}"
+
+  - title: xsstrike - scan seeds from file
+    desc: |
+      Loads multiple URLs from a file to be used as seeds for crawling or direct testing. 
+      This is perfect for batch processing after a reconnaissance phase where multiple subdomains or endpoints have been discovered. 
+      The tool will process each entry in the file sequentially.
+    command: "xsstrike.py --seeds {{seeds_file}}"
+
+  # === ADVANCED TESTING ===
+  - title: xsstrike - blind XSS testing
+    desc: |
+      Injects blind XSS payloads into every parameter of every discovered form during a crawl. 
+      Blind XSS occurs when the payload is stored and executed in a different context, such as an admin dashboard or log viewer. 
+      You must configure your callback/interactsh URL in the core/config.py file before running this.
+    command: "xsstrike.py -u \"{{url}}\" --crawl --blind"
+
+  - title: xsstrike - WAF and filter fuzzing
+    desc: |
+      Uses the built-in fuzzer to test Web Application Firewalls (WAF) and complex filters. 
+      This mode is intentionally slow because it uses random delays to avoid triggering rate-limiting or IP bans. 
+      It is highly effective at identifying which characters or keywords are blocked by security mechanisms.
+    command: "xsstrike.py -u \"{{url}}\" --fuzzer"
+
+  - title: xsstrike - skip DOM scanning
+    desc: |
+      Skips the DOM-based XSS scanning phase to speed up the overall execution. 
+      Use this when you are only interested in reflected XSS or when the target environment has heavy client-side scripts that slow down analysis. 
+      It is helpful for quick triage of large-scale targets.
+    command: "xsstrike.py -u \"{{url}}\" --skip-dom"
+
+  # === EVASION AND PERFORMANCE ===
+  - title: xsstrike - multi-threaded crawling
+    desc: |
+      Specifies the number of concurrent threads to use while crawling and testing. 
+      Increasing threads speeds up the scan significantly but might overwhelm small servers or trigger security alerts. 
+      Use with caution and monitor the target's response for potential downtime.
+    command: "xsstrike.py -u \"{{url}}\" --crawl -t {{threads|10}}"
+
+  - title: xsstrike - stealth scan with delay
+    desc: |
+      Adds a specified delay between HTTP requests to bypass rate limits and remain stealthy. 
+      This is recommended when scanning production environments or sites with aggressive security monitoring. 
+      The delay value is in seconds.
+    command: "xsstrike.py -u \"{{url}}\" -d {{delay|2}}"
+
+  - title: xsstrike - custom headers and cookies
+    desc: |
+      Adds custom HTTP headers or authentication cookies to the outgoing requests. 
+      This is necessary for scanning pages that are behind a login or require specific User-Agents. 
+      Separate multiple headers using the \n newline character.
+    command: "xsstrike.py -u \"{{url}}\" --headers \"{{headers|Cookie: session=xyz}}\""
+
+  - title: xsstrike - proxy configuration
+    desc: |
+      Routes all traffic through a specified proxy server. 
+      This is useful for anonymizing your IP address or for intercepting traffic in tools like Burp Suite for further manual analysis. 
+      Proxies should be pre-configured in the core/config.py file for best results.
+    command: "xsstrike.py -u \"{{url}}\" --proxy"
+
+  # === CUSTOMIZATION ===
+  - title: xsstrike - brute force payload file
+    desc: |
+      Loads a list of custom payloads from a local file and tests them against the target. 
+      In this mode, XSStrike skips its intelligent analysis and simply tries every entry in the list. 
+      This is useful when you have a specific bypass payload that you want to verify across multiple parameters.
+    command: "xsstrike.py -u \"{{url}}\" -f {{payload_file}}"
+
+  - title: xsstrike - payload encoding
+    desc: |
+      Automatically encodes the generated payloads to bypass basic signature-based filters. 
+      Currently supports base64 encoding which can be useful against specific WAF configurations. 
+      It helps in testing if the application decodes input before processing it.
+    command: "xsstrike.py -u \"{{url}}\" -e {{encoding|base64}}"

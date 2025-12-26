@@ -1,0 +1,65 @@
+tool: impacket-machine_role
+tags: [pentest, network, security, enumeration, active-directory, impacket, reconnaissance]
+
+# === AUTHENTICATION METHODS ===
+
+actions:
+ - title: impacket-machine_role - basic password authentication
+   desc: |
+     Retrieve the host's role and primary domain details using standard username and password authentication.
+     This command is the standard way to identify whether a target is a Domain Controller, a member server, or a workstation.
+     It is essential for initial reconnaissance to map out the Active Directory environment architecture.
+     Be aware that multiple failed login attempts may trigger account lockout policies.
+   command: "impacket-machine_role {{domain/username|CONTOSO/Administrator}}:{{password}}@{{target_ip}}"
+
+ - title: impacket-machine_role - pass-the-hash authentication
+   desc: |
+     Perform host role enumeration using NTLM hashes instead of a cleartext password.
+     This is particularly useful during lateral movement when you have acquired a user's hash but not their password.
+     The hash must be provided in the LMHASH:NTHASH format; if you only have the NT hash, prefix it with an empty LM hash.
+     This method bypasses the need for interactive login credentials.
+   command: "impacket-machine_role -hashes {{hash}} {{domain/username|CONTOSO/Administrator}}@{{target_ip}}"
+
+ - title: impacket-machine_role - kerberos authentication
+   desc: |
+     Authenticate using Kerberos tickets stored in a ccache file.
+     This requires the KRB5CCNAME environment variable to be set to the path of your valid Kerberos ticket.
+     Use the -no-pass flag to ensure the tool uses the ticket instead of prompting for a password.
+     This is a stealthier method often used in environments where NTLM is disabled or heavily monitored.
+   command: "impacket-machine_role -k -no-pass {{domain/username|CONTOSO/Administrator}}@{{target_name}}"
+
+ - title: impacket-machine_role - kerberos with aes key
+   desc: |
+     Authenticate via Kerberos using a specific AES hex key (128 or 256 bits).
+     This provides a way to use Kerberos authentication without a password or a pre-existing ticket file.
+     It is highly effective for testing or bypassing certain security controls that monitor ticket requests.
+     Ensure the -k flag is included to signal the use of Kerberos.
+   command: "impacket-machine_role -k -aesKey {{aes_key}} {{domain/username}}@{{target_name}}"
+
+# === CONNECTION AND NETWORK OPTIONS ===
+
+ - title: impacket-machine_role - custom smb port
+   desc: |
+     Connect to the target using a non-standard SMB port.
+     This is useful when targets are behind port forwards or when SMB is bound to a custom port for obfuscation.
+     By default, the tool attempts to connect to port 445.
+     Changing the port can help bypass simple firewall rules that only block standard ports.
+   command: "impacket-machine_role -port {{port|445}} {{domain/username}}:{{password}}@{{target_ip}}"
+
+ - title: impacket-machine_role - specify target ip and dc ip
+   desc: |
+     Explicitly define both the target IP and the Domain Controller IP address.
+     The -target-ip flag is useful when the target name provided in the connection string cannot be resolved by DNS.
+     The -dc-ip flag ensures that Kerberos or domain-related queries are sent to the correct Domain Controller.
+     This is often necessary in complex or isolated networking environments.
+   command: "impacket-machine_role -target-ip {{target_ip}} -dc-ip {{dc_ip}} {{domain/username}}:{{password}}@{{hostname}}"
+
+# === LOGGING AND TROUBLESHOOTING ===
+
+ - title: impacket-machine_role - debug and timestamps
+   desc: |
+     Run the tool with debug mode enabled and timestamps added to every output line.
+     Debug mode provides a verbose log of the underlying RPC calls and SMB negotiations, which is vital for troubleshooting.
+     Timestamps help in documenting the exact time of actions for reporting and correlation with server-side logs.
+     Use this when the tool fails silently or returns unexpected errors.
+   command: "impacket-machine_role -debug -ts {{domain/username}}:{{password}}@{{target_ip}}"

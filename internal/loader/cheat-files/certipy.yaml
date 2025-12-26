@@ -1,0 +1,96 @@
+tool: certipy
+tags: [active-directory, adcs, security, pentest, enumeration, exploitation, kerberos, authentication]
+
+actions:
+  # === ENUMERATION ===
+  - title: certipy - find vulnerable templates (text output)
+    desc: |
+      Perform enumeration of Active Directory Certificate Services to identify misconfigurations.
+      This command queries LDAP for Certificate Authorities and Templates, then flags potential ESC vulnerabilities.
+      It is the essential first step for any AD CS audit or attack chain to map the environment.
+      The output includes detailed information about permissions, enrollment rights, and specific vulnerability IDs.
+    command: "certipy find -u {{username}}@{{domain}} -p {{password}} -dc-ip {{dc_ip}} -enabled -vulnerable -stdout"
+
+  - title: certipy - find and save results to file
+    desc: |
+      Execute AD CS enumeration and save the output in multiple formats including JSON and BloodHound-compatible ZIP.
+      Saving to files is useful for offline analysis or importing data into graph-based tools like BloodHound.
+      This helps in visualizing complex permission chains that might lead to domain escalation.
+      The command will generate several files prefixed with the current timestamp in the working directory.
+    command: "certipy find -u {{username}}@{{domain}} -p {{password}} -dc-ip {{dc_ip}} -output {{filename_prefix|results}}"
+
+  # === EXPLOITATION ===
+  - title: certipy - exploit ESC1 (request certificate as other user)
+    desc: |
+      Request a certificate for a target user by exploiting a template that allows user-defined Subject Alternative Names (SAN).
+      This is the standard command for ESC1 exploitation where an attacker specifies a UPN to impersonate.
+      If successful, the CA will issue a certificate for the specified target user (e.g., a Domain Admin).
+      The resulting PFX file can then be used for authentication to gain full access to the target account.
+    command: "certipy req -u {{username}}@{{domain}} -p {{password}} -dc-ip {{dc_ip}} -target {{ca_hostname}} -ca {{ca_name}} -template {{vulnerable_template}} -upn {{target_user_upn}}"
+
+  - title: certipy - request certificate via RPC (ESC1/ESC6)
+    desc: |
+      Request a certificate specifically using the RPC protocol against the CA endpoint.
+      This is often used when web enrollment is disabled but the RPC interface remains accessible.
+      You must provide the CA name and a template that the current user has enrollment permissions for.
+      The command handles the certificate request and saves the private key and certificate into a local PFX file.
+    command: "certipy req -u {{username}}@{{domain}} -p {{password}} -dc-ip {{dc_ip}} -target {{ca_hostname}} -ca {{ca_name}} -template {{template_name}}"
+
+  - title: certipy - authenticate using PFX (TGT & NTLM retrieval)
+    desc: |
+      Use a retrieved PFX certificate file to authenticate against the Domain Controller via Kerberos PKINIT.
+      This command will attempt to retrieve both a Ticket Granting Ticket (TGT) and the NT hash of the user.
+      It is a critical post-exploitation step that converts a certificate into a standard Kerberos ticket or NTLM hash.
+      The generated .ccache file can be used with other tools like Impacket or Rubeus for further movement.
+    command: "certipy auth -pfx {{pfx_file}} -dc-ip {{dc_ip}}"
+
+  # === RELAY ATTACKS ===
+  - title: certipy - NTLM relay to AD CS (ESC8)
+    desc: |
+      Start an NTLM relay server that targets the AD CS HTTP Web Enrollment interface.
+      This is used to exploit ESC8 by relaying authentication from a coerced victim to the CA to obtain a certificate.
+      The attacker must typically use a tool like PetitPotam or PrinterBug to trigger the authentication.
+      Ensure the target CA has Web Enrollment enabled and does not enforce Enforce Channel Binding (EPA).
+    command: "certipy relay -target {{ca_web_url|http://ca.domain.local/certsrv/certfnsh.asp}} -template {{template_name|Machine}}"
+
+  # === PERSISTENCE AND ADVANCED ATTACKS ===
+  - title: certipy - shadow credentials attack
+    desc: |
+      Perform a Shadow Credentials attack by adding a new Key Credential to a target object's msDS-KeyCredentialLink attribute.
+      This allows an attacker with 'GenericWrite' or 'WriteProperty' over an object to authenticate as that object.
+      Certipy will create a self-signed certificate and link it to the target account.
+      This is a powerful persistence mechanism that does not require the presence of AD CS in the environment.
+    command: "certipy shadow -u {{username}}@{{domain}} -p {{password}} -target {{target_account}} -dc-ip {{dc_ip}}"
+
+  - title: certipy - forge golden certificate
+    desc: |
+      Forge a "Golden Certificate" using a compromised CA private key and certificate.
+      With the CA's root certificate and key, an attacker can sign certificates for any user in the domain.
+      This provides long-term persistence that is extremely difficult to detect as the certificates appear legitimate.
+      The resulting forged certificate can be used with 'certipy auth' to impersonate any domain identity.
+    command: "certipy forge -ca-pfx {{ca_private_key_pfx}} -upn {{admin_upn}} -subject {{subject_dn}}"
+
+  # === MANAGEMENT ===
+  - title: certipy - manage CA (ESC7 exploitation)
+    desc: |
+      Interact with Certificate Authority settings, typically used when an attacker has 'ManageCA' or 'ManageCertificates' rights.
+      This command can be used to enable vulnerable templates on a CA or approve pending certificate requests.
+      In an ESC7 scenario, you can grant yourself the 'Manage Certificates' right and then approve your own requests.
+      It is a vital tool for manipulating the CA service state during complex AD CS exploitation.
+    command: "certipy ca -u {{username}}@{{domain}} -p {{password}} -dc-ip {{dc_ip}} -target {{ca_hostname}} -ca {{ca_name}} -add-officer {{attacker_user}}"
+
+  - title: certipy - modify certificate template (ESC4)
+    desc: |
+      Modify the configuration of a Certificate Template in Active Directory.
+      This is primarily used for ESC4, where an attacker has write permissions over a template object.
+      You can use this to make a template vulnerable to ESC1 by enabling the 'msPKI-Certificate-Name-Flag'.
+      Always remember to back up the original template configuration before making modifications to avoid detection.
+    command: "certipy template -u {{username}}@{{domain}} -p {{password}} -dc-ip {{dc_ip}} -template {{template_name}} -save-old"
+
+  - title: certipy - create new machine account
+    desc: |
+      Create a new computer account in the domain using the MachineAccountQuota.
+      This is often used as a prerequisite for various AD CS attacks that require a machine identity.
+      Certipy will automatically generate a password for the new machine account if one is not provided.
+      The new account can then be used to request certificates or participate in relay attacks.
+    command: "certipy account create -u {{username}}@{{domain}} -p {{password}} -user {{new_machine_name}} -dc-ip {{dc_ip}}"

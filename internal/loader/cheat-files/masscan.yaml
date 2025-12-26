@@ -1,0 +1,93 @@
+tool: masscan
+tags: [network, scanner, security, pentest, enumeration, port-scanner, reconnaissance]
+
+actions:
+# === BASIC SCANNING ===
+
+ - title: masscan - basic port scan
+   desc: |
+     Performs a standard SYN scan against a target range for specific ports. 
+     This is the most common way to use masscan for internal or external network discovery. 
+     Note that masscan uses its own custom TCP/IP stack, meaning it requires root or administrator privileges to run.
+     It is significantly faster than traditional scanners because it operates asynchronously.
+   command: "masscan {{target_range}} -p {{ports}}"
+
+ - title: masscan - scan multiple port ranges
+   desc: |
+     Allows scanning for multiple specific ports or ranges simultaneously. 
+     You can define ports separated by commas or use a dash for a continuous range of ports.
+     This is useful when you are looking for specific common services like web (80, 445) and management (22, 3389) across a large network.
+     The output will list each discovered open port alongside the IP address.
+   command: "masscan {{target_range}} -p {{port_1}},{{port_2}},{{range_start}}-{{range_end}}"
+
+# === PERFORMANCE TUNING ===
+
+ - title: masscan - scan with custom rate limit
+   desc: |
+     Adjusts the speed of the scan by setting the packets-per-second (pps) rate. 
+     Increasing this value makes the scan faster but can overwhelm network bandwidth or trigger security alerts (IDS/IPS). 
+     By default, masscan is set to a relatively slow 100 packets/second to avoid crashing low-end consumer routers.
+     For high-speed internet scanning, this value is often set to 100,000 or higher depending on your uplink.
+   command: "masscan {{target_range}} -p {{ports}} --rate {{rate|1000}}"
+
+ - title: masscan - top ports scan
+   desc: |
+     Scans the most common ports as defined by frequency of use. 
+     While masscan does not have a built-in "--top-ports" flag like Nmap, you can manually specify the most popular ports.
+     This approach saves time by focusing on the most likely entry points rather than scanning all 65,535 ports.
+     Commonly used for quick situational awareness on very large subnets.
+   command: "masscan {{target_range}} --ports {{ports|21,22,23,25,53,80,110,139,443,445,3389}}"
+
+# === ADVANCED ENUMERATION ===
+
+ - title: masscan - banner grabbing
+   desc: |
+     Enables banner grabbing to identify service versions and software information on open ports. 
+     This requires masscan to establish a full TCP connection (Three-way handshake), which is slower than a simple SYN scan. 
+     Use this when you need to fingerprint services like SSH, HTTP, or FTP to find vulnerabilities.
+     It provides more context than just knowing a port is open.
+   command: "masscan {{target_range}} -p {{ports}} --banners"
+
+ - title: masscan - scan the entire internet
+   desc: |
+     Configures masscan to scan the entire IPv4 address space for a specific port. 
+     This is the signature feature of masscan, allowing a full internet scan in minutes if given enough bandwidth. 
+     Always ensure you have permission and are following ethical guidelines before scanning public IP space.
+     The rate should be carefully managed to avoid local network saturation.
+   command: "masscan 0.0.0.0/0 -p {{port}} --rate {{rate|10000}}"
+
+# === EXCLUSIONS AND FILTERS ===
+
+ - title: masscan - exclude specific targets
+   desc: |
+     Excludes specific IP addresses or ranges from being scanned even if they fall within the target range. 
+     This is critical for avoiding sensitive systems like production databases, medical equipment, or VOIP phones. 
+     You can provide a single range or point to a file containing multiple exclusions using the --excludefile flag.
+     This helps prevent accidental downtime on critical infrastructure.
+   command: "masscan {{target_range}} -p {{ports}} --exclude {{exclude_range}}"
+
+# === OUTPUT AND CONFIGURATION ===
+
+ - title: masscan - save output in multiple formats
+   desc: |
+     Saves the scan results in a specific file format such as JSON, XML, or Grepable. 
+     JSON is highly recommended for modern automation and integration with other security tools like Python scripts or ELK stacks. 
+     The -oX flag provides XML output which is useful for importing results into tools like Metasploit or Zenmap.
+     Using the binary format (-oB) is the most efficient for extremely large scans.
+   command: "masscan {{target_range}} -p {{ports}} -oJ {{output_file|results.json}}"
+
+ - title: masscan - manual network interface config
+   desc: |
+     Manually specifies the source IP, source MAC address, and router MAC address for the scan. 
+     This is necessary if masscan fails to auto-detect your network interface settings correctly. 
+     It is often required in complex virtualized environments, over VPNs, or when using specialized network adapters.
+     Incorrectly setting these may lead to no results or "packet dropped" errors.
+   command: "masscan {{target_range}} -p {{ports}} --adapter-ip {{source_ip}} --adapter-mac {{source_mac}} --router-mac {{gateway_mac}}"
+
+ - title: masscan - generate and use config files
+   desc: |
+     Generates a configuration file based on the current command-line arguments or runs a scan from an existing config. 
+     The --echo flag is useful for learning all available parameters and creating a template for future scans. 
+     Using a configuration file helps in documenting the scan parameters and ensures reproducibility.
+     This is preferred for complex, recurring scans in enterprise environments.
+   command: "masscan -c {{config_file|myscan.conf}}"

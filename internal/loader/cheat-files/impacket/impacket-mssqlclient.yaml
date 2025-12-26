@@ -1,0 +1,87 @@
+tool: impacket-mssqlclient
+tags: [database, mssql, pentest, exploitation, enumeration, authentication, impacket]
+
+actions:
+  # === AUTHENTICATION METHODS ===
+  - title: impacket-mssqlclient - basic authentication with password
+    desc: |
+      Establishes a connection to the MSSQL server using standard username and password credentials.
+      This is the most common method for interacting with a database instance after discovering valid credentials.
+      Be cautious of account lockout policies when attempting multiple password variations, as MSSQL can be configured to lock domain accounts.
+      The target format follows the standard Impacket syntax: domain/username:password@address.
+    command: "impacket-mssqlclient {{domain|}}/{{username}}:{{password}}@{{target_ip}}"
+
+  - title: impacket-mssqlclient - authentication using NTLM hashes
+    desc: |
+      Performs authentication using the Pass-the-Hash technique by providing LM and NT hashes.
+      This is extremely useful during post-exploitation when cleartext passwords are unavailable but hashes have been dumped from SAM or LSASS.
+      The tool bypasses the need for the actual password to establish a valid TDS session.
+      Ensure the hash is provided in the format LMHASH:NTHASH (use 32 zeros for the LM portion if unknown).
+    command: "impacket-mssqlclient {{domain|}}/{{username}}@{{target_ip}} -hashes {{lmhash|00000000000000000000000000000000}}:{{nthash}}"
+
+  - title: impacket-mssqlclient - connect using windows authentication
+    desc: |
+      Forces the client to use Windows Authentication (NTLM/Kerberos integrated security) instead of SQL Server's internal authentication.
+      In many corporate environments, SQL servers are configured to only allow logins via Active Directory accounts.
+      This flag is necessary when the target user is a domain account that does not have a separate SQL-specific password.
+      It changes the underlying TDS login packet to request an integrated security handshake.
+    command: "impacket-mssqlclient {{domain|}}/{{username}}:{{password}}@{{target_ip}} -windows-auth"
+
+  - title: impacket-mssqlclient - connect using kerberos authentication
+    desc: |
+      Utilizes Kerberos tickets for authentication, which is ideal for bypassing NTLM-restricted environments.
+      The command typically requires a valid TGT (Ticket Granting Ticket) to be present in the cache (KRB5CCNAME).
+      Using the -no-pass flag ensures the tool attempts to use the existing ticket rather than asking for a password.
+      Ensure that the target name provided matches the Service Principal Name (SPN) registered in Active Directory.
+    command: "impacket-mssqlclient -k -no-pass {{target_name}}"
+
+  # === COMMAND EXECUTION ===
+  - title: impacket-mssqlclient - execute single SQL command
+    desc: |
+      Executes a specific SQL query or statement directly from the command line without entering the interactive shell.
+      This is highly effective for automation, scripting, or quickly verifying permissions like 'sysadmin' status.
+      It returns the result of the query directly to the terminal and exits.
+      You can use this to execute common reconnaissance queries like 'SELECT @@version' or 'SELECT is_srvrolemember(\'sysadmin\')'.
+    command: "impacket-mssqlclient {{domain|}}/{{username}}:{{password}}@{{target_ip}} -command \"{{sql_query|SELECT @@version}}\""
+
+  - title: impacket-mssqlclient - execute SQL commands from a file
+    desc: |
+      Reads and executes a sequence of SQL commands stored in a local text file.
+      This is the preferred method for complex operations, such as creating multiple procedures or running heavy data exfiltration scripts.
+      It prevents manual typing errors and allows for repeatable exploitation steps across different targets.
+      The tool will process each line in the file as a sequential command to the SQL server.
+    command: "impacket-mssqlclient {{domain|}}/{{username}}:{{password}}@{{target_ip}} -file {{script_path}}"
+
+  # === CONNECTION SETTINGS ===
+  - title: impacket-mssqlclient - connect to non-standard port and specific database
+    desc: |
+      Connects to an MSSQL instance listening on a custom port and immediately switches to a specific database context.
+      While 1433 is the default, administrators often change the port for security through obscurity or to host multiple instances.
+      Specifying the -db flag is useful if your user only has permissions on a specific database and not the master.
+      This saves time by avoiding manual 'USE database_name' commands inside the shell.
+    command: "impacket-mssqlclient {{domain|}}/{{username}}:{{password}}@{{target_ip}} -port {{port|1433}} -db {{database_name}}"
+
+  - title: impacket-mssqlclient - specify target IP with NetBIOS name
+    desc: |
+      Allows the user to provide a hostname for the target while explicitly defining the IP address to connect to.
+      This is particularly useful in environments where DNS is unreliable or when attacking a specific IP that hosts a named instance.
+      The target name is used for authentication headers (important for Kerberos), while the target-ip is used for the network connection.
+      It helps in scenarios where you need to bypass local host file requirements.
+    command: "impacket-mssqlclient {{domain|}}/{{username}}:{{password}}@{{target_name}} -target-ip {{target_ip}}"
+
+  # === ADVANCED / TROUBLESHOOTING ===
+  - title: impacket-mssqlclient - enable debug mode and timestamps
+    desc: |
+      Enables verbose debugging output and adds timestamps to every log entry.
+      This is essential for troubleshooting connection failures, authentication errors, or understanding the TDS protocol exchange.
+      If a connection is being dropped, the debug output might reveal if it's a firewall issue or a protocol mismatch.
+      Timestamps are helpful for correlate logs with network captures or server-side event logs.
+    command: "impacket-mssqlclient {{domain|}}/{{username}}:{{password}}@{{target_ip}} -debug -ts"
+
+  - title: impacket-mssqlclient - show SQL queries being executed
+    desc: |
+      Displays the exact SQL queries being sent over the wire during the session.
+      This is a great educational tool and a way to verify exactly what the Impacket library is doing in the background.
+      It is specifically helpful when running complex commands through the interactive shell.
+      Use this to ensure that sensitive queries are formatted correctly before they reach the server.
+    command: "impacket-mssqlclient {{domain|}}/{{username}}:{{password}}@{{target_ip}} -show"

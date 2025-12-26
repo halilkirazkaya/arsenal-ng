@@ -1,0 +1,127 @@
+tool: binwalk
+tags: [forensics, reverse-engineering, firmware, analysis, extraction, security, malware-analysis]
+
+actions:
+  # === ANALYSIS & IDENTIFICATION ===
+  - title: binwalk - basic signature scan
+    desc: |
+      Performs a basic signature scan of the target file to identify embedded files and filesystems. 
+      This is the most common starting point for firmware analysis and reconnaissance. 
+      It searches for magic numbers and headers defined in the binwalk signature database.
+    command: "binwalk {{file_path}}"
+
+  - title: binwalk - identify cpu architecture
+    desc: |
+      Identifies the CPU architecture of a file using the capstone disassembler. 
+      This is extremely useful when analyzing raw binary blobs where the architecture (e.g., ARM, MIPS, x86) is unknown. 
+      It helps determine how the binary should be loaded into specialized tools like IDA Pro or Ghidra.
+    command: "binwalk -Y {{file_path}}"
+
+  - title: binwalk - opcode scanning
+    desc: |
+      Scans the target file for common executable opcode signatures across various architectures. 
+      This helps in locating code segments within a binary that might not have a clear file header. 
+      It is particularly useful for finding entry points or shellcode within a large data dump.
+    command: "binwalk -A {{file_path}}"
+
+  - title: binwalk - entropy analysis
+    desc: |
+      Calculates and analyzes the entropy of the file to identify regions of compressed or encrypted data. 
+      High entropy (approaching 1.0) typically indicates encrypted data or compressed archives, while low entropy indicates structured data or padding. 
+      This is a vital step for identifying hidden data that doesn't match known signatures.
+    command: "binwalk -E {{file_path}}"
+
+  - title: binwalk - fast entropy plot
+    desc: |
+      Generates an entropy analysis using the fast method and saves the resulting plot as a PNG image. 
+      This provides a visual representation of data density, making it easier to spot patterns and boundaries in the file. 
+      The resulting image is saved in the current working directory by default.
+    command: "binwalk -EJ {{file_path}}"
+
+  # === EXTRACTION ===
+  - title: binwalk - automatic extraction
+    desc: |
+      Automatically extracts any recognized file types found during the signature scan. 
+      The tool uses internal extractors and external utilities to carve out files and directories into a new folder. 
+      Be aware that some extraction utilities might require root privileges or specific dependencies installed on the host.
+    command: "binwalk -e {{file_path}}"
+
+  - title: binwalk - recursive extraction
+    desc: |
+      Performs a "matryoshka" style recursive scan and extraction. 
+      It will scan the results of the initial extraction and extract any files found within those, which is essential for deeply nested firmware images. 
+      You can limit the depth of recursion using the --depth flag if the process becomes too resource-intensive.
+    command: "binwalk -eM {{file_path}}"
+
+  - title: binwalk - extract to custom directory
+    desc: |
+      Extracts files discovered in the signature scan to a specific target directory. 
+      By default, binwalk creates a folder named after the file with an extraction suffix; this command overrides that behavior. 
+      This is useful for maintaining organization during complex forensic investigations.
+    command: "binwalk -e -C {{output_directory|extracted_data}} {{file_path}}"
+
+  - title: binwalk - extract specific signature
+    desc: |
+      Extracts only specific types of signatures based on a regular expression. 
+      This is highly efficient when you are only interested in a specific type of data, such as JPEG images or SquashFS filesystems. 
+      It prevents the creation of unnecessary files that would result from a full extraction.
+    command: "binwalk -D {{signature_type|'filesystem:squashfs'}} {{file_path}}"
+
+  # === BINARY DIFFING ===
+  - title: binwalk - binary diffing (hexdump)
+    desc: |
+      Performs a binary diff between two or more files and displays a colored hexdump. 
+      This is useful for identifying changes between different versions of the same firmware image. 
+      It highlights differences in red, similarities in green, and unique bytes in blue.
+    command: "binwalk -W {{file1}} {{file2}}"
+
+  - title: binwalk - show similarities only
+    desc: |
+      Filters the binary diffing output to show only the lines that are identical between all compared files. 
+      This is helpful when searching for constant patterns, static configurations, or shared headers across multiple firmware samples. 
+      It reduces noise by hiding all changing data.
+    command: "binwalk -Wu {{file1}} {{file2}}"
+
+  # === ADVANCED SCANS & COMPRESSION ===
+  - title: binwalk - scan for raw deflate streams
+    desc: |
+      Specially scans the file for raw deflate (zlib) compression streams. 
+      Some firmware formats use raw compression without standard headers that would be caught by a signature scan. 
+      Note that this can produce many false positives, so it is often used with the --stop or --partial flags.
+    command: "binwalk -X {{file_path}}"
+
+  - title: binwalk - raw byte sequence search
+    desc: |
+      Scans the binary for a specific, user-defined sequence of raw bytes. 
+      This is perfect for finding hardcoded secrets, specific developer strings, or unique byte patterns across a file. 
+      The sequence should be provided in hex format within quotes.
+    command: "binwalk -R {{hex_pattern|'\\x00\\x01\\x02'}} {{file_path}}"
+
+  # === FILTERING & LOGGING ===
+  - title: binwalk - include specific signatures only
+    desc: |
+      Only displays results that match the specified string or regular expression. 
+      This filters out irrelevant noise from the signature scan, allowing you to focus on specific components like bootloaders or kernel images. 
+      It is an excellent way to clean up output for reporting.
+    command: "binwalk -y {{filter_text|'filesystem'}} {{file_path}}"
+
+  - title: binwalk - exclude specific signatures
+    desc: |
+      Excludes results that match the specified string from the scan output. 
+      This is useful when a file contains many repetitive false positives or known uninteresting data types. 
+      It helps in identifying unique or unusual headers that might otherwise be buried.
+    command: "binwalk -x {{exclude_text|'invalid'}} {{file_path}}"
+
+  - title: binwalk - log results to csv
+    desc: |
+      Logs all scan results to a file in CSV format for later analysis. 
+      This is ideal for automated workflows or for importing data into spreadsheets for documentation. 
+      It captures the offset, description, and other metadata in a structured way.
+    command: "binwalk -c -f {{log_file|results.csv}} {{file_path}}"
+
+  - title: binwalk - scan specific range
+    desc: |
+      Starts the scan at a specific offset and limits the number of bytes read. 
+      This is crucial when dealing with extremely large images where you only suspect interesting data in a certain region. 
+      It saves time and system resources by ignoring the rest of the file.
+    command: "binwalk -o {{start_offset|0x100}} -l {{length|1024}} {{file_path}}"

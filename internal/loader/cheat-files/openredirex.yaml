@@ -1,0 +1,48 @@
+tool: openredirex
+tags: [web, security, pentest, open-redirection, scanner, bug-bounty, enumeration]
+
+actions:
+  # === BASIC USAGE ===
+  - title: openredirex - basic scan with default payloads
+    desc: |
+      This command performs a basic scan for open redirection vulnerabilities by reading a list of URLs from a file. 
+      It automatically identifies parameters in the URLs and replaces them with a hardcoded list of common redirection payloads. 
+      This is the most frequent entry point for testing a large list of endpoints discovered during the reconnaissance phase.
+    command: "cat {{url_list}} | openredirex"
+
+  - title: openredirex - scan using a custom payload file
+    desc: |
+      Use this command when you have a specific list of payloads, such as those designed to bypass certain filters or WAFs. 
+      The tool will read each line from your provided payload file and inject it into the target URLs. 
+      This is highly recommended for more advanced testing where the default payload list might be insufficient.
+    command: "cat {{url_list}} | openredirex -p {{payload_file}}"
+
+  # === CONFIGURATION & OPTIMIZATION ===
+  - title: openredirex - scan with a custom keyword
+    desc: |
+      By default, the tool looks for the string 'FUZZ' within the provided URLs to determine where to inject payloads. 
+      If your URLs use a different placeholder or if you want to target a specific parameter name, use this flag to define it. 
+      This ensures that the injection occurs exactly where you intend it to, providing better control over the testing process.
+    command: "cat {{url_list}} | openredirex -k {{keyword|FUZZ}}"
+
+  - title: openredirex - adjust concurrency for performance
+    desc: |
+      This flag controls the number of concurrent tasks the script runs, which directly impacts the speed of the scan. 
+      Increasing the concurrency can drastically reduce the time needed to scan thousands of URLs, but it may also trigger rate limits. 
+      The default value is 100, but you should adjust it based on the stability and speed of the target server.
+    command: "cat {{url_list}} | openredirex -c {{concurrency|50}}"
+
+  # === ADVANCED WORKFLOWS ===
+  - title: openredirex - full custom scan configuration
+    desc: |
+      Combine multiple flags to execute a highly tailored scan against your target list. 
+      This example sets a custom payload file, a specific keyword for injection, and a defined concurrency level simultaneously. 
+      This is the ideal approach for professional security assessments and bug bounty hunting on large-scale infrastructures.
+    command: "cat {{url_list}} | openredirex -p {{payload_file}} -k {{keyword|FUZZ}} -c {{concurrency|100}}"
+
+  - title: openredirex - integration with url discovery tools
+    desc: |
+      This command demonstrates how to pipe output from discovery tools like 'waybackurls' directly into the scanner. 
+      It filters the discovered URLs and immediately starts checking them for open redirection vulnerabilities. 
+      Note that you may need to ensure the URLs contain the appropriate keyword or parameters before piping them.
+    command: "waybackurls {{domain}} | grep '=' | openredirex -c {{concurrency|100}}"

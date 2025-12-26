@@ -1,0 +1,130 @@
+tool: arachni
+tags: [web, scanner, security, pentest, vulnerability, enumeration]
+
+actions:
+# === BASIC SCANS & OUTPUT ===
+ - title: arachni - basic scan
+   desc: |
+     Performs a standard scan against the target URL using default settings.
+     This command will audit forms, links, and cookies while loading all default security checks.
+     It is the quickest way to start a vulnerability assessment on a single web application.
+     Note that default scans might miss subdomains or specific complex input vectors.
+   command: "arachni {{url}}"
+
+ - title: arachni - verbose scan with report saving
+   desc: |
+     Runs a scan with verbose output and saves the final result to an Arachni Framework Report (.afr) file.
+     The verbose output helps monitor the scanner's progress and identify any connection issues in real-time.
+     The generated .afr file is essential because it can be converted into HTML, JSON, or XML reports later.
+     Always use this when you need to document your findings for a professional pentest report.
+   command: "arachni --output-verbose --report-save-path={{report_name|scan_results.afr}} {{url}}"
+
+ - title: arachni - output only positive results
+   desc: |
+     Filters the console output to only show successfully identified vulnerabilities and security issues.
+     This is highly useful for large-scale scans where you want to ignore noise and focus on actionable findings.
+     It does not affect the actual scan depth, only what is printed to the terminal screen during the process.
+     Use this when running the tool in a background terminal or CI/CD pipeline.
+   command: "arachni --output-only-positives {{url}}"
+
+# === SCOPE & DEPTH CONTROL ===
+ - title: arachni - include subdomains in scan
+   desc: |
+     Instructs the scanner to follow and audit links that lead to subdomains of the target.
+     By default, Arachni restricts itself to the provided domain to prevent "scope creep" and accidental scanning of third parties.
+     Enabling this is crucial for full-surface reconnaissance of a corporate web infrastructure.
+     Be cautious as this can significantly increase scan time and resource consumption.
+   command: "arachni --scope-include-subdomains {{url}}"
+
+ - title: arachni - limit crawl depth and page count
+   desc: |
+     Restricts the scanner to a maximum directory depth and a specific number of total pages.
+     This is an effective way to perform "smoke tests" or quick scans on very large websites without getting stuck in infinite loops.
+     The directory depth limit prevents the crawler from going too deep into nested folder structures.
+     The page limit ensures the scan terminates after reaching the defined threshold of unique URLs.
+   command: "arachni --scope-directory-depth-limit {{depth|3}} --scope-page-limit {{page_limit|100}} {{url}}"
+
+ - title: arachni - exclude specific URL patterns
+   desc: |
+     Uses regular expressions to exclude certain paths or actions from being crawled or audited.
+     This is critical for avoiding sensitive areas like logout buttons, "delete account" pages, or administrative panels.
+     Preventing the scanner from hitting logout links ensures that authenticated sessions remain active throughout the scan.
+     You can use this multiple times to exclude various sensitive patterns in the application.
+   command: "arachni --scope-exclude-pattern {{regex_pattern}} {{url}}"
+
+# === TARGETED AUDITING ===
+ - title: arachni - audit specific elements (links, forms, cookies)
+   desc: |
+     Explicitly tells the scanner which types of web elements to test for vulnerabilities.
+     By focusing only on specific vectors like cookies or headers, you can perform highly targeted security checks.
+     This is often used when a previous scan showed issues in a specific area and you want to verify fixes quickly.
+     Auditing headers and cookies extensively can significantly increase the number of requests sent to the server.
+   command: "arachni --audit-links --audit-forms --audit-cookies --audit-headers {{url}}"
+
+ - title: arachni - audit JSON and XML inputs
+   desc: |
+     Enables specialized auditing for modern web applications that pass data via JSON or XML payloads.
+     Standard scanners often miss vulnerabilities hidden within API calls or AJAX requests if these flags are not set.
+     It is highly recommended for auditing RESTful APIs and single-page applications (SPAs).
+     Ensure the target URL points to the API endpoint or the page making these requests.
+   command: "arachni --audit-jsons --audit-xmls {{url}}"
+
+# === VULNERABILITY CHECK SELECTION ===
+ - title: arachni - run specific vulnerability checks
+   desc: |
+     Loads only the specified security checks, such as XSS or SQL injection, using wildcards.
+     This allows for faster, more focused scans when you are only interested in a specific class of vulnerabilities.
+     Using 'xss*' will load all Cross-Site Scripting related modules.
+     It is a great way to reduce server load by disabling checks that are not relevant to the target environment.
+   command: "arachni --checks={{check_pattern|xss*}} {{url}}"
+
+ - title: arachni - exclude specific checks
+   desc: |
+     Loads all default checks except for those explicitly mentioned with a minus sign prefix.
+     This is useful if certain checks are causing the application to crash or triggering an Intrusion Detection System (IDS).
+     For example, you might want to exclude 'csrf' checks if they are generating too many false positives or logs.
+     It provides a balance between a comprehensive scan and a stable testing environment.
+   command: "arachni --checks=*,-{{excluded_check|csrf}} {{url}}"
+
+# === AUTHENTICATION & HTTP CONFIGURATION ===
+ - title: arachni - scan using HTTP Basic Authentication
+   desc: |
+     Configures the scanner to authenticate against a web server using HTTP Basic Auth credentials.
+     This is necessary for scanning staging environments or protected administrative directories.
+     The scanner will include the 'Authorization' header in every request it sends.
+     Make sure the credentials provided have sufficient permissions to view the entire application.
+   command: "arachni --http-authentication-username {{username}} --http-authentication-password {{password}} {{url}}"
+
+ - title: arachni - scan using session cookies
+   desc: |
+     Provides a pre-authenticated cookie string to the scanner for session-based testing.
+     This is the most common way to scan protected areas of an application after logging in manually in a browser.
+     Ensure the session does not expire during the scan by setting a long timeout on the server or using a persistent session.
+     The format should match the standard 'Cookie' HTTP header (e.g., "session_id=123; user=admin").
+   command: "arachni --http-cookie-string \"{{cookie_string}}\" {{url}}"
+
+ - title: arachni - scan through a proxy
+   desc: |
+     Routes all scanner traffic through a specified proxy server, such as Burp Suite or a SOCKS5 proxy.
+     This is useful for monitoring the scanner's requests or for bypassing network restrictions via a pivot host.
+     You can also specify the proxy type (e.g., socks5) if it is not a standard HTTP proxy.
+     Be aware that scanning through a proxy might slow down the overall scan speed.
+   command: "arachni --http-proxy {{proxy_address|127.0.0.1:8080}} {{url}}"
+
+# === ADVANCED BROWSER CLUSTER ===
+ - title: arachni - scan with JavaScript/DOM support
+   desc: |
+     Uses a browser cluster to analyze the DOM and execute JavaScript on the target pages.
+     This is essential for modern web applications (like React, Angular, or Vue) where content is rendered dynamically.
+     Without this, Arachni will only see the initial static HTML and might miss many inputs and links.
+     Increasing the pool size can speed up the scan but requires significantly more RAM and CPU.
+   command: "arachni --browser-cluster-pool-size {{pool_size|6}} --scope-dom-depth-limit {{dom_depth|5}} {{url}}"
+
+# === REPORTING & SNAPSHOTS ===
+ - title: arachni - set scan timeout and suspend
+   desc: |
+     Stops the scan automatically after a specified duration and saves a snapshot of its current state.
+     The snapshot can be used later to resume the scan from exactly where it left off using 'arachni_restore'.
+     This is a vital feature for pentests with strict time windows or for handling unexpected system reboots.
+     The duration format is HOURS:MINUTES:SECONDS.
+   command: "arachni --timeout {{duration|01:00:00}} --timeout-suspend --snapshot-save-path {{snapshot_path|scan.snapshot}} {{url}}"

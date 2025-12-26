@@ -1,0 +1,71 @@
+tool: impacket-net
+tags: [network, pentest, active-directory, enumeration, impacket, security, samr]
+
+actions:
+  # === DOMAIN ENUMERATION ===
+  - title: impacket-net - enumerate domain users
+    desc: |
+      Lists all user accounts within the target Active Directory domain. 
+      This is a fundamental reconnaissance step used to build a target list for password spraying or identifying interesting accounts.
+      It communicates with the SAMR (Security Account Manager Remote) RPC interface over SMB.
+      Be aware that excessive enumeration might be logged by security monitoring tools.
+    command: "impacket-net {{domain}}/{{username}}:{{password}}@{{target_ip}} user"
+
+  - title: impacket-net - enumerate domain computers
+    desc: |
+      Retrieves a list of all computer accounts registered in the domain level.
+      Identifying computer names and types helps in mapping the internal network infrastructure and finding high-value targets.
+      This command is particularly useful for identifying potential Domain Controllers or SQL Servers based on naming conventions.
+      It requires valid domain credentials to query the Domain Controller's SAM database.
+    command: "impacket-net {{domain}}/{{username}}:{{password}}@{{target_ip}} computer"
+
+  - title: impacket-net - enumerate domain groups
+    desc: |
+      Lists all global and security groups registered within the Domain Controller.
+      Understanding the group structure is vital for mapping the privilege hierarchy and finding sensitive groups like 'Domain Admins'.
+      This action helps attackers or auditors identify which groups hold significant power within the AD environment.
+      The output typically includes the group names and their associated RID (Relative Identifier).
+    command: "impacket-net {{domain}}/{{username}}:{{password}}@{{target_ip}} group"
+
+  # === LOCAL ENUMERATION ===
+  - title: impacket-net - enumerate local groups
+    desc: |
+      Enumerate the local groups (aliases) defined on a specific target computer.
+      This is useful for identifying who has local administrative rights or other specific local permissions on a workstation or server.
+      It helps in lateral movement planning by showing which domain users or groups are mapped to local privileged roles.
+      Note that this requires a successful connection to the target's SAMR interface, which usually requires administrative or specific RPC rights.
+    command: "impacket-net {{domain}}/{{username}}:{{password}}@{{target_ip}} localgroup"
+
+  # === AUTHENTICATION VARIANTS ===
+  - title: impacket-net - enumerate via pass-the-hash
+    desc: |
+      Performs enumeration using NTLM hashes instead of a cleartext password.
+      This technique is essential during post-exploitation when you have extracted hashes but cannot crack them into plain text.
+      The format for the hash must be LMHASH:NTHASH; if you only have the NTLM hash, provide an empty LM hash (32 zeros).
+      This allows for the same level of enumeration as a standard password login.
+    command: "impacket-net {{domain}}/{{username}}@{{target_ip}} -hashes {{lmhash|00000000000000000000000000000000}}:{{nthash}} user"
+
+  - title: impacket-net - enumerate using kerberos
+    desc: |
+      Uses Kerberos authentication for the enumeration process instead of NTLM.
+      This requires a valid Kerberos ticket (TGT) in your environment or specified credentials to request one from the KDC.
+      Using Kerberos is often preferred in environments where NTLM is restricted or to bypass certain security controls.
+      Ensure that you use the FQDN/Hostname of the target instead of an IP address for Kerberos to function correctly.
+    command: "impacket-net {{domain}}/{{username}}@{{target_name}} -k -no-pass -dc-ip {{dc_ip}} user"
+
+  # === ADVANCED CONNECTION ===
+  - title: impacket-net - specify target ip and port
+    desc: |
+      Forces the connection to a specific IP address and port regardless of the target string.
+      This is useful when the NetBIOS name or FQDN cannot be resolved by the local machine's DNS.
+      It is also helpful if the SMB service is running on a non-standard port (e.g., via a port forward or tunnel).
+      The target parameter in the command string still represents the identity you are connecting to.
+    command: "impacket-net {{domain}}/{{username}}:{{password}}@{{target_name}} -target-ip {{target_ip}} -port {{port|445}} user"
+
+  - title: impacket-net - debug mode enumeration
+    desc: |
+      Runs the enumeration tool with the -debug flag enabled to provide verbose output.
+      This is extremely useful for troubleshooting connection issues, RPC errors, or authentication failures.
+      It displays the underlying packets and RPC calls being made to the target.
+      Use this when the tool fails silently or returns unexpected error codes like Access Denied.
+    command: "impacket-net -debug {{domain}}/{{username}}:{{password}}@{{target_ip}} user"

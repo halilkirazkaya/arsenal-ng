@@ -1,0 +1,65 @@
+tool: impacket-mimikatz
+tags: [pentest, security, credentials, exploitation, smb, windows, lateral-movement]
+
+actions:
+# === AUTHENTICATION & CONNECTION ===
+
+ - title: impacket-mimikatz - basic interactive session
+   desc: |
+     Establish an interactive Mimikatz shell on the remote target using cleartext credentials.
+     This command is the most common way to start a session when administrative credentials are known.
+     It allows the operator to execute various Mimikatz commands directly on the remote system via RPC.
+     Ensure you have local administrator rights on the target machine for successful execution.
+   command: "impacket-mimikatz {{domain}}/{{username}}:{{password}}@{{target}}"
+
+ - title: impacket-mimikatz - pass-the-hash authentication
+   desc: |
+     Perform authentication using NTLM hashes instead of a cleartext password.
+     This is a critical technique for lateral movement when only the NT hash of an administrator has been recovered.
+     The LM hash can be padded with zeros if it is unknown or not required.
+     It bypasses the need for the original password while providing full administrative access to the remote Mimikatz RPC server.
+   command: "impacket-mimikatz -hashes {{lmhash|00000000000000000000000000000000}}:{{nthash}} {{domain}}/{{username}}@{{target}}"
+
+ - title: impacket-mimikatz - kerberos authentication
+   desc: |
+     Use Kerberos tickets for authentication instead of NTLM.
+     The command will attempt to use the ticket defined in the KRB5CCNAME environment variable.
+     This method is often stealthier and is required in environments where NTLM authentication is strictly disabled.
+     The -no-pass flag ensures the tool does not prompt for a password when using the cached ticket.
+   command: "impacket-mimikatz -k -no-pass -dc-ip {{dc_ip}} {{domain}}/{{username}}@{{target}}"
+
+ - title: impacket-mimikatz - aes key authentication
+   desc: |
+     Authenticate using a specific AES hex key (128 or 256 bit) for Kerberos.
+     This is useful when you have extracted a user's AES keys and want to authenticate without the cleartext password.
+     The tool will handle the Kerberos exchange using the provided key to establish the session.
+     This provides a robust alternative for authentication in modern Active Directory environments.
+   command: "impacket-mimikatz -aesKey {{hex_key}} {{domain}}/{{username}}@{{target}}"
+
+# === AUTOMATION & EXECUTION ===
+
+ - title: impacket-mimikatz - execute commands from file
+   desc: |
+     Read and execute a sequence of Mimikatz commands from a local text file.
+     This is highly effective for automating credential harvesting, such as running "sekurlsa::logonpasswords" across multiple hosts.
+     Using a file prevents manual entry errors and speeds up the post-exploitation workflow.
+     The output of each command in the file will be displayed in the terminal session.
+   command: "impacket-mimikatz -file {{commands_file|commands.txt}} {{domain}}/{{username}}:{{password}}@{{target}}"
+
+ - title: impacket-mimikatz - force target ip address
+   desc: |
+     Connect to a specific IP address while maintaining the target's NetBIOS or DNS name.
+     This is particularly useful when name resolution is failing or when targeting a specific multi-homed machine.
+     It ensures that the SMB/RPC traffic is routed to the exact network interface intended by the operator.
+     This flag helps avoid issues with misconfigured DNS in internal environments.
+   command: "impacket-mimikatz -target-ip {{target_ip}} {{domain}}/{{username}}:{{password}}@{{target_name}}"
+
+# === DEBUGGING & LOGGING ===
+
+ - title: impacket-mimikatz - debug mode with timestamps
+   desc: |
+     Run the tool with debug output enabled and timestamps on every log entry.
+     This is essential for troubleshooting connection issues or understanding RPC errors during execution.
+     The debug flag provides verbose information about the underlying Impacket library operations.
+     Timestamps help in correlating the tool's actions with system logs on the target or domain controller.
+   command: "impacket-mimikatz -debug -ts {{domain}}/{{username}}:{{password}}@{{target}}"

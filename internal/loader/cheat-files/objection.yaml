@@ -1,0 +1,143 @@
+tool: objection
+tags: [mobile, security, android, ios, pentest, exploration, frida, hooking]
+
+actions:
+  # === SETUP AND PATCHING ===
+
+ - title: objection - patch android apk
+   desc: |
+     Patches a target Android APK with the Frida gadget library. This process is essential for performing
+     runtime analysis on non-rooted Android devices by embedding the frida-agent directly into the app.
+     The command decompiles the APK, injects the library, modifies the manifest to load the library, and rebuilds it.
+     Ensure you have the necessary dependencies like apktool and jarsigner installed in your path.
+   command: "objection patchapk --source {{apk_path|base.apk}}"
+
+ - title: objection - patch ios ipa
+   desc: |
+     Patches an iOS IPA file with the FridaGadget dylib for instrumentation on non-jailbroken devices.
+     This command automates the process of unpacking the IPA, injecting the dylib, and providing instructions for resigning.
+     It is a critical step for black-box testing of iOS applications where jailbreaking is not an option.
+     Note that a valid mobileprovision and code-signing identity are required for the app to run on a physical device.
+   command: "objection patchipa --source {{ipa_path|app.ipa}} --codesign-signature {{signature_id|ABC123XYZ}}"
+
+ # === SESSION MANAGEMENT ===
+
+ - title: objection - start exploration session
+   desc: |
+     Starts a new exploration session by connecting to a patched application running on a USB device.
+     This is the most common way to enter the interactive REPL where you can run various runtime commands.
+     If the application was patched with a specific name, use the -n flag to specify the target.
+     Execution of the application will typically be paused at startup until this command is executed.
+   command: "objection -n {{gadget_name|Gadget}} start"
+
+ - title: objection - connect to remote device
+   desc: |
+     Connects to an objection session over a network connection instead of the default USB.
+     This is useful when the mobile device is reachable via IP, such as over Wi-Fi or within a lab environment.
+     By default, it tries to connect to 127.0.0.1:27042 unless a custom host and port are provided.
+     Ensure that the frida-server or gadget is configured to listen on the specified network interface.
+   command: "objection --network --host {{ip_address}} --port {{port|27042}} explore"
+
+ - title: objection - spawn application
+   desc: |
+     Spawns the target application instead of attaching to an already running process.
+     Spawning is necessary when you need to instrument the application from the very first instruction,
+     such as bypassing early-stage jailbreak detection or SSL pinning checks.
+     The --no-pause flag can be added if you don't want the process to wait for your manual resume command.
+   command: "objection -g {{package_name}} explore --spawn"
+
+ # === FILESYSTEM AND ENVIRONMENT ===
+
+ - title: objection - list environment information
+   desc: |
+     Displays the application's environment variables and important directory paths.
+     On iOS, this shows paths like the Documents, Library, and Caches directories within the app sandbox.
+     On Android, it reveals the files directory, cache directory, and external storage paths.
+     This is a fundamental reconnaissance step to locate where the application stores sensitive data or configuration files.
+   command: "env"
+
+ - title: objection - browse filesystem
+   desc: |
+     Lists the files and directories in the current working directory of the application sandbox.
+     It provides metadata such as permissions, file sizes, and ownership details, similar to a standard Unix ls command.
+     This command is used to navigate the app's internal storage and identify interesting files for extraction.
+     You can use 'cd' to move between directories discovered via this command.
+   command: "ls"
+
+ - title: objection - download file
+   desc: |
+     Downloads a file from the mobile device's filesystem to your local machine for offline analysis.
+     This is commonly used to extract SQLite databases, Plist configuration files, or cached images.
+     The first argument is the remote file path on the device, and the second is the local destination name.
+     Ensure you have read permissions for the target file within the application's sandbox context.
+   command: "filesystem download {{remote_file}} {{local_destination}}"
+
+ # === IOS SPECIFIC ACTIONS ===
+
+ - title: objection - read ios plist
+   desc: |
+     Parses and displays the contents of an iOS Property List (Plist) file directly in the REPL.
+     Plists are frequently used on iOS to store application settings, user preferences, and sometimes sensitive credentials.
+     This command saves the step of downloading the file and using an external viewer to see its contents.
+     It can handle both XML and Binary Plist formats automatically.
+   command: "ios plist cat {{plist_file|Info.plist}}"
+
+ - title: objection - bypass ios ssl pinning
+   desc: |
+     Attempts to disable SSL pinning on iOS by hooking common networking libraries like Alamofire or AFNetworking.
+     This is a vital command for intercepting HTTPS traffic using tools like Burp Suite or OWASP ZAP.
+     It works by dynamically modifying the return values of certificate validation methods at runtime.
+     Note that custom pinning implementations might require manual hooking if this automated script fails.
+   command: "ios sslpinning disable"
+
+ - title: objection - dump ios keychain
+   desc: |
+     Dumps the contents of the iOS Keychain that the application has access to.
+     The Keychain is the standard secure storage for passwords, keys, and certificates on Apple devices.
+     This command allows you to see what secrets the app is persisting between sessions or sharing across the ecosystem.
+     Be aware that this only shows entries accessible to the specific application's entitlement group.
+   command: "ios keychain dump"
+
+ # === ANDROID SPECIFIC ACTIONS ===
+
+ - title: objection - list android activities
+   desc: |
+     Enumerates all of the Activities declared in the Android application's manifest.
+     Activities represent the different screens or entry points within an Android app.
+     Finding unexported or hidden activities can lead to the discovery of administrative panels or bypassed authentication logic.
+     The output provides the full class names required for launching intents or setting hooks.
+   command: "android hooking list activities"
+
+ - title: objection - launch android activity
+   desc: |
+     Forces the application to launch a specific Activity using an Android Intent.
+     This can be used to access screens that are otherwise locked behind login screens or complex workflows.
+     It is a powerful technique for testing how an Activity handles unexpected states or malformed intent data.
+     Use the full class name obtained from the 'list activities' command as the target.
+   command: "android intent launch_activity {{activity_class}}"
+
+ - title: objection - bypass android ssl pinning
+   desc: |
+     Injects a script to disable various SSL pinning implementations on Android.
+     It targets common libraries such as OkHttp3, trust managers, and several vendor-specific classes.
+     This allows the tester to proxy the application's network traffic through a local intercepting proxy.
+     Successful bypass usually requires the device to have a trusted CA certificate from the proxy installed in its user store.
+   command: "android sslpinning disable"
+
+ # === DATABASE ANALYSIS ===
+
+ - title: objection - connect to sqlite database
+   desc: |
+     Connects to a SQLite database file found within the application's filesystem.
+     Once connected, objection provides a subset of SQL commands to explore the database structure and data.
+     It actually downloads a temporary copy of the database to perform queries, making it safe for the live file.
+     This is highly effective for auditing local data storage and finding sensitive user information.
+   command: "sqlite connect {{database_file|data.sqlite}}"
+
+ - title: objection - execute sqlite query
+   desc: |
+     Executes a raw SQL query against the currently connected SQLite database.
+     You must first run the 'sqlite connect' command before this feature becomes available in the session.
+     It is used to dump table contents, filter for specific records, or analyze the database schema.
+     Be careful when performing write operations as they may not be reflected back to the device depending on the session state.
+   command: "sqlite execute query {{sql_query|select * from users;}}"

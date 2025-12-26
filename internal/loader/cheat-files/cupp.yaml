@@ -1,0 +1,54 @@
+tool: cupp
+tags: [passwords, wordlist, social-engineering, pentest, brute-force, enumeration]
+
+actions:
+  # === CORE PROFILING ===
+  - title: cupp - interactive password profiling
+    desc: |
+      Starts an interactive session to generate a personalized wordlist based on a target's specific details. 
+      The tool will prompt for the target's name, nickname, birthdate, partner's info, and even pet names. 
+      This is the most effective way to use the tool when performing social engineering-driven password attacks. 
+      It creates a highly relevant list of potential passwords that humans are likely to choose.
+    command: "cupp -i"
+
+  - title: cupp - improve existing wordlist
+    desc: |
+      Uses an existing wordlist or dictionary file as a seed to generate new password variations. 
+      This option is useful when you have a list of keywords related to a target and want to apply typical password complexity patterns to them. 
+      The tool processes the input file and generates a much larger "pwnsauce" dictionary. 
+      Ensure the input file is in a readable text format for the best results.
+    command: "cupp -w {{input_file|dictionary.txt}}"
+
+  # === DATABASE AND REPOSITORY ===
+  - title: cupp - parse alecto default credentials
+    desc: |
+      Parses default usernames and passwords directly from the Alecto Database integration. 
+      The Alecto DB merges and enhances purified databases from Phenoelit and CIRT projects. 
+      This is extremely useful for identifying default vendor credentials on network equipment, IoT devices, or legacy systems. 
+      It saves time by providing a consolidated list of known default access points.
+    command: "cupp -a"
+
+  - title: cupp - download wordlist repository
+    desc: |
+      Downloads a collection of large wordlists directly from the official CUPP repository. 
+      These lists are categorized and can be used for general-purpose brute-forcing or as a base for further profiling. 
+      Note that this action requires an active internet connection to reach the remote repository. 
+      It is a quick way to populate your local toolset with standard password lists.
+    command: "cupp -l"
+
+  # === MISCELLANEOUS ===
+  - title: cupp - show help menu
+    desc: |
+      Displays the help menu containing all available command-line arguments and options. 
+      This is the quickest way to verify the installed version and see the correct syntax for various flags. 
+      Use this whenever you are unsure about the specific parameter requirements for a command. 
+      The output provides a brief overview of interactive, database, and wordlist options.
+    command: "cupp -h"
+
+  - title: cupp - display version information
+    desc: |
+      Shows the current version of the CUPP tool installed on the system. 
+      Checking the version is important for ensuring compatibility with different Python environments and features. 
+      Newer versions may include updated logic for password generation or better integration with databases. 
+      This command is non-intrusive and does not perform any profiling or network activity.
+    command: "cupp -v"

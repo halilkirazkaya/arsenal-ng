@@ -1,0 +1,49 @@
+tool: impacket-sniff
+tags: [network, sniffing, packets, impacket, security, pentest, traffic-analysis]
+
+actions:
+# === BASIC CAPTURE ===
+
+ - title: impacket-sniff - interactive interface selection
+   desc: |
+     Starts the tool in interactive mode to list available network interfaces. 
+     This is the most common way to start the tool when the interface index is unknown. 
+     The user will be prompted to select an interface (e.g., eth0, lo, docker0) by entering its corresponding number. 
+     Note that this functionality requires root or administrative privileges to access raw network sockets.
+   command: "impacket-sniff"
+
+ - title: impacket-sniff - capture on specific interface
+   desc: |
+     Directly initiates packet sniffing on a specific interface identified by its index number. 
+     This bypasses the initial interactive prompt, making it suitable for automated scripts or repeated testing. 
+     The interface index usually matches the list provided by the tool's help or initial run (e.g., 0 for eth0). 
+     Ensure you have the correct permissions, as sniffing on network interfaces is restricted to privileged users.
+   command: "impacket-sniff -i {{interface_index|0}}"
+
+# === FILTERING AND LIMITS ===
+
+ - title: impacket-sniff - capture with BPF filter
+   desc: |
+     Applies a Berkeley Packet Filter (BPF) to the capture session to isolate specific network traffic. 
+     This is essential for focusing on relevant protocols like SMB, HTTP, or specific IP addresses in noisy environments. 
+     Standard BPF syntax is used, such as "tcp port 445" or "host 192.168.1.1". 
+     Using filters significantly reduces the volume of data processed and displayed on the terminal.
+   command: "impacket-sniff -i {{interface_index|0}} -f \"{{bpf_filter|tcp port 445}}\""
+
+ - title: impacket-sniff - limit captured packet count
+   desc: |
+     Restricts the sniffing session to a specific number of captured packets before exiting. 
+     This is useful for gathering a small sample of traffic for quick analysis without manually interrupting the process. 
+     Once the specified count is reached, the tool will automatically stop and return to the command prompt. 
+     It is a safe way to prevent logs or terminal output from growing uncontrollably during long sessions.
+   command: "impacket-sniff -i {{interface_index|0}} -c {{packet_count|100}}"
+
+# === ADVANCED USAGE ===
+
+ - title: impacket-sniff - filtered capture with packet limit
+   desc: |
+     Combines both BPF filtering and packet count limits for a highly targeted capture session. 
+     This command is ideal for capturing a specific sequence of packets, such as a single handshake or a specific set of requests. 
+     It ensures that only relevant traffic is captured and that the tool stops once the necessary data is collected. 
+     Be aware that if the filter is too restrictive, the tool may take a long time to reach the specified packet count.
+   command: "impacket-sniff -i {{interface_index|0}} -f \"{{bpf_filter|port 80}}\" -c {{packet_count|50}}"

@@ -1,0 +1,79 @@
+tool: onesixtyone
+tags: [network, snmp, scanner, pentest, reconnaissance, enumeration, information-gathering]
+
+actions:
+  # === BASIC SCANNING ===
+  - title: onesixtyone - basic single target scan
+    desc: |
+      Performs a simple SNMP scan against a single IP address using a specific community string.
+      This command is primarily used to verify if a device responds to standard SNMP requests by fetching the sysDescr OID.
+      It is an essential first step in network reconnaissance to identify the hardware and OS version of a target.
+      By default, it uses the community string provided in the command line (e.g., public).
+    command: "onesixtyone {{target}} {{community|public}}"
+
+  - title: onesixtyone - scan a network range
+    desc: |
+      Scans an entire CIDR network range to discover active SNMP-enabled devices.
+      This is highly efficient for large-scale discovery because the tool sends requests asynchronously.
+      The output will list all responding IP addresses along with their system descriptions.
+      It is particularly useful during internal penetration tests to map out infrastructure quickly.
+    command: "onesixtyone {{network_range|192.168.1.0/24}} {{community|public}}"
+
+  # === ENUMERATION & BRUTE FORCE ===
+  - title: onesixtyone - community string brute force
+    desc: |
+      Attempts to find valid SNMP community strings by using a dictionary file against a target.
+      Since many administrators change default strings for security, using a wordlist is crucial for discovery.
+      The tool iterates through the file and reports any successful "handshakes" that return data.
+      Note that while SNMP v1/v2c doesn't usually have lockout policies, high-frequency attempts might be logged by IDS.
+    command: "onesixtyone -c {{wordlist|/usr/share/doc/onesixtyone/dict.txt}} {{target}}"
+
+  - title: onesixtyone - multi-target scan from file
+    desc: |
+      Reads a list of target IP addresses or network ranges from an input file and scans them.
+      This allows for more organized testing when you have a pre-filtered list of hosts from other tools like Nmap.
+      You can combine this with a community wordlist to perform mass enumeration across different segments.
+      It is an efficient way to automate the discovery process across multiple disparate targets.
+    command: "onesixtyone -i {{input_file}} -c {{wordlist|dict.txt}}"
+
+  # === ADVANCED CONFIGURATION ===
+  - title: onesixtyone - adjust packet delay for stealth or stability
+    desc: |
+      Sets the waiting interval in milliseconds between sending packets to the target(s).
+      Increasing the delay (default is 10ms) can help bypass simple rate-limiting or prevent network congestion.
+      It is recommended to use a higher value like 100ms when scanning sensitive industrial control systems (ICS).
+      Slower scans are also less likely to trigger high-load alerts on older networking hardware.
+    command: "onesixtyone -w {{delay|100}} -i {{input_file}} -c {{wordlist}}"
+
+  - title: onesixtyone - scan on a custom snmp port
+    desc: |
+      Targets a non-standard port for SNMP discovery instead of the default UDP port 161.
+      Administrators occasionally move SNMP to different ports to avoid automated discovery and basic scans.
+      This command is useful when initial scans fail but you suspect an SNMP service is hidden elsewhere.
+      Ensure your firewall rules allow outgoing traffic on the specified custom port.
+    command: "onesixtyone -p {{port|16161}} {{target}} {{community|public}}"
+
+  # === OUTPUT MANAGEMENT ===
+  - title: onesixtyone - log results to a file
+    desc: |
+      Saves the scan results to a specified output file for later analysis and documentation.
+      This is vital for professional engagements where you must provide proof of discovery and findings.
+      The tool will log the IP address, the community string that worked, and the system description.
+      Using this with the quiet mode (-q) is common when you only want the file as a record without terminal clutter.
+    command: "onesixtyone -o {{output_file|results.log}} {{target}} {{community|public}}"
+
+  - title: onesixtyone - short output mode
+    desc: |
+      Displays only the IP addresses of the responding hosts without the full system description.
+      This "short mode" is perfect for piping the output into other command-line tools or scripts.
+      It allows for quick extraction of "live" SNMP targets for further processing with tools like snmp-check or snmpwalk.
+      It simplifies the terminal view when scanning very large network ranges.
+    command: "onesixtyone -s {{target}} {{community|public}}"
+
+  - title: onesixtyone - debug and verbose mode
+    desc: |
+      Enables debug mode to provide more information about the packets being sent and received.
+      Using the flag twice (-d -d) increases the verbosity further, showing detailed packet processing.
+      This is primarily used for troubleshooting connectivity issues or verifying if the tool is working correctly.
+      It can help identify why certain hosts are not responding even if they appear to be up.
+    command: "onesixtyone -d {{target}} {{community|public}}"

@@ -1,0 +1,86 @@
+tool: dotdotpwn
+tags: [network, security, pentest, enumeration, exploitation, web, fuzzer, directory-traversal]
+
+actions:
+# === HTTP & WEB FUZZING ===
+
+ - title: dotdotpwn - basic http fuzzing
+   desc: |
+     Performs a standard directory traversal attack against a target web server. 
+     This is the most common starting point for identifying vulnerabilities in web servers running on default ports. 
+     The tool will attempt to access various sensitive files using a variety of traversal patterns.
+   command: "dotdotpwn -m http -h {{host}}"
+
+ - title: dotdotpwn - fuzzing specific URL parameter
+   desc: |
+     Targets a specific URL parameter by replacing its value with the TRAVERSAL keyword. 
+     This is highly effective when you suspect a specific script or endpoint (like download.php?file=) is vulnerable. 
+     You must explicitly include the "TRAVERSAL" string in the URL to indicate the injection point.
+   command: "dotdotpwn -m http-url -u {{url|http://example.com/id.php?file=TRAVERSAL}}"
+
+ - title: dotdotpwn - fuzzing using POST method
+   desc: |
+     Changes the default HTTP request method from GET to POST for the specified target. 
+     Many modern applications process file paths or resource identifiers through POST data rather than URL parameters. 
+     This command ensures you are testing the application's handling of data sent in the request body.
+   command: "dotdotpwn -m http -h {{host}} -M POST"
+
+ - title: dotdotpwn - search for specific file with keyword match
+   desc: |
+     Configures the fuzzer to look for a specific file and verify success by matching a text pattern in the response. 
+     This is crucial for reducing false positives, as it ensures the content returned actually contains the expected data (e.g., "root:" in /etc/passwd). 
+     It is especially useful when targets return custom error pages with a 200 OK status code.
+   command: "dotdotpwn -m http-url -u {{url_with_traversal}} -f {{file|/etc/passwd}} -k {{keyword|root:}}"
+
+# === PROTOCOL SPECIFIC FUZZING ===
+
+ - title: dotdotpwn - ftp service fuzzing
+   desc: |
+     Scans an FTP server to identify directory traversal vulnerabilities that could allow escaping the home directory. 
+     The module uses common FTP commands to test if the service properly restricts file access. 
+     You can provide specific credentials if the server does not support anonymous login.
+   command: "dotdotpwn -m ftp -h {{host}} -U {{username|anonymous}} -P {{password|anonymous@example.com}}"
+
+ - title: dotdotpwn - tftp service fuzzing
+   desc: |
+     Initiates a directory traversal scan against a TFTP (Trivial File Transfer Protocol) service. 
+     TFTP is often used for booting diskless workstations or transferring configuration files and often lacks authentication. 
+     Note that TFTP usually runs on UDP port 69 and might require specific firewall rules to test.
+   command: "dotdotpwn -m tftp -h {{host}}"
+
+# === ADVANCED CONFIGURATION & OPTIMIZATION ===
+
+ - title: dotdotpwn - advanced scanning with depth and OS type
+   desc: |
+     Optimizes the fuzzing process by specifying the traversal depth and the target operating system. 
+     Setting the OS type (windows, unix, or generic) helps the tool select the most relevant file paths to attempt. 
+     Increasing the depth (e.g., to 8 or 10) allows the tool to search deeper within the file system hierarchy.
+   command: "dotdotpwn -m http -h {{host}} -d {{depth|8}} -o {{os_type|unix}}"
+
+ - title: dotdotpwn - fuzzing with Nmap OS detection
+   desc: |
+     Integrates with Nmap to automatically detect the target's operating system before the scan starts. 
+     This ensures that the fuzzer uses the most intelligent payloads relevant to the actual target environment. 
+     Be aware that this requires Nmap to be installed and might require elevated privileges (sudo) for accurate fingerprinting.
+   command: "dotdotpwn -m http -h {{host}} -O"
+
+ - title: dotdotpwn - slow fuzzing with custom delay
+   desc: |
+     Sets a custom time delay between each request sent to the target host. 
+     Using a delay is important to avoid overloading the target server or triggering rate-limiting and Intrusion Detection Systems (IDS). 
+     The value is specified in milliseconds (default is 300ms).
+   command: "dotdotpwn -m http -h {{host}} -t {{delay_ms|500}}"
+
+ - title: dotdotpwn - quiet mode and report generation
+   desc: |
+     Runs the fuzzer in quiet mode while saving the results to a specified report file. 
+     This is ideal for automated pentesting pipelines or long-running scans where you don't want to flood the terminal. 
+     The resulting text file will contain all the successfully identified traversal paths.
+   command: "dotdotpwn -m http -h {{host}} -q -r {{report_name|results.txt}}"
+
+ - title: dotdotpwn - break on first vulnerability found
+   desc: |
+     Instructs the tool to stop the fuzzing process immediately after the first vulnerability is confirmed. 
+     This is useful for quick assessments or "Proof of Concept" tasks where you only need to prove a weakness exists. 
+     It saves time and reduces the number of requests sent to the target server.
+   command: "dotdotpwn -m http -h {{host}} -b"

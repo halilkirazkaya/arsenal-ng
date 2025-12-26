@@ -1,0 +1,57 @@
+tool: impacket-wmipersist
+tags: [pentest, persistence, wmi, windows, impacket, exploitation, red-team]
+
+actions:
+  # === INSTALLATION ACTIONS ===
+
+  - title: impacket-wmipersist - install persistence with password
+    desc: |
+      Installs a WMI Event Consumer and Filter on a remote target using cleartext credentials. 
+      This is a common method for establishing long-term persistence by executing a VBScript when a specific WMI event occurs. 
+      The VQL filter defines the trigger condition, such as a specific time or a system event. 
+      Be aware that this requires administrative privileges and will leave permanent WMI objects on the target system.
+    command: "impacket-wmipersist {{domain}}/{{username}}:{{password}}@{{target_ip}} install -name {{persistence_name|BackupSync}} -vbs {{vbs_file_path}} -filter \"{{wql_filter|SELECT * FROM __InstanceModificationEvent WITHIN 60 WHERE TargetInstance ISA 'Win32_LocalTime' AND TargetInstance.Hour = 12}}\""
+
+  - title: impacket-wmipersist - install persistence using NTLM hashes
+    desc: |
+      Establishes WMI persistence using Pass-the-Hash (PtH) authentication instead of a cleartext password. 
+      This is highly effective when you have extracted NTLM hashes from memory or a SAM database but cannot crack them. 
+      The tool creates a subscription that links an event filter to a script consumer. 
+      Ensure the VBScript provided is reachable or its content is correctly handled by the tool for remote execution.
+    command: "impacket-wmipersist {{domain}}/{{username}}@{{target_ip}} -hashes {{hash}} install -name {{persistence_name|SystemUpdate}} -vbs {{vbs_file_path}} -filter \"{{wql_filter}}\""
+
+  - title: impacket-wmipersist - install with timer-based trigger
+    desc: |
+      Configures persistence to trigger based on a simple timer interval rather than a complex WQL filter. 
+      This is useful for periodic execution of a payload (e.g., a beacon or reverse shell) every few minutes or hours. 
+      The interval is typically specified in milliseconds. 
+      It creates a `__TimerInstruction` object in the WMI repository to manage the timing.
+    command: "impacket-wmipersist {{domain}}/{{username}}:{{password}}@{{target_ip}} install -name {{persistence_name|PeriodicTask}} -vbs {{vbs_file_path}} -timer {{interval_ms|300000}}"
+
+  # === ADVANCED AUTHENTICATION ===
+
+  - title: impacket-wmipersist - persistence using Kerberos authentication
+    desc: |
+      Performs the persistence installation using Kerberos tickets, which is useful in environments where NTLM is restricted. 
+      The `-k` flag tells the tool to look for a valid Kerberos ticket in the path specified by the `KRB5CCNAME` environment variable. 
+      You must use the FQDN of the target instead of an IP address for Kerberos to function correctly. 
+      The `-dc-ip` flag is often necessary to point the tool to the Domain Controller for ticket validation.
+    command: "impacket-wmipersist {{domain}}/{{username}}@{{target_fqdn}} -k -no-pass -dc-ip {{dc_ip}} install -name {{persistence_name}} -vbs {{vbs_file_path}} -filter \"{{wql_filter}}\""
+
+  # === MAINTENANCE AND CLEANUP ===
+
+  - title: impacket-wmipersist - remove WMI persistence
+    desc: |
+      Removes the previously installed WMI Event Consumer, Filter, and the Binding between them. 
+      This command is essential for cleanup after a penetration test or red team engagement to avoid leaving backdoors. 
+      You must provide the exact same name used during the installation phase. 
+      Failure to remove these objects can lead to detection by security software or blue teams monitoring WMI repository changes.
+    command: "impacket-wmipersist {{domain}}/{{username}}:{{password}}@{{target_ip}} remove -name {{persistence_name|BackupSync}}"
+
+  - title: impacket-wmipersist - debug and troubleshoot connection
+    desc: |
+      Runs the tool with the debug flag enabled to troubleshoot connection issues or RPC/DCOM errors. 
+      This provides verbose output regarding the authentication handshake and WMI object creation process. 
+      It is particularly helpful when encountering "Access Denied" errors or firewall restrictions. 
+      The timestamps help in correlating the tool's actions with server-side logs.
+    command: "impacket-wmipersist -debug -ts {{domain}}/{{username}}:{{password}}@{{target_ip}} install -name {{persistence_name}} -vbs {{vbs_file_path}} -filter \"{{wql_filter}}\""

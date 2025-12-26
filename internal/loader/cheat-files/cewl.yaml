@@ -1,0 +1,105 @@
+tool: cewl
+tags: [wordlist, password-cracking, reconnaissance, security, pentest, enumeration, web]
+
+actions:
+  # === BASIC USAGE ===
+  - title: cewl - basic wordlist generation
+    desc: |
+      Generate a custom wordlist by spidering the provided URL.
+      By default, it crawls to a depth of 2 levels and outputs the results to the terminal.
+      This is highly effective for creating targeted wordlists for password cracking based on site-specific terminology.
+    command: "cewl {{url}}"
+
+  - title: cewl - save output to file
+    desc: |
+      Save the generated wordlist directly to a specified text file.
+      Writing to a file is recommended for large sites to avoid losing data in the terminal buffer.
+      The output file will contain one unique word per line found during the spidering process.
+    command: "cewl -w {{output_file|wordlist.txt}} {{url}}"
+
+  - title: cewl - set spidering depth
+    desc: |
+      Control how deep the spider will follow links from the initial page.
+      Increasing the depth (default is 2) will result in a much larger wordlist but will take significantly more time.
+      Be cautious with high depth values as it may lead to spidering unintended sections of a web application.
+    command: "cewl -d {{depth|3}} {{url}}"
+
+  # === WORD FILTERING & TRANSFORMATION ===
+  - title: cewl - minimum word length
+    desc: |
+      Filter the wordlist to only include words that meet a minimum character length.
+      This is useful when targeting systems with specific password complexity requirements (e.g., minimum 8 characters).
+      It helps reduce the size of the wordlist by removing short, common words that are unlikely to be passwords.
+    command: "cewl -m {{min_length|8}} {{url}}"
+
+  - title: cewl - maximum word length
+    desc: |
+      Limit the length of words captured by the spider.
+      Use this when you know the target system has a maximum character limit for passwords.
+      This prevents the wordlist from being cluttered with extremely long strings or concatenated text blocks.
+    command: "cewl -x {{max_length|15}} {{url}}"
+
+  - title: cewl - lowercase all words
+    desc: |
+      Convert every word found during the crawl to lowercase.
+      This is helpful for normalization before passing the list to a tool like Hashcat or John the Ripper.
+      It ensures that unique words are not duplicated based only on their casing.
+    command: "cewl --lowercase {{url}}"
+
+  - title: cewl - include words with numbers
+    desc: |
+      Include words that contain numbers in addition to letters.
+      By default, CeWL focuses on alphabetic strings; this flag expands the search to alphanumeric strings.
+      This is crucial for capturing modern passwords which frequently include numbers.
+    command: "cewl --with-numbers {{url}}"
+
+  # === DATA EXTRACTION ===
+  - title: cewl - extract email addresses
+    desc: |
+      Search for and extract email addresses found within the target website's content.
+      The extracted emails can be saved to a separate file for use in username lists or social engineering campaigns.
+      Note that this often finds administrative or support addresses that are valuable targets.
+    command: "cewl -e --email_file {{email_file|emails.txt}} {{url}}"
+
+  - title: cewl - extract document metadata
+    desc: |
+      Download files found on the site (like PDFs, DOCX) and extract metadata using exiftool.
+      This can reveal internal usernames, software versions, printer paths, and creation dates.
+      The results are written to a metadata file, providing a different layer of reconnaissance.
+    command: "cewl -a --meta_file {{meta_file|metadata.txt}} {{url}}"
+
+  - title: cewl - show word frequency count
+    desc: |
+      Count how many times each word appears across the crawled pages.
+      Knowing the frequency of words allows you to sort the wordlist by probability.
+      Words that appear more frequently on a company's site are often more likely to be part of a password.
+    command: "cewl -c {{url}}"
+
+  # === ADVANCED CONFIGURATION ===
+  - title: cewl - authenticated crawl
+    desc: |
+      Perform a crawl using Basic or Digest authentication to access protected areas of the site.
+      Authentication is often necessary to reach internal dashboards or user-specific content.
+      Ensure you have permission to crawl these areas, as authenticated scanning is more intrusive.
+    command: "cewl --auth_type {{auth_type|basic}} --auth_user {{username}} --auth_pass {{password}} {{url}}"
+
+  - title: cewl - use proxy for requests
+    desc: |
+      Route all spidering traffic through a specified proxy server.
+      This is useful for bypassing IP-based restrictions or for monitoring CeWL's traffic in tools like Burp Suite.
+      Ensure the proxy host and port are correctly configured to avoid connection errors.
+    command: "cewl --proxy_host {{proxy_ip}} --proxy_port {{proxy_port|8080}} {{url}}"
+
+  - title: cewl - custom user-agent
+    desc: |
+      Specify a custom User-Agent string for the spider's HTTP requests.
+      Many web servers or WAFs block the default Ruby/CeWL user agent to prevent scraping.
+      Using a standard browser User-Agent helps the tool blend in with legitimate traffic.
+    command: "cewl -u \"{{user_agent|Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36}}\" {{url}}"
+
+  - title: cewl - custom headers
+    desc: |
+      Add custom HTTP headers to every request sent by the spider.
+      This can be used to bypass certain security controls or to provide session cookies.
+      Multiple headers can be provided by repeating the flag if necessary.
+    command: "cewl -H \"{{header_name|X-Forwarded-For}}: {{header_value|127.0.0.1}}\" {{url}}"

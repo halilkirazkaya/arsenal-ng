@@ -1,0 +1,75 @@
+tool: impacket-dpapi
+tags: [windows, security, pentest, decryption, dpapi, impacket, credential-harvesting]
+
+actions:
+# === DOMAIN BACKUP KEYS ===
+
+ - title: impacket-dpapi - export domain backup keys
+   desc: |
+     Retrieves the Domain Backup Key from a Domain Controller via the LSA (Local Security Authority) RPC interface.
+     This key is the "holy grail" for DPAPI decryption within an AD environment as it can decrypt any user's MasterKey.
+     The output is typically saved as a .pvk file which can then be used to decrypt MasterKeys offline without knowing user passwords.
+     This action requires Domain Admin privileges or similar rights to communicate with the Domain Controller's LSA.
+   command: "impacket-dpapi backupkeys --action export --user {{domain_admin}} --password {{password}} --domain {{domain}} --dc-ip {{dc_ip}}"
+
+# === MASTERKEY DECRYPTION ===
+
+ - title: impacket-dpapi - decrypt masterkey with user password
+   desc: |
+     Decrypts a DPAPI MasterKey file using the user's cleartext password and their Security Identifier (SID).
+     MasterKey files are typically located in the user's profile directory under AppData\Roaming\Microsoft\Protect\{SID}.
+     Successful decryption yields the 'key' needed to unlock specific credentials, browser data, or WiFi passwords.
+     This is the most common method used when you have successfully phished or recovered a user's password.
+   command: "impacket-dpapi masterkey -file {{masterkey_path}} -sid {{user_sid}} -password {{password}}"
+
+ - title: impacket-dpapi - decrypt masterkey with NT hash
+   desc: |
+     Decrypts a DPAPI MasterKey file using the user's NT hash instead of a cleartext password.
+     This is extremely useful in Pass-the-Hash scenarios or when you have extracted hashes from a SAM or NTDS.dit file.
+     You must still provide the user's SID to correctly derive the decryption key for the MasterKey file.
+     Once decrypted, the tool will display the GUID and the decrypted key for subsequent use.
+   command: "impacket-dpapi masterkey -file {{masterkey_path}} -sid {{user_sid}} -hashes :{{nt_hash}}"
+
+ - title: impacket-dpapi - decrypt masterkey with domain backup key (PVK)
+   desc: |
+     Uses a previously exported Domain Backup Key (.pvk file) to decrypt a user's MasterKey.
+     This method is powerful because it does not require the user's password or NT hash to be known.
+     It is the preferred method for forensic investigators or red teamers who have compromised the Domain Controller.
+     The MasterKey is the intermediate key required to decrypt the actual secrets stored in Credentials or Vaults.
+   command: "impacket-dpapi masterkey -file {{masterkey_path}} -pvk {{pvk_file}}"
+
+# === DECRYPTING SECRETS (CREDENTIALS & VAULTS) ===
+
+ - title: impacket-dpapi - decrypt credential file
+   desc: |
+     Decrypts a Windows Credential file using a previously decrypted MasterKey.
+     Credential files are found in %APPDATA%\Microsoft\Credentials and often contain sensitive passwords for mapped drives or legacy apps.
+     You must provide the decrypted MasterKey (the hexadecimal string) obtained from the 'masterkey' command.
+     The tool will output the decrypted contents, which usually include the target resource, username, and password.
+   command: "impacket-dpapi credential -file {{cred_file_path}} -masterkey {{decrypted_masterkey}}"
+
+ - title: impacket-dpapi - decrypt vault credentials
+   desc: |
+     Unlocks Windows Vault files which are used to store web credentials (IE/Edge), Windows passwords, and App secrets.
+     Vault files are usually located in %LOCALAPPDATA%\Microsoft\Vault or %APPDATA%\Microsoft\Vault.
+     This command requires the decrypted MasterKey associated with the specific vault entry to reveal the plaintext data.
+     It is essential for recovering saved browser passwords or other system-level cached credentials.
+   command: "impacket-dpapi vault -file {{vault_file_path}} -masterkey {{decrypted_masterkey}}"
+
+# === ADVANCED UTILITIES ===
+
+ - title: impacket-dpapi - process credential history (credhist)
+   desc: |
+     Decrypts the CREDHIST file which tracks the history of a user's password changes.
+     This is useful when a MasterKey was encrypted with an older password that is no longer the current one.
+     By processing the CREDHIST file, you can link old passwords to the decryption process of older DPAPI blobs.
+     Requires the user's SID and a valid password (current or historical) to begin the chain of decryption.
+   command: "impacket-dpapi credhist -file {{credhist_path}} -sid {{user_sid}} -password {{password}}"
+
+ - title: impacket-dpapi - unprotect generic DPAPI blob
+   desc: |
+     Provides a wrapper for the CryptUnprotectData functionality to decrypt generic DPAPI-protected blobs.
+     This is used for arbitrary data blobs found in the registry or third-party application configuration files.
+     You need to provide the decrypted MasterKey that was used to protect the specific blob of data.
+     It is a versatile command for manual analysis of custom applications that rely on the Windows DPAPI for security.
+   command: "impacket-dpapi unprotect -data {{hex_blob}} -masterkey {{decrypted_masterkey}}"

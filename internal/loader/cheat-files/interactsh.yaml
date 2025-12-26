@@ -1,0 +1,75 @@
+tool: interactsh
+tags: [oast, out-of-band, pentest, security, enumeration, exploitation, network]
+
+actions:
+# === CLIENT USAGE ===
+ - title: interactsh-client - basic execution
+   desc: |
+     Starts the interactsh client with default settings to poll the public ProjectDiscovery servers. 
+     Upon execution, it generates a unique URL that can be used for Out-of-Band (OAST) testing. 
+     The client will continuously monitor for any DNS, HTTP, or SMTP interactions triggered by your payloads.
+   command: "interactsh-client"
+
+ - title: interactsh-client - generate multiple payloads
+   desc: |
+     Generates a specific number of unique interactsh payloads in a single session. 
+     This is highly useful when you need to test multiple injection points or different parameters simultaneously without mixing up the results. 
+     Each generated URL is tracked by the same client instance, providing consolidated feedback for all targets.
+   command: "interactsh-client -n {{count|5}}"
+
+ - title: interactsh-client - use custom self-hosted server
+   desc: |
+     Connects the client to a private, self-hosted interactsh server instead of the public ones. 
+     This is recommended for professional engagements where data privacy and confidentiality are paramount. 
+     If the server is protected, you must provide the corresponding authentication token using the -t flag.
+   command: "interactsh-client -server {{server_url}} -token {{auth_token}}"
+
+ - title: interactsh-client - protocol specific filtering
+   desc: |
+     Filters the output to display only specific types of interactions such as DNS, HTTP, or SMTP. 
+     This helps reduce noise when you are specifically testing for a particular vulnerability class like DNS exfiltration or SSRF via HTTP. 
+     You can use flags like -dns-only, -http-only, or -smtp-only depending on your current testing objective.
+   command: "interactsh-client -{{protocol_filter|dns-only}}"
+
+ - title: interactsh-client - save results to JSON
+   desc: |
+     Redirects all captured interactions into a file in JSONL (JSON Lines) format. 
+     JSON output is ideal for automated processing, integration with other security tools, or detailed reporting. 
+     Using a log file ensures that you don't lose interaction data if the terminal buffer clears or the session terminates.
+   command: "interactsh-client -o {{output_file|results.json}} -json"
+
+ - title: interactsh-client - persistent session management
+   desc: |
+     Stores or reads session data from a specific file to maintain persistence across different runs. 
+     This allows you to close the client and resume monitoring for the same generated payloads at a later time. 
+     It is extremely useful for long-term testing where callbacks might occur hours or days after the initial injection.
+   command: "interactsh-client -sf {{session_file|mysession.session}}"
+
+# === SERVER USAGE ===
+ - title: interactsh-server - deploy basic OAST server
+   desc: |
+     Starts a self-hosted interactsh server on a dedicated domain and public IP address. 
+     This requires you to have configured NS records for the domain to point to this server's IP address. 
+     Self-hosting is the best way to ensure that interaction logs never leave your controlled environment.
+   command: "interactsh-server -domain {{domain}} -ip {{public_ip}}"
+
+ - title: interactsh-server - enable authentication and security
+   desc: |
+     Secures the self-hosted server by requiring a token for any client attempting to poll data. 
+     Using a static token allows multiple team members to share the same server securely. 
+     This prevents unauthorized third parties from discovering your payloads or viewing sensitive interaction data.
+   command: "interactsh-server -domain {{domain}} -auth -token {{secret_token}}"
+
+ - title: interactsh-server - advanced protocol listeners
+   desc: |
+     Enables additional interaction listeners for protocols like LDAP, SMB, and FTP. 
+     Note that SMB listeners often require specific dependencies like Impacket and Python 3 to be installed on the host. 
+     These extra services significantly expand the attack surface you can test for Out-of-Band vulnerabilities.
+   command: "interactsh-server -domain {{domain}} -ldap -smb -ftp"
+
+ - title: interactsh-server - custom response configuration
+   desc: |
+     Enables dynamic responses and custom directory listing for the HTTP/HTTPS listeners. 
+     This allows the server to serve specific files or headers, which can be used to simulate realistic environments or bypass certain security controls. 
+     It is particularly useful for advanced SSRF exploitation scenarios where a specific response body is required.
+   command: "interactsh-server -domain {{domain}} -dr -hd {{web_directory|/var/www/html}}"

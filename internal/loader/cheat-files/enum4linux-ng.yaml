@@ -1,0 +1,113 @@
+tool: enum4linux-ng
+tags: [network, windows, smb, enumeration, pentest, active-directory, security]
+
+# === BASIC ENUMERATION ===
+
+actions:
+  - title: enum4linux-ng - full enumeration
+    desc: |
+      Perform all simple enumeration checks against the target host. 
+      This is the most common starting point which combines user, group, share, password policy, OS, and NetBIOS lookups.
+      It is equivalent to running multiple individual flags like -U, -G, -S, and -P simultaneously.
+    command: "enum4linux-ng -A {{target}}"
+
+  - title: enum4linux-ng - short enumeration
+    desc: |
+      Perform a quick enumeration scan without NetBIOS name lookups. 
+      This is useful when you want to speed up the reconnaissance process or when NetBIOS is restricted.
+      It still covers users, groups, shares, and OS information but skips the noisier nmblookup phase.
+    command: "enum4linux-ng -As {{target}}"
+
+# === USER AND GROUP ENUMERATION ===
+
+  - title: enum4linux-ng - enumerate users via RPC
+    desc: |
+      Retrieve a list of users from the target system using RPC calls. 
+      This command is highly effective if the target allows anonymous null sessions or if valid credentials are provided.
+      It attempts to query the SAM (Security Accounts Manager) database directly via the network.
+    command: "enum4linux-ng -U {{target}}"
+
+  - title: enum4linux-ng - enumerate groups with members
+    desc: |
+      Extract all domain or local groups along with their respective members.
+      Using the -Gm flag provides a more detailed view than the standard group listing.
+      This is essential for identifying high-privilege accounts like Domain Admins or Enterprise Admins.
+    command: "enum4linux-ng -Gm {{target}}"
+
+  - title: enum4linux-ng - detailed user/group info
+    desc: |
+      Get comprehensive details for all discovered users and groups.
+      This flag adds verbosity to the user and group enumeration results, providing extra attributes if available.
+      Use this when you need more than just a list of names, such as account descriptions or last logon times.
+    command: "enum4linux-ng -d -U -G {{target}}"
+
+  - title: enum4linux-ng - RID cycling enumeration
+    desc: |
+      Enumerate users by cycling through Relative Identifiers (RIDs).
+      This technique is powerful because it can discover users even if the standard "enum users" RPC call is restricted.
+      By default, it checks common RID ranges (500-550, 1000-1050), but you can specify custom ranges if needed.
+    command: "enum4linux-ng -R {{target}}"
+
+# === AUTHENTICATION METHODS ===
+
+  - title: enum4linux-ng - authenticated scan
+    desc: |
+      Perform enumeration using specific user credentials.
+      Authenticated scans provide much more data than anonymous sessions, often revealing hidden shares and full user attributes.
+      Always ensure you have permission to use the credentials as failed attempts might trigger account lockout policies.
+    command: "enum4linux-ng -A -u {{user|administrator}} -p {{password}} {{target}}"
+
+  - title: enum4linux-ng - pass-the-hash authentication
+    desc: |
+      Authenticate to the target using an NTLM hash instead of a plaintext password.
+      This is a classic post-exploitation technique used when you have extracted hashes but cannot crack them.
+      The hash should be provided in the format LM:NT or just the NT hash.
+    command: "enum4linux-ng -A -u {{user|administrator}} -H {{nthash}} {{target}}"
+
+  - title: enum4linux-ng - kerberos authentication
+    desc: |
+      Use a Kerberos ticket file for authentication against a Windows target.
+      This is specifically useful in Active Directory environments where you have obtained a valid .kirbi or .ccache ticket.
+      Note that DNS must be correctly configured so the tool can resolve the domain name and reach the KDC.
+    command: "enum4linux-ng -A -K {{ticket_file}} {{target}}"
+
+# === SHARES AND SERVICES ===
+
+  - title: enum4linux-ng - list shares and services
+    desc: |
+      Specifically target the discovery of SMB shares and running services on the remote host.
+      Identifying shares is critical for finding sensitive files or misconfigured permissions (e.g., anonymous write access).
+      The service enumeration helps identify what roles the server is performing within the network.
+    command: "enum4linux-ng -S -C {{target}}"
+
+  - title: enum4linux-ng - share brute forcing
+    desc: |
+      Attempt to discover hidden or non-standard shares using a wordlist.
+      This is useful if the target has "RestrictAnonymous" enabled, preventing a standard share listing.
+      You must provide a path to a text file containing potential share names.
+    command: "enum4linux-ng -s {{shares_file|/usr/share/wordlists/dirb/common.txt}} {{target}}"
+
+# === ADVANCED INFRASTRUCTURE ENUMERATION ===
+
+  - title: enum4linux-ng - domain controller enumeration (LDAP)
+    desc: |
+      Retrieve additional domain information via LDAP or LDAPS protocols.
+      This flag is primarily designed for use against Domain Controllers to extract AD-specific data.
+      It provides a deeper look into the directory structure compared to standard SMB-only tools.
+    command: "enum4linux-ng -L {{target}}"
+
+  - title: enum4linux-ng - password policy enumeration
+    desc: |
+      Extract the password policy from the target machine.
+      This reveals critical information like minimum password length, complexity requirements, and lockout thresholds.
+      Knowing the lockout threshold is vital before attempting any password spraying or brute-force attacks.
+    command: "enum4linux-ng -P {{target}}"
+
+# === OUTPUT AND LOGGING ===
+
+  - title: enum4linux-ng - export results to files
+    desc: |
+      Save the enumeration results into both JSON and YAML formats for further analysis.
+      This is one of the main advantages of the 'ng' version over the original enum4linux.pl script.
+      These structured files can be easily parsed by other security tools or used for automated reporting.
+    command: "enum4linux-ng -A -oA {{output_filename|enum_results}} {{target}}"
