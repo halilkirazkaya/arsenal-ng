@@ -1,0 +1,48 @@
+tool: gaia
+tags: [recon, web, urls, parameters, automation, discovery]
+
+actions:
+  # === BASIC USAGE ===
+  - title: gaia - quick crawl with defaults
+    desc: |
+      Run Gaia against a single target URL using all default collectors (gau, arjun, linkfinder, uro, and AI reasoning).
+      This is a fast way to enumerate endpoints, parameters, and interesting assets for a new target.
+    command: "gaia --url {{url}}"
+
+  - title: gaia - process urls from stdin
+    desc: |
+      Feed Gaia with multiple URLs from a file or pipeline.
+      Useful when chaining recon tools or reprocessing historical URL lists.
+    command: "cat {{urls_file}} | gaia --stdin"
+
+  # === FOCUS & SPEED ===
+  - title: gaia - parameters only without heavy collectors
+    desc: |
+      Focus on parameterized endpoints and skip historical URL gathering and JS discovery to reduce noise and runtime.
+      Disables gau, arjun, and linkfinder while keeping normalization enabled.
+    command: "gaia --url {{url}} --only-params --no-gau --no-arjun --no-linkfinder"
+
+  - title: gaia - show static assets and normalize urls
+    desc: |
+      Include static assets like JS, CSS, and images in the results while keeping normalized URL output.
+      Handy for mapping external dependencies or spotting exposed asset paths.
+    command: "gaia --url {{url}} --show-assets"
+
+  # === OUTPUT CONTROL ===
+  - title: gaia - limit results and auto-install deps
+    desc: |
+      Cap the number of collected URLs and let Gaia install any missing helper tools automatically.
+      Helps prevent runaway output while keeping the toolchain ready.
+    command: "gaia --url {{url}} --max-urls {{max_urls|500}} --auto-install"
+
+  - title: gaia - structured report to file
+    desc: |
+      Export findings to a chosen format (console, md, or json) and save them to disk for later review.
+      Combine with other filters to build reproducible recon reports.
+    command: "gaia --url {{url}} --format {{format|json}} --output {{output|gaia-report.json}}"
+
+  - title: gaia - disable ai reasoning for strict results
+    desc: |
+      Turn off Gaia's AI reasoning layer when you need deterministic, tool-only output.
+      Keeps historical URL collection, parameter discovery, and JS parsing enabled.
+    command: "gaia --url {{url}} --no-ai"
