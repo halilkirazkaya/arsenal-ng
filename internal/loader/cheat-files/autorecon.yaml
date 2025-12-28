@@ -1,0 +1,92 @@
+tool: autorecon
+tags: [network, scanner, reconnaissance, pentest, enumeration, automation, security]
+
+actions:
+  # === BASIC RECONNAISSANCE ===
+  - title: autorecon - basic scan of a single target
+    desc: |
+      Performs a default automated reconnaissance on a single IP address or hostname. 
+      This is the most common starting point which initiates port discovery and follows up with service-specific enumeration plugins. 
+      It is highly effective for CTF environments and initial penetration testing phases to gather as much information as possible.
+    command: "autorecon {{target}}"
+
+  - title: autorecon - scan multiple targets or network range
+    desc: |
+      Launches reconnaissance against multiple targets defined by space-separated IP addresses or CIDR notation. 
+      The tool manages concurrency automatically, allowing you to scan entire subnets efficiently. 
+      This is ideal for internal network assessments where you need to identify active services across many hosts simultaneously.
+    command: "autorecon {{network_range|10.10.10.0/24}}"
+
+  - title: autorecon - scan targets from a text file
+    desc: |
+      Reads a list of target IPs or hostnames from a specified file and performs automated enumeration on each. 
+      The input file should contain one target per line for the parser to handle them correctly. 
+      This approach is preferred when you have a pre-validated scope file from a client or a discovery tool.
+    command: "autorecon -t {{target_file|targets.txt}}"
+
+  # === PORT AND PROTOCOL FILTERING ===
+  - title: autorecon - scan specific ports and protocols
+    desc: |
+      Limits the initial port discovery to specific TCP or UDP ports provided in the command. 
+      You can use T: for TCP and U: for UDP, or B: for both; for example, T:80,443 or U:161. 
+      Restricting ports is useful when you want to save time or focus only on specific services like web or SNMP.
+    command: "autorecon {{target}} -p {{ports|T:21,22,80,443,U:53,161}}"
+
+  - title: autorecon - exclude specific plugin tags
+    desc: |
+      Excludes certain types of scans based on their tags to speed up the process or avoid noisy plugins. 
+      For instance, you might want to exclude 'bruteforce' tags if you are worried about account lockouts. 
+      This gives you fine-grained control over which automated actions the tool performs on the targets.
+    command: "autorecon {{target}} --exclude-tags {{tags|bruteforce,exploit}}"
+
+  # === WEB ENUMERATION CUSTOMIZATION ===
+  - title: autorecon - custom directory busting settings
+    desc: |
+      Overrides the default directory busting configuration, allowing you to choose the tool and wordlist. 
+      You can switch between tools like feroxbuster, gobuster, or ffuf and specify relevant file extensions. 
+      Using extensions like 'php,aspx,txt' ensures the fuzzer looks for files relevant to the target's technology stack.
+    command: "autorecon {{target}} --dirbuster.tool {{tool|feroxbuster}} --dirbuster.wordlist {{wordlist|/usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt}} --dirbuster.ext {{extensions|php,aspx,html,txt}}"
+
+  - title: autorecon - subdomain and virtual host enumeration
+    desc: |
+      Enables and configures DNS-based enumeration for subdomains and virtual hosts on a specific domain. 
+      You must provide the base domain name (e.g., example.com) for the plugins to generate the correct host headers and queries. 
+      This is essential for identifying hidden web applications hosted on the same IP address through virtual hosting.
+    command: "autorecon {{target}} --subdomain-enum.domain {{domain}} --vhost-enum.hostname {{domain}}"
+
+  # === OUTPUT AND PERFORMANCE MANAGEMENT ===
+  - title: autorecon - customize output directory and structure
+    desc: |
+      Defines a specific parent directory for all scan results instead of the default 'results' folder. 
+      By using the --single-target flag, you can also prevent the tool from creating target-specific subdirectories. 
+      This helps in keeping the workspace organized when you are working on a dedicated machine or a specific project.
+    command: "autorecon {{target}} -o {{output_dir|./recon_results}} --single-target"
+
+  - title: autorecon - adjust concurrency and timeouts
+    desc: |
+      Configures the maximum number of concurrent scans and specific timeouts for targets. 
+      Increasing max-scans can speed up large network audits but might overwhelm your local resources or the network. 
+      Setting a target-timeout ensures the tool doesn't get stuck on a single unresponsive host for too long.
+    command: "autorecon {{targets}} -m {{max_scans|50}} --target-timeout {{timeout_mins|60}}"
+
+  # === ADVANCED CONFIGURATION ===
+  - title: autorecon - append custom nmap arguments
+    desc: |
+      Passes additional custom flags directly to the underlying Nmap process used for port discovery. 
+      This is useful for adding advanced flags like --script-args, specific timing templates (-T), or bypass techniques. 
+      Be careful not to include flags that conflict with AutoRecon's internal logic, such as output format flags.
+    command: "autorecon {{target}} --nmap-append \"{{nmap_flags|-Pn -T4 --min-rate 1000}}\""
+
+  - title: autorecon - global credentials for service scanning
+    desc: |
+      Provides global username and password wordlists that service plugins will use for basic authentication attempts. 
+      Plugins for protocols like SSH, FTP, and SMB will use these lists to check for common or weak credentials. 
+      It is recommended to use small, targeted lists to avoid triggering intrusion detection systems or locking accounts.
+    command: "autorecon {{target}} --global.username-wordlist {{user_list}} --global.password-wordlist {{pass_list}}"
+
+  - title: autorecon - run through proxychains
+    desc: |
+      Configures AutoRecon to operate through a proxy, which is vital when pivoting through a compromised host. 
+      This flag adjusts internal behaviors to be more compatible with SOCKS proxies used by tools like proxychains. 
+      Note that some plugins, especially those using UDP, may still fail due to the inherent limitations of standard proxies.
+    command: "autorecon {{target}} --proxychains"

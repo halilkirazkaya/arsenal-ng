@@ -1,0 +1,120 @@
+tool: wget
+tags: [network, download, utility, scraping, file-transfer, automation]
+
+actions:
+  # === BASIC FILE OPERATIONS ===
+  - title: wget - basic file download
+    desc: |
+      Download a single file from a remote server to the current directory. 
+      This is the most common use case for fetching tools, scripts, or archives. 
+      The filename on the local system will match the filename in the URL by default.
+    command: "wget {{url}}"
+
+  - title: wget - save to specific filename
+    desc: |
+      Download a file and save it under a custom name locally using the -O flag. 
+      This is useful when the remote URL does not represent a friendly filename or when downloading to a specific directory path. 
+      Note that this will overwrite existing files with the same name without warning.
+    command: "wget -O {{filename|output.txt}} {{url}}"
+
+  - title: wget - resume interrupted download
+    desc: |
+      Continue a download that was interrupted or stopped previously. 
+      Wget will check the local file size and request the remaining bytes from the server using the Range header. 
+      This is essential for large files where network stability might be an issue.
+    command: "wget -c {{url}}"
+
+  - title: wget - download in background
+    desc: |
+      Start the download process in the background immediately. 
+      The output is redirected to a log file (defaulting to wget-log) so you can safely close the terminal session. 
+      This is ideal for long-running downloads on remote servers over SSH sessions.
+    command: "wget -b {{url}}"
+
+  - title: wget - download multiple URLs from file
+    desc: |
+      Read a list of URLs from a local file and download them sequentially. 
+      This is the most efficient way to handle batch downloads without writing manual loops in the terminal. 
+      The input file should contain one URL per line.
+    command: "wget -i {{file_path|urls.txt}}"
+
+  # === NETWORK & PERFORMANCE ===
+  - title: wget - limit download speed
+    desc: |
+      Restrict the download speed to a specific rate to prevent bandwidth exhaustion. 
+      Suffixes like 'k' for kilobytes and 'm' for megabytes are supported (e.g., 500k). 
+      Use this on shared networks to ensure other applications remain responsive during large transfers.
+    command: "wget --limit-rate={{rate|100k}} {{url}}"
+
+  - title: wget - spider mode link check
+    desc: |
+      Run wget as a "spider" to check if the remote file exists without downloading it. 
+      It validates the link by examining the server response headers rather than fetching the content. 
+      This is frequently used in scripts to verify the availability of resources before performing tasks.
+    command: "wget --spider {{url}}"
+
+  - title: wget - set custom user-agent
+    desc: |
+      Change the User-Agent string sent to the server to mimic a specific browser. 
+      Some servers block the default Wget agent to prevent automated scraping or bot activity. 
+      Mimicking a common browser like Chrome or Firefox can help bypass these basic security filters.
+    command: "wget --user-agent={{user_agent|Mozilla/5.0}} {{url}}"
+
+  # === RECURSIVE & MIRRORING ===
+  - title: wget - recursive directory download
+    desc: |
+      Download a directory or an entire section of a website by following links. 
+      The -r flag enables recursion, and -np (no-parent) ensures the tool does not climb up to parent directories. 
+      This is commonly used for offline documentation or mirroring specific subfolders of a site.
+    command: "wget -r -np {{url}}"
+
+  - title: wget - full website mirror
+    desc: |
+      Create a local mirror of an entire website with infinite recursion and timestamping. 
+      This command is a shortcut for several options including recursion, time-stamping, and infinite depth. 
+      It is the most efficient way to create a static backup of a website for offline viewing.
+    command: "wget -m {{url}}"
+
+  - title: wget - mirror and convert links for offline
+    desc: |
+      Download a website and convert the links to point to local files for offline browsing. 
+      The -k flag updates the HTML/CSS links, and -p ensures all requisites like images and scripts are downloaded. 
+      This makes the downloaded copy behave like a local application rather than a broken web structure.
+    command: "wget -m -p -E -k {{url}}"
+
+  # === AUTHENTICATION & SECURITY ===
+  - title: wget - basic http authentication
+    desc: |
+      Provide credentials for websites requiring Basic HTTP authentication. 
+      This allows downloading from protected directories or internal private repositories. 
+      Be cautious as passwords provided in the command line may be stored in your shell history.
+    command: "wget --user={{username}} --password={{password}} {{url}}"
+
+  - title: wget - ignore ssl certificate errors
+    desc: |
+      Skip the validation of SSL/TLS certificates when connecting to HTTPS websites. 
+      This is particularly useful for internal servers with self-signed certificates or expired credentials. 
+      Warning: This makes the connection vulnerable to man-in-the-middle (MITM) attacks.
+    command: "wget --no-check-certificate {{url}}"
+
+  - title: wget - use custom http header
+    desc: |
+      Include a custom string among the HTTP headers sent to the server. 
+      This can be used to pass API keys, custom authentication tokens, or specific content-type requirements. 
+      Multiple headers can be added by repeating the flag for each specific header string.
+    command: "wget --header={{header|Authorization: Bearer TOKEN}} {{url}}"
+
+  # === FILE TYPE FILTERING ===
+  - title: wget - download specific file types
+    desc: |
+      Download only files that match a specific extension or list of extensions. 
+      The -A (accept) flag takes a comma-separated list of file suffixes to keep. 
+      This is very effective when you only want to extract PDFs, images, or ZIP files from a target directory.
+    command: "wget -r -A {{extensions|pdf,jpg,png}} {{url}}"
+
+  - title: wget - reject specific file types
+    desc: |
+      Download all files from a directory except those that match specific extensions. 
+      The -R (reject) flag prevents unwanted files from being saved to your local machine. 
+      Use this to avoid large video files or unnecessary log files during a recursive crawl.
+    command: "wget -r -R {{extensions|gif,mp4}} {{url}}"

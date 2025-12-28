@@ -1,0 +1,95 @@
+tool: smugglex
+tags: [web, security, pentest, vulnerability-scanner, request-smuggling, http2]
+
+actions:
+  # === BASIC SCANS ===
+  - title: smugglex - basic scan
+    desc: |
+      Performs a standard HTTP request smuggling scan against a target URL.
+      This command executes all built-in checks including CL.TE, TE.CL, and HTTP/2 variants.
+      It is the recommended starting point for identifying potential smuggling vulnerabilities on a single target.
+      The tool will report vulnerabilities along with timing comparisons to confirm findings.
+    command: "smugglex {{url}}"
+
+  - title: smugglex - verbose scan with output
+    desc: |
+      Executes a detailed scan while displaying verbose information about requests and responses.
+      The results are saved into a JSON file which contains vulnerability details, payloads, and timing data.
+      Verbose mode is helpful for debugging timing issues or understanding why a specific payload failed.
+      Use this when you need to document findings for a technical report.
+    command: "smugglex {{url}} -v -o {{output_file|results.json}}"
+
+  # === SCAN CONFIGURATION ===
+  - title: smugglex - run specific vulnerability checks
+    desc: |
+      Limits the scan to specific types of smuggling attacks like CL.TE or TE.CL.
+      This is useful when you suspect a specific vulnerability or want to save time during a large engagement.
+      You can provide a comma-separated list of checks to run multiple specific tests simultaneously.
+      Available checks include cl-te, te-cl, te-te, h2c, and h2.
+    command: "smugglex {{url}} -c {{check_types|cl-te,te-cl}}"
+
+  - title: smugglex - scan for http/2 vulnerabilities
+    desc: |
+      Targets vulnerabilities specifically related to the HTTP/2 protocol.
+      It includes checks for h2c (cleartext) and h2 (protocol) smuggling with numerous combined payloads.
+      This is essential for modern web applications that utilize HTTP/2 front-ends for performance.
+      Many modern load balancers are susceptible to these specific protocol translation attacks.
+    command: "smugglex {{url}} -c h2c,h2"
+
+  - title: smugglex - authenticated scan with custom headers
+    desc: |
+      Includes custom HTTP headers in every request sent by the tool to the target.
+      This is particularly useful for authenticated scanning using Bearer tokens, API keys, or Session cookies.
+      Multiple headers can be added by repeating the flag to match the target's authentication requirements.
+      Ensure that the token used has enough privileges to reach the desired backend functionality.
+    command: "smugglex {{url}} -H \"{{header_name|Authorization}}: {{header_value}}\""
+
+  - title: smugglex - scan with custom timeout and method
+    desc: |
+      Sets a specific request timeout and changes the default HTTP method used for testing.
+      Increasing the timeout is often necessary for slow networks or when the server is under heavy load.
+      While POST is the default, some servers might only process smuggling payloads on GET or other methods.
+      Adjusting these settings helps reduce false negatives in non-standard environments.
+    command: "smugglex {{url}} -m {{method|POST}} -t {{timeout_seconds|30}}"
+
+  # === ADVANCED TARGETING ===
+  - title: smugglex - virtual host testing
+    desc: |
+      Tests for request smuggling on a specific IP address while setting a custom Host header.
+      This is valuable when the target is behind a load balancer or CDN that routes traffic based on the Host header.
+      It allows you to target internal virtual hosts that are not directly accessible via public DNS.
+      Crucial for internal infrastructure testing where multiple services share the same gateway IP.
+    command: "smugglex {{ip_address}} --vhost {{domain_name}}"
+
+  - title: smugglex - mass scan from pipeline
+    desc: |
+      Processes a list of URLs provided through standard input for large-scale automated scanning.
+      This allows seamless integration with other tools like subfinder or httpx for automated reconnaissance workflows.
+      Using the exit-first flag (-1) during mass scans can speed up the process by stopping at the first find.
+      It is highly efficient for scanning entire domains or large IP ranges discovered during recon.
+    command: "cat {{url_list|urls.txt}} | smugglex -v -o {{output_file|results.json}}"
+
+  # === EXPLOITATION & VERIFICATION ===
+  - title: smugglex - exploit for localhost access
+    desc: |
+      Attempts to exploit a detected smuggling vulnerability to access services running on the server's localhost.
+      This simulates an SSRF-like attack that can bypass firewalls to reach internal-only management interfaces.
+      It should be used after a vulnerability is confirmed to demonstrate the actual business impact.
+      Be cautious as exploitation might disrupt the stability of the backend service.
+    command: "smugglex {{url}} --exploit localhost-access"
+
+  - title: smugglex - exploit with custom internal ports
+    desc: |
+      Extends the localhost access exploit by targeting a specific list of internal ports on the remote host.
+      This is useful for probing for common internal services like SSH (22), databases (3306), or Redis (6379).
+      Use this to identify exactly what internal infrastructure is reachable through the smuggling tunnel.
+      Providing a custom list of ports allows for more targeted and stealthy internal reconnaissance.
+    command: "smugglex {{url}} --exploit localhost-access --exploit-ports {{ports|22,80,443,8080}}"
+
+  - title: smugglex - export vulnerable payloads for manual testing
+    desc: |
+      Saves the exact raw HTTP requests that triggered a confirmed vulnerability into a specified directory.
+      This is a crucial step for manual verification in tools like Burp Suite Repeater or custom scripts.
+      Having the raw payload allows security researchers to fine-tune the attack for specific bypasses.
+      The exported files can be used as evidence in penetration testing reports.
+    command: "smugglex {{url}} --export-payloads {{directory_path|./payloads}}"

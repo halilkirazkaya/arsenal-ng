@@ -1,0 +1,96 @@
+tool: gospider
+tags: [web, scanner, security, pentest, enumeration, crawler, reconnaissance]
+
+actions:
+  # === BASIC USAGE ===
+  - title: gospider - basic crawl
+    desc: |
+      Performs a basic recursive crawl on a single target website. 
+      This is the primary command used to discover endpoints, files, and directories on a web application. 
+      By default, it will crawl the provided URL and look for links within the same domain. 
+      It is an essential starting point for mapping the attack surface of a target.
+    command: "gospider -s {{url}}"
+
+  - title: gospider - crawl multiple sites
+    desc: |
+      Crawls multiple websites provided in a text file. 
+      This is highly efficient for large-scale reconnaissance when dealing with multiple domains or subdomains. 
+      The threads flag can be adjusted to run site crawls in parallel, significantly speeding up the process. 
+      Ensure the input file contains one URL per line for correct parsing.
+    command: "gospider -S {{list_file}} -t {{threads|1}}"
+
+  # === ADVANCED RECONNAISSANCE ===
+  - title: gospider - passive source integration
+    desc: |
+      Enhances the crawl by fetching URLs from third-party sources like Archive.org, CommonCrawl, and VirusTotal. 
+      Including subdomains with the -w flag allows for a much broader discovery of the organizational infrastructure. 
+      The -r flag ensures that the tool not only finds these URLs but also actively visits them for further crawling. 
+      This is crucial for finding forgotten endpoints or legacy versions of the web application.
+    command: "gospider -s {{url}} -a -w -r"
+
+  - title: gospider - sitemap and robots discovery
+    desc: |
+      Specifically instructs the tool to look for and parse the sitemap.xml and robots.txt files. 
+      Robots.txt often contains "Disallow" entries which point to sensitive or hidden directories intended to be kept away from search engines. 
+      Sitemaps provide a structured map of the website, helping to ensure no pages are missed during discovery. 
+      This command combines these checks with a standard site crawl for comprehensive coverage.
+    command: "gospider -s {{url}} --sitemap --robots"
+
+  # === AUTHENTICATION & HEADERS ===
+  - title: gospider - authenticated crawl with cookies
+    desc: |
+      Executes a crawl while maintaining a session using the provided cookie string. 
+      This is necessary for crawling pages that are behind a login wall or require specific session state. 
+      Be careful with high concurrency during authenticated crawls to avoid triggering account lockout policies. 
+      The cookie format should follow the standard header format: "name1=value1; name2=value2".
+    command: "gospider -s {{url}} --cookie {{cookie_string}}"
+
+  - title: gospider - custom headers
+    desc: |
+      Sends custom HTTP headers with every request during the crawling process. 
+      This can be used to bypass simple WAF rules, set a specific Authorization header, or simulate different client types. 
+      Multiple headers can be added by repeating the flag if necessary (though the base command shows one). 
+      It helps in testing how the server responds to different header configurations or specific API keys.
+    command: "gospider -s {{url}} -H {{header_string|Content-Type: application/json}}"
+
+  - title: gospider - load from burp request
+    desc: |
+      Loads headers and cookies directly from a raw HTTP request file exported from Burp Suite. 
+      This is a massive time-saver for complex authentication flows where many headers are required. 
+      It ensures that the spidering activity perfectly mimics the request environment you have already established in your intercepting proxy. 
+      Simply right-click a request in Burp, save it to a file, and point Gospider to it.
+    command: "gospider -s {{url}} --burp {{burp_raw_file}}"
+
+  # === PERFORMANCE & STEALTH ===
+  - title: gospider - rate limited crawl
+    desc: |
+      Limits the speed of the crawl to avoid overwhelming the target server or triggering rate-limiting protections. 
+      The concurrency flag controls how many simultaneous requests are made to the same domain. 
+      The delay and random-delay flags add a pause between requests, making the traffic pattern look more human-like. 
+      Use these settings when stealth is required or when testing fragile development environments.
+    command: "gospider -s {{url}} -c {{concurrency|5}} -k {{delay|2}} -K {{random_delay|1}}"
+
+  - title: gospider - depth control
+    desc: |
+      Limits the recursion depth of the crawler to prevent it from getting stuck in infinite loops or crawling too far from the target. 
+      A depth of 0 allows for infinite recursion, which should be used with caution. 
+      Setting a specific depth (e.g., 2 or 3) is usually sufficient for most web applications. 
+      This helps in focusing the reconnaissance on the most relevant parts of the site structure.
+    command: "gospider -s {{url}} -d {{depth|2}}"
+
+  # === PROXY & OUTPUT ===
+  - title: gospider - proxy configuration
+    desc: |
+      Routes all crawling traffic through a specified proxy server. 
+      This is commonly used to pipe Gospider traffic through Burp Suite (http://127.0.0.1:8080) for manual analysis of discovered endpoints. 
+      It can also be used with SOCKS proxies or VPN-like gateways to hide the true source IP of the scan. 
+      Ensure the proxy is active and reachable before starting the command.
+    command: "gospider -s {{url}} -p {{proxy_url|http://127.0.0.1:8080}}"
+
+  - title: gospider - output to folder
+    desc: |
+      Saves all discovered URLs and findings into a specified output directory. 
+      Gospider creates organized text files within this folder, typically separated by domain name. 
+      This is critical for documenting findings and for passing results to other tools in a pipeline. 
+      The output includes subdomains, links, scripts, and other identified assets.
+    command: "gospider -s {{url}} -o {{output_folder}}"
