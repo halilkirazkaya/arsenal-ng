@@ -1,0 +1,96 @@
+tool: pywhisker
+tags: [active-directory, pentest, shadow-credentials, security, exploitation, authentication, windows, ldap]
+
+actions:
+ # === ENUMERATION & INFORMATION ===
+ - title: pywhisker - list credentials
+   desc: |
+     Lists all existing KeyCredential entries for a target account, including their IDs and creation times.
+     This is the primary way to check if a Shadow Credentials attack has already been performed on a user.
+     It helps in identifying the Device ID required for removing or modifying specific entries later.
+     Generic write or "Write Property" permissions over the msDS-KeyCredentialLink attribute are required.
+   command: "pywhisker -d {{domain}} -u {{user}} -p {{password}} --target {{target_user}} --action list"
+
+ - title: pywhisker - display detailed info
+   desc: |
+     Prints all detailed information contained within a KeyCredential structure for a specific Device ID.
+     It unfolds the RSA public key parameters and other internal structures of the credential link.
+     This is useful for forensic analysis or when troubleshooting authentication issues with generated keys.
+     Use the 'list' action first to obtain the relevant Device ID for the target.
+   command: "pywhisker -d {{domain}} -u {{user}} -p {{password}} --target {{target_user}} --action info --device-id {{device_id}}"
+
+ # === EXPLOITATION (SHADOW CREDENTIALS) ===
+ - title: pywhisker - add new credential (PFX)
+   desc: |
+     Adds a new KeyCredential to the target's msDS-KeyCredentialLink and generates a self-signed certificate in PFX format.
+     This is the core of the Shadow Credentials attack, allowing an attacker to authenticate as the target using PKINIT.
+     The resulting PFX file can be used with tools like gettgtpkinit.py to request a TGT.
+     By default, it generates a random password for the PFX unless specified with the -P flag.
+   command: "pywhisker -d {{domain}} -u {{user}} -p {{password}} --target {{target_user}} --action add --filename {{output_name|credential}}"
+
+ - title: pywhisker - add credential with PEM export
+   desc: |
+     Generates and adds a KeyCredential while exporting the certificate and private key in PEM format.
+     This format is often easier to use with certain Linux-based security tools that do not natively handle PFX/PKCS12.
+     It creates two files: one for the certificate and one for the private key, neither of which require a password.
+     This is useful for quick exploitation when you want to avoid managing PFX passwords.
+   command: "pywhisker -d {{domain}} -u {{user}} -p {{password}} --target {{target_user}} --action add --filename {{output_name|credential}} --export PEM"
+
+ - title: pywhisker - spray credentials to multiple targets
+   desc: |
+     Attempts to add new KeyCredentials to a list of target accounts provided in a text file.
+     This is an efficient way to gain persistence across multiple accounts if the calling user has sufficient permissions.
+     Be aware that this action creates many certificates and significantly modifies Active Directory objects.
+     Monitor for potential detection as mass modification of msDS-KeyCredentialLink can trigger alerts.
+   command: "pywhisker -d {{domain}} -u {{user}} -p {{password}} --target-list {{targets_file}} --action spray"
+
+ # === AUTHENTICATION VARIATIONS ===
+ - title: pywhisker - authenticate using pass-the-hash
+   desc: |
+     Performs a pyWhisker action using NTLM hash authentication instead of a cleartext password.
+     This is standard practice during post-exploitation when only the NT hash of a compromised user is available.
+     The hash should be provided in the format LMHASH:NTHASH or just :NTHASH.
+     This allows you to perform Shadow Credential attacks while operating entirely with hashes.
+   command: "pywhisker -d {{domain}} -u {{user}} -H {{nthash}} --target {{target_user}} --action list"
+
+ - title: pywhisker - authenticate using Kerberos (PTT)
+   desc: |
+     Uses Kerberos authentication by grabbing credentials from a local .ccache file.
+     The environment variable KRB5CCNAME must be set correctly for this to function.
+     It is useful when you have already obtained a TGT for a user and want to avoid using NTLM.
+     Add the -k flag to force Kerberos authentication during the LDAP connection.
+   command: "pywhisker -d {{domain}} -u {{user}} -k --no-pass --target {{target_user}} --action list"
+
+ # === CLEANUP & MAINTENANCE ===
+ - title: pywhisker - remove specific credential
+   desc: |
+     Removes a specific KeyCredential from the target's msDS-KeyCredentialLink attribute using its Device ID.
+     This is critical for operational security to remove your "backdoor" after the assessment is complete.
+     It only removes the entry specified, leaving other legitimate credentials (like Windows Hello) intact.
+     Always verify the Device ID with the 'list' action before attempting removal.
+   command: "pywhisker -d {{domain}} -u {{user}} -p {{password}} --target {{target_user}} --action remove --device-id {{device_id}}"
+
+ - title: pywhisker - clear all credentials
+   desc: |
+     Completely removes all entries from the msDS-KeyCredentialLink attribute for the target account.
+     This is a destructive action that will break existing Windows Hello for Business logins for the user.
+     Use this with caution, typically only when you need to wipe a corrupted or heavily modified attribute.
+     It is generally safer to use the 'remove' action for specific entries.
+   command: "pywhisker -d {{domain}} -u {{user}} -p {{password}} --target {{target_user}} --action clear"
+
+ # === BACKUP & RESTORATION ===
+ - title: pywhisker - export credentials to JSON
+   desc: |
+     Parses and exports all existing KeyCredentials of a target into a JSON file format.
+     This serves as a backup mechanism before performing any modifications to the target account.
+     It allows the operator to keep a record of the original state of the attribute for later restoration.
+     The resulting file can be used with the 'import' action to revert changes.
+   command: "pywhisker -d {{domain}} -u {{user}} -p {{password}} --target {{target_user}} --action export --filename {{backup_file|backup.json}}"
+
+ - title: pywhisker - import credentials from JSON
+   desc: |
+     Overwrites the msDS-KeyCredentialLink attribute with values provided from a previously exported JSON file.
+     This effectively restores the target's credentials to the exact state captured during the export.
+     Note that this will overwrite any current credentials, so use it carefully to restore a baseline.
+     This is the recommended way to revert an account to its original state after testing.
+   command: "pywhisker -d {{domain}} -u {{user}} -p {{password}} --target {{target_user}} --action import --filename {{backup_file|backup.json}}"

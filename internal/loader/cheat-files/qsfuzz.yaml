@@ -1,0 +1,78 @@
+tool: qsfuzz
+tags: [web, security, pentest, fuzzer, bugbounty, reconnaissance, automation]
+
+actions:
+  # === BASIC USAGE ===
+  - title: qsfuzz - basic query string fuzzing
+    desc: |
+      Performs basic fuzzing on a list of URLs provided via standard input. 
+      This is the primary way to use the tool, typically by piping output from discovery tools like gau or waybackurls. 
+      It checks the parameters against built-in or default rules to find potential vulnerabilities.
+    command: "cat {{url_list}} | qsfuzz"
+
+  - title: qsfuzz - fuzzing with custom configuration
+    desc: |
+      Executes the fuzzer using a specific configuration file containing custom rules. 
+      The config file allows you to define specific payloads and matching patterns for vulnerabilities like XSS, SQLi, or SSRF. 
+      This is essential for targeted testing where default rules might not be sufficient for the specific technology stack.
+    command: "cat {{url_list}} | qsfuzz -c {{config_path|~/.config/qsfuzz/config.yaml}}"
+
+  # === AUTHENTICATION & HEADERS ===
+  - title: qsfuzz - authenticated fuzzing with headers
+    desc: |
+      Adds custom HTTP headers to all fuzzing requests sent by the tool. 
+      This is crucial for testing endpoints that require authorization tokens or custom headers for identification. 
+      Multiple headers can be included by separating them with a semi-colon within the string.
+    command: "cat {{url_list}} | qsfuzz -H \"{{headers|Authorization: Bearer token; X-Custom-Header: value}}\""
+
+  - title: qsfuzz - authenticated fuzzing with cookies
+    desc: |
+      Includes session cookies in every request to fuzz protected or authenticated areas of a web application. 
+      This allows the fuzzer to reach internal logic and parameters that are not accessible to unauthenticated users. 
+      Ensure the cookies are valid and the session is active before starting the long-running scan.
+    command: "cat {{url_list}} | qsfuzz -cookies \"{{cookies|session=abc123xyz}}\""
+
+  # === PERFORMANCE & OPTIMIZATION ===
+  - title: qsfuzz - high-concurrency fuzzing
+    desc: |
+      Sets the number of concurrent workers and adjusts the request timeout for faster processing. 
+      Increasing the worker count can significantly speed up the scanning of large URL lists but may lead to rate limiting. 
+      Setting a lower timeout helps the tool skip unresponsive servers quickly to maintain overall scanning momentum.
+    command: "cat {{url_list}} | qsfuzz -w {{workers|50}} -t {{timeout|10}}"
+
+  - title: qsfuzz - silent mode for automation
+    desc: |
+      Mutes all status updates and only prints successful evaluations or positive matches to the terminal. 
+      This mode is specifically designed for use in automation pipelines and shell scripts where only the findings are relevant. 
+      It prevents the terminal or log files from being cluttered with progress indicators and non-critical information.
+    command: "cat {{url_list}} | qsfuzz -s"
+
+  # === ADVANCED BEHAVIOR ===
+  - title: qsfuzz - fuzzing with decoded parameters
+    desc: |
+      Sends fuzzing requests with decoded query strings and parameters instead of URL-encoded ones. 
+      This technique can sometimes bypass security filters or WAFs that only inspect encoded inputs. 
+      Be cautious as this might cause some web servers to return 400 Bad Request errors if they expect standard encoding.
+    command: "cat {{url_list}} | qsfuzz -d"
+
+  - title: qsfuzz - disable redirect following
+    desc: |
+      Prevents the tool from following HTTP redirects (3xx status codes) during the fuzzing process. 
+      By default, qsfuzz follows redirects, but disabling it is useful when you want to analyze the immediate response of the target URL. 
+      This can help in identifying Open Redirect vulnerabilities or specific server behaviors on the initial landing page.
+    command: "cat {{url_list}} | qsfuzz -nr"
+
+  # === INTEGRATION ===
+  - title: qsfuzz - slack notification integration
+    desc: |
+      Sends all positive matches and discovered vulnerabilities directly to a Slack channel via a webhook. 
+      The Slack API key and destination details must be correctly configured in the qsfuzz config file beforehand. 
+      This is an excellent feature for continuous monitoring or long-running scans where you want real-time alerts on your mobile or desktop.
+    command: "cat {{url_list}} | qsfuzz -ts"
+
+  - title: qsfuzz - debug mode for troubleshooting
+    desc: |
+      Enables verbose debug mode to provide more detailed information about failed or malformed requests. 
+      This is extremely helpful when the tool is not behaving as expected or when you are trying to debug connectivity issues. 
+      It will print detailed error messages for every URL that fails to process, helping you refine your input list or configuration.
+    command: "cat {{url_list}} | qsfuzz -debug"

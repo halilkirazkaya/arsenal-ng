@@ -1,0 +1,79 @@
+tool: dirstalk
+tags: [web, scanner, security, pentest, enumeration, discovery, brute-force]
+
+actions:
+  # === BASIC SCANNING ===
+  - title: dirstalk - basic directory scan
+    desc: |
+      Performs a standard directory discovery scan on a target URL using a wordlist.
+      This is the most common entry point for web reconnaissance to find hidden files or folders.
+      A dictionary file is required, which can be a local path or a remote URL.
+      Ensure the target URL includes the protocol (http/https).
+    command: "dirstalk scan {{url}} --dictionary {{dictionary_path}}"
+
+  - title: dirstalk - scan with custom depth and threads
+    desc: |
+      Adjusts the recursion depth and the number of concurrent threads to control scan behavior.
+      A higher scan depth allows the tool to automatically crawl into discovered subdirectories.
+      Increasing the thread count will speed up the scan but may increase the load on the target server.
+      Be cautious with high thread counts as they might trigger rate-limiting or Web Application Firewalls (WAF).
+    command: "dirstalk scan {{url}} --dictionary {{dictionary_path}} --scan-depth {{depth|3}} --threads {{threads|10}}"
+
+  # === REQUEST CUSTOMIZATION ===
+  - title: dirstalk - scan with custom HTTP methods
+    desc: |
+      Configures the scanner to use specific HTTP methods during the discovery process.
+      While GET is the default, some directories might only respond to POST, PUT, or OPTIONS methods.
+      This is particularly useful when testing REST APIs or modern web applications.
+      Multiple methods can be provided as a comma-separated list.
+    command: "dirstalk scan {{url}} --dictionary {{dictionary_path}} --http-methods {{methods|GET,POST}}"
+
+  - title: dirstalk - authenticated scan using cookies and headers
+    desc: |
+      Injects custom cookies and headers into every request sent by the scanner.
+      This is essential for scanning areas of a website that are protected by authentication or specific session requirements.
+      The --use-cookie-jar flag can be added to handle session cookies returned by the server automatically.
+      Use this to discover administrative panels or user-specific directories that are not publicly accessible.
+    command: "dirstalk scan {{url}} --dictionary {{dictionary_path}} --cookie \"{{cookie_name}}={{value}}\ --header \"{{header_name}}: {{header_value}}\""
+
+  - title: dirstalk - customize user agent and timeout
+    desc: |
+      Sets a custom User-Agent string and defines the timeout for HTTP requests.
+      Changing the User-Agent can help bypass basic security filters that block known scanner signatures.
+      The timeout value is defined in milliseconds; increasing it is helpful for slow-responding servers or high-latency connections.
+      Default timeout is usually 5000ms if not specified.
+    command: "dirstalk scan {{url}} --dictionary {{dictionary_path}} --user-agent \"{{user_agent|Mozilla/5.0}}\" --http-timeout {{timeout_ms|10000}}"
+
+  # === EVASION AND CONNECTIVITY ===
+  - title: dirstalk - scan through SOCKS5 proxy
+    desc: |
+      Routes all outgoing scan traffic through a specified SOCKS5 proxy server.
+      This is a common technique used to mask the source IP of the scanner or to route traffic through Tor.
+      It is highly recommended when performing authorized penetration tests where anonymity or source-IP rotation is required.
+      The proxy address should be provided in the host:port format.
+    command: "dirstalk scan {{url}} --dictionary {{dictionary_path}} --socks5 {{proxy_address|127.0.0.1:9150}}"
+
+  # === FILTERING AND OUTPUT ===
+  - title: dirstalk - ignore specific HTTP status codes
+    desc: |
+      Filters out specific HTTP response status codes from the results and processing.
+      By default, dirstalk ignores 404 errors, but you can add 403, 301, or others to reduce noise.
+      This helps focus on successful hits (200 OK) or specific interesting responses like 500 Internal Server Error.
+      Provide the codes as a comma-separated list of integers.
+    command: "dirstalk scan {{url}} --dictionary {{dictionary_path}} --http-statuses-to-ignore {{status_codes|404,403}}"
+
+  - title: dirstalk - save scan results to file
+    desc: |
+      Directs the scan results to be saved into a local file for later analysis.
+      This is crucial for documentation and for piping findings into other tools in a pentest pipeline.
+      The output file will contain the discovered paths along with their metadata.
+      Ensure you have write permissions in the directory where the output file is created.
+    command: "dirstalk scan {{url}} --dictionary {{dictionary_path}} --out {{output_file|results.txt}}"
+
+  - title: dirstalk - enable HTTP request caching
+    desc: |
+      Enables or disables the internal HTTP cache to avoid redundant requests to the same URL.
+      This is particularly useful if the server issues multiple redirects to the same location during a recursive scan.
+      Caching is enabled by default (true), but can be toggled to ensure every request is fresh.
+      Using the cache can significantly reduce the total number of requests sent to the target.
+    command: "dirstalk scan {{url}} --dictionary {{dictionary_path}} --http-cache-requests={{boolean|true}}"
