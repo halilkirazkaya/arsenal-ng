@@ -1,0 +1,62 @@
+tool: 403bypasser
+tags: [web, security, pentest, bypass, reconnaissance, enumeration, bugbounty]
+
+actions:
+  # === BASIC USAGE ===
+  - title: 403bypasser - basic scan
+    desc: |
+      Perform a standard scan against a target URL to identify potential 403 Forbidden bypasses. 
+      This command uses the internal default wordlist to test common endpoint patterns and techniques. 
+      It is the most common starting point for reconnaissance when encountering access-restricted directories.
+    command: "403bypasser -u {{url}}"
+
+  - title: 403bypasser - custom wordlist scan
+    desc: |
+      Execute the bypasser using a specific wordlist provided by the user instead of the default one. 
+      This is useful when you have a targeted list of potential endpoints or when the default list is insufficient for the target environment. 
+      Ensure the path to the wordlist is correct and the file is readable by the tool.
+    command: "403bypasser -u {{url}} -w {{wordlist_path|wordlists/common.txt}}"
+
+  # === ADVANCED TECHNIQUES ===
+  - title: 403bypasser - deep scan mode
+    desc: |
+      Enable comprehensive testing using the deep scan flag for exhaustive analysis. 
+      This mode performs nested header and path fuzzing, testing every possible combination of bypass techniques. 
+      While it is significantly slower than a standard scan, it offers a much higher success rate against hardened targets.
+    command: "403bypasser -u {{url}} --deep"
+
+  - title: 403bypasser - authenticated scan with cookies
+    desc: |
+      Provide raw session cookies to the scanning engine to test for bypasses within an authenticated context. 
+      This is critical when the 403 error occurs for a specific user role or after a session has been established. 
+      Ensure the cookie string is properly formatted as it would appear in an HTTP request header.
+    command: "403bypasser -u {{url}} -c {{cookies|JSESSIONID=xyz}}"
+
+  - title: 403bypasser - custom header injection
+    desc: |
+      Add custom HTTP headers such as Bearer tokens, API keys, or specific User-Agents to the scan requests. 
+      This feature is essential for bypassing WAFs or accessing APIs that require specific identification headers. 
+      You can append multiple headers by repeating the flag if the tool's implementation supports it for complex scenarios.
+    command: "403bypasser -u {{url}} -H {{header|'Authorization: Bearer token'}}"
+
+  # === PROXY AND EVASION ===
+  - title: 403bypasser - proxy integration
+    desc: |
+      Route all tool traffic through an external proxy server like Burp Suite, Caido, or ZAP. 
+      This allows for manual inspection of the specific bypass payloads and headers being sent to the target. 
+      It is highly recommended for troubleshooting why a specific bypass might be failing or for documenting the proof of concept.
+    command: "403bypasser -u {{url}} --proxy {{proxy_url|http://127.0.0.1:8080}}"
+
+  - title: 403bypasser - rate limit evasion
+    desc: |
+      Adjust the scanning speed and concurrency to avoid triggering Web Application Firewalls (WAF) or rate limits. 
+      Using a higher delay and fewer threads makes the scan stealthier and less likely to result in an IP ban. 
+      This is particularly important when testing production environments or targets with aggressive security monitoring.
+    command: "403bypasser -u {{url}} -t {{threads|5}} --delay {{delay_ms|500}}"
+
+  - title: 403bypasser - full evasion suite
+    desc: |
+      Combine deep scanning with proxying and rate limiting for a thorough and controlled bypass attempt. 
+      This command is the "gold standard" for a comprehensive assessment of a single restricted endpoint. 
+      It ensures every bypass method is tried while allowing you to monitor the traffic and stay under the radar of simple detection systems.
+    command: "403bypasser -u {{url}} --deep --proxy {{proxy_url|http://127.0.0.1:8080}} --delay {{delay_ms|1000}} -t {{threads|1}}"
