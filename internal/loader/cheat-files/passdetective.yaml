@@ -1,0 +1,41 @@
+tool: passdetective
+tags: [security, pentest, credentials, forensics, exploitation, reconnaissance, shell, post-exploitation]
+
+actions:
+# === PASSWORD EXTRACTION ===
+
+ - title: PassDetective - extract passwords from shell history
+   desc: |
+     Automatically scans and analyzes shell history files to identify and extract plaintext passwords.
+     This command is primarily used during post-exploitation or forensic analysis to find credentials accidentally leaked in command-line arguments.
+     It parses history change descriptions and identifies common patterns used for sensitive data.
+     Results are displayed for inspection, allowing researchers to quickly gather credentials for lateral movement.
+   command: "PassDetective extract"
+
+ - title: PassDetective - display help for extraction module
+   desc: |
+     Shows detailed usage information and specific flags available for the extraction command.
+     Use this when you need to verify if the tool supports specific history file paths or filtering options.
+     It provides insight into the underlying logic the tool uses to identify secrets within the shell history.
+     Regularly checking the help menu is recommended as new features or pattern updates might be added.
+   command: "PassDetective extract --help"
+
+# === SHELL CONFIGURATION ===
+
+ - title: PassDetective - generate shell completion script
+   desc: |
+     Generates an autocompletion script for the specified shell environment to enhance productivity.
+     The command supports various shells such as bash, zsh, fish, or powershell to provide tab-completion for commands.
+     This is useful for power users who want to quickly navigate through the tool's available sub-commands and flags.
+     After generation, the output must typically be sourced or moved to the appropriate shell completion directory.
+   command: "PassDetective completion {{shell_type|bash}}"
+
+# === GENERAL HELP ===
+
+ - title: PassDetective - show general help information
+   desc: |
+     Displays the primary help menu including the list of available commands and global flags.
+     This is the standard starting point to understand the basic structure of the tool and its capabilities.
+     It lists global flags such as the help flag which can be applied to any sub-command for context-specific info.
+     No special privileges are usually required to run the help command.
+   command: "PassDetective --help"
