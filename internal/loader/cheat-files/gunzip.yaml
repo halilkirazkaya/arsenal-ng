@@ -1,0 +1,86 @@
+tool: gunzip
+tags: [system, archive, compression, utility, files, linux]
+
+actions:
+# === BASIC DECOMPRESSION ===
+ - title: gunzip - basic decompression
+   desc: |
+     Decompress a gzip file and replace it with the uncompressed version. This is the 
+     standard use case when you want to extract a single file for immediate use. 
+     By default, the original .gz file is deleted after successful extraction to save 
+     disk space.
+   command: "gunzip {{file_name}}"
+
+ - title: gunzip - decompress and keep original
+   desc: |
+     Use the keep flag to prevent the tool from deleting the source archive after extraction. 
+     This is useful when you need to maintain a backup or share the compressed file 
+     later with other users. It ensures that both the original .gz archive and the 
+     newly extracted file exist on the storage.
+   command: "gunzip -k {{file_name}}"
+
+ - title: gunzip - verbose decompression
+   desc: |
+     Extract a file while displaying the name and percentage reduction for each file processed. 
+     This provides visual feedback during the extraction process, which is helpful for 
+     tracking progress on large files. It allows the user to see exactly what is 
+     happening in real-time.
+   command: "gunzip -v {{file_name}}"
+
+# === INSPECTION AND TESTING ===
+ - title: gunzip - list compressed file info
+   desc: |
+     Display detailed information about the compressed file without actually extracting it. 
+     The output includes the compressed size, uncompressed size, compression ratio, 
+     and the original file name. This is a safe way to inspect a file's contents 
+     before committing to a full decompression.
+   command: "gunzip -l {{file_name}}"
+
+ - title: gunzip - test file integrity
+   desc: |
+     Check the validity of a compressed file to ensure it has not been corrupted during 
+     transfer or storage. This command performs a trial decompression and verifies the 
+     internal checksums of the gzip archive. It does not produce any output files, 
+     making it ideal for verifying large downloads or backups.
+   command: "gunzip -t {{file_name}}"
+
+# === ADVANCED OPERATIONS ===
+ - title: gunzip - decompress to stdout
+   desc: |
+     Extract the contents of a gzip file directly to the terminal or redirect it to a pipe. 
+     This allows you to process the data with other tools like grep, awk, or sed without 
+     writing the full file to disk first. The original compressed file remains 
+     untouched when using this option.
+   command: "gunzip -c {{file_name}}"
+
+ - title: gunzip - recursive decompression
+   desc: |
+     Traverse a directory structure and automatically decompress every .gz file found 
+     within it and its subdirectories. This is highly efficient for bulk processing 
+     log files or large datasets spread across multiple folders. Note that this will 
+     replace all .gz files with uncompressed versions unless combined with other flags.
+   command: "gunzip -r {{directory_path}}"
+
+ - title: gunzip - force overwrite
+   desc: |
+     Overwrite existing files in the destination without prompting the user for confirmation. 
+     This is essential for automated scripts or batch jobs where user interaction is 
+     not possible. It also allows decompressing files that have multiple hard links 
+     or files that do not follow standard naming conventions.
+   command: "gunzip -f {{file_name}}"
+
+ - title: gunzip - specify custom suffix
+   desc: |
+     Decompress files that use a non-standard suffix instead of the default .gz extension. 
+     Use this when working with specialized backup systems or custom applications 
+     that rename compressed files for organizational purposes. It allows the tool to 
+     recognize and process these specific files correctly.
+   command: "gunzip -S {{suffix|.ext}} {{file_name}}"
+
+ - title: gunzip - restore original name and timestamp
+   desc: |
+     Restore the original file name and time stamp if they were saved within the 
+     compressed file header. This is the default behavior, but explicitly setting it 
+     ensures that file metadata is preserved during the extraction process. It is 
+     useful for maintaining historical accuracy of logs or source code files.
+   command: "gunzip -N {{file_name}}"

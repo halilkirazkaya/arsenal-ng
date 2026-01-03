@@ -1,0 +1,51 @@
+tool: autopsy
+tags: [forensics, digital-forensics, tsk, incident-response, security, analysis]
+
+# === STARTUP AND CONFIGURATION ===
+
+actions:
+  - title: autopsy - basic startup
+    desc: |
+      Launch the Autopsy Forensic Browser with default configuration settings. This command initializes the local web server on port 9999 and restricts access to the localhost. It is the standard way to begin a digital forensics investigation on a local workstation.
+    command: "autopsy"
+
+  - title: autopsy - custom port
+    desc: |
+      Start the Autopsy web interface on a specific network port. This is useful when the default port 9999 is already occupied by another service or when following specific network policies. Ensure that the chosen port is not blocked by local firewall rules to allow browser access.
+    command: "autopsy -p {{port|8080}}"
+
+  - title: autopsy - evidence locker
+    desc: |
+      Specify the directory used as the evidence locker for storing case metadata and configurations. This directory acts as the central repository for all forensic projects created within the tool. Using a dedicated, high-capacity drive for the evidence locker is recommended for large investigations.
+    command: "autopsy -d {{evidence_locker_path}}"
+
+  - title: autopsy - remote access
+    desc: |
+      Start the server and permit a specific remote IP address to connect to the forensic browser interface. This allows an investigator to run the backend on a powerful server while accessing the GUI from a separate workstation. By default, Autopsy only allows connections from the local machine for security purposes.
+    command: "autopsy {{remote_ip}}"
+
+# === SECURITY AND SESSION MANAGEMENT ===
+
+  - title: autopsy - force cookie
+    desc: |
+      Enable the enforcement of cookies within the URL for session management. This security feature helps prevent certain types of session hijacking or unauthorized access to the forensic data via the web interface. It is highly recommended when running Autopsy in an environment where the network might be shared.
+    command: "autopsy -c"
+
+  - title: autopsy - disable cookies
+    desc: |
+      Force the Autopsy server to operate without requiring cookies in the URL. This may be used in specific troubleshooting scenarios where the browser environment fails to handle the generated cookies correctly. Note that disabling cookies can decrease the security of the forensic session.
+    command: "autopsy -C"
+
+# === LIVE ANALYSIS ===
+
+  - title: autopsy - live analysis mode
+    desc: |
+      Configure Autopsy to perform live analysis on a specific device and filesystem. You must provide the path to the device, the type of filesystem, and the mount point where the device is currently attached. This mode is essential for triaging a running system without creating a full forensic image first.
+    command: "autopsy -i {{device|/dev/sdb1}} {{filesystem|ext4}} {{mount_point|/mnt/analysis}}"
+
+# === ADVANCED COMBO ===
+
+  - title: autopsy - secure remote session
+    desc: |
+      Launch a secured remote session using a custom evidence locker and a specific port while forcing cookie authentication. This configuration is ideal for professional forensic environments where the server is hosted remotely. It combines storage management, accessibility, and session security in a single command.
+    command: "autopsy -d {{evidence_locker_path}} -p {{port|9999}} -c {{remote_ip}}"

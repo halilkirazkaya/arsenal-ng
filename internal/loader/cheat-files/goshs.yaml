@@ -1,0 +1,91 @@
+tool: goshs
+tags: [network, file-sharing, security, web, pentest, server, webdav, sftp]
+
+actions:
+  # === BASIC USAGE ===
+  - title: goshs - start basic server
+    desc: |
+      Start the web server with default settings on all interfaces. This is the most common 
+      way to quickly share files in the current directory over port 8000. It provides a 
+      clean web interface for browsing and downloading files.
+    command: "goshs -p {{port|8000}} -d {{directory|./}}"
+
+  - title: goshs - upload only mode
+    desc: |
+      Start the server in a mode that only allows file uploads. Use this when you want 
+      to collect files from other users without allowing them to see or download existing 
+      files in the directory. It is particularly useful for receiving exfiltrated data or 
+      reports during a security assessment.
+    command: "goshs -uo -p {{port|8000}} -uf {{upload_folder|./uploads}}"
+
+  - title: goshs - silent mode without directory listing
+    desc: |
+      Run the server without providing a directory listing to the user. This effectively 
+      hides the file structure, requiring the user to know the exact filename to download it. 
+      This adds a small layer of obscurity for sensitive file transfers.
+    command: "goshs -si"
+
+  # === SECURITY AND AUTHENTICATION ===
+  - title: goshs - basic authentication
+    desc: |
+      Secure the server using standard HTTP Basic Authentication. This requires users to 
+      provide a valid username and password before they can access any content. It is 
+      highly recommended when hosting the server on a public or shared network to prevent 
+      unauthorized access.
+    command: "goshs -b '{{username|admin}}:{{password|password123}}'"
+
+  - title: goshs - self-signed TLS
+    desc: |
+      Enable encrypted communication using a self-signed SSL/TLS certificate. This 
+      protects the data in transit from being sniffed on the network. Note that browsers 
+      will display a certificate warning since the certificate is not signed by a 
+      trusted Certificate Authority.
+    command: "goshs -s -ss"
+
+  - title: goshs - ip whitelisting
+    desc: |
+      Restrict access to the server so that only specific IP addresses can connect. 
+      This is a powerful security feature that prevents any connection attempts from 
+      unauthorized hosts. Multiple IP addresses can be provided as a comma-separated list.
+    command: "goshs -ipw {{allowed_ips|127.0.0.1,192.168.1.100}}"
+
+  # === ADVANCED PROTOCOLS ===
+  - title: goshs - webdav support
+    desc: |
+      Enable the WebDAV protocol alongside the standard web interface. This allows 
+      users to mount the server directory as a local network drive on Windows, macOS, 
+      or Linux. It is very useful for managing files as if they were on a local disk 
+      rather than using a browser.
+    command: "goshs -w -wp {{webdav_port|8001}}"
+
+  - title: goshs - sftp server
+    desc: |
+      Activate a built-in SFTP server for secure file transfers over SSH. This provides 
+      a robust alternative to HTTP for users who prefer using command-line SFTP clients 
+      or FileZilla. You can customize the listening port to avoid conflicts with 
+      existing SSH services.
+    command: "goshs -sftp -sp {{sftp_port|2022}}"
+
+  # === AUTOMATION AND LOGGING ===
+  - title: goshs - webhook notifications
+    desc: |
+      Configure the server to send real-time notifications to a webhook URL when 
+      actions occur. This is ideal for monitoring when a file is uploaded, downloaded, 
+      or deleted by a user. It supports popular providers like Discord, Slack, and 
+      Mattermost for easy integration into your workflow.
+    command: "goshs -W -Wu {{webhook_url}} -Wp {{provider|Discord}} -We {{events|all}}"
+
+  - title: goshs - verbose logging to file
+    desc: |
+      Run the server with verbose output and redirect the logs to a specific file. 
+      This is essential for auditing purposes and troubleshooting connection issues. 
+      It captures detailed information about every request made to the server.
+    command: "goshs -V -o > {{logfile|access.log}}"
+
+  - title: goshs - use configuration file
+    desc: |
+      Start the server using a predefined YAML configuration file instead of 
+      command-line arguments. This allows for complex setups to be easily reused 
+      and version-controlled. You can generate a sample configuration using the 
+      -P flag to see all available options.
+    command: "goshs -C {{config_path|config.yaml}}"

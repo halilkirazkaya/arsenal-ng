@@ -1,0 +1,102 @@
+tool: dig
+tags: [network, dns, enumeration, reconnaissance, pentest, troubleshooting]
+
+# === BASIC ENUMERATION ===
+
+actions:
+ - title: dig - basic A record lookup
+   desc: |
+     Performs a standard DNS lookup to retrieve the IPv4 address (A record) for a specific domain. 
+     This is the primary way to verify what IP a hostname resolves to using the system's default DNS settings. 
+     It is a fundamental tool for initial reconnaissance to identify target infrastructure.
+   command: "dig {{domain}}"
+
+ - title: dig - query specific nameserver
+   desc: |
+     Queries a specific DNS server directly rather than using the local system resolver. 
+     This is useful for bypassing cached results or checking if a specific server like 8.8.8.8 or a target's authoritative server is updated. 
+     Use this to verify DNS propagation or to test for DNS poisoning on specific servers.
+   command: "dig @{{dns_server|8.8.8.8}} {{domain}}"
+
+ - title: dig - short response format
+   desc: |
+     Returns only the IP address or the record value without the verbose header and metadata. 
+     This mode is ideal for scripting or when you need a clean output for piping into other tools. 
+     It strips away the "QUESTION", "ANSWER", and "AUTHORITY" sections for brevity.
+   command: "dig {{domain}} +short"
+
+ - title: dig - detailed multiline output
+   desc: |
+     Displays DNS records in a highly readable, expanded multiline format. 
+     This is particularly helpful when examining complex records like SOA or DNSSEC keys that contain many fields. 
+     It makes it easier to distinguish between TTL values, record types, and the actual data.
+   command: "dig {{domain}} +multiline"
+
+# === RECORD TYPES ===
+
+ - title: dig - lookup mail exchange (MX) records
+   desc: |
+     Queries the MX records for a domain to identify the servers responsible for receiving email. 
+     In a security context, this helps identify third-party email providers or potential entry points for phishing simulations. 
+     The output includes a priority value where lower numbers indicate higher preference.
+   command: "dig {{domain}} MX"
+
+ - title: dig - lookup nameservers (NS)
+   desc: |
+     Retrieves the authoritative nameservers for a specific domain. 
+     Knowing the authoritative servers allows you to direct further queries specifically to the source of truth for that domain. 
+     This is often the first step in performing a deeper DNS enumeration of an organization.
+   command: "dig {{domain}} NS"
+
+ - title: dig - lookup text (TXT) records
+   desc: |
+     Queries TXT records which are often used for SPF, DKIM, and DMARC email security policies. 
+     They are also frequently used for domain ownership verification by services like Google or Microsoft. 
+     Security professionals check these to identify misconfigured email policies or hidden information about the domain's services.
+   command: "dig {{domain}} TXT"
+
+ - title: dig - lookup all records (ANY)
+   desc: |
+     Attempts to retrieve all available DNS record types for a domain in a single query. 
+     Note that many modern DNS servers and CDNs (like Cloudflare) may block or limit ANY queries to prevent DNS amplification attacks. 
+     Use this for a quick overview, but be prepared to query specific types if this fails.
+   command: "dig {{domain}} ANY"
+
+# === ADVANCED LOOKUPS ===
+
+ - title: dig - reverse DNS lookup
+   desc: |
+     Performs a reverse lookup to find the domain name associated with a given IP address. 
+     This uses the PTR (Pointer) record within the in-addr.arpa or ip6.arpa zones. 
+     It is essential for identifying the purpose of an IP discovered during network scanning.
+   command: "dig -x {{ip_address}}"
+
+ - title: dig - trace DNS delegation
+   desc: |
+     Follows the DNS resolution path from the root servers down to the authoritative nameservers. 
+     This is an excellent diagnostic tool for identifying where a DNS resolution failure is occurring in the hierarchy. 
+     It shows every step of the referral process, providing visibility into how the query is handled across the internet.
+   command: "dig {{domain}} +trace"
+
+ - title: dig - zone transfer (AXFR)
+   desc: |
+     Attempts to perform a full zone transfer, which requests the entire DNS database for a domain. 
+     If the server is misconfigured to allow unauthorized transfers, it will leak every internal and external record in that zone. 
+     This is a high-impact discovery technique, but it is rarely successful on properly secured public nameservers.
+   command: "dig @{{dns_server}} {{domain}} axfr"
+
+# === PROTOCOL & TROUBLESHOOTING ===
+
+ - title: dig - query over TCP
+   desc: |
+     Forces the DNS query to use TCP instead of the standard UDP protocol. 
+     This is necessary for large responses that exceed the 512-byte UDP limit or for certain types of DNS inspection. 
+     It can also be used to test if a firewall is blocking DNS over TCP, which is required for zone transfers.
+   command: "dig {{domain}} +tcp"
+
+ - title: dig - query specific port
+   desc: |
+     Directs the DNS query to a non-standard port instead of the default port 53. 
+     This is useful when testing internal DNS servers that have been moved for security or when testing through a port-forwarding setup. 
+     Ensure the target server is actually listening on the specified port to avoid connection refused errors.
+   command: "dig @{{dns_server}} {{domain}} -p {{port|53}}"

@@ -1,0 +1,84 @@
+tool: brew
+tags: [macos, linux, package-manager, software, installation, maintenance, development]
+
+actions:
+# === SEARCH AND DISCOVERY ===
+ - title: brew - search for packages
+   desc: |
+     This command allows you to search for available formulas (CLI tools) and casks (GUI apps) in the Homebrew repository.
+     It accepts plain text or regular expressions to filter the results.
+     Use this when you are unsure of the exact name of a package you wish to install.
+   command: "brew search {{query|wget}}"
+
+ - title: brew - display package information
+   desc: |
+     Use this command to retrieve detailed metadata about a specific formula or cask.
+     It provides information such as the current version, dependencies, conflicts, and the official project URL.
+     This is helpful for verifying the requirements of a tool before committing to an installation.
+   command: "brew info {{formula_or_cask|nmap}}"
+
+# === INSTALLATION AND REMOVAL ===
+ - title: brew - install a package
+   desc: |
+     This is the primary command for installing new software through Homebrew.
+     It downloads the source or pre-compiled "bottle," handles dependencies automatically, and links binaries to your path.
+     Note that some installations may require sudo privileges for post-install scripts, though Homebrew itself runs as a standard user.
+   command: "brew install {{formula_or_cask|git}}"
+
+ - title: brew - uninstall a package
+   desc: |
+     This command removes an installed formula or cask from your system.
+     It deletes the binaries and associated symlinks created during the installation process.
+     Use this to clean up tools you no longer need and free up space in the Homebrew cellar.
+   command: "brew uninstall {{formula_or_cask|wget}}"
+
+ - title: brew - list installed packages
+   desc: |
+     This command displays a list of all formulas and casks currently installed on your local system.
+     It is useful for auditing your environment or checking if a specific tool is already present.
+     Running this without arguments lists everything, but you can also provide a name to check a specific package.
+   command: "brew list"
+
+# === MAINTENANCE AND UPDATES ===
+ - title: brew - update homebrew
+   desc: |
+     Running this command updates Homebrew itself along with the local list of available formulas.
+     It does not update your installed software, but it ensures you have the latest definitions from the GitHub repositories.
+     It is recommended to run this command before installing new tools or performing upgrades.
+   command: "brew update"
+
+ - title: brew - upgrade installed packages
+   desc: |
+     This command updates all of your installed formulas and casks to their latest available versions.
+     If a specific package name is provided, only that tool will be upgraded.
+     This is the standard way to keep your command-line environment and applications secure and up to date.
+   command: "brew upgrade {{formula_or_cask}}"
+
+ - title: brew - check for outdated packages
+   desc: |
+     This command identifies which of your installed packages have newer versions available in the repository.
+     It provides a concise list of what can be upgraded without actually performing the upgrade process.
+     Use this for a quick status check of your system's software health.
+   command: "brew outdated"
+
+ - title: brew - cleanup old versions
+   desc: |
+     Homebrew often keeps old versions of packages and temporary download files, which can consume significant disk space.
+     This command removes outdated lock files and stale downloads for all formulas and casks.
+     It is a safe way to reclaim storage space without affecting your current software installations.
+   command: "brew cleanup"
+
+# === TROUBLESHOOTING ===
+ - title: brew - check system health
+   desc: |
+     The doctor command performs a diagnostic check of your system to find common configuration issues.
+     It identifies problems like broken symlinks, unlinked kegs, and conflicting software in your path.
+     If you encounter errors during installation or updates, this should be your first troubleshooting step.
+   command: "brew doctor"
+
+ - title: brew - show configuration
+   desc: |
+     This command outputs the current configuration of your Homebrew installation.
+     It includes environment variables, paths to the cellar and prefix, and details about your operating system.
+     This information is highly valuable when debugging issues or reporting bugs to the Homebrew maintainers.
+   command: "brew config"

@@ -1,0 +1,84 @@
+tool: find
+tags: [linux, file-system, enumeration, forensics, utility, security, pentest]
+
+actions:
+# === BASIC SEARCH ===
+ - title: find - search for a file by name
+   desc: |
+     Locate files within a directory tree that match a specific filename pattern. This is the most common use case for identifying where a specific configuration or source file is stored. 
+     Be aware that searching from the root directory might require elevated privileges to access all folders and avoid "Permission denied" errors. 
+     The search is recursive by default, traversing all subdirectories.
+   command: "find {{search_path|/}} -name \"{{filename}}\""
+
+ - title: find - case-insensitive search
+   desc: |
+     Search for files regardless of their capitalization using the iname flag. This is particularly useful when you are unsure if a file uses CamelCase, lowercase, or uppercase naming conventions. 
+     It helps avoid missing targets due to strict character matching in Unix-like environments. 
+     This is often used when looking for specific software components that may vary in naming style.
+   command: "find {{search_path|/}} -iname \"{{filename}}\""
+
+ - title: find - filter by type
+   desc: |
+     Limit the search results to either files or directories using the type flag. Use 'f' for regular files or 'd' for directories to narrow down results during system enumeration. 
+     This reduces clutter when you are only looking for executable binaries or specific configuration directories. 
+     Filtering by type is essential when performing operations that only apply to files, such as content searching.
+   command: "find {{search_path|.}} -type {{type|f}} -name \"{{pattern|*.txt}}\""
+
+# === SIZE AND TIME ===
+ - title: find - search by file size
+   desc: |
+     Find files that are larger or smaller than a specific size threshold. This is useful for identifying large log files that consume disk space or unusually small configuration files. 
+     Note that suffixes like 'k', 'M', and 'G' are used for kilobytes, megabytes, and gigabytes respectively. 
+     Prefixing the size with '+' finds files larger than the value, while '-' finds files smaller than the value.
+   command: "find {{search_path|.}} -size {{size|+100M}}"
+
+ - title: find - search by modification time
+   desc: |
+     Locate files that were modified within a specific number of days. This is an essential technique for forensic analysis or finding recently updated system files after a breach. 
+     Using a minus sign (e.g., -7) searches for files modified less than the specified number of days ago. 
+     This can also be used to find files modified more than a certain number of days ago by using a plus sign.
+   command: "find {{search_path|.}} -mtime {{days|-7}}"
+
+# === PERMISSIONS AND OWNERSHIP ===
+ - title: find - search by permissions
+   desc: |
+     Find files that have specific numeric or symbolic permission sets. This is often used during security audits to identify world-writable files or files with the SUID bit set. 
+     Identifying improperly configured permissions is a key step in privilege escalation. 
+     The -perm flag can check for exact matches or for at least the specified bits being set.
+   command: "find {{search_path|/}} -perm {{permissions|0777}}"
+
+ - title: find - find SUID files
+   desc: |
+     Locate files that have the Set User ID (SUID) bit enabled. These files run with the privileges of the file owner rather than the user executing them, making them prime targets for privilege escalation. 
+     Permission '4000' specifically targets the SUID bit. 
+     Always verify these files against known binaries to detect potential backdoors.
+   command: "find {{search_path|/}} -perm -4000 -type f"
+
+ - title: find - find files by owner
+   desc: |
+     Search for files owned by a specific user or group. This is helpful for auditing sensitive data access or identifying files left behind by specific service accounts. 
+     It can be combined with other flags to find files owned by a user that also have dangerous permissions. 
+     This command is useful for identifying "orphaned" files that belong to users no longer on the system.
+   command: "find {{search_path|/}} -user {{username|root}}"
+
+# === EXECUTION AND CLEANUP ===
+ - title: find - execute command on results
+   desc: |
+     Perform a specific shell action on every file that matches the search criteria. The curly braces '{}' are a placeholder for the current file being processed. 
+     Use this with caution, especially when executing destructive commands like 'rm' or 'chmod'. 
+     The command must end with a semicolon (escaped as \;) or a plus sign for bulk execution.
+   command: "find {{search_path|.}} -name \"{{pattern|*.log}}\" -exec {{action|ls -l}} {} \\;"
+
+ - title: find - find empty files or directories
+   desc: |
+     Search for files or directories that contain no data or sub-items. This is helpful for system cleanup or identifying failed processes that created empty placeholders. 
+     It is a quick way to audit directory structures for unused resources. 
+     This can be combined with the -delete flag to automatically remove empty results.
+   command: "find {{search_path|.}} -type {{type|f}} -empty"
+
+ - title: find - limit search depth
+   desc: |
+     Restrict the search to a maximum depth of directories. This prevents the tool from descending too deep into complex file systems or network mounts. 
+     A depth of '1' searches only the current directory. 
+     This is highly recommended when searching large volumes to save time and system resources.
+   command: "find {{search_path|.}} -maxdepth {{depth|2}} -name \"{{pattern|*.conf}}\""

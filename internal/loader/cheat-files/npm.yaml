@@ -1,0 +1,135 @@
+tool: npm
+tags: [javascript, nodejs, package-manager, development, security, build-tool]
+
+actions:
+# === INITIALIZATION AND INSTALLATION ===
+ - title: npm - initialize project
+   desc: |
+     Create a package.json file for a new project to track metadata and dependencies. 
+     This command initiates an interactive walkthrough to set up project details. 
+     Using the --yes flag skips the questionnaire and uses default values for all fields.
+   command: "npm init {{flag|--yes}}"
+
+ - title: npm - install dependencies
+   desc: |
+     Install all dependencies listed in the package.json file located in the current directory. 
+     This is typically the first command run after cloning a project repository. 
+     It creates the node_modules folder and ensures the environment matches the package-lock.json.
+   command: "npm install"
+
+ - title: npm - add specific package
+   desc: |
+     Add a specific package to the project's production dependencies list. 
+     This command downloads the package and updates both package.json and package-lock.json. 
+     You can specify a version number or a tag if the latest version is not desired.
+   command: "npm install {{package_name}}"
+
+ - title: npm - add development package
+   desc: |
+     Install a package specifically for development purposes, such as testing frameworks or linters. 
+     These dependencies are stored in the devDependencies section of your package.json. 
+     They are not included when the application is installed in a production environment.
+   command: "npm install {{package_name}} --save-dev"
+
+ - title: npm - global installation
+   desc: |
+     Install a package globally on your system rather than in the local project folder. 
+     This is commonly used for command-line tools that you want to access from any directory. 
+     Depending on your system configuration, this may require administrator or sudo privileges.
+   command: "npm install -g {{package_name}}"
+
+# === MAINTENANCE AND UPDATES ===
+ - title: npm - list installed packages
+   desc: |
+     Display a tree structure of all installed packages and their current versions. 
+     The depth flag allows you to limit the output to top-level packages or nested dependencies. 
+     This is a helpful tool for troubleshooting version mismatches or dependency hell.
+   command: "npm list --depth={{depth|0}}"
+
+ - title: npm - check outdated packages
+   desc: |
+     Compare the versions of installed packages against the latest versions available in the registry. 
+     The output highlights which packages have newer patches, minor updates, or major releases. 
+     It provides a clear view of what needs updating to keep the project current.
+   command: "npm outdated"
+
+ - title: npm - update packages
+   desc: |
+     Update all or specific packages to the latest version allowed by the semver range in package.json. 
+     This command will respect the carets and tildes defined in your configuration. 
+     It is recommended to run tests after updating to ensure no breaking changes were introduced.
+   command: "npm update {{package_name|}}"
+
+ - title: npm - uninstall package
+   desc: |
+     Remove a package from the node_modules folder and delete its entry from package.json. 
+     This helps keep the project clean by removing unused code and dependencies. 
+     You can also use the -g flag to uninstall globally installed packages.
+   command: "npm uninstall {{package_name}}"
+
+# === SECURITY AND AUDITING ===
+ - title: npm - security audit
+   desc: |
+     Scan your project's dependency tree for known security vulnerabilities. 
+     It generates a detailed report of vulnerable packages, the severity of the risk, and available fixes. 
+     Regular auditing is essential for maintaining a secure production environment.
+   command: "npm audit"
+
+ - title: npm - fix security vulnerabilities
+   desc: |
+     Automatically apply suggested fixes for vulnerabilities identified during an audit. 
+     This command will update package versions to the nearest secure release within semver constraints. 
+     Use the --force flag if you need to install updates that might involve breaking changes.
+   command: "npm audit fix {{force_flag|}}"
+
+# === EXECUTION AND SCRIPTS ===
+ - title: npm - run custom script
+   desc: |
+     Execute a command defined in the "scripts" object of the package.json file. 
+     Common script names include "start", "test", and "build", but custom names are supported. 
+     This provides a consistent interface for developers to interact with the project's build pipeline.
+   command: "npm run {{script_name|start}}"
+
+ - title: npm - execute package without install
+   desc: |
+     Run a command from a local or remote npm package without permanently installing it. 
+     This is powered by npx (shipped with npm) and is ideal for one-off tasks like scaffolding. 
+     It ensures you are always using the latest version of the tool without cluttering global space.
+   command: "npm exec {{binary_name}}"
+
+# === REGISTRY AND PUBLISHING ===
+ - title: npm - registry login
+   desc: |
+     Authenticate your local environment with the npm registry or a private equivalent. 
+     This command opens a browser or prompts for credentials to store a local access token. 
+     Authentication is required before you can publish packages or access private scoped content.
+   command: "npm login"
+
+ - title: npm - publish package
+   desc: |
+     Upload the current package to the npm registry for others to install and use. 
+     Ensure the version number in package.json is updated before running this, as registries do not allow overwrites. 
+     For scoped packages, you may need to specify the access level as public or restricted.
+   command: "npm publish --access {{access_level|public}}"
+
+ - title: npm - view package info
+   desc: |
+     Retrieve metadata about a package from the registry without downloading it. 
+     This can show available versions, maintainers, dependencies, and README content. 
+     It is useful for verifying package details before deciding to add it to your project.
+   command: "npm view {{package_name}}"
+
+# === CONFIGURATION AND UTILITIES ===
+ - title: npm - set configuration
+   desc: |
+     Modify settings in the npm configuration files (e.g., .npmrc). 
+     This is often used to set a custom registry URL, proxy settings, or default author information. 
+     Changes made here persist across different projects for the current user.
+   command: "npm config set {{key}} {{value}}"
+
+ - title: npm - clean package cache
+   desc: |
+     Clear the local cache where npm stores downloaded package data. 
+     This is a troubleshooting step used when package installations are failing or corrupted. 
+     In modern npm versions, the --force flag is required to execute this command.
+   command: "npm cache clean --force"

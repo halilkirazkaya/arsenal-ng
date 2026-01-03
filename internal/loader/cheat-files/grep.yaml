@@ -1,0 +1,100 @@
+tool: grep
+tags: [linux, search, text-processing, command-line, utility, sysadmin, pentest]
+
+actions:
+# === BASIC SEARCHING ===
+ - title: grep - basic string search
+   desc: |
+     Basic search for a specific string within a single file. This is the most common 
+     starting point for finding specific keywords or data within logs or configuration files. 
+     It outputs every line that contains the specified pattern to the terminal. 
+     Note that by default, the search is case-sensitive.
+   command: "grep \"{{pattern}}\" {{file}}"
+
+ - title: grep - case-insensitive search
+   desc: |
+     Search for a pattern while ignoring the case of the characters. This is extremely 
+     useful when searching for user-provided input or logs where casing might be inconsistent. 
+     Use this when you are unsure if the target string uses uppercase or lowercase letters. 
+     It ensures that matches like 'Admin', 'admin', and 'ADMIN' are all captured.
+   command: "grep -i \"{{pattern}}\" {{file}}"
+
+ - title: grep - match whole words only
+   desc: |
+     Search for lines containing the pattern as a complete word. This prevents partial 
+     matches, such as finding 'art' inside the word 'start' or 'artist'. Use this 
+     flag when you are looking for specific variable names or identifiers in code. 
+     It is highly effective for reducing false positives in large datasets.
+   command: "grep -w \"{{pattern}}\" {{file}}"
+
+# === RECURSION AND DIRECTORIES ===
+ - title: grep - recursive directory search
+   desc: |
+     Search for a pattern within all files in a directory and its subdirectories. This 
+     is the standard way to look for a specific configuration setting or function call 
+     across an entire project. It provides the file path along with the matching line 
+     to help you locate the source. Use -r for symbolic link following or -R to ignore them.
+   command: "grep -r \"{{pattern}}\" {{directory|/etc/}}"
+
+ - title: grep - list filenames only
+   desc: |
+     Display only the names of files that contain the matching pattern. Use this when 
+     you need a list of files for further processing or scripts rather than seeing the 
+     actual content. It suppresses the standard output of matching lines, making it 
+     cleaner for identifying which files are affected by a search term. 
+     This is often used in combination with the recursive flag.
+   command: "grep -l \"{{pattern}}\" {{directory|.}}/*"
+
+# === FILTERING AND COUNTING ===
+ - title: grep - invert match
+   desc: |
+     Display all lines that do not contain the specified pattern. This is a powerful 
+     way to filter out noise, such as removing successful "200 OK" entries from an 
+     access log to focus on errors. Be careful with very broad patterns as they might 
+     accidentally hide important information. It is essential for log analysis and cleanup.
+   command: "grep -v \"{{pattern}}\" {{file}}"
+
+ - title: grep - count matches
+   desc: |
+     Return the total number of lines that match the search pattern. Use this for 
+     statistical analysis or to quickly check the frequency of an event in a log file. 
+     It is more efficient than piping the output to 'wc -l' because it processes the 
+     count internally. Note that it counts matching lines, not total occurrences per line.
+   command: "grep -c \"{{pattern}}\" {{file}}"
+
+ - title: grep - show line numbers
+   desc: |
+     Prefix each matching line with its line number from the source file. This is 
+     incredibly helpful for developers who need to jump directly to a specific 
+     location in a source code editor. It provides immediate context regarding 
+     where the match sits within the file structure. Combine this with recursion 
+     to map out patterns across multiple files.
+   command: "grep -n \"{{pattern}}\" {{file}}"
+
+# === CONTEXTUAL SEARCHING ===
+ - title: grep - show context around matches
+   desc: |
+     Display a specified number of lines before and after the matching line. This 
+     is essential when the meaning of a match depends on the surrounding text, 
+     such as an error message followed by a stack trace. You can also use -A 
+     for after or -B for before context specifically. It helps in understanding 
+     the state of a system before or after a specific event occurred.
+   command: "grep -C {{lines|3}} \"{{pattern}}\" {{file}}"
+
+# === ADVANCED PATTERNS ===
+ - title: grep - extended regular expressions
+   desc: |
+     Enable extended regular expression (ERE) syntax for more complex search patterns. 
+     This allows the use of meta-characters like '|' for OR operations and '+' for 
+     quantifiers without escaping them. Use this when simple string matching is 
+     insufficient for your search criteria. It is equivalent to the 'egrep' command 
+     found on many Unix systems.
+   command: "grep -E \"{{regex}}\" {{file}}"
+
+ - title: grep - search using a pattern file
+   desc: |
+     Read search patterns from a specified file, one per line. This is useful 
+     when you have a long list of indicators of compromise (IOCs) or keywords 
+     to check against a log. It avoids extremely long and unwieldy command lines. 
+     Ensure the pattern file is formatted correctly to avoid unintended matches.
+   command: "grep -f {{pattern_file}} {{target_file}}"

@@ -1,0 +1,93 @@
+tool: recon-ng
+tags: [reconnaissance, osint, framework, pentest, enumeration, discovery, information-gathering]
+
+actions:
+# === WORKSPACE MANAGEMENT ===
+ - title: recon-ng - Start with Workspace
+   desc: |
+     Starts the framework within a specific workspace context. This is essential for keeping data organized between different projects and clients. 
+     If the workspace does not exist, recon-ng will create it automatically upon initialization. 
+     Using workspaces prevents data contamination across different assessment targets.
+   command: "recon-ng -w {{workspace_name|internal_audit}}"
+
+ - title: recon-ng - List Workspaces
+   desc: |
+     Displays all existing workspaces within the recon-ng environment. This allows the user to see which projects have already been created and populated with data. 
+     It is a helpful management command to navigate between different engagement datasets. 
+     Note that switching workspaces usually happens at the start of a session or via the interactive shell.
+   command: "recon-ng -C \"workspaces list\""
+
+# === MARKETPLACE & MODULE MANAGEMENT ===
+ - title: recon-ng - Search Marketplace
+   desc: |
+     Searches the online module repository for specific keywords to find relevant reconnaissance tools. 
+     Since version 5, recon-ng uses a marketplace system where modules must be discovered and installed individually. 
+     Use this to find modules for specific platforms like GitHub, Twitter, or DNS providers.
+   command: "recon-ng -C \"marketplace search {{keyword|dns}}\""
+
+ - title: recon-ng - Install Module
+   desc: |
+     Downloads and installs a specific module from the remote marketplace to the local framework. 
+     This step is mandatory before a module can be loaded or executed in a workflow. 
+     Ensure you have an active internet connection to reach the official module repository. 
+     Specify the full path provided by the marketplace search command.
+   command: "recon-ng -C \"marketplace install {{module_path|recon/domains-hosts/brute_hosts}}\""
+
+ - title: recon-ng - Update All Modules
+   desc: |
+     Updates all currently installed modules to their latest versions from the marketplace. 
+     Running this regularly ensures that you have the most up-to-date scripts and bug fixes for your reconnaissance tasks. 
+     It is considered a best practice to update before starting a new engagement to avoid issues with broken APIs.
+   command: "recon-ng -C \"marketplace install all\""
+
+# === DATABASE OPERATIONS ===
+ - title: recon-ng - Insert Domain
+   desc: |
+     Adds a target domain into the current workspace database. This serves as the primary seed or starting point for many automated reconnaissance modules. 
+     Most 'recon' modules look at the 'domains' table to determine what targets to scan. 
+     You should verify that you are in the correct workspace before inserting target data.
+   command: "recon-ng -w {{workspace_name}} -C \"db insert domains {{domain_name|example.com}}\""
+
+ - title: recon-ng - Show Database Table
+   desc: |
+     Displays the contents of a specific table within the workspace database. 
+     This is used to review discovered information such as hosts, contacts, locations, or credentials. 
+     It helps the tester track progress and see what information has been successfully gathered so far.
+   command: "recon-ng -w {{workspace_name}} -C \"db show {{table_name|hosts}}\""
+
+# === MODULE EXECUTION & CONFIGURATION ===
+ - title: recon-ng - Run Specific Module
+   desc: |
+     Loads and executes a specific module against the data stored in the current workspace. 
+     This is the core functional command for performing automated reconnaissance tasks like DNS brute forcing or search engine scraping. 
+     The module will automatically pull relevant targets from the database based on its internal logic.
+   command: "recon-ng -w {{workspace_name}} -C \"modules load {{module_path|recon/domains-hosts/google_site_web}} ; run\""
+
+ - title: recon-ng - Set Module Options
+   desc: |
+     Configures specific parameters for a module before it is executed. 
+     This is used to define custom wordlists, toggle verbosity, or set source requirements for the scan. 
+     These options are only applied to the current module context and persist until the module is reloaded or the session ends.
+   command: "recon-ng -C \"modules load {{module_path}} ; options set {{option_name|SOURCE}} {{value}} ; run\""
+
+ - title: recon-ng - Add API Keys
+   desc: |
+     Stores an API key for external services like Shodan, Censys, or FullContact. 
+     Many high-quality OSINT modules require these keys to interact with third-party APIs and retrieve data. 
+     Keys are stored globally and are available across all workspaces once added to the framework.
+   command: "recon-ng -C \"keys add {{key_name|shodan_api}} {{key_value}}\""
+
+# === AUTOMATION & REPORTING ===
+ - title: recon-ng - Execute Resource File
+   desc: |
+     Runs a series of recon-ng commands stored in a plain text file. 
+     This is highly effective for automating repetitive workflows or setting up standardized reconnaissance pipelines. 
+     It allows for consistent results and saves time by avoiding manual entry of every individual command.
+   command: "recon-ng -r {{resource_file|setup.rc}}"
+
+ - title: recon-ng - Generate HTML Report
+   desc: |
+     Exports the data collected in the workspace database into a structured HTML report. 
+     This provides a readable summary of all discovered hosts, leaked emails, and other metadata found during the reconnaissance phase. 
+     Make sure the 'reporting/html' module is installed from the marketplace before attempting to run this command.
+   command: "recon-ng -w {{workspace_name}} -C \"modules load reporting/html ; options set FILENAME {{output_path|/tmp/report.html}} ; options set CUSTOMER {{customer_name}} ; run\""

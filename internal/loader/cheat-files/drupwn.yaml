@@ -1,0 +1,80 @@
+tool: drupwn
+tags: [security, pentest, enumeration, drupal, cms, web, vulnerability]
+
+actions:
+  # === RECONNAISSANCE AND ENUMERATION ===
+  - title: drupwn - basic enumeration
+    desc: |
+      Perform a basic discovery scan on the target Drupal website. This command 
+      identifies the Drupal core version and checks for the existence of common files. 
+      It is the recommended starting point for any Drupal-specific assessment to 
+      establish a baseline of the target environment.
+    command: "drupwn --mode enum --target {{target}}"
+
+  - title: drupwn - full component enumeration
+    desc: |
+      Scan for installed modules, themes, and default Drupal files simultaneously. 
+      This is essential for identifying third-party components that might have 
+      known vulnerabilities. Note that this process can generate significant web 
+      traffic depending on the wordlist size and server responsiveness.
+    command: "drupwn --mode enum --target {{target}} --modules --themes --dfiles"
+
+  - title: drupwn - user and node discovery
+    desc: |
+      Attempt to enumerate valid usernames and published nodes/content using a 
+      defined numerical range. This helps in mapping out the site's content structure 
+      and identifying potential administrative usernames for brute-force attacks. 
+      The range parameter defines how many IDs the tool will attempt to probe.
+    command: "drupwn --mode enum --target {{target}} --users --nodes --range {{range|1-100}}"
+
+  # === AUTHENTICATION AND STEALTH ===
+  - title: drupwn - authenticated enumeration
+    desc: |
+      Perform enumeration while providing session cookies or basic authentication 
+      credentials. This allows the tool to access pages and modules that are 
+      restricted to registered users or administrators. Use this when you have 
+      obtained credentials to perform a "grey-box" security assessment.
+    command: "drupwn --mode enum --target {{target}} --cookies {{cookies}} --bauth {{user:pass}}"
+
+  - title: drupwn - stealthy scan with delays
+    desc: |
+      Configure the scan with request delays and a custom User-Agent to avoid 
+      detection by Web Application Firewalls (WAF) or rate-limiting scripts. 
+      Adding a delay ensures the server is not overwhelmed by rapid requests. 
+      This is particularly useful when performing assessments against production 
+      environments with active monitoring.
+    command: "drupwn --mode enum --target {{target}} --delay {{delay|0.5}} --ua {{user_agent|Mozilla/5.0}}"
+
+  - title: drupwn - proxied enumeration
+    desc: |
+      Route all scanning traffic through a specified HTTP, HTTPS, or SOCKS proxy. 
+      This is useful for anonymizing the source of the scan or for pivoting 
+      through a compromised host within a network. You can also provide a file 
+      containing a list of proxies to rotate through during the scan.
+    command: "drupwn --mode enum --target {{target}} --proxy {{proxy_url|http://127.0.0.1:8080}}"
+
+  # === ADVANCED OPERATIONS ===
+  - title: drupwn - exploitation mode
+    desc: |
+      Switch the tool from information gathering to the exploitation phase. 
+      In this mode, the tool attempts to leverage known vulnerabilities based 
+      on the identified Drupal version and modules. Exercise extreme caution 
+      and ensure you have authorization, as exploitation can impact service stability.
+    command: "drupwn --mode exploit --target {{target}}"
+
+  - title: drupwn - multi-threaded scan with logging
+    desc: |
+      Execute an enumeration scan using multiple threads to increase performance 
+      and save the output to a log file for later analysis. Increasing the 
+      thread count speeds up the process but may cause the target server to 
+      become unstable or block the scanning IP. Logging is highly recommended 
+      for maintaining an audit trail of the assessment.
+    command: "drupwn --mode enum --target {{target}} --thread {{threads|10}} --log"
+
+  - title: drupwn - update local database
+    desc: |
+      Update the local plugins, themes, and fingerprinting databases used by the tool. 
+      Regular updates ensure that the tool can recognize the latest Drupal versions 
+      and the newest community modules. This command should be run periodically 
+      to maintain the effectiveness of the enumeration engine.
+    command: "drupwn --update"

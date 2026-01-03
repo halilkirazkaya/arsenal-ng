@@ -1,0 +1,106 @@
+tool: tar
+tags: [system, archive, compression, utility, linux, files]
+
+# === ARCHIVE CREATION ===
+
+actions:
+ - title: tar - create a basic archive
+   desc: |
+     Create a standard tarball from specified files or directories. This command does not apply 
+     compression by default, making it faster but resulting in larger file sizes. It is useful 
+     for bundling files while preserving directory structures and basic metadata. Use the 
+     verbose flag (-v) to see the progress of the operation as files are added.
+   command: "tar -cvf {{archive_name|archive.tar}} {{source_files}}"
+
+ - title: tar - create a compressed gzip archive
+   desc: |
+     Create a compressed archive using the gzip algorithm, which is the most common format 
+     for Linux software distribution. It provides a good balance between compression speed and 
+     reduced file size. This is ideal for backups and transferring files over the network 
+     efficiently. The .tar.gz or .tgz extensions are typically used for these archive types.
+   command: "tar -czvf {{archive_name|archive.tar.gz}} {{source_files}}"
+
+ - title: tar - create a compressed bzip2 archive
+   desc: |
+     Create an archive using bzip2 compression to achieve a better compression ratio than gzip. 
+     While it results in smaller file sizes, it requires significantly more CPU time and 
+     memory to process. Use this when storage space or bandwidth is a higher priority than 
+     processing speed. It commonly utilizes the .tar.bz2 extension for identification.
+   command: "tar -cjvf {{archive_name|archive.tar.bz2}} {{source_files}}"
+
+ - title: tar - create a compressed xz archive
+   desc: |
+     Create an archive using the XZ compression algorithm, which offers the highest 
+     compression ratios available in standard tar. This is the preferred format for 
+     distributing large source code repositories or system images. Note that extraction and 
+     compression take more time compared to gzip or bzip2. It typically uses the .tar.xz extension.
+   command: "tar -cJvf {{archive_name|archive.tar.xz}} {{source_files}}"
+
+# === EXTRACTION AND INSPECTION ===
+
+ - title: tar - extract an archive
+   desc: |
+     Extract the contents of an archive into the current working directory. Modern versions 
+     of tar automatically detect the compression format (gzip, bzip2, xz) without needing 
+     the specific flag. Ensure you have sufficient write permissions in the target directory 
+     to avoid extraction errors. Use the verbose flag to monitor which files are being written.
+   command: "tar -xvf {{archive_name|archive.tar.gz}}"
+
+ - title: tar - extract archive to specific directory
+   desc: |
+     Extract the archive contents into a specific target directory using the -C flag. This is 
+     highly useful for keeping the current directory clean or deploying software to a 
+     pre-defined path. The target directory must already exist before running the command 
+     to avoid failure. It helps prevent accidental overwrites of existing files in the current path.
+   command: "tar -xvf {{archive_name|archive.tar}} -C {{destination_dir}}"
+
+ - title: tar - list archive contents
+   desc: |
+     List the contents of a tar archive without extracting any files to the disk. This allows 
+     you to verify the internal folder structure and the presence of specific files inside 
+     the package. It is a safe way to inspect downloaded archives for unwanted or malicious 
+     content before execution. For detailed info like permissions and sizes, use the verbose flag.
+   command: "tar -tvf {{archive_name|archive.tar}}"
+
+ - title: tar - extract specific file or directory
+   desc: |
+     Extract only a specific file or a single subdirectory from a larger archive. This is 
+     highly efficient when you only need one piece of data and do not want to unpack the 
+     entire archive. You must provide the exact relative path as it exists within the 
+     archive structure. Use the list (-t) command first to find the correct internal path.
+   command: "tar -xvf {{archive_name|archive.tar}} {{specific_path}}"
+
+# === ARCHIVE MANAGEMENT ===
+
+ - title: tar - append files to existing archive
+   desc: |
+     Add new files to the end of an existing uncompressed tar archive. Note that this 
+     operation does not work on compressed archives (like .tar.gz) because the compression 
+     stream cannot be easily appended to. It is useful for incrementally building an archive 
+     as new data becomes available. Always verify the archive integrity after the append operation.
+   command: "tar -rvf {{archive_name|archive.tar}} {{new_file}}"
+
+ - title: tar - update files in archive
+   desc: |
+     Update files within an archive only if the source file on disk is newer than the 
+     version already stored in the tarball. Similar to appending, this typically works only 
+     on uncompressed archives. It saves time by only adding modified files rather than 
+     recreating the entire archive from scratch. This is a basic way to manage incremental backups.
+   command: "tar -uvf {{archive_name|archive.tar}} {{source_file}}"
+
+ - title: tar - archive with excluded patterns
+   desc: |
+     Create an archive while skipping files or directories that match a specific pattern. 
+     This is essential for avoiding the inclusion of temporary files, large cache 
+     directories, or version control folders like .git. Multiple exclusion patterns can be 
+     specified by repeating the flag. Ensure the pattern is quoted to prevent shell expansion.
+   command: "tar -cvf {{archive_name|archive.tar}} --exclude='{{pattern|*.log}}' {{source_dir}}"
+
+ - title: tar - preserve permissions and metadata
+   desc: |
+     Extract an archive while strictly preserving file permissions, including ACLs and 
+     ownership information. This is often the default for the root user but must be explicitly 
+     called using -p for other users if they have the necessary privileges. It is critical 
+     when restoring system backups or moving configurations between servers. It ensures 
+     the security context of the files remains intact.
+   command: "tar -xvpf {{archive_name|archive.tar}}"

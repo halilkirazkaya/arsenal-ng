@@ -1,0 +1,125 @@
+tool: php
+tags: [web, development, scripting, server, backend, pentest]
+
+actions:
+# === BASIC INFORMATION & CONFIGURATION ===
+
+  - title: php - check version
+    desc: |
+      Display the current PHP version and build information. Use this to verify that the
+      correct version of PHP is installed for your application's requirements. It also
+      provides information about the build date and the Zend Engine version.
+    command: "php -v"
+
+  - title: php - show information (phpinfo)
+    desc: |
+      Output comprehensive information about the current PHP configuration, similar to phpinfo().
+      This includes details about loaded extensions, environment variables, and server settings.
+      Be cautious when running this on a production system as it may leak sensitive configuration data.
+    command: "php -i"
+
+  - title: php - list modules
+    desc: |
+      List all compiled-in and dynamically loaded PHP modules. This is useful for checking if a 
+      required extension like 'mysqli', 'gd', or 'curl' is active. If a module is missing, 
+      you may need to install it via your system's package manager or enable it in php.ini.
+    command: "php -m"
+
+  - title: php - show configuration files
+    desc: |
+      Display the paths to the loaded configuration file (php.ini) and any additional .ini directories.
+      Use this when you need to know exactly which file to edit to change server settings. 
+      It is essential for troubleshooting configuration overrides or missing settings.
+    command: "php --ini"
+
+# === EXECUTION & SYNTAX ===
+
+  - title: php - execute file
+    desc: |
+      Parse and execute a specific PHP script file from the command line. This is the 
+      standard way to run CLI-based PHP applications or maintenance scripts. You can pass 
+      arguments to the script by adding them after the filename.
+    command: "php -f {{file|index.php}}"
+
+  - title: php - run code directly
+    desc: |
+      Execute a string of PHP code directly from the terminal without using script tags.
+      This is highly effective for quick debugging or testing small logic snippets. 
+      Ensure you wrap the code in quotes to prevent the shell from interpreting special characters.
+    command: "php -r {{code|'echo \"Hello World\\n\";'}}"
+
+  - title: php - syntax check (lint)
+    desc: |
+      Perform a syntax check on the specified PHP file without executing the code. 
+      This 'lint' mode is a critical step in CI/CD pipelines to catch parse errors before deployment.
+      It will report any syntax mistakes and return a non-zero exit code if errors are found.
+    command: "php -l {{file|index.php}}"
+
+  - title: php - interactive shell
+    desc: |
+      Start an interactive PHP shell (REPL) for real-time code execution and testing. 
+      This mode requires the 'readline' extension to be enabled in your PHP installation. 
+      It allows you to type PHP code and see the results immediately, which is great for learning or prototyping.
+    command: "php -a"
+
+# === BUILT-IN WEB SERVER ===
+
+  - title: php - start development server
+    desc: |
+      Launch a built-in web server for local development purposes on a specific address and port.
+      This server is not intended for production environments as it is single-threaded and lacks advanced security.
+      It is a convenient way to test web applications without installing a full web server like Apache or Nginx.
+    command: "php -S {{host|localhost}}:{{port|8000}}"
+
+  - title: php - start server with document root
+    desc: |
+      Start the built-in development web server using a specific directory as the root.
+      This is particularly useful for modern frameworks where the entry point is in a 'public' or 'web' folder.
+      Routing will be handled automatically for static files, while other requests are sent to index.php.
+    command: "php -S {{host|localhost}}:{{port|8000}} -t {{docroot|./public}}"
+
+# === REFLECTION & INSPECTION ===
+
+  - title: php - show function info
+    desc: |
+      Display detailed reflection information about a specific built-in or user-defined function.
+      The output includes parameter names, types, and whether the function is internal or user-defined.
+      This is helpful for developers to understand the signature of functions without consulting external documentation.
+    command: "php --rf {{function_name|strlen}}"
+
+  - title: php - show class info
+    desc: |
+      Show reflection data for a specific PHP class, including its methods, properties, and constants.
+      It provides visibility into the class structure, including inheritance and implemented interfaces.
+      Use this to inspect library classes or verify the structure of your own objects during development.
+    command: "php --rc {{class_name|DateTime}}"
+
+  - title: php - show extension info
+    desc: |
+      Display information about a specific PHP extension and its defined functions/classes.
+      This helps in understanding what features a particular module (like 'json' or 'mbstring') provides.
+      It is useful for verifying versioning and capabilities of installed extensions.
+    command: "php --re {{extension_name|json}}"
+
+# === ADVANCED PROCESSING ===
+
+  - title: php - process input line by line
+    desc: |
+      Execute PHP code for every line of input received from the standard input (stdin).
+      The current line's content is available within the code for processing or filtering.
+      This makes PHP a powerful tool for text processing and log analysis in a shell environment.
+    command: "echo {{input|'data'}} | php -R {{code|'echo \"Line: $argn\\n\";'}}"
+
+  - title: php - execute with custom INI settings
+    desc: |
+      Run a PHP script while overriding specific configuration directives from the command line.
+      This allows you to temporarily change settings like 'memory_limit' or 'display_errors' for a single execution.
+      You can use multiple -d flags to define several different configuration entries.
+    command: "php -d {{key|memory_limit}}={{value|512M}} -f {{file|script.php}}"
+
+  - title: php - strip comments and whitespace
+    desc: |
+      Output the source of a PHP file after removing all comments and unnecessary whitespace.
+      This can be used to create a "minified" version of a script or to analyze the core logic without distractions.
+      The resulting code is still functional but much harder for humans to read.
+    command: "php -w {{file|index.php}}"

@@ -1,0 +1,108 @@
+tool: zip
+tags: [compression, archive, backup, security, utility, files]
+
+actions:
+  # === BASIC OPERATIONS ===
+  - title: zip - basic file compression
+    desc: |
+      Create a new zip archive containing one or more specific files. This is the most 
+      straightforward usage for bundling individual documents or scripts into a single file. 
+      The resulting archive will be created in the current directory unless a path is specified. 
+      Ensure you have write permissions in the destination directory before execution.
+    command: "zip {{archive_name|archive.zip}} {{files|file1.txt file2.txt}}"
+
+  - title: zip - recursive directory compression
+    desc: |
+      Compress an entire directory tree including all subdirectories and their contents. 
+      The -r flag is mandatory when you want to preserve the folder structure and include 
+      nested files. This is the standard method for backing up project folders or large data sets. 
+      Be aware that hidden files (starting with a dot) are included by default in most environments.
+    command: "zip -r {{archive_name|backup.zip}} {{directory_path|folder/}}"
+
+  - title: zip - move files into archive
+    desc: |
+      Add files to a zip archive and automatically delete the original source files from the disk. 
+      The -m flag is useful when you want to archive data to save space and don't need the 
+      uncompressed versions anymore. This operation effectively performs a "cut and paste" 
+      into the zip file. Use this with caution as the original files are removed upon successful compression.
+    command: "zip -m {{archive_name|archive.zip}} {{files|temp_data.log}}"
+
+  - title: zip - junk directory names
+    desc: |
+      Store files in a zip archive without recording their directory paths. Using the -j flag 
+      will result in all files being placed in the root of the zip archive, regardless of 
+      their original location. This is helpful when you want to flatten a file structure for 
+      easier extraction. Note that if two files have the same name in different source folders, 
+      the archive may encounter naming conflicts.
+    command: "zip -j {{archive_name|flat.zip}} {{source_path|path/to/files/*}}"
+
+  # === UPDATING AND FILTERING ===
+  - title: zip - update existing archive
+    desc: |
+      Update an existing zip archive by adding new files or replacing changed ones. The -u 
+      flag compares the modification time of the files on disk with those in the archive. 
+      It only processes files that are newer or did not exist in the zip file previously. 
+      This is much more efficient than recreating a large archive from scratch.
+    command: "zip -u {{archive_name|existing.zip}} {{files|updated_file.txt}}"
+
+  - title: zip - delete files from archive
+    desc: |
+      Remove specific entries from an already existing zip archive. The -d flag allows you 
+      to clean up archives by deleting unnecessary files without unzipping the whole package. 
+      You must specify the path as it exists inside the zip archive for the command to find it. 
+      This operation modifies the archive file directly and reduces its contents.
+    command: "zip -d {{archive_name|archive.zip}} {{file_to_remove|old_file.txt}}"
+
+  - title: zip - exclude specific files or patterns
+    desc: |
+      Create an archive while excluding specific files, directories, or patterns. The -x flag 
+      is essential for omitting version control folders like .git or temporary build files. 
+      Patterns must often be enclosed in quotes to prevent the shell from expanding them. 
+      This ensures your final package is clean and contains only the necessary production files.
+    command: "zip -r {{archive_name|clean_backup.zip}} {{directory|.}} -x {{exclude_pattern|*.git*}}"
+
+  # === ENCRYPTION AND LEVELS ===
+  - title: zip - password protected encryption
+    desc: |
+      Encrypt the contents of the zip archive with a password. When using the -e flag, 
+      the program will prompt you to enter and verify a password interactively. This 
+      provides a basic layer of security for sensitive data being transferred or stored. 
+      Please note that standard ZIP encryption is considered weak; use tools like 7z or 
+      GPG for high-security requirements.
+    command: "zip -e {{archive_name|secure.zip}} {{files|sensitive_data.txt}}"
+
+  - title: zip - maximum compression level
+    desc: |
+      Create an archive using the highest possible compression ratio. The -9 flag tells 
+      the tool to spend more CPU time to achieve the smallest file size possible. This 
+      is ideal for long-term storage or when preparing files for web downloads. Conversely, 
+      -1 can be used for the fastest compression with less size reduction.
+    command: "zip -9 -r {{archive_name|optimized.zip}} {{directory|data_folder/}}"
+
+  # === MAINTENANCE AND INTEGRITY ===
+  - title: zip - test archive integrity
+    desc: |
+      Verify the integrity of a zip archive to ensure it is not corrupted. The -T flag 
+      checks the internal structure and checksums of every file inside the archive. 
+      It is a best practice to run this after creating a critical backup to confirm the 
+      data can be safely extracted later. If errors are found, the tool will report which 
+      entries are damaged.
+    command: "zip -T {{archive_name|archive.zip}}"
+
+  - title: zip - repair corrupted archive
+    desc: |
+      Attempt to repair a damaged or corrupted zip archive. The -FF (fix-fix) flag tries 
+      harder to recover data by scanning the archive for recognizable file headers. 
+      It is often used when an archive was partially downloaded or suffered disk errors. 
+      The command usually requires the --out flag to specify where the recovered data 
+      should be saved.
+    command: "zip -FF {{corrupt_archive|damaged.zip}} --out {{fixed_archive|recovered.zip}}"
+
+  - title: zip - preserve symbolic links
+    desc: |
+      Store symbolic links as links rather than compressing the actual file they point to. 
+      The -y flag is crucial for maintaining system configurations or software projects 
+      on Unix-like systems. Without this flag, zip will follow the link and archive the 
+      target file, which can significantly increase archive size and break path logic. 
+      This is highly recommended when archiving development environments.
+    command: "zip -ry {{archive_name|system_backup.zip}} {{directory|/etc/}}"

@@ -1,0 +1,62 @@
+tool: awk
+tags: [text-processing, linux, scripting, data-extraction, report-generation, pentest, automation]
+
+actions:
+# === BASIC EXTRACTION ===
+ - title: awk - print specific columns
+   desc: |
+     This command is used to extract specific fields or columns from a text file or command output. By default, awk treats whitespace as the field separator, making it ideal for parsing the output of commands like ls or ps. It is a fundamental tool for narrowing down large datasets to just the relevant pieces of information.
+   command: "awk '{print ${{column_number|1}}}' {{input_file}}"
+
+ - title: awk - print multiple columns with custom text
+   desc: |
+     Use this command to combine multiple fields and add descriptive text labels to the output. This is particularly helpful for generating readable reports or preparing data for other scripts. You can include as many columns as needed by separating them with commas in the print statement.
+   command: "awk '{print \"User: \" $1 \" - ID: \" ${{id_column|3}}}' {{input_file}}"
+
+ - title: awk - custom field separator
+   desc: |
+     The field separator option allows awk to process files that do not use standard whitespace, such as CSV or colon-delimited files. By defining the separator with the -F flag, awk correctly identifies each field based on the provided character. This is essential for parsing system configuration files like /etc/passwd or application logs.
+   command: "awk -F '{{separator|:}}' '{print $1, ${{column_index|3}}}' {{input_file}}"
+
+# === FILTERING AND SEARCHING ===
+ - title: awk - filter by numeric condition
+   desc: |
+     This command filters lines based on a logical or mathematical comparison of a specific column's value. It only outputs lines where the condition evaluates to true, such as a process ID being higher than a certain limit. This is a powerful way to perform conditional data analysis directly from the terminal.
+   command: "awk '${{column_index|3}} {{operator|>}} {{threshold|100}}' {{input_file}}"
+
+ - title: awk - pattern matching with regex
+   desc: |
+     Awk can act as a sophisticated filter by searching for specific regular expression patterns within the input. Unlike grep, awk allows you to perform additional actions or print specific columns only when a match is found. Use this to isolate specific error codes or keywords within complex log files.
+   command: "awk '/{{pattern|ERROR}}/' {{input_file}}"
+
+ - title: awk - filter by specific field match
+   desc: |
+     This action targets a specific column for pattern matching rather than searching the entire line. This prevents "false positives" that might occur if the pattern exists in a different, irrelevant field. It is highly effective when you know exactly which column contains the data you are searching for.
+   command: "awk '${{column_index|1}} ~ /{{pattern|admin}}/' {{input_file}}"
+
+# === BUILT-IN VARIABLES AND LOGIC ===
+ - title: awk - print row numbers and field counts
+   desc: |
+     The built-in variables NR (Number of Record) and NF (Number of Fields) provide metadata about the file structure. NR tracks the current line number, while NF tracks how many columns are present on the current line. Use this to validate data integrity or to add line numbering to your output for easier reference.
+   command: "awk '{print \"Line: \" NR, \"Fields: \" NF, \"Content: \" $0}' {{input_file}}"
+
+ - title: awk - pass external shell variables
+   desc: |
+     The -v flag allows you to inject external shell variables into the awk environment safely. This makes your awk commands dynamic and suitable for use within larger automation scripts or loops. It is the preferred way to pass parameters into an awk command without complex string escaping.
+   command: "awk -v my_var=\"{{value|search_term}}\" '$0 ~ my_var' {{input_file}}"
+
+# === DATA PROCESSING AND STATISTICS ===
+ - title: awk - calculate sum of a column
+   desc: |
+     Awk can perform arithmetic operations across multiple rows and store the results in variables. The END block is used to print the final result after the entire file has been processed. This is a quick and efficient way to calculate totals, such as summing file sizes or total network traffic from a log.
+   command: "awk '{sum+=${{column_index|1}}} END {print \"Total Sum: \", sum}' {{input_file}}"
+
+ - title: awk - global string substitution
+   desc: |
+     The gsub function performs a global find-and-replace operation on the input text. This allows you to sanitize data or reformat strings before they are printed or passed to the next command. It is more flexible than sed when you need to perform replacements based on column-specific logic.
+   command: "awk '{gsub(/{{search_pattern|old_text}}/, \"{{replacement|new_text}}\"); print}' {{input_file}}"
+
+ - title: awk - range selection between patterns
+   desc: |
+     This command extracts all lines that fall between two specific patterns, including the lines containing the patterns themselves. This is extremely useful for extracting specific sections of a configuration file or a block of logs between two timestamps. It effectively isolates relevant chunks of data from a larger file.
+   command: "awk '/{{start_pattern|BEGIN}}/, /{{end_pattern|END}}/' {{input_file}}"

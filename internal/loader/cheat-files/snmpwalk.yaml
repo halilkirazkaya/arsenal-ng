@@ -1,0 +1,81 @@
+tool: snmpwalk
+tags: [network, enumeration, security, pentest, monitoring, snmp]
+
+actions:
+# === BASIC ENUMERATION (SNMP v1/v2c) ===
+
+ - title: snmpwalk - basic walk v2c
+   desc: |
+     Perform a recursive SNMP query starting from the root OID using SNMP version 2c. 
+     This is the most common method to enumerate system information, network interfaces, and running processes on a device. 
+     Ensure you have the correct community string, as 'public' is the most frequent default but may be restricted or disabled.
+   command: "snmpwalk -v 2c -c {{community|public}} {{target}}"
+
+ - title: snmpwalk - basic walk v1
+   desc: |
+     Execute an SNMP walk using version 1 protocol. 
+     Use this command for legacy devices that do not support the newer v2c or v3 features. 
+     While less efficient than v2c, it is often successful on older industrial or networking hardware during reconnaissance.
+   command: "snmpwalk -v 1 -c {{community|public}} {{target}}"
+
+ - title: snmpwalk - numerical OIDs
+   desc: |
+     Display the output using numerical OIDs instead of translating them to human-readable names. 
+     This is useful when the local system lacks the necessary MIB files to translate the data. 
+     It provides a raw look at the data structure, which is essential for scripting or manual OID analysis.
+   command: "snmpwalk -v 2c -c {{community|public}} -n {{target}}"
+
+# === SNMP VERSION 3 (AUTHENTICATED) ===
+
+ - title: snmpwalk - v3 authentication without privacy
+   desc: |
+     Query a target using SNMPv3 with the authNoPriv security level. 
+     This level provides identity verification through a username and an authentication passphrase but does not encrypt the data. 
+     It is typically used in environments that require user accountability without the CPU overhead of full encryption.
+   command: "snmpwalk -v 3 -l authNoPriv -u {{username}} -a {{auth_proto|SHA}} -A {{auth_passphrase}} {{target}}"
+
+ - title: snmpwalk - v3 authentication and privacy
+   desc: |
+     Query a target using the highest security level (authPriv) available in SNMPv3. 
+     This ensures that the SNMP traffic is protected against both spoofing and eavesdropping by using both authentication and encryption. 
+     You must specify the authentication protocol (MD5/SHA) and the privacy protocol (DES/AES) along with their respective passwords.
+   command: "snmpwalk -v 3 -l authPriv -u {{username}} -a {{auth_proto|SHA}} -A {{auth_passphrase}} -x {{priv_proto|AES}} -X {{priv_passphrase}} {{target}}"
+
+# === TARGETED QUERIES AND MIB HANDLING ===
+
+ - title: snmpwalk - walk specific OID
+   desc: |
+     Start the SNMP walk from a specific OID branch instead of the entire tree. 
+     This is highly efficient when you are only interested in a specific category of data, such as interface statistics or process lists. 
+     It reduces the time taken to complete the walk and minimizes unnecessary network traffic to the target agent.
+   command: "snmpwalk -v 2c -c {{community|public}} {{target}} {{oid}}"
+
+ - title: snmpwalk - load all MIBs
+   desc: |
+     Force the tool to load all available MIB files stored in the system directories during the walk. 
+     This ensures that the output contains human-readable labels for as many objects as possible. 
+     Use this when the standard output contains too many numerical strings that are difficult to interpret manually.
+   command: "snmpwalk -v 2c -c {{community|public}} -m ALL {{target}}"
+
+ - title: snmpwalk - enumerate system information
+   desc: |
+     Specifically target the system MIB group (OID 1.3.6.1.2.1.1) to gather basic host details. 
+     The resulting output usually includes the device description, system uptime, administrator contact, and the hostname. 
+     This is a standard first step in fingerprinting an unknown network device via SNMP.
+   command: "snmpwalk -v 2c -c {{community|public}} {{target}} 1.3.6.1.2.1.1"
+
+# === OUTPUT FORMATTING ===
+
+ - title: snmpwalk - quick print format
+   desc: |
+     Format the output for easier parsing by removing unnecessary information from the display. 
+     Using the -Oq flag strips away the OID type and other metadata, leaving a cleaner 'OID = value' format. 
+     This is particularly helpful when you intend to pipe the output into other command-line tools like grep, awk, or sed.
+   command: "snmpwalk -v 2c -c {{community|public}} -Oq {{target}}"
+
+ - title: snmpwalk - hexadecimal string output
+   desc: |
+     Force all string values to be displayed in hexadecimal format. 
+     This is useful when the agent returns non-printable characters or data that is misinterpreted as standard ASCII. 
+     It is often used when debugging custom MIBs or examining binary data embedded in SNMP strings.
+   command: "snmpwalk -v 2c -c {{community|public}} -Ox {{target}}"

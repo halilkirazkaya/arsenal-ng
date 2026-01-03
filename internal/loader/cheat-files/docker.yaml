@@ -1,0 +1,142 @@
+tool: docker
+tags: [containerization, devops, virtualization, infrastructure, security, orchestration]
+
+actions:
+# === BASIC INFORMATION AND SETUP ===
+ - title: docker - show version
+   desc: |
+     Display the version information for the Docker client and server. 
+     This is useful for verifying compatibility with specific features or APIs. 
+     It provides details about the Go version, Git commit, and OS/Arch.
+   command: "docker version"
+
+ - title: docker - system information
+   desc: |
+     Display system-wide information regarding the Docker installation. 
+     This includes the number of containers (running, paused, stopped), images, and storage driver details. 
+     Use this command to troubleshoot daemon issues or check resource limits.
+   command: "docker info"
+
+ - title: docker - login to registry
+   desc: |
+     Authenticate the Docker client with a remote registry such as Docker Hub or a private repository. 
+     This allows you to push private images or pull images that require authorization. 
+     Be cautious as credentials may be stored in plain text in your home directory's config file.
+   command: "docker login -u {{username}} -p {{password}} {{registry_url|index.docker.io/v1/}}"
+
+# === IMAGE MANAGEMENT ===
+ - title: docker - pull image
+   desc: |
+     Download a specific image from a registry to your local machine. 
+     If no tag is specified, it defaults to downloading the 'latest' version. 
+     This is a prerequisite before you can run a container based on that image.
+   command: "docker pull {{image_name|ubuntu}}:{{tag|latest}}"
+
+ - title: docker - build image
+   desc: |
+     Create a new container image from a Dockerfile located in the specified path. 
+     The tag option allows you to name the image for easier reference later. 
+     Ensure all necessary files are within the build context to avoid build failures.
+   command: "docker build -t {{image_name}}:{{tag|latest}} {{path|.}}"
+
+ - title: docker - list images
+   desc: |
+     List all top-level images available on your local system. 
+     The output includes the repository name, tag, image ID, and size. 
+     Use this frequently to manage local storage and identify unused images.
+   command: "docker images"
+
+ - title: docker - remove image
+   desc: |
+     Remove one or more images from local storage. 
+     You cannot remove an image that is currently being used by a container (even a stopped one). 
+     Force removal with -f if necessary, but use it with caution to avoid losing data.
+   command: "docker rmi {{image_id_or_name}}"
+
+# === CONTAINER LIFECYCLE ===
+ - title: docker - run container in background
+   desc: |
+     Create and start a container in detached mode, meaning it runs in the background. 
+     This is the standard way to run services like web servers or databases. 
+     You can map host ports to container ports using the -p flag for external access.
+   command: "docker run -d --name {{container_name}} -p {{host_port|80}}:{{container_port|80}} {{image_name}}"
+
+ - title: docker - run interactive container
+   desc: |
+     Launch a container and immediately attach an interactive terminal session to it. 
+     This is ideal for debugging, manual configuration, or exploring an image's filesystem. 
+     The --rm flag ensures the container is deleted automatically after you exit the shell.
+   command: "docker run -it --rm {{image_name}} {{shell|/bin/bash}}"
+
+ - title: docker - list containers
+   desc: |
+     Show a list of containers that are currently running on the system. 
+     Adding the -a flag will also show containers that have exited or stopped. 
+     It provides essential info like Container ID, Status, and Port mappings.
+   command: "docker ps {{flags|-a}}"
+
+ - title: docker - stop container
+   desc: |
+     Gracefully stop a running container by sending a SIGTERM signal. 
+     If the container does not exit within a grace period, it will be forcefully killed. 
+     Stopped containers still reside on disk until they are explicitly removed.
+   command: "docker stop {{container_id_or_name}}"
+
+ - title: docker - remove container
+   desc: |
+     Permanently delete a stopped container from the local system. 
+     This frees up disk space and removes the container's metadata. 
+     To remove a running container, you must either stop it first or use the -f flag.
+   command: "docker rm {{container_id_or_name}}"
+
+# === INTERACTION AND INSPECTION ===
+ - title: docker - execute command
+   desc: |
+     Run a new command inside an existing, running container. 
+     This is the most common way to get a shell into a live service without restarting it. 
+     Use the -it flags to maintain an interactive session for tools like bash.
+   command: "docker exec -it {{container_id_or_name}} {{command|sh}}"
+
+ - title: docker - view logs
+   desc: |
+     Retrieve the logs produced by a container's main process (STDOUT and STDERR). 
+     The -f flag allows you to follow the log output in real-time as it is generated. 
+     This is a primary tool for troubleshooting application errors inside containers.
+   command: "docker logs -f {{container_id_or_name}}"
+
+ - title: docker - inspect object
+   desc: |
+     Return low-level, JSON-formatted information on Docker objects like containers or images. 
+     It reveals detailed configuration such as IP addresses, volume mounts, and environment variables. 
+     Use the --format flag if you want to extract specific values from the JSON output.
+   command: "docker inspect {{object_id_or_name}}"
+
+ - title: docker - copy files
+   desc: |
+     Copy files or folders between a container and the local host filesystem. 
+     This works whether the container is running or stopped. 
+     It is extremely useful for extracting logs or injecting configuration files manually.
+   command: "docker cp {{source_path}} {{target_path}}"
+
+# === RESOURCE MONITORING ===
+ - title: docker - container stats
+   desc: |
+     Display a live streaming update of container resource usage statistics. 
+     This includes CPU percentage, memory usage, network I/O, and block I/O. 
+     Use this to identify containers that are consuming excessive resources on the host.
+   command: "docker stats"
+
+ - title: docker - running processes
+   desc: |
+     List the processes currently running inside a specific container. 
+     It functions similarly to the 'top' command in Linux but scoped to the container's PID namespace. 
+     This helps in identifying runaway processes or checking if services started correctly.
+   command: "docker top {{container_id_or_name}}"
+
+# === SYSTEM CLEANUP ===
+ - title: docker - prune system
+   desc: |
+     Remove all unused containers, networks, images (dangling), and optionally volumes. 
+     This is a powerful cleanup command used to reclaim significant disk space. 
+     Be very careful as it will delete all data associated with stopped containers and unused networks.
+   command: "docker system prune {{flags|-a}}"

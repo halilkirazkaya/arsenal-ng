@@ -1,0 +1,76 @@
+tool: wafw00f
+tags: [web, security, pentest, enumeration, reconnaissance, waf, firewall]
+
+actions:
+  # === RECONNAISSANCE & IDENTIFICATION ===
+  - title: wafw00f - basic WAF detection
+    desc: |
+      Identify the Web Application Firewall (WAF) protecting a specific URL. 
+      This command sends a series of probes to analyze HTTP responses and header fingerprints. 
+      It is the most common starting point during the reconnaissance phase of a web assessment.
+    command: "wafw00f {{url}}"
+
+  - title: wafw00f - list supported WAFs
+    desc: |
+      Display all WAF products that the tool is currently capable of detecting. 
+      This is useful for verifying if a specific vendor's signature is included in the tool's database. 
+      Run this command before performing targeted tests to ensure the desired WAF is supported.
+    command: "wafw00f -l"
+
+  - title: wafw00f - verbose detection
+    desc: |
+      Increase the verbosity of the output to see technical details about the detection process. 
+      This helps in understanding which specific response characteristics triggered a WAF identification. 
+      You can use multiple 'v' flags (e.g., -vv or -vvv) for even more granular logging of requests and responses.
+    command: "wafw00f {{url}} -v"
+
+  - title: wafw00f - exhaustive search
+    desc: |
+      Continue testing even after a WAF is identified to see if multiple layers of protection exist. 
+      By default, wafw00f stops after the first successful match to save time. 
+      This is particularly useful for complex enterprise environments where a CDN-based WAF might sit in front of an on-premise appliance.
+    command: "wafw00f {{url}} -a"
+
+  - title: wafw00f - test for specific WAF
+    desc: |
+      Target a specific WAF product signature directly to see if it is present on the destination server. 
+      This is efficient when you have prior knowledge of the target's infrastructure or suspect a specific technology. 
+      It skips the general automated discovery sequence and focuses only on the specified signature.
+    command: "wafw00f {{url}} -t {{waf_name|Cloudflare}}"
+
+  # === BATCH OPERATIONS & OUTPUT ===
+  - title: wafw00f - batch scan from file
+    desc: |
+      Read multiple target URLs from a local file for automated batch processing. 
+      The input file can be in text, CSV, or JSON format, allowing for easy integration with other tool outputs. 
+      This is the preferred method for scanning large IP ranges or extensive lists of subdomains.
+    command: "wafw00f -i {{input_file|targets.txt}}"
+
+  - title: wafw00f - save results to file
+    desc: |
+      Write the detection results to a structured file for later analysis or reporting. 
+      The tool determines the output format (CSV, JSON, or Text) based on the file extension provided. 
+      This is essential for maintaining an audit trail and sharing findings with a security team.
+    command: "wafw00f {{url}} -o {{output_file|results.json}}"
+
+  # === ADVANCED CONFIGURATION ===
+  - title: wafw00f - scan via proxy
+    desc: |
+      Route all detection requests through an HTTP or SOCKS proxy server. 
+      This can be used to bypass IP-based rate limiting or to mask the source of the scanning activity. 
+      The tool supports various proxy strings including socks5:// and authenticated http:// proxies.
+    command: "wafw00f {{url}} -p {{proxy_url|http://127.0.0.1:8080}}"
+
+  - title: wafw00f - use custom headers
+    desc: |
+      Pass a text file containing custom HTTP headers to be sent with every request probe. 
+      This is useful when the target application requires specific User-Agents, Cookies, or Authorization headers to respond normally. 
+      Using custom headers can help bypass simple access controls that might otherwise block the tool's traffic.
+    command: "wafw00f {{url}} -H {{headers_file|headers.txt}}"
+
+  - title: wafw00f - disable redirects and set timeout
+    desc: |
+      Prevent the tool from following HTTP 3xx redirects and define a custom network timeout. 
+      Disabling redirects is important when you want to analyze the security of the entry point specifically without being sent to an external domain. 
+      Adjusting the timeout is helpful when scanning high-latency targets or unstable network environments.
+    command: "wafw00f {{url}} -r -T {{seconds|15}}"

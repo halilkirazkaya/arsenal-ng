@@ -1,0 +1,88 @@
+tool: mount
+tags: [system, storage, linux, unix, filesystem, security, pentest]
+
+actions:
+  # === BASIC OPERATIONS ===
+  - title: mount - basic mount
+    desc: |
+      Attach a physical or logical device to a specific point in the directory tree. 
+      This is the primary method for accessing external drives, partitions, or network storage. 
+      Superuser privileges are typically required to perform this operation. 
+      Ensure the target mount point directory exists before executing the command.
+    command: "mount {{device}} {{mount_point}}"
+
+  - title: mount - specify filesystem type
+    desc: |
+      Explicitly define the filesystem type of the device being mounted. 
+      This is useful when the operating system fails to auto-detect the format or when using specific drivers. 
+      Common types include ext4, xfs, ntfs-3g, or nfs. 
+      Using the correct type prevents data corruption and mounting errors.
+    command: "mount -t {{fs_type|ext4}} {{device}} {{mount_point}}"
+
+  - title: mount - list mounted filesystems
+    desc: |
+      Display all currently mounted filesystems on the system along with their options. 
+      This command is essential for verifying where devices are attached and what permissions they have. 
+      It provides details such as the device path, mount point, filesystem type, and mount flags (ro, rw, etc.). 
+      No special privileges are required to view the list of mounts.
+    command: "mount"
+
+  # === SYSTEM OPERATIONS ===
+  - title: mount - mount all from fstab
+    desc: |
+      Mount all filesystems listed in the /etc/fstab configuration file. 
+      This command is typically used after making changes to the fstab file to apply them without a system reboot. 
+      It will ignore entries marked with the 'noauto' option. 
+      This is a common step during system initialization or after adding new persistent storage.
+    command: "mount -a"
+
+  - title: mount - remount as read-only or read-write
+    desc: |
+      Change the mount options of an already attached filesystem without unmounting it first. 
+      This is frequently used during system recovery to change a read-only root partition to read-write mode. 
+      It can also be used to quickly lock a partition to prevent further modifications. 
+      Note that some processes holding open files may prevent a successful remount.
+    command: "mount -o remount,{{mode|rw}} {{mount_point}}"
+
+  # === ADVANCED MOUNTING ===
+  - title: mount - bind mount
+    desc: |
+      Mount an existing directory onto another directory, creating an alias in the filesystem. 
+      This allows the same content to be accessible from two different locations simultaneously. 
+      It is a powerful tool for configuring chroot environments or managing container volumes. 
+      The contents of the target directory are hidden by the source directory until unmounted.
+    command: "mount --bind {{source_dir}} {{target_dir}}"
+
+  - title: mount - mount ISO or disk image
+    desc: |
+      Mount a filesystem image file using a loop device. 
+      This enables you to browse and interact with the contents of an ISO file or raw disk image as if it were a physical disk. 
+      This is highly useful for software installation from media images or forensic analysis of disk dumps. 
+      The system automatically handles the loop device attachment in most modern distributions.
+    command: "mount -o loop {{image_file}} {{mount_point}}"
+
+  # === SECURITY & RESTRICTIONS ===
+  - title: mount - security restricted mount
+    desc: |
+      Mount a device with specific flags to restrict the execution of binaries and the use of special files. 
+      The 'noexec' flag prevents scripts and binaries from running, while 'nosuid' ignores set-user-identifier bits. 
+      This is a critical hardening technique for world-writable partitions like /tmp or user-controlled media. 
+      It significantly reduces the risk of privilege escalation attacks from those partitions.
+    command: "mount -o noexec,nosuid,nodev {{device}} {{mount_point}}"
+
+  - title: mount - read-only mount
+    desc: |
+      Mount a device in read-only mode to prevent any data modification. 
+      This is the safest way to examine potentially compromised or failing hardware. 
+      It ensures that no write operations, including metadata updates like access times, occur on the media. 
+      This is standard practice during digital forensics and incident response.
+    command: "mount -r {{device}} {{mount_point}}"
+
+  # === NETWORK FILESYSTEMS ===
+  - title: mount - mount NFS share
+    desc: |
+      Connect to a remote Network File System (NFS) export. 
+      This allows you to access files over the network as if they were stored on your local machine. 
+      You must ensure the nfs-common or nfs-utils package is installed on the client. 
+      Check network connectivity and firewall settings if the connection times out.
+    command: "mount -t nfs {{server_ip}}:{{remote_path}} {{mount_point}}"

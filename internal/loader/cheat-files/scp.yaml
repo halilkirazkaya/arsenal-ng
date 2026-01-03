@@ -1,0 +1,83 @@
+tool: scp
+tags: [file-transfer, network, security, ssh, linux, sysadmin, pentest, authentication]
+
+actions:
+# === BASIC FILE TRANSFERS ===
+ - title: scp - copy local file to remote
+   desc: |
+     Securely transfers a file from your local machine to a remote server. This is the 
+     most common way to move files over an encrypted SSH connection. You must have write 
+     permissions on the destination directory on the remote host.
+   command: "scp {{local_file}} {{user}}@{{remote_host}}:{{remote_path}}"
+
+ - title: scp - download remote file to local
+   desc: |
+     Pulls a specific file from a remote server to your local filesystem. It requires 
+     valid credentials or SSH keys to authenticate with the remote host. Provide the 
+     full path on the remote machine to ensure the correct file is retrieved.
+   command: "scp {{user}}@{{remote_host}}:{{remote_path}} {{local_destination|.}}"
+
+ - title: scp - copy directory recursively
+   desc: |
+     Transfers an entire directory and all its sub-contents to a remote location. 
+     The -r flag is mandatory for directory structures or the command will fail. 
+     Be cautious with large directories as this can consume significant bandwidth.
+   command: "scp -r {{local_directory}} {{user}}@{{remote_host}}:{{remote_path}}"
+
+# === AUTHENTICATION AND CONNECTION ===
+ - title: scp - transfer using custom port
+   desc: |
+     Connects to a remote server listening on a non-standard SSH port. This is frequently 
+     used when servers hide SSH on a different port to mitigate automated brute-force attacks. 
+     Note that the -P flag must be uppercase, distinguishing it from the lowercase -p used in ssh.
+   command: "scp -P {{port|2222}} {{local_file}} {{user}}@{{remote_host}}:{{remote_path}}"
+
+ - title: scp - authenticate with identity file
+   desc: |
+     Uses a specific SSH private key file for authentication instead of a standard password. 
+     This is essential for automated scripts or when connecting to servers that disable 
+     password authentication. Ensure the private key file has secure permissions (chmod 600).
+   command: "scp -i {{identity_file|~/.ssh/id_rsa}} {{local_file}} {{user}}@{{remote_host}}:{{remote_path}}"
+
+ - title: scp - transfer through jump host
+   desc: |
+     Transfers files to a target server that is only accessible through an intermediate jump server. 
+     The -J flag establishes the secure tunnel through the bastion host automatically. 
+     This is common in enterprise environments where internal servers are not directly exposed.
+   command: "scp -J {{jump_user}}@{{jump_host}} {{local_file}} {{user}}@{{remote_host}}:{{remote_path}}"
+
+# === ADVANCED OPERATIONS ===
+ - title: scp - copy between two remote hosts
+   desc: |
+     Transfers files between two different remote servers by routing the traffic through 
+     your local machine. Use the -3 flag to enable this "three-way" transfer behavior. 
+     This is useful when the two remote servers cannot communicate with each other directly.
+   command: "scp -3 {{user1}}@{{host1}}:{{path1}} {{user2}}@{{host2}}:{{path2}}"
+
+ - title: scp - preserve file attributes
+   desc: |
+     Ensures that modification times, access times, and modes from the original file are kept. 
+     Without this flag, the destination file will be assigned the timestamp of the transfer time. 
+     This is critical for maintaining integrity during backups or system migrations.
+   command: "scp -p {{local_file}} {{user}}@{{remote_host}}:{{remote_path}}"
+
+ - title: scp - limit transfer bandwidth
+   desc: |
+     Constrains the bandwidth used by the scp command to a specific limit, specified in Kbit/s. 
+     Use this to prevent large file transfers from saturating the network for other users. 
+     Setting a logical default helps maintain network stability during large data migrations.
+   command: "scp -l {{limit_kbits|1000}} {{local_file}} {{user}}@{{remote_host}}:{{remote_path}}"
+
+ - title: scp - compress data during transfer
+   desc: |
+     Enables GZIP compression for the file transfer process to speed up data movement over slow links. 
+     The -C flag is most effective for text-based files or uncompressed data formats. 
+     Note that for already compressed files (like .zip or .jpg), this may actually increase CPU usage.
+   command: "scp -C {{local_file}} {{user}}@{{remote_host}}:{{remote_path}}"
+
+ - title: scp - use specific cipher
+   desc: |
+     Forces the use of a specific encryption cipher for the data transfer session. 
+     This can be used to improve performance on hardware with specific acceleration or 
+     to comply with security policies. Check supported ciphers on your system using 'ssh -Q cipher'.
+   command: "scp -c {{cipher|aes128-ctr}} {{local_file}} {{user}}@{{remote_host}}:{{remote_path}}"
