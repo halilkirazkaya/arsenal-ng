@@ -1,0 +1,80 @@
+tool: sprayhound
+tags: [active-directory, pentest, security, password-spraying, enumeration, exploitation, bloodhound]
+
+actions:
+# === BASIC SPRAYING ===
+ - title: sprayhound - basic spray with user list
+   desc: |
+     Perform a basic password spray against a list of users using a single password. 
+     This command connects to the specified domain controller to check the validity of accounts before attempting the spray. 
+     It is the standard way to identify weak passwords across a large user base in an Active Directory environment. 
+     Ensure you have network connectivity to the Domain Controller's LDAP service.
+   command: "sprayhound -U {{userfile}} -p {{password}} -dc {{domain_controller}} -d {{domain}}"
+
+ - title: sprayhound - spray using lowercase username as password
+   desc: |
+     Attempt to login by using each user's own username in lowercase as their password. 
+     This is a common configuration weakness where users or administrators set the initial password to the username. 
+     The tool will automatically iterate through the provided user list and transform the strings. 
+     Using this method is often effective during initial access phases of a penetration test.
+   command: "sprayhound -U {{userfile}} --lower -dc {{domain_controller}} -d {{domain}}"
+
+ - title: sprayhound - spray using uppercase username as password
+   desc: |
+     Attempt to login by using each user's own username in uppercase as their password. 
+     Similar to the lowercase attack, this targets poor password hygiene and default credential patterns. 
+     It helps identify accounts that may have been created with automated scripts using simple transformations. 
+     Use this when standard password lists fail to yield results.
+   command: "sprayhound -U {{userfile}} --upper -dc {{domain_controller}} -d {{domain}}"
+
+# === SAFETY AND LOCKOUT PREVENTION ===
+ - title: sprayhound - spray with lockout protection threshold
+   desc: |
+     Execute a spray while ensuring accounts are not locked out by defining a safety threshold. 
+     The tool queries LDAP to check the current 'badPasswordCount' and stops if the remaining attempts are below the threshold. 
+     By default, it prevents locking out accounts, making it much safer than traditional spraying tools. 
+     This is critical for stealthy operations where avoiding account lockouts is a primary requirement.
+   command: "sprayhound -U {{userfile}} -p {{password}} -t {{threshold|2}} -dc {{domain_controller}} -d {{domain}}"
+
+ - title: sprayhound - force spray on risky accounts
+   desc: |
+     Enable the unsafe mode to attempt logins even on accounts that are close to their lockout threshold. 
+     This should be used with extreme caution as it significantly increases the risk of locking out production accounts. 
+     The --force flag is added here to bypass the interactive confirmation prompt for a fully automated execution. 
+     Only use this if you have explicit permission to risk account lockouts during the engagement.
+   command: "sprayhound -U {{userfile}} -p {{password}} --unsafe --force -dc {{domain_controller}} -d {{domain}}"
+
+# === LDAP CONFIGURATION ===
+ - title: sprayhound - spray with authenticated LDAP and SSL
+   desc: |
+     Perform a spray using specific LDAP credentials and encrypted communication via SSL. 
+     Using an authenticated LDAP session allows the tool to more accurately pull account metadata and lockout policies. 
+     The -lssl flag ensures that the LDAP traffic is wrapped in TLS (LDAPS), which is often required by hardened Domain Controllers. 
+     This approach is necessary when anonymous LDAP binds are disabled in the target environment.
+   command: "sprayhound -U {{userfile}} -p {{password}} -dc {{domain_controller}} -d {{domain}} -lu {{ldap_user}} -lp {{ldap_pass}} -lssl"
+
+ - title: sprayhound - spray with custom LDAP port and page size
+   desc: |
+     Specify a custom LDAP port and paging size for environments with non-standard configurations or large user sets. 
+     Increasing the LDAP page size can speed up the initial enumeration of users if the domain contains thousands of objects. 
+     This is useful when targeting Global Catalog servers (port 3268) or specific LDAP instances. 
+     Ensure the port provided is reachable through any intervening firewalls.
+   command: "sprayhound -U {{userfile}} -p {{password}} -dc {{domain_controller}} -lP {{ldap_port|389}} -lpage {{page_size|500}}"
+
+# === NEO4J / BLOODHOUND INTEGRATION ===
+ - title: sprayhound - update Neo4j/BloodHound database
+   desc: |
+     Connect to a Neo4j instance to automatically mark successfully cracked accounts as 'owned' in BloodHound. 
+     This provides an immediate visual representation of the attack's impact within the BloodHound interface. 
+     It automates the data entry process, allowing you to focus on path analysis and lateral movement. 
+     The command requires the Neo4j host, port, and credentials to establish the connection.
+   command: "sprayhound -U {{userfile}} -p {{password}} -dc {{domain_controller}} -nh {{neo4j_host|127.0.0.1}} -nP {{neo4j_port|7687}} -nu {{neo4j_user|neo4j}} -np {{neo4j_pass|neo4j}}"
+
+# === UTILITY ===
+ - title: sprayhound - verbose output for troubleshooting
+   desc: |
+     Run the spray operation with increased verbosity to debug connection issues or LDAP queries. 
+     The -v or -vv flags provide detailed logs about what the tool is doing at each step of the process. 
+     This is highly recommended if you are encountering "Connection Refused" errors or unexpected LDAP behavior. 
+     It helps verify that the tool is correctly parsing the user list and domain controller responses.
+   command: "sprayhound -U {{userfile}} -p {{password}} -dc {{domain_controller}} -d {{domain}} -vv"
