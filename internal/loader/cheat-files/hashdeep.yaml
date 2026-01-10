@@ -1,0 +1,83 @@
+tool: hashdeep
+tags: [forensics, security, hashing, integrity, checksum, incident-response]
+
+actions:
+  # === BASIC HASHING ===
+  - title: hashdeep - compute hashes for a single file
+    desc: |
+      Generates digital signatures for a specific file using the default algorithms MD5 and SHA-256. 
+      This is the most common way to obtain a quick hash of a file to ensure its integrity or to verify it against a known value. 
+      It outputs the file size, the hashes, and the file path in a formatted string.
+    command: "hashdeep {{file_path}}"
+
+  - title: hashdeep - recursive directory hashing
+    desc: |
+      Traverses all subdirectories starting from the specified path and computes hashes for every file found. 
+      This is a standard procedure during forensic imaging or system auditing to baseline a directory's state. 
+      It provides a comprehensive list of all files and their corresponding hashes, which can be redirected to a file for storage.
+    command: "hashdeep -r {{directory_path}}"
+
+  - title: hashdeep - hash with specific algorithms
+    desc: |
+      Computes hashes using only the specified algorithms instead of the default MD5/SHA-256 pair. 
+      Supported algorithms include md5, sha1, sha256, tiger, and whirlpool, which can be provided as a comma-separated list. 
+      Use this when a specific compliance standard or tool requirement dictates a certain hashing method.
+    command: "hashdeep -c {{algorithms|sha256,sha1}} {{file_path}}"
+
+  # === AUDITING AND MATCHING ===
+  - title: hashdeep - generate hash list for auditing
+    desc: |
+      Creates a hash list and saves it to a file for later use in auditing or matching scenarios. 
+      The generated baseline file serves as the "source of truth" for verifying file integrity across different systems or points in time. 
+      Users should ensure they have write permissions to the destination path before executing this command.
+    command: "hashdeep -r {{directory_path}} > {{hash_list|known_hashes.txt}}"
+
+  - title: hashdeep - audit files against known hashes
+    desc: |
+      Compares the files in a target directory against a previously generated list of known-good hashes. 
+      This mode will report any files that have been modified, deleted, or moved, as well as any new files that were not in the original list. 
+      It is an essential tool for detecting unauthorized file modifications or identifying malware persistence on a filesystem.
+    command: "hashdeep -a -k {{hash_list|known_hashes.txt}} -r {{directory_path}}"
+
+  - title: hashdeep - identify known files (Matching Mode)
+    desc: |
+      Searches for files in the target directory that match any of the hashes provided in the known-hashes file. 
+      This is particularly useful in forensics to find known malware, specific OS binaries, or sensitive documents that have been renamed. 
+      Unlike audit mode, matching mode focuses specifically on identifying signatures rather than finding differences.
+    command: "hashdeep -m -k {{hash_list|known_hashes.txt}} -r {{directory_path}}"
+
+  - title: hashdeep - find unknown or modified files (Negative Match)
+    desc: |
+      Identifies files that do not match any of the hashes in the provided known-hashes list. 
+      This is extremely effective for finding "outlier" files in a system, such as suspicious binaries, scripts, or unauthorized configuration changes. 
+      It helps investigators filter out thousands of known-good system files to focus only on anomalies.
+    command: "hashdeep -x -k {{hash_list|known_hashes.txt}} -r {{directory_path}}"
+
+  # === ADVANCED FEATURES ===
+  - title: hashdeep - piecewise hashing for large files
+    desc: |
+      Breaks files into smaller blocks of a specified size and hashes each block individually. 
+      This is useful for identifying partial matches in large files or forensic images where only specific sectors might have changed. 
+      It provides a more granular view of file contents compared to standard whole-file hashing techniques.
+    command: "hashdeep -p {{block_size|1024}} {{file_path}}"
+
+  - title: hashdeep - multithreaded hash computation
+    desc: |
+      Utilizes multiple CPU threads to speed up the hashing process across a large number of files. 
+      By default, hashdeep uses 6 threads, but this can be adjusted based on the hardware capabilities of the workstation. 
+      Increasing threads can significantly reduce the time required to process large datasets or high-capacity storage drives.
+    command: "hashdeep -j {{thread_count|8}} -r {{directory_path}}"
+
+  - title: hashdeep - output in DFXML format
+    desc: |
+      Generates the output in Digital Forensics XML (DFXML) format, which is a standard for forensic tool interoperability. 
+      This format is machine-readable and can be easily ingested by other forensic analysis platforms or custom scripts. 
+      It includes extensive metadata about the files and the environment in which the hashes were generated.
+    command: "hashdeep -d -r {{directory_path}}"
+
+  - title: hashdeep - display relative paths and bare names
+    desc: |
+      Changes the output format to display only the relative path or the bare filename without any path information. 
+      This is helpful when you need to compare files across different systems where the absolute paths might differ. 
+      The `-b` flag is especially useful for creating scripts that process file names directly without needing to strip directory strings.
+    command: "hashdeep -r -l -b {{directory_path}}"

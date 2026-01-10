@@ -1,0 +1,102 @@
+tool: caido-cli
+tags: [web, security, proxy, pentest, interception, enumeration]
+
+actions:
+# === BASIC SERVICE MANAGEMENT ===
+ - title: caido-cli - basic start
+   desc: |
+     Starts the Caido instance with default settings. This command initiates the backend 
+     and typically opens the web interface in your default browser. It is the quickest 
+     way to begin a web security audit session.
+   command: "caido-cli"
+
+ - title: caido-cli - listen on specific address
+   desc: |
+     Configures the primary listening address and port for the Caido service. Use this 
+     when you need the service to be accessible on a specific network interface, 
+     such as a VPN or a local network IP. Ensure that the chosen port is not 
+     already occupied by other proxy tools.
+   command: "caido-cli --listen {{listen_address|127.0.0.1:8080}}"
+
+ - title: caido-cli - headless mode
+   desc: |
+     Starts the Caido service without automatically opening a browser window. This is 
+     ideal for remote server deployments or environments where you prefer to manually 
+     navigate to the UI. It prevents unnecessary browser process overhead on the host.
+   command: "caido-cli --no-open"
+
+# === NETWORK & PROXY CONFIGURATION ===
+ - title: caido-cli - separate proxy and UI listeners
+   desc: |
+     Defines distinct addresses for the interception proxy and the management UI. This 
+     setup is useful for isolating administrative traffic from the traffic being 
+     analyzed. It provides better control over network routing and access restrictions.
+   command: "caido-cli --proxy-listen {{proxy_address|127.0.0.1:8081}} --ui-listen {{ui_address|127.0.0.1:8082}}"
+
+ - title: caido-cli - invisible mode
+   desc: |
+     Enables invisible mode for all configured listeners. This setting is required 
+     when intercepting traffic from applications that are not proxy-aware. It 
+     allows Caido to function as a transparent proxy for thick-client testing.
+   command: "caido-cli --invisible"
+
+ - title: caido-cli - restrict UI domain
+   desc: |
+     Limits access to the Caido UI to specific allowed domains. This is a security 
+     feature that helps prevent unauthorized access to the auditing toolkit. It 
+     is particularly important when running Caido on a shared or public server.
+   command: "caido-cli --ui-domain {{allowed_domain|localhost}}"
+
+# === DATA & STORAGE MANAGEMENT ===
+ - title: caido-cli - custom data path
+   desc: |
+     Specifies a custom directory for storing project data, logs, and configurations. 
+     This allows you to keep your security research data on a specific partition 
+     or an encrypted drive. Ensure the user running the command has full read/write 
+     permissions for the path.
+   command: "caido-cli --data-path {{storage_path|./caido_projects}}"
+
+ - title: caido-cli - disable synchronization
+   desc: |
+     Disables the synchronization feature with the Caido cloud servers. Use this 
+     option when working on highly sensitive projects where data must remain 
+     strictly local. It ensures that no project metadata or history leaves the machine.
+   command: "caido-cli --no-sync"
+
+ - title: caido-cli - import custom CA certificate
+   desc: |
+     Imports an existing Certificate Authority (CA) certificate into Caido for 
+     SSL/TLS decryption. This is useful if you have a centralized certificate 
+     management system in your lab. You can also provide a password if the 
+     certificate file is protected.
+   command: "caido-cli --import-ca-cert {{cert_path}} --import-ca-cert-pass {{password}}"
+
+# === SECURITY & MAINTENANCE ===
+ - title: caido-cli - reset credentials
+   desc: |
+     Resets the instance credentials used to log into the Caido dashboard. This is a 
+     high-risk command that should only be used if you have forgotten your password. 
+     Be aware that this might impact your ability to access existing data if not handled properly.
+   command: "caido-cli --reset-credentials"
+
+ - title: caido-cli - enable safe mode
+   desc: |
+     Starts the toolkit in safe mode, which limits certain features to prevent 
+     instability or crashes. This is useful for troubleshooting performance issues 
+     within the application. It can help isolate whether a problem is caused by 
+     custom plugins or core functionality.
+   command: "caido-cli --safe"
+
+ - title: caido-cli - debug logging
+   desc: |
+     Enables verbose debug logs to be recorded and displayed in the terminal. Use 
+     this when you encounter unexpected behavior or errors during an audit. The 
+     logs provide detailed information about network connections and internal processes.
+   command: "caido-cli --debug"
+
+ - title: caido-cli - allow guest access
+   desc: |
+     Configures the instance to allow logins as a guest user. This can be helpful 
+     for quick demonstrations or temporary collaboration without creating full accounts. 
+     Exercise caution as this lowers the security posture of your Caido instance.
+   command: "caido-cli --allow-guests"

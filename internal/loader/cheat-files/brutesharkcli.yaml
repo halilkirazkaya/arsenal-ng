@@ -1,0 +1,78 @@
+tool: brutesharkcli
+tags: [network, security, forensics, pentest, sniffer, analysis, credentials, packet-capture]
+
+actions:
+  # === FILE ANALYSIS ===
+  - title: brutesharkcli - analyze specific pcap file
+    desc: |
+      Analyzes a single or multiple specific PCAP files to extract metadata and network information. 
+      This is the standard approach for offline forensic analysis of previously captured network traffic. 
+      Multiple files can be provided by separating them with a comma. 
+      The results will be saved to the specified output directory for further review.
+    command: "brutesharkcli -i {{input_file}} -o {{output_dir|./results}}"
+
+  - title: brutesharkcli - analyze directory of pcap files
+    desc: |
+      Processes all network capture files found within a specified directory recursively. 
+      This is highly efficient when dealing with large datasets or multiple capture segments from long-duration monitoring. 
+      It automates the ingestion process instead of requiring individual file paths. 
+      Ensure the directory contains valid capture formats like .pcap or .pcapng.
+    command: "brutesharkcli -d {{input_dir}} -o {{output_dir|./results}}"
+
+  # === MODULE SPECIFIC ANALYSIS ===
+  - title: brutesharkcli - extract credentials from traffic
+    desc: |
+      Uses the Credentials module to specifically target and extract usernames and passwords from the traffic. 
+      This module analyzes protocols such as HTTP, FTP, Telnet, and SMTP that may transmit sensitive data in plain text or weak encryption. 
+      It is an essential tool for post-exploitation or credential harvesting during a penetration test. 
+      The extracted data is organized by protocol and source/destination in the output folder.
+    command: "brutesharkcli -i {{input_file}} -m Credentials -o {{output_dir|./credentials_output}}"
+
+  - title: brutesharkcli - build network map
+    desc: |
+      Analyzes traffic to identify all communicating hosts and their relationships to generate a network map. 
+      This helps the user understand the network topology, discover hidden segments, and identify unauthorized devices. 
+      It visualizes the flow of data between different IP addresses and MAC addresses found in the capture. 
+      This is particularly useful for initial reconnaissance of an unfamiliar network environment.
+    command: "brutesharkcli -i {{input_file}} -m NetworkMap -o {{output_dir|./map_output}}"
+
+  - title: brutesharkcli - extract files from traffic
+    desc: |
+      Utilizes the FileExtracting module to reconstruct and save files transferred over the network protocols. 
+      It can carve files out of protocols like HTTP or SMB, allowing investigators to see exactly what data was moved. 
+      This is critical for malware analysis to see what payloads were downloaded or for investigating data exfiltration. 
+      Extracted files are saved into a specific subfolder within the output directory.
+    command: "brutesharkcli -i {{input_file}} -m FileExtracting -o {{output_dir|./extracted_files}}"
+
+  - title: brutesharkcli - dns and voip analysis
+    desc: |
+      Focuses the analysis on DNS queries and VoIP (Voice over IP) traffic patterns. 
+      The DNS module helps identify suspicious domain lookups or Command and Control (C2) communication patterns. 
+      The VoIP module can extract call metadata and signaling information, which is useful for auditing telecommunication security. 
+      Both modules can be run simultaneously by separating them with a comma in the command line.
+    command: "brutesharkcli -i {{input_file}} -m DNS,Voip -o {{output_dir|./dns_voip_output}}"
+
+  # === LIVE CAPTURE ===
+  - title: brutesharkcli - live network capture and analysis
+    desc: |
+      Starts a live capture session on the default network interface and processes packets in real-time. 
+      This mode is ideal for active monitoring of network threats or live troubleshooting of connectivity issues. 
+      Note that running live captures typically requires superuser (root) or administrator privileges to access the network stack. 
+      The tool will continuously update the output directory as new data is analyzed.
+    command: "brutesharkcli -l -o {{output_dir|./live_results}}"
+
+  - title: brutesharkcli - live capture in promiscuous mode
+    desc: |
+      Enables promiscuous mode during a live capture session to intercept all traffic on the network segment. 
+      Normally, an interface only processes packets directed to its own MAC address; this mode bypasses that restriction. 
+      This is necessary for comprehensive sniffing in environments where a network tap or port mirroring is used. 
+      Elevated privileges are mandatory for this operation on most operating systems.
+    command: "brutesharkcli -l -p -o {{output_dir|./live_promisc_results}}"
+
+  - title: brutesharkcli - filtered live capture (BPF)
+    desc: |
+      Applies a Berkeley Packet Filter (BPF) to a live capture session to focus only on specific traffic. 
+      Using filters like 'tcp port 80' or 'host 192.168.1.1' significantly reduces the processing overhead and noise. 
+      This allows the analyst to target specific protocols or suspicious hosts without capturing irrelevant background traffic. 
+      The filter string must follow standard BPF syntax used by tools like Tcpdump or Wireshark.
+    command: "brutesharkcli -l -f \"{{bpf_filter|tcp port 80}}\" -o {{output_dir|./filtered_results}}"

@@ -1,0 +1,51 @@
+tool: emailharvester
+tags: [osint, reconnaissance, email, enumeration, pentest, gathering]
+
+actions:
+  # === RECONNAISSANCE & DISCOVERY ===
+  - title: emailharvester - list plugins
+    desc: |
+      List all available search engine plugins currently supported by the tool. This command allows the user to see which platforms (e.g., Google, Bing, LinkedIn, etc.) are available for harvesting. It is recommended to run this before a scan to ensure the desired plugins are active and ready.
+    command: "emailharvester -p"
+
+  - title: emailharvester - search domain with specific engine
+    desc: |
+      Search for email addresses associated with a specific domain using a single targeted engine. This is ideal when you want to focus your reconnaissance on a specific source to avoid detection or rate limiting. It returns a list of discovered emails found by that specific plugin's logic.
+    command: "emailharvester -d {{domain}} -e {{engine|google}}"
+
+  - title: emailharvester - search domain using all engines
+    desc: |
+      Perform a comprehensive search across all available search engine plugins for the specified domain. This is the most common method for maximum data collection during the initial OSINT phase. Be aware that querying all engines simultaneously may increase the likelihood of your IP being temporarily flagged by some providers.
+    command: "emailharvester -d {{domain}} -e all"
+
+  - title: emailharvester - search with result limit
+    desc: |
+      Search for emails while restricting the number of results returned by the engines. This is useful for quick sanity checks or when working under time constraints where a full scrape is not necessary. Limiting results can also help in staying under the radar of automated bot detection systems.
+    command: "emailharvester -d {{domain}} -e all -l {{limit|50}}"
+
+  # === OUTPUT MANAGEMENT ===
+  - title: emailharvester - search and save output
+    desc: |
+      Execute a search and automatically save the findings into both TXT and XML file formats. This is essential for report generation and maintaining a record of findings during a professional engagement. The tool will create the files using the provided filename prefix in the current directory.
+    command: "emailharvester -d {{domain}} -e all -s {{output_name|harvested_results}}"
+
+  - title: emailharvester - silent search
+    desc: |
+      Run the harvesting process without printing the discovered emails to the terminal. This is particularly useful when the tool is part of an automated pipeline or script where you only care about the saved output files. It keeps the terminal clean while the tool works in the background.
+    command: "emailharvester -d {{domain}} -e all --noprint -s {{output_name|silent_results}}"
+
+  # === ADVANCED CONFIGURATION ===
+  - title: emailharvester - search using proxy
+    desc: |
+      Route all search requests through a specified proxy server. This is a critical security measure to hide the researcher's origin IP and bypass IP-based blocks or regional restrictions. Ensure the proxy server is reachable and supports the protocol (e.g., HTTP/SOCKS) required for the connection.
+    command: "emailharvester -d {{domain}} -e all -x {{proxy_url|http://127.0.0.1:8080}}"
+
+  - title: emailharvester - search with custom user-agent
+    desc: |
+      Define a custom User-Agent string for the HTTP requests made during the harvesting process. Using a realistic browser User-Agent helps in blending in with legitimate traffic and bypassing basic anti-scraping filters. This is a common practice to increase the success rate of web-based OSINT tools.
+    command: "emailharvester -d {{domain}} -e all -u \"{{user_agent|Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36}}\""
+
+  - title: emailharvester - exclude specific plugins
+    desc: |
+      Perform a search using all engines except for a specified list of excluded plugins. This is useful when certain plugins are known to be broken, slow, or producing too many false positives for a particular target. Multiple engines should be separated by a comma without spaces.
+    command: "emailharvester -d {{domain}} -e all -r {{excluded_engines|google,twitter}}"

@@ -1,0 +1,99 @@
+tool: spiderfoot
+tags: [osint, reconnaissance, footprinting, information-gathering, pentest, security]
+
+actions:
+  # === BASIC SCANNING & USE CASES ===
+  - title: spiderfoot - passive osint scan
+    desc: |
+      Perform a passive scan to gather intelligence without directly interacting with the target. 
+      This mode is ideal for stealthy reconnaissance as it only queries third-party databases, search engines, and public records. 
+      Use this when you want to avoid appearing in the target's web server or security logs.
+    command: "sf.py -s {{target}} -u passive"
+
+  - title: spiderfoot - footprinting scan
+    desc: |
+      Run a footprinting scan to understand what the target exposes to the internet. 
+      This use case focuses on identifying subdomains, IP addresses, and web technologies associated with the target. 
+      It is a balanced approach that provides a broad overview of the target's digital footprint.
+    command: "sf.py -s {{target}} -u footprint"
+
+  - title: spiderfoot - investigate scan
+    desc: |
+      Execute an investigation scan which is typically used when you have a specific indicator of compromise or a suspicious target. 
+      This mode is more intensive than a passive scan and tries to find deeper links between data points. 
+      Be aware that this might involve more active modules that could be detected by the target.
+    command: "sf.py -s {{target}} -u investigate"
+
+  - title: spiderfoot - all modules scan
+    desc: |
+      Run a comprehensive scan using every available module in the SpiderFoot library. 
+      This is the most "noisy" and time-consuming scan type as it triggers all active and passive checks. 
+      It is recommended only when you have explicit permission and require a complete data dump of all possible associations.
+    command: "sf.py -s {{target}} -u all"
+
+  # === MODULE & DATA FILTERING ===
+  - title: spiderfoot - list available modules
+    desc: |
+      Display a complete list of all modules currently installed in your SpiderFoot environment. 
+      This helps you identify which modules require API keys and which are ready to use out of the box. 
+      Reviewing this list is essential for troubleshooting missing data or configuring custom scans.
+    command: "sf.py -M"
+
+  - title: spiderfoot - run specific modules
+    desc: |
+      Execute a scan using only a specific set of comma-separated modules. 
+      This is highly efficient when you only need data from specific sources, such as Shodan, HaveIBeenPwned, or GitHub. 
+      It reduces scan time significantly and prevents unnecessary API credit consumption.
+    command: "sf.py -s {{target}} -m {{modules|s3bucket,google_maps,github}}"
+
+  - title: spiderfoot - collect specific event types
+    desc: |
+      Launch a scan targeted at retrieving specific data types regardless of the module used. 
+      For example, you can request only 'EMAILADDR' or 'PHONE_NUMBER' to filter out infrastructure data. 
+      SpiderFoot will automatically enable the modules required to produce those specific event types.
+    command: "sf.py -s {{target}} -t {{event_types|EMAILADDR,BITCOIN_ADDRESS}}"
+
+  - title: spiderfoot - strict mode scan
+    desc: |
+      Enable strict mode to ensure that only modules capable of directly consuming the target type are used. 
+      This prevents the tool from branching out into secondary or tertiary data types that might be irrelevant. 
+      It is useful for keeping the scan focused and preventing the "spidering" effect from becoming unmanageable.
+    command: "sf.py -s {{target}} -x"
+
+  # === OUTPUT & FORMATTING ===
+  - title: spiderfoot - export results to csv
+    desc: |
+      Run a scan and export the results directly into a CSV file for external analysis. 
+      This is useful for importing OSINT data into spreadsheets or other reporting tools. 
+      You can define a custom delimiter if the default comma is not suitable for your data processing pipeline.
+    command: "sf.py -s {{target}} -u passive -o csv > {{output_file|results.csv}}"
+
+  - title: spiderfoot - json output with source data
+    desc: |
+      Generate scan results in JSON format while including the raw source data field. 
+      JSON output is ideal for automation and integrating SpiderFoot results into other security platforms (SOAR/SIEM). 
+      The inclusion of source data allows you to verify the evidence behind each finding.
+    command: "sf.py -s {{target}} -u footprint -o json -r"
+
+  # === SERVER & INTERFACE ===
+  - title: spiderfoot - start web interface
+    desc: |
+      Launch the SpiderFoot web-based GUI on a specific IP address and port. 
+      The web interface provides a much more visual experience, including node graphs and easy configuration of API keys. 
+      By default, it listens on 127.0.0.1:5001, but you can change this to allow remote access (ensure firewall rules are in place).
+    command: "sf.py -l {{ip_address|127.0.0.1}}:{{port|5001}}"
+
+  # === ADVANCED OPERATIONS ===
+  - title: spiderfoot - correlate scan results
+    desc: |
+      Apply correlation rules to an existing scan ID to identify meaningful patterns or high-risk findings. 
+      Correlation helps filter the "noise" by highlighting connections like 'Malicious IP found in DNS records'. 
+      You must have the Scan ID from a previously completed or running scan to use this feature.
+    command: "sf.py -C {{scan_id}}"
+
+  - title: spiderfoot - limit concurrent threads
+    desc: |
+      Manually set the maximum number of modules to run concurrently during a scan. 
+      Reducing the thread count can prevent your IP from being rate-limited by third-party services. 
+      Increasing it can speed up scans if you have a high-performance machine and stable network connection.
+    command: "sf.py -s {{target}} -u all -max-threads {{thread_count|10}}"

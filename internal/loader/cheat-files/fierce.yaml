@@ -1,0 +1,51 @@
+tool: fierce
+tags: [dns, enumeration, reconnaissance, footprinting, subdomain, pentest, network]
+
+actions:
+# === BASIC ENUMERATION ===
+
+ - title: fierce - basic domain scan
+   desc: |
+     This command performs a standard reconnaissance of the target domain. It begins by attempting a DNS zone transfer (AXFR) to retrieve all records at once. If the transfer fails, it automatically falls back to brute-forcing subdomains using its internal wordlist. This is the most common starting point for mapping out a target's external attack surface.
+   command: "fierce --domain {{domain}}"
+
+ - title: fierce - brute force with custom subdomains
+   desc: |
+     Use this command to perform a targeted brute force attack using a specific list of subdomain names. This is useful when you have a custom wordlist or suspect specific naming conventions like 'dev', 'staging', or 'vpn'. Providing specific subdomains can significantly speed up the discovery process compared to a full list.
+   command: "fierce --domain {{domain}} --subdomains {{subdomain_list|admin accounts mail}}"
+
+# === ADVANCED DISCOVERY ===
+
+ - title: fierce - wide range enumeration
+   desc: |
+     This option instructs the tool to expand its search to all IP addresses within the /24 subnet of any discovered subdomain. It is an effective way to find hidden services or development servers that share the same network infrastructure as public ones. Note that this increases the number of DNS queries and may take longer to complete.
+   command: "fierce --domain {{domain}} --wide"
+
+ - title: fierce - verify subdomains with http connection
+   desc: |
+     This command attempts an HTTP connection to every subdomain that is successfully resolved. It helps the researcher distinguish between dormant DNS records and active web applications. This is a critical step for identifying live web targets for subsequent vulnerability scanning or manual testing.
+   command: "fierce --domain {{domain}} --connect"
+
+# === INFRASTRUCTURE ANALYSIS ===
+
+ - title: fierce - scan nearby ip addresses
+   desc: |
+     This command traverses a specified number of IP addresses surrounding the ones discovered during the initial DNS lookup. It is designed to identify contiguous IP blocks that might belong to the same organization but lack public DNS entries. Use this to uncover "shadow IT" or secondary infrastructure that is not explicitly linked to the primary domain.
+   command: "fierce --domain {{domain}} --traverse {{count|10}}"
+
+ - title: fierce - limited traversal search
+   desc: |
+     Use this command to limit the IP traversal search to specific domains or suffixes. This is particularly useful when the target's infrastructure is hosted in a shared environment like AWS or Azure to avoid scanning unrelated third-party assets. It ensures that the reconnaissance remains focused and relevant to the engagement's scope.
+   command: "fierce --domain {{domain}} --subdomains {{subdomain|admin}} --search {{filter_domain}}"
+
+ - title: fierce - scan internal ip range
+   desc: |
+     This command allows the user to scan specific IP ranges using a designated DNS server. It is primarily used during internal network assessments to map out local hostnames and services. You must provide the IP of the internal DNS server to ensure that private records are correctly resolved.
+   command: "fierce --dns-servers {{dns_server}} --range {{ip_range|10.0.0.0/24}}"
+
+# === OUTPUT AND LOGGING ===
+
+ - title: fierce - save output to file
+   desc: |
+     This command redirects the standard output of the tool into a text file for later analysis. It is essential for documenting findings and providing data for reports or further processing by other tools. Ensure you have the necessary write permissions in the directory where the output file is being created.
+   command: "fierce --domain {{domain}} > {{output_file|results.txt}}"

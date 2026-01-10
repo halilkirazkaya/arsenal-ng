@@ -1,0 +1,85 @@
+tool: dmitry
+tags: [information-gathering, reconnaissance, pentest, network, whois, enumeration]
+
+actions:
+  # === RECONNAISSANCE & DOMAIN ENUMERATION ===
+  - title: dmitry - Whois lookup on IP address
+    desc: |
+      Perform a Whois lookup on the specific IP address of a target host. This helps identify the 
+      owner of the network block and related contact information. It is useful during the early 
+      stages of reconnaissance to determine the scope of the target's infrastructure.
+    command: "dmitry -i {{target_host}}"
+
+  - title: dmitry - Whois lookup on domain name
+    desc: |
+      Perform a Whois lookup on the domain name of the target. This provides information regarding 
+      registration dates, name servers, and registrar details. It is a standard procedure for 
+      identifying domain ownership and potential administrative contacts for the organization.
+    command: "dmitry -w {{target_domain}}"
+
+  - title: dmitry - Retrieve Netcraft information
+    desc: |
+      Retrieve information about a host from Netcraft.com to identify server details. This can 
+      reveal details about the operating system, web server software, and the hosting history 
+      of the domain. It is particularly useful for identifying the underlying technology stack 
+      of a web-based target without active scanning.
+    command: "dmitry -n {{target_host}}"
+
+  - title: dmitry - Search for subdomains
+    desc: |
+      Search for possible subdomains associated with the target domain. Identifying subdomains 
+      is crucial for expanding the attack surface and finding less secure staging or internal 
+      environments. This module queries public records and search engines to find valid hostnames 
+      belonging to the target.
+    command: "dmitry -s {{target_domain}}"
+
+  - title: dmitry - Search for email addresses
+    desc: |
+      Search for possible email addresses related to the target domain through public sources. 
+      This can be used for social engineering assessments or identifying key personnel within 
+      an organization. It aggregates results found through various search methods and displays 
+      them in a simple list.
+    command: "dmitry -e {{target_domain}}"
+
+  # === PORT SCANNING ===
+  - title: dmitry - Standard TCP port scan
+    desc: |
+      Perform a basic TCP port scan on the target host to identify open services. This is a 
+      lightweight scanning method used to quickly find active services on a remote machine. 
+      Note that this is not as stealthy or comprehensive as Nmap but serves well for a 
+      fast, integrated discovery phase.
+    command: "dmitry -p {{target_host}}"
+
+  - title: dmitry - Port scan with banner grabbing
+    desc: |
+      Execute a TCP port scan while also retrieving service banners and reporting filtered ports. 
+      Banner grabbing helps identify specific software versions running on open ports, which is 
+      essential for vulnerability research. Including the filtered flag (-f) provides a more 
+      complete view of the target's firewall configuration.
+    command: "dmitry -p -b -f {{target_host}}"
+
+  - title: dmitry - Port scan with custom TTL
+    desc: |
+      Perform a TCP port scan while specifying a custom Time-To-Live (TTL) value for the scan packets. 
+      The default TTL is 2 seconds, but increasing it can help maintain accuracy in high-latency 
+      environments. Adjusting this value can prevent scan timeouts when the network connection 
+      to the target is slow or unstable.
+    command: "dmitry -p -t {{ttl_seconds|5}} {{target_host}}"
+
+  # === COMPREHENSIVE SCANNING ===
+  - title: dmitry - Full information gathering scan
+    desc: |
+      Combine multiple modules to perform a comprehensive information gathering scan on a target host. 
+      This single command includes Whois lookups, Netcraft data, subdomain discovery, and email 
+      searches. It provides a broad overview of the target's digital footprint in a single execution 
+      to save time during the reconnaissance phase.
+    command: "dmitry -winse {{target_host}}"
+
+  # === OUTPUT MANAGEMENT ===
+  - title: dmitry - Save scan results to file
+    desc: |
+      Save the output of the information gathering scan to a text file for later analysis. 
+      If a filename is not explicitly specified, the tool defaults to a naming convention 
+      based on the host name. This is an essential step for documentation and reporting 
+      during a professional penetration testing engagement.
+    command: "dmitry -o {{output_file|results.txt}} {{target_host}}"

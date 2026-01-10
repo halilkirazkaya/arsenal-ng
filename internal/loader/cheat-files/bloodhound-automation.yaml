@@ -1,0 +1,36 @@
+tool: bloodhound-automation
+tags: [security, pentest, active-directory, enumeration, bloodhound, automation, docker]
+
+actions:
+# === PROJECT MANAGEMENT ===
+ - title: bloodhound-automation.py - start a new project
+   desc: |
+     Deploy a new BloodHound Community Edition instance using Docker. This command automatically sets up Neo4j and the web interface with pre-configured credentials and random passwords. It is the primary way to initialize an environment for a specific penetration testing engagement. Ensure Docker is running on your host before executing this command.
+   command: "bloodhound-automation.py start -bp {{binary_port|10001}} -np {{neo4j_port|10501}} -wp {{web_port|8001}} {{project_name}}"
+
+ - title: bloodhound-automation.py - list existing projects
+   desc: |
+     Display all currently managed BloodHound projects on the local system. This provides a quick overview of active and inactive environments and their directory structures. It is useful for verifying project names before performing data imports or deletions. Use this regularly to manage resources on shared assessment servers.
+   command: "bloodhound-automation.py list"
+
+ - title: bloodhound-automation.py - stop a running project
+   desc: |
+     Shut down the Docker containers associated with a specific project name. Use this command when an analysis session is over to free up system memory and CPU resources. The project data is preserved in the project folder and can be resumed later using the start command. This does not delete any ingested Active Directory data.
+   command: "bloodhound-automation.py stop {{project_name}}"
+
+# === DATA OPERATIONS ===
+ - title: bloodhound-automation.py - ingest SharpHound data
+   desc: |
+     Import collected Active Directory data into a running BloodHound project instance. This action automates the JWT token retrieval and handles the sequential upload of JSON files contained within the ZIP archive. It is the standard method for feeding SharpHound or BloodHound.py output into the database. Monitor the terminal output to ensure all JSON files are processed successfully.
+   command: "bloodhound-automation.py data -z {{zip_file_path}} {{project_name}}"
+
+ - title: bloodhound-automation.py - clear database content
+   desc: |
+     Wipe all graph data from the Neo4j database for a specific project. This command is useful when you need to perform a clean re-import of data without destroying the underlying Docker configuration. It saves time compared to deleting and recreating the entire project. Note that this action is permanent and cannot be undone.
+   command: "bloodhound-automation.py clear {{project_name}}"
+
+# === CLEANUP ===
+ - title: bloodhound-automation.py - delete a project
+   desc: |
+     Completely remove a project including its Docker containers, volumes, and local directories. This should be performed at the end of an engagement to ensure client data is securely removed from the assessment machine. It is a destructive operation that purges all logs, credentials, and database files. Always verify you have the correct project name to avoid accidental data loss.
+   command: "bloodhound-automation.py delete {{project_name}}"

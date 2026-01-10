@@ -1,0 +1,87 @@
+tool: changeme
+tags: [pentest, security, enumeration, exploitation, authentication, vulnerability-scanner]
+
+actions:
+  # === BASIC SCANNING ===
+  - title: changeme.py - basic http scan
+    desc: |
+      Perform a basic scan against a single target using the default HTTP protocol.
+      This command is the primary way to identify web-based administrative interfaces with default credentials.
+      It is highly recommended for initial reconnaissance on local networks or web servers.
+      Note that this mode only checks HTTP unless other protocols are specified.
+    command: "changeme.py {{target}}"
+
+  - title: changeme.py - scan all protocols
+    desc: |
+      Enable scanning for all supported protocols including HTTP, SSH, and others.
+      This provides a more comprehensive security audit of the target by testing multiple services simultaneously.
+      Use this when you want to ensure no common service is left with insecure default settings.
+      Be aware that this may increase the network traffic and time required for the scan.
+    command: "changeme.py --all {{target}}"
+
+  - title: changeme.py - scan by device category
+    desc: |
+      Restrict the credential testing to a specific category of devices such as cameras or routers.
+      This optimizes the scanning process by only using credentials relevant to the target device type.
+      It is particularly useful when you have already identified the device type through other reconnaissance methods.
+      Common categories include "camera", "printer", or "voip".
+    command: "changeme.py --category {{category|camera}} {{target}}"
+
+  # === ENUMERATION & FINGERPRINTING ===
+  - title: changeme.py - fingerprint only
+    desc: |
+      Identify the target device or service type without attempting any credential logins.
+      This is a "safe" mode that helps in mapping the network environment without the risk of account lockouts.
+      Use this during the early stages of an engagement to gather information quietly.
+      It returns metadata about what the tool thinks the target is based on its fingerprinting database.
+    command: "changeme.py --fingerprint {{target}}"
+
+  - title: changeme.py - dump credentials
+    desc: |
+      Print all the loaded credentials in the tool's database to the console.
+      This is useful for verifying which default usernames and passwords the tool is currently checking.
+      You can use this to manually audit the credential list or to verify if a specific vendor is covered.
+      This command does not require a target as it only displays internal tool data.
+    command: "changeme.py --dump"
+
+  # === TARGETING & INTEGRATION ===
+  - title: changeme.py - scan from shodan query
+    desc: |
+      Fetch targets directly from Shodan based on a specific search query and perform scans.
+      This allows for automated identification and testing of internet-facing devices with default credentials.
+      You must provide a valid Shodan API key using the --shodan_key flag for this to function.
+      Use this feature responsibly as it interacts with public-facing infrastructure.
+    command: "changeme.py --shodan_query \"{{query|netcam}}\" --shodan_key {{api_key}}"
+
+  - title: changeme.py - specific protocol selection
+    desc: |
+      Manually specify which protocols to test against the target target.
+      This is useful if you know exactly which ports are open and want to avoid unnecessary connection attempts.
+      The protocols should be provided as a comma-separated list, such as "ssh,http".
+      This helps in focusing the tool's resources on the most likely points of entry.
+    command: "changeme.py --protocols {{protocols|ssh,http}} {{target}}"
+
+  # === PERFORMANCE & OUTPUT ===
+  - title: changeme.py - optimized multi-threaded scan
+    desc: |
+      Adjust the number of concurrent threads and the connection timeout for faster scanning.
+      Increasing the thread count can significantly speed up scans against large subnets or multiple targets.
+      Be careful not to set the threads too high, as it might cause network congestion or service instability.
+      The timeout value ensures the tool doesn't hang indefinitely on unresponsive hosts.
+    command: "changeme.py --threads {{threads|20}} --timeout {{timeout|5}} {{target}}"
+
+  - title: changeme.py - export results to file
+    desc: |
+      Save the scan results into a structured file format for later analysis or reporting.
+      The tool determines the format based on the file extension provided, supporting JSON, CSV, and HTML.
+      This is essential for maintaining documentation during professional penetration tests.
+      Using the --oa flag instead can generate all three formats at once.
+    command: "changeme.py --output {{filename|results.json}} {{target}}"
+
+  - title: changeme.py - resume previous scan
+    desc: |
+      Continue a scan that was previously interrupted or stopped.
+      This uses the internal state to avoid re-scanning targets that have already been processed.
+      It is highly recommended for long-running tasks on large network ranges or slow connections.
+      Ensure you are running the command from the same environment where the initial scan started.
+    command: "changeme.py --resume {{target}}"

