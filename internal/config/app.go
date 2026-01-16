@@ -8,7 +8,7 @@ package config
 // Application Metadata
 // =============================================================================
 
-var Version = "0.8"
+var Version = "0.9"
 
 // Application info
 const (
@@ -46,15 +46,15 @@ const (
 
 // Input constraints
 const (
-	SearchPlaceholder   = "Search commands..."
-	SearchMaxLength     = 100
-	ArgumentMaxLength   = 200
+	SearchPlaceholder = "Search commands..."
+	SearchMaxLength   = 100
+	ArgumentMaxLength = 200
 )
 
 // Backwards compatibility aliases
 const (
-	DefaultWidth  = DefaultTerminalWidth
-	DefaultHeight = DefaultTerminalHeight
+	DefaultWidth    = DefaultTerminalWidth
+	DefaultHeight   = DefaultTerminalHeight
 	SearchCharLimit = SearchMaxLength
 	ArgCharLimit    = ArgumentMaxLength
 )
@@ -63,4 +63,3 @@ const (
 func GetVersionInfo() string {
 	return GetVersionString()
 }
-

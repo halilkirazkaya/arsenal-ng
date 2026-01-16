@@ -1,0 +1,70 @@
+tool: subjack
+tags: [security, pentest, reconnaissance, subdomain-takeover, dns, bug-bounty]
+
+actions:
+  # === BASIC SCANNING ===
+  - title: subjack - basic wordlist scan
+    desc: |
+      Perform a basic scan against a list of subdomains provided in a text file. This is the standard 
+      method for identifying potential takeover vulnerabilities by checking CNAME records against known 
+      vulnerable service fingerprints. Always ensure the wordlist is clean and contains one domain per line.
+    command: "subjack -w {{wordlist}}"
+
+  - title: subjack - scan single domain
+    desc: |
+      Check a specific target domain for takeover possibilities without needing a full wordlist. This 
+      is useful for ad-hoc testing when a specific subdomain has been identified as suspicious during 
+      manual reconnaissance. It provides a quick way to verify if the domain's CNAME points to an 
+      unclaimed service.
+    command: "subjack -d {{domain}}"
+
+  # === ADVANCED CONFIGURATION ===
+  - title: subjack - custom fingerprint file
+    desc: |
+      Specify a custom configuration file containing service signatures used for identification. Using 
+      a custom fingerprints.json file allows you to detect new or private cloud services not included 
+      in the default tool installation. This is critical for staying up to date with the latest 
+      subdomain takeover techniques.
+    command: "subjack -w {{wordlist}} -c {{config_file|/usr/share/subjack/fingerprints.json}}"
+
+  - title: subjack - secure scan with output
+    desc: |
+      Force the tool to use HTTPS for all requests to increase accuracy and ensure secure communication 
+      with target servers. The results are saved to a file, which will be formatted as JSON if the 
+      filename ends with a .json extension. This is recommended for professional reporting and 
+      automated processing of results.
+    command: "subjack -w {{wordlist}} -ssl -o {{output_file|results.txt}}"
+
+  # === PERFORMANCE & AGGRESSIVE SCANNING ===
+  - title: subjack - fast concurrent scanning
+    desc: |
+      Increase the number of concurrent threads and adjust the timeout settings for faster scanning 
+      of large datasets. This is essential for mass-reconnaissance tasks during bug bounty hunting 
+      where thousands of subdomains need to be processed quickly. Be aware that very high thread 
+      counts may lead to network instability or rate limiting by the target.
+    command: "subjack -w {{wordlist}} -t {{threads|50}} -timeout {{timeout|10}}"
+
+  - title: subjack - aggressive mode scanning
+    desc: |
+      Send requests to every URL in the provided wordlist regardless of whether a CNAME record is 
+      initially identified. This "hidden gem" mode can find vulnerabilities that the default logic 
+      might skip, providing a more thorough assessment of the infrastructure. Note that this will 
+      generate significantly more network traffic than a standard scan.
+    command: "subjack -w {{wordlist}} -a"
+
+  # === ENUMERATION & VERBOSITY ===
+  - title: subjack - check for dead records
+    desc: |
+      Flag the presence of dead records that still have a valid CNAME entry in the DNS configuration. 
+      This mode is specifically designed to find subdomains that are pointing to services that no 
+      longer exist, making them prime candidates for hijacking. It helps in identifying cleanup 
+      tasks for IT administrators to improve DNS hygiene.
+    command: "subjack -w {{wordlist}} -m -v"
+
+  - title: subjack - verbose scanning
+    desc: |
+      Enable verbose output to display more detailed information for every request made during the 
+      scanning process. This is extremely helpful for debugging why a certain domain might be failing 
+      or to understand the underlying HTTP responses from the targets. Use this when you need to 
+      verify the logic the tool is using for its findings.
+    command: "subjack -w {{wordlist}} -v"
