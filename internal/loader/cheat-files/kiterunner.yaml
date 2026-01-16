@@ -1,0 +1,86 @@
+tool: kiterunner
+tags: [network, web, security, pentest, enumeration, api, reconnaissance, scanner]
+
+actions:
+  # === API SCANNING ===
+  - title: kr - basic api scan
+    desc: |
+      Execute a targeted API scan against a specific host using Assetnote wordlists. This command is specifically 
+      designed to discover API endpoints by leveraging structured data from the .kite format. It helps identify 
+      hidden routes that standard directory busters might miss by testing various HTTP methods and parameters. 
+      Ensure you have network connectivity to the target before starting the reconnaissance process.
+    command: "kr scan {{target}} -A={{wordlist_alias|apiroutes-210328}}"
+
+  - title: kr - high performance multi-host scan
+    desc: |
+      Scan a list of targets from a file while controlling the concurrency settings to maximize throughput. You 
+      can adjust the maximum parallel hosts and connections per host to optimize speed without overwhelming 
+      the targets or your own network stack. This is particularly useful for bug bounty hunting or large-scale 
+      internal audits where thousands of hosts need to be checked. Note that high concurrency may lead to 
+      aggressive rate limiting or account lockouts on some environments.
+    command: "kr scan {{targets_file}} -A={{wordlist_alias|apiroutes-210328}} -j {{max_parallel_hosts|50}} -x {{max_connections_per_host|5}}"
+
+  - title: kr - scan with depth-based baseline checks
+    desc: |
+      Perform a scan with an increased directory depth for wildcard detection and baseline checks. Increasing 
+      the depth allows the tool to perform separate baseline checks for sub-directories, which is critical 
+      for applications using virtual path-based routing. This improves the accuracy of the results and reduces 
+      false positives in complex environments. However, increasing depth will significantly increase the 
+      total number of requests sent to the target.
+    command: "kr scan {{target}} -A={{wordlist_alias|apiroutes-210328}} --preflight-depth {{depth|2}}"
+
+  # === BRUTE FORCING ===
+  - title: kr - directory brute force with extensions
+    desc: |
+      Perform a standard path brute force using a text-based wordlist and specific file extensions. This mode 
+      is suitable for discovering common files like configuration backups, scripts, or administrative panels. 
+      You can provide multiple extensions separated by commas to increase the coverage of the scan. Use 
+      a low connection count if the target is protected by a Web Application Firewall (WAF) or rate limiter.
+    command: "kr brute {{target}} -w {{wordlist_path}} -e {{extensions|php,aspx,json,txt}}"
+
+  - title: kr - dirsearch compatibility mode
+    desc: |
+      Run a brute force scan using wordlists that contain the %EXT% placeholder, mimicking dirsearch behavior. 
+      The tool will automatically replace the placeholder with the extensions provided in the command line 
+      arguments. This is perfect for users who want to use their existing legacy wordlists with Kiterunner's 
+      high-performance engine. It ensures that specialized wordlists for specific tech stacks remain effective.
+    command: "kr brute {{target}} -w {{wordlist_path}} -D -e {{extensions|php,html,js}}"
+
+  # === FILTERS AND HEADERS ===
+  - title: kr - scan with custom headers and filters
+    desc: |
+      Execute a scan while injecting custom HTTP headers and filtering out responses by content length. This 
+      is useful for bypassing simple IP-based filters using headers like X-Forwarded-For or providing 
+      authentication tokens. Filtering by length helps clean up the output by hiding known "Not Found" 
+      pages that return a 200 OK status. Be careful not to ignore lengths that might contain valid but 
+      small JSON responses.
+    command: "kr scan {{target}} -H \"{{header_name|Authorization}}: {{header_value}}\" --ignore-length {{length_to_ignore|0-100}}"
+
+  # === WORDLIST MANAGEMENT ===
+  - title: kr - list available assetnote wordlists
+    desc: |
+      Display all available wordlists provided by Assetnote that can be used with the integrated download 
+      feature. The output includes information about the wordlist alias, filename, source, and whether 
+      it is currently cached locally on your machine. This helps in selecting the most relevant dataset 
+      for a specific technology stack or target profile. It is the best way to keep track of the 
+      pre-packaged datasets available for quick use.
+    command: "kr wordlist list"
+
+  - title: kr - convert wordlist format
+    desc: |
+      Convert wordlists between .txt, .json, and .kite formats for better compatibility and performance. The 
+      .kite format is a binary representation used by Kiterunner to speed up scanning and drastically 
+      reduce memory overhead during execution. Converting large text wordlists to .kite is highly 
+      recommended before performing large-scale scans. Use the debug flag if you encounter errors 
+      during the conversion of complex JSON schemas.
+    command: "kr kb convert {{input_file}} {{output_file}}"
+
+  # === UTILITIES ===
+  - title: kr - replay specific request
+    desc: |
+      Reconstruct and resend a specific request based on the output line from a previous Kiterunner scan. 
+      This is an essential feature for manual verification of findings or for troubleshooting unexpected 
+      response codes in a controlled manner. You can also specify a proxy to capture the replayed request 
+      in tools like Burp Suite or OWASP ZAP. Ensure the .kite wordlist used in the original scan is 
+      available for accurate reconstruction.
+    command: "kr kb replay -w {{kite_file}} \"{{response_line}}\" --proxy={{proxy_url|http://localhost:8080}}"

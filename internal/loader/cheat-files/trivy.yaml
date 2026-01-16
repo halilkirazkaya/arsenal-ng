@@ -1,0 +1,103 @@
+tool: trivy
+tags: [security, scanner, vulnerabilities, container, devops, kubernetes, pentest, cloud-native]
+
+actions:
+# === IMAGE SCANNING ===
+ - title: trivy - basic image scan
+   desc: |
+     Scan a container image for OS and library vulnerabilities. This is the most common starting point for 
+     securing containerized applications. It downloads the vulnerability database automatically if it is 
+     missing or outdated. Use this to get a quick summary of CVEs present in your target image.
+   command: "trivy image {{image_name}}"
+
+ - title: trivy - scan image with severity filter
+   desc: |
+     Scan a container image while filtering results by specific severity levels. This allows security 
+     teams to focus on the most critical risks, such as HIGH and CRITICAL vulnerabilities, while 
+     ignoring lower-risk issues. It is highly recommended for CI/CD pipelines to fail builds only 
+     on high-risk findings.
+   command: "trivy image --severity {{severity|HIGH,CRITICAL}} {{image_name}}"
+
+ - title: trivy - scan image from tar archive
+   desc: |
+     Scan a container image that has been saved as a tarball. This is particularly useful for 
+     air-gapped environments or when scanning images produced by build tools like Docker save or Skopeo. 
+     The tool will inspect the layers within the archive without needing a running Docker daemon.
+   command: "trivy image --input {{tar_file|image.tar}}"
+
+# === FILESYSTEM AND REPOSITORY SCANNING ===
+ - title: trivy - local filesystem scan
+   desc: |
+     Scan a local directory or project root for vulnerabilities in dependency lock files. This command 
+     is used during development to identify vulnerable libraries before they are built into an image. 
+     It supports various package managers including npm, pip, cargo, and go.mod.
+   command: "trivy fs {{path|.}}"
+
+ - title: trivy - remote repository scan
+   desc: |
+     Scan a remote Git repository for vulnerabilities and hard-coded secrets. This allows for 
+     security auditing of third-party or internal codebases without manually cloning them first. 
+     Trivy will temporarily clone the repository to perform the analysis.
+   command: "trivy repo {{repo_url}}"
+
+# === CONFIGURATION AND SECRET SCANNING ===
+ - title: trivy - infrastructure as code scan
+   desc: |
+     Scan configuration files such as Terraform, Kubernetes manifests, and Dockerfiles for misconfigurations. 
+     This helps identify security gaps like running as root, missing resource limits, or open ports. 
+     It is a key component of DevSecOps to ensure compliance with security best practices.
+   command: "trivy config {{config_path}}"
+
+ - title: trivy - secret scanning in filesystem
+   desc: |
+     Scan the specified path specifically for hard-coded secrets, tokens, and API keys. 
+     Trivy uses a set of built-in rules to detect sensitive information that might have been 
+     accidentally committed. This is essential for preventing credential leaks in source code.
+   command: "trivy fs --scanners {{scanners|vuln,secret}} {{path|.}}"
+
+# === KUBERNETES SCANNING ===
+ - title: trivy - kubernetes cluster scan
+   desc: |
+     Scan an entire Kubernetes cluster for vulnerabilities and misconfigurations in running workloads. 
+     This command requires valid kubeconfig credentials and sufficient permissions to list resources. 
+     It provides a high-level overview of the security posture of your active environment.
+   command: "trivy kubernetes {{context|cluster}}"
+
+# === OUTPUT AND REPORTING ===
+ - title: trivy - generate report in specific format
+   desc: |
+     Export scan results into machine-readable formats like JSON, SARIF, or CycloneDX. 
+     This is necessary for integrating Trivy findings with other security platforms or CI/CD dashboards. 
+     The output file can then be parsed by automated scripts or uploaded to vulnerability management tools.
+   command: "trivy image --format {{format|json}} --output {{output_file|result.json}} {{image_name}}"
+
+ - title: trivy - generate SBOM (Software Bill of Materials)
+   desc: |
+     Generate a Software Bill of Materials (SBOM) for an image or directory. 
+     An SBOM provides a comprehensive list of all components, libraries, and dependencies used in a project. 
+     This is increasingly required for compliance and supply chain security transparency.
+   command: "trivy image --format {{sbom_format|cyclonedx}} --output {{output_file|sbom.json}} {{image_name}}"
+
+# === SERVER MODE ===
+ - title: trivy - start in server mode
+   desc: |
+     Run Trivy as a persistent server to centralize the vulnerability database. 
+     In this mode, clients can send scan requests to the server, which avoids the need for 
+     each client to download and maintain its own copy of the database. This significantly 
+     speeds up scans in large-scale CI/CD environments.
+   command: "trivy server --listen {{listen_addr|0.0.0.0:4954}}"
+
+ - title: trivy - scan using a remote server
+   desc: |
+     Perform a scan by connecting to a remote Trivy server. 
+     This client-side command offloads the processing and database management to the server. 
+     It is the most efficient way to run scans in environments with many distributed agents.
+   command: "trivy image --server {{server_url|http://localhost:4954}} {{image_name}}"
+
+# === UTILITIES ===
+ - title: trivy - clean cache
+   desc: |
+     Remove cached files, including the vulnerability database and image layers. 
+     Use this command if you encounter database corruption or if you want to reclaim disk space. 
+     Note that the next scan will take longer as it must re-download the database.
+   command: "trivy clean --all"

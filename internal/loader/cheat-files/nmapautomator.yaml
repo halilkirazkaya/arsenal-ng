@@ -1,0 +1,76 @@
+tool: nmapautomator
+tags: [network, scanner, pentest, reconnaissance, enumeration, security]
+
+actions:
+  # === RECONNAISSANCE & PORT SCANNING ===
+  - title: nmapAutomator.sh - Quick Port Scan
+    desc: |
+      Performs a fast scan to identify open TCP ports on the target host. 
+      This is the most common starting point for reconnaissance and usually completes within 15 seconds. 
+      It is designed to give a quick overview of the attack surface before deeper enumeration.
+    command: "nmapAutomator.sh --host {{target}} --type Port"
+
+  - title: nmapAutomator.sh - Network Discovery
+    desc: |
+      Scans the local network segment to identify all live hosts. 
+      This is useful when you are on a local network and need to map out available targets for further testing. 
+      It uses standard host discovery techniques and typically finishes in about 15 seconds.
+    command: "nmapAutomator.sh --host {{target_ip_range}} --type Network"
+
+  - title: nmapAutomator.sh - Full 65k Port Scan
+    desc: |
+      Runs a comprehensive scan across the entire TCP port range from 1 to 65535. 
+      After discovering open ports, it automatically performs a more thorough service detection scan on those specific ports. 
+      This is highly effective for finding services running on non-standard or "hidden" ports that quick scans might miss.
+    command: "nmapAutomator.sh --host {{target}} --type Full"
+
+  # === ENUMERATION & VULNERABILITY ANALYSIS ===
+  - title: nmapAutomator.sh - Service Script Scan
+    desc: |
+      Executes Nmap's default scripts against all identified open ports to gather service information. 
+      It helps in identifying software versions and potential misconfigurations in the services found. 
+      This scan provides more depth than a simple port check and usually takes around 5 minutes.
+    command: "nmapAutomator.sh --host {{target}} --type Script"
+
+  - title: nmapAutomator.sh - UDP Port Scan
+    desc: |
+      Performs a scan for open UDP services on the target machine. 
+      Note that this action requires sudo or root privileges to craft the necessary raw packets. 
+      UDP scans are essential for finding services like DNS, SNMP, or TFTP that do not use TCP.
+    command: "sudo nmapAutomator.sh --host {{target}} --type UDP"
+
+  - title: nmapAutomator.sh - Vulnerability Scan
+    desc: |
+      Runs specialized Nmap vulnerability scripts and checks for known CVEs against discovered services. 
+      This is a vital step for identifying exploitable weaknesses automatically without manual searching. 
+      The scan duration varies between 5 to 15 minutes depending on the complexity of the services.
+    command: "nmapAutomator.sh --host {{target}} --type Vulns"
+
+  - title: nmapAutomator.sh - Suggestive Reconnaissance
+    desc: |
+      Analyzes the target's open ports and suggests specific manual reconnaissance commands. 
+      After the analysis, the script will prompt the user to automatically execute these suggested tools for further enumeration. 
+      This is an excellent way to streamline the workflow by using the right tool for the right service (e.g., gobuster for web).
+    command: "nmapAutomator.sh --host {{target}} --type Recon"
+
+  # === ADVANCED USAGE & AUTOMATION ===
+  - title: nmapAutomator.sh - Comprehensive All-in-One Scan
+    desc: |
+      Executes every available scan type sequentially for a complete profile of the target. 
+      This includes network, port, script, full, UDP, and vulnerability scans in one go. 
+      While it is the most thorough option, it can take up to 30 minutes to complete.
+    command: "nmapAutomator.sh --host {{target}} --type All"
+
+  - title: nmapAutomator.sh - Scan with Custom DNS and Output
+    desc: |
+      Runs a specific scan type while defining a custom DNS server and a dedicated output directory. 
+      This is useful when the target is in a segmented network or when you need to organize results for a specific project. 
+      Defining an output directory ensures that all logs and Nmap files are saved systematically.
+    command: "nmapAutomator.sh --host {{target}} --type {{scan_type|Recon}} --dns {{dns_server|1.1.1.1}} --output {{output_dir|./results}}"
+
+  - title: nmapAutomator.sh - Remote Mode Scan
+    desc: |
+      Executes the tool in remote mode, which is optimized for scans performed across different network segments. 
+      This can help bypass certain local network limitations or timing issues. 
+      Ensure you have a stable connection to the remote host or gateway before initiating this scan.
+    command: "nmapAutomator.sh --host {{target}} --type {{scan_type|Basic}} --remote {{remote_mode|yes}}"
