@@ -1,0 +1,29 @@
+tool: gpp-decrypt
+tags: [pentest, active-directory, enumeration, credentials, security, windows]
+
+# === FILE OPERATIONS ===
+
+actions:
+ - title: gpp-decrypt - decrypt from xml file
+   desc: |
+     This command is used to parse and decrypt credentials stored within a Group Policy Preference (GPP) XML file. It is typically utilized during the enumeration phase of an Active Directory assessment when a file such as Groups.xml or Services.xml is discovered on the SYSVOL share. The tool automatically identifies the 'cpassword' attribute and decrypts it using the publicly known static AES key provided by Microsoft. Users should ensure they have adequate read permissions for the target XML file before running this command.
+   command: "gpp-decrypt -f {{xml_file|Groups.xml}}"
+
+# === STRING DECRYPTION ===
+
+ - title: gpp-decrypt - decrypt single cpassword string
+   desc: |
+     This command allows for the direct decryption of a specific 'cpassword' string provided as a command-line argument. It is highly effective when a tester has manually extracted an encrypted string from a configuration file and needs a quick plaintext recovery. This method avoids the need to maintain or transport the entire XML file. The input string must be the exact Base64 encoded value found within the GPP attribute to ensure successful decryption.
+   command: "gpp-decrypt -c {{cpassword_string}}"
+
+# === OUTPUT AND VERBOSITY ===
+
+ - title: gpp-decrypt - verbose decryption without banner
+   desc: |
+     This command performs decryption from a file while enabling detailed output and hiding the tool's introductory banner. Verbose mode provides additional context regarding the processing steps, which is useful for troubleshooting malformed XML files. Suppressing the banner is ideal for cleaner output when redirecting results into a log file or another processing script. This combination is standard for automated environments or when integrating gpp-decrypt into larger reconnaissance toolchains.
+   command: "gpp-decrypt -f {{xml_file|Groups.xml}} --verbose --no-banner"
+
+ - title: gpp-decrypt - silent decryption of a string
+   desc: |
+     This command decrypts a single provided string while suppressing all non-essential output, such as version information and banners. It is specifically designed for use in scripts where only the decrypted password is required for subsequent automation steps. By removing the banner, the output becomes significantly easier to parse using standard text processing tools like grep or awk. This approach minimizes the risk of output pollution in automated security auditing workflows.
+   command: "gpp-decrypt -c {{cpassword_string}} --no-banner"
