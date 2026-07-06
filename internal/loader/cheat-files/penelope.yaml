@@ -1,0 +1,68 @@
+tool: penelope
+tags: [network, shell-handler, security, pentest, exploitation, enumeration, reverse-shell]
+
+actions:
+# === BASIC LISTENING & PAYLOADS ===
+ - title: penelope - start default listener
+   desc: |
+     Start a listener on all interfaces using the default port 4444. This is the most common way to catch a reverse shell with automatic PTY upgrade and session logging. It simplifies the process by handling terminal resizing and shell stability automatically.
+   command: "penelope"
+
+ - title: penelope - listen on specific interface and port
+   desc: |
+     Listen for incoming connections on a specific network interface and custom port. Use this when you need to bind the listener to a specific IP address to ensure the target can reach your machine. Multiple ports can be specified by separating them with commas.
+   command: "penelope -i {{interface|0.0.0.0}} -p {{port|5555}}"
+
+ - title: penelope - show shell payloads
+   desc: |
+     Start the listener and display sample reverse shell payloads for the active listeners. This feature provides ready-to-use one-liners for various environments like Bash, Python, or Perl. It is highly useful during the exploitation phase to quickly generate a payload compatible with the target.
+   command: "penelope -a"
+
+# === CONNECTION MODES ===
+ - title: penelope - connect to bind shell
+   desc: |
+     Connect to a target host that is already listening for an incoming connection on a specific port. This mode is used when the target has a bind shell running and you need to initiate the connection. Ensure the target's firewall allows inbound traffic on the specified port.
+   command: "penelope -c {{target_ip}} -p {{port|3333}}"
+
+ - title: penelope - get shell via SSH
+   desc: |
+     Establish a managed Penelope shell session by connecting to the target via SSH. This command uses existing credentials to log in and then automatically upgrades the session to a managed handler. It is an efficient way to gain a stable, loggable environment on a system where SSH is already accessible.
+   command: "penelope ssh {{user}}@{{target_ip}}"
+
+ - title: penelope - get shell via SSH with custom options
+   desc: |
+     Establish an SSH-based reverse shell while passing specific arguments to the SSH command. Use the double-dash separator to specify SSH-specific options like custom ports or private keys. This provides flexibility when dealing with non-standard SSH configurations on the target.
+   command: "penelope -i {{interface|eth0}} -p {{local_port|5555}} -- ssh -l {{user}} -p {{remote_ssh_port|2222}} {{target_ip}}"
+
+# === FILE OPERATIONS ===
+ - title: penelope - serve files via HTTP
+   desc: |
+     Start a built-in HTTP server to share a local file or folder with the target. This allows you to easily transfer enumeration scripts, exploits, or other tools to the remote machine. By default, it uses port 8000 but can be combined with the -p flag to change the port.
+   command: "penelope -s {{path|/opt/tools}} -p {{web_port|8000}}"
+
+# === SESSION MANAGEMENT ===
+ - title: penelope - maintain active sessions
+   desc: |
+     Automatically attempt to maintain a specific number of active sessions per target host. This feature is vital for persistence, as Penelope will try to keep the specified number of shells open even if one dies. It helps ensure continuous access during unstable network conditions or intensive exploitation.
+   command: "penelope -m {{session_count|2}}"
+
+ - title: penelope - start in main menu
+   desc: |
+     Launch Penelope directly into the main menu instead of immediately starting a listener. This is useful for managing existing sessions, configuring global settings, or preparing multiple listeners before receiving shells. You can navigate through active sessions and various utility modules from here.
+   command: "penelope -M"
+
+# === ADVANCED & COMPLIANCE ===
+ - title: penelope - enable OSCP-safe mode
+   desc: |
+     Run the shell handler in a restricted mode designed to comply with OSCP exam regulations. This mode disables automated exploitation modules like Meterpreter or Traitor that might violate certification rules. It provides peace of mind for students while still offering advanced PTY handling and logging.
+   command: "penelope -O"
+
+ - title: penelope - disable session logging
+   desc: |
+     Start the listener with session logging completely disabled. While Penelope logs interactions by default for documentation and auditing, this switch is useful when disk space is limited or logs are not required. Note that this prevents the review of historical commands and outputs from that session.
+   command: "penelope -L"
+
+ - title: penelope - single session mode
+   desc: |
+     Configure Penelope to only accommodate the first created session and ignore subsequent incoming shells. This is useful for focused tasks where you do not want your terminal interrupted by multiple incoming connections. It ensures that the handler terminates or remains dedicated to the first successful exploit.
+   command: "penelope -S"
