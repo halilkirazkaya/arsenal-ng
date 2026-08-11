@@ -1,0 +1,77 @@
+tool: tookie-osint
+tags: [osint, reconnaissance, usernames, social-media, pentest, information-gathering, enumeration]
+
+actions:
+  # === BASIC USAGE ===
+  - title: tookie-osint - basic username scan
+    desc: |
+      Perform a standard search for a specific username across various social media platforms and websites. 
+      This is the primary method for identifying an individual's digital footprint across the internet. 
+      The tool will return a list of URLs where the username was successfully found.
+    command: "tookie-osint -u {{username}}"
+
+  - title: tookie-osint - scan multiple usernames
+    desc: |
+      Read a list of usernames from a local file and perform a bulk scan for each entry. 
+      This is highly efficient for large-scale investigations involving multiple targets or different handle variations. 
+      The input file should contain one username per line to ensure the tool parses them correctly.
+    command: "tookie-osint -U {{user_file}}"
+
+  # === OUTPUT AND LOGGING ===
+  - title: tookie-osint - export results to json
+    desc: |
+      Execute a scan and save the findings into a structured JSON file. 
+      This format is ideal for automated workflows or for importing results into other OSINT analysis tools. 
+      The resulting file will contain detailed metadata about each discovered account.
+    command: "tookie-osint -u {{username}} -o json"
+
+  - title: tookie-osint - export results to csv
+    desc: |
+      Run the enumeration process and save the output in CSV format. 
+      Use this option when you need to view results in spreadsheet software like Excel or Google Sheets. 
+      It provides a clean, tabular representation of the platforms where the username exists.
+    command: "tookie-osint -u {{username}} -o csv"
+
+  - title: tookie-osint - show all results
+    desc: |
+      Display both positive matches and negative attempts in the terminal output. 
+      By default, the tool only shows sites where the user was found; this flag provides full transparency of the scanning process. 
+      Use this to verify that specific high-interest sites were actually checked during the run.
+    command: "tookie-osint -u {{username}} -a"
+
+  # === PERFORMANCE AND ANONYMITY ===
+  - title: tookie-osint - multi-threaded scan
+    desc: |
+      Increase the speed of the username lookup by utilizing multiple concurrent threads. 
+      The default thread count is 2, but increasing this value can significantly reduce the time required for a full scan. 
+      Be cautious as very high thread counts may trigger rate-limiting or temporary bans from certain websites.
+    command: "tookie-osint -u {{username}} -t {{threads|15}}"
+
+  - title: tookie-osint - proxy configuration
+    desc: |
+      Route all network requests through a specified proxy server to mask your original IP address. 
+      This is useful for bypassing geographic restrictions or avoiding IP-based blocks during intensive scanning. 
+      Ensure the proxy URL is formatted correctly (e.g., http://127.0.0.1:8080) before starting.
+    command: "tookie-osint -u {{username}} -p {{proxy_url}}"
+
+  - title: tookie-osint - skip random headers
+    desc: |
+      Disable the use of randomized User-Agent headers during the scanning process. 
+      This can be useful if a specific network environment or WAF is sensitive to frequently changing browser signatures. 
+      However, using fixed headers might increase the likelihood of being detected as a bot by some services.
+    command: "tookie-osint -u {{username}} -sk"
+
+  # === ADVANCED SCRAPING ===
+  - title: tookie-osint - webscraper and data harvesting
+    desc: |
+      Enable the built-in webscraper to extract additional data from the discovered profile pages. 
+      The harvest flag specifically tells the tool to gather content and details from the site rather than just checking for account existence. 
+      This provides deeper intelligence, such as bio descriptions or profile images, depending on the platform.
+    command: "tookie-osint -u {{username}} -W -H"
+
+  - title: tookie-osint - webscraper with custom delay
+    desc: |
+      Set a specific delay for the webscraper to wait for pages to fully load before attempting to extract data. 
+      This is particularly important for heavy, JavaScript-driven websites that do not render content immediately. 
+      A longer delay ensures higher accuracy in data harvesting at the cost of overall scan speed.
+    command: "tookie-osint -u {{username}} -W -D {{delay_seconds|5}}"

@@ -1,0 +1,114 @@
+tool: tailscale
+tags: [network, security, vpn, wireguard, connectivity, pentest, mesh]
+
+actions:
+  # === AUTHENTICATION AND CONNECTION ===
+  - title: tailscale - connect to tailnet
+    desc: |
+      Connects the current machine to the Tailscale network and performs login if necessary. 
+      This is the primary command used to initialize the Tailscale daemon and join the private mesh. 
+      Users can provide an auth key to automate the login process on headless servers or CI/CD pipelines.
+    command: "tailscale up --authkey {{auth_key}}"
+
+  - title: tailscale - disconnect from tailnet
+    desc: |
+      Disconnects the machine from the Tailscale network without logging out. 
+      This stops all Tailscale-managed traffic and removes the virtual network interface. 
+      It is useful for temporarily returning to a standard network state without losing the node's identity.
+    command: "tailscale down"
+
+  - title: tailscale - logout and expire node
+    desc: |
+      Disconnects from the tailnet and invalidates the current node's authentication key. 
+      This requires a full re-authentication (typically via browser) to reconnect the device later. 
+      Use this when decommissioning a machine or switching to a completely different Tailscale account.
+    command: "tailscale logout"
+
+  # === INFORMATION AND ENUMERATION ===
+  - title: tailscale - check connection status
+    desc: |
+      Displays a comprehensive list of all peers in the tailnet and their current connection status. 
+      It provides details such as the Tailscale IP addresses, the operating system of peers, and whether the connection is direct or relayed. 
+      This is the best way to verify if a specific remote machine is reachable.
+    command: "tailscale status"
+
+  - title: tailscale - show IP addresses
+    desc: |
+      Retrieves the internal Tailscale IPv4 and IPv6 addresses assigned to the local machine. 
+      These addresses are static within your tailnet and can be used for internal service configuration. 
+      Specify the version flag to return only the specific protocol address needed for your scripts.
+    command: "tailscale ip -{{version|4}}"
+
+  - title: tailscale - identify peer information
+    desc: |
+      Provides detailed information about the user and machine associated with a specific Tailscale IP. 
+      This command is useful for auditing traffic and identifying which person or service owns a specific node. 
+      It works for any IP address within the internal 100.x.y.z range or the Tailscale IPv6 range.
+    command: "tailscale whois {{peer_ip}}"
+
+  # === NETWORK DIAGNOSTICS ===
+  - title: tailscale - layer 2 connectivity test
+    desc: |
+      Performs a connectivity test to a specific host at the Tailscale network layer. 
+      Unlike standard system ping, this reveals if the path is established via a direct WireGuard connection or a DERP relay. 
+      It is an essential tool for troubleshooting high latency or peer discovery issues.
+    command: "tailscale ping {{target_host}}"
+
+  - title: tailscale - diagnose network conditions
+    desc: |
+      Analyzes the local network environment to detect NAT types and firewall restrictions. 
+      The output shows which Tailscale relay (DERP) servers are closest and whether the node can make direct UDP connections. 
+      Use this if you are experiencing slow speeds or "relayed" status in your connection.
+    command: "tailscale netcheck"
+
+  # === REMOTE ACCESS AND FILE OPERATIONS ===
+  - title: tailscale - secure remote shell
+    desc: |
+      Initiates an SSH session to a remote node using Tailscale's built-in SSH feature. 
+      This leverages Tailscale's identity-based access control instead of traditional SSH keys for authentication. 
+      The destination machine must have Tailscale SSH enabled in its configuration for this to work.
+    command: "tailscale ssh {{user|root}}@{{host}}"
+
+  - title: tailscale - send files to peer
+    desc: |
+      Transfers a file to another machine on your tailnet using the Taildrop protocol. 
+      The file will be stored in the default Taildrop incoming folder on the receiving device. 
+      This provides a secure, encrypted way to move data between devices without using external cloud storage.
+    command: "tailscale file cp {{file_path}} {{target_node_name}}:"
+
+  - title: tailscale - receive pending files
+    desc: |
+      Checks for and downloads any files that have been sent to the current machine via Taildrop. 
+      By default, it will save the files to the current working directory unless a specific path is provided. 
+      This is the manual way to retrieve incoming transfers on Linux systems where a GUI is not available.
+    command: "tailscale file get {{destination_directory|.}}"
+
+  # === SERVICE EXPOSURE ===
+  - title: tailscale - serve local web service
+    desc: |
+      Exposes a local port to your private tailnet as a web service. 
+      This allows other machines in your tailnet to access your local development server via your Tailscale node name. 
+      It can also handle automatic HTTPS certificate generation and termination for the service.
+    command: "tailscale serve --https {{port|443}} {{local_target|http://127.0.0.1:8080}}"
+
+  - title: tailscale - expose service to internet (Funnel)
+    desc: |
+      Makes a local service accessible from the public internet via the Tailscale Funnel. 
+      This routes public traffic through Tailscale's edge nodes into your private machine. 
+      Use this with extreme caution, as it bypasses the private nature of the tailnet for the specified port.
+    command: "tailscale funnel {{port|443}} on"
+
+  # === ADVANCED ROUTING ===
+  - title: tailscale - enable exit node routing
+    desc: |
+      Configures the local machine to route all its non-internal internet traffic through a specific exit node. 
+      This functions like a traditional VPN, masking your local public IP with the IP of the exit node. 
+      The target node must be configured and authorized to act as an exit node in the Tailscale admin console.
+    command: "tailscale up --exit-node={{exit_node_ip_or_name}}"
+
+  - title: tailscale - list available exit nodes
+    desc: |
+      Displays all machines in the current tailnet that have been configured to act as exit nodes. 
+      This helps you identify which nodes are available for routing your internet traffic. 
+      The output includes the location and status of each potential exit node.
+    command: "tailscale exit-node list"

@@ -1,0 +1,99 @@
+tool: proxytunnel
+tags: [network, proxy, tunnel, security, pentest, connectivity, enumeration]
+
+# === BASIC TUNNELING ===
+
+actions:
+  - title: proxytunnel - basic ssh tunnel
+    desc: |
+      Establishes a basic tunnel through a local HTTP proxy to a destination. 
+      This is typically used as a ProxyCommand in SSH configuration files to bypass restrictive firewalls that only allow HTTP traffic. 
+      It encapsulates the SSH protocol within an HTTP CONNECT request to reach the target server. 
+      Ensure the proxy server permits CONNECT requests to the specified destination port.
+    command: "proxytunnel -p {{proxy_host}}:{{proxy_port|8080}} -d {{dest_host}}:{{dest_port|22}}"
+
+  - title: proxytunnel - tunnel via standalone daemon
+    desc: |
+      Runs proxytunnel as a standalone background daemon listening on a local port. 
+      This allows other applications to connect to the local port and have their traffic automatically routed through the proxy. 
+      It is an excellent alternative to using proxytunnel as an SSH sub-command for every session. 
+      You can bind to a specific interface by providing an address:port combination.
+    command: "proxytunnel -a {{local_port|1080}} -p {{proxy_host}}:{{proxy_port|8080}} -d {{dest_host}}:{{dest_port|22}}"
+
+# === AUTHENTICATION ===
+
+  - title: proxytunnel - basic proxy authentication
+    desc: |
+      Connects through an HTTP proxy that requires standard username and password authentication. 
+      This is required for corporate environments where proxy access is restricted to authorized users. 
+      The credentials are sent using the Basic authentication method in the HTTP headers. 
+      Be aware that passing passwords in the command line may be visible to other users on the system via process lists.
+    command: "proxytunnel -p {{proxy_host}}:{{proxy_port|8080}} -P {{username}}:{{password}} -d {{dest_host}}:{{dest_port|443}}"
+
+  - title: proxytunnel - ntlm authentication
+    desc: |
+      Uses NTLM authentication to bypass Microsoft ISA or Forefront TMG proxy servers. 
+      NTLM is often required in Active Directory environments where standard Basic authentication is disabled for security reasons. 
+      The -t flag is used to specify the NTLM domain required for the challenge-response handshake. 
+      This method is specifically designed for interoperability with Windows-based network infrastructure.
+    command: "proxytunnel -p {{proxy_host}}:{{proxy_port|8080}} -N -t {{domain}} -P {{username}}:{{password}} -d {{dest_host}}:{{dest_port|22}}"
+
+  - title: proxytunnel - authentication using a passfile
+    desc: |
+      Reads proxy credentials from a specified file instead of the command line. 
+      Using a passfile is a more secure practice as it prevents passwords from appearing in the shell history or process list. 
+      The file should contain the username and password in a format recognized by the tool. 
+      This is highly recommended for automated scripts or persistent tunnel configurations.
+    command: "proxytunnel -p {{proxy_host}}:{{proxy_port|8080}} -F {{credential_file}} -d {{dest_host}}:{{dest_port|22}}"
+
+# === ENCRYPTION AND SECURITY ===
+
+  - title: proxytunnel - encrypted proxy connection (SSL)
+    desc: |
+      Encrypts the traffic between the local client and the local proxy server. 
+      Use this when the proxy server supports HTTPS connections on its listening port (e.g., port 443). 
+      This adds a layer of TLS encryption that hides the HTTP CONNECT request from local network sniffers. 
+      It is useful for bypassing Deep Packet Inspection (DPI) that might identify and block proxytunnel traffic.
+    command: "proxytunnel -E -p {{proxy_host}}:{{proxy_port|443}} -d {{dest_host}}:{{dest_port|22}}"
+
+  - title: proxytunnel - encrypt end-to-end destination
+    desc: |
+      Ensures the connection between the proxy and the final destination is encrypted via SSL. 
+      This is useful when the target service is an SSL-wrapped protocol and the proxy needs to handle the handshake. 
+      If the destination server uses a self-signed certificate, you may need to use the -z flag to skip verification. 
+      It provides security for the "second leg" of the tunnel connection.
+    command: "proxytunnel -e -p {{proxy_host}}:{{proxy_port|8080}} -d {{dest_host}}:{{dest_port|443}}"
+
+  - title: proxytunnel - ignore SSL certificate errors
+    desc: |
+      Disables the verification of SSL certificates for encrypted proxy connections. 
+      This is necessary when connecting to proxies or destinations that use self-signed, expired, or otherwise invalid certificates. 
+      Use this option with caution, as it makes the connection vulnerable to man-in-the-middle (MITM) attacks. 
+      It is primarily intended for testing or internal environments where certificate trust is not established.
+    command: "proxytunnel -E -z -p {{proxy_host}}:{{proxy_port|443}} -d {{dest_host}}:{{dest_port|22}}"
+
+# === ADVANCED USAGE ===
+
+  - title: proxytunnel - double proxy chaining
+    desc: |
+      Chains two separate HTTP proxies together to reach a final destination. 
+      The traffic flows from your machine to the local proxy, then to the remote proxy, and finally to the destination. 
+      This is useful for complex network pivoting or when a specific destination is only reachable from a secondary proxy. 
+      Both proxies must be configured to allow the CONNECT method for the subsequent hops.
+    command: "proxytunnel -p {{local_proxy}}:{{l_port|8080}} -r {{remote_proxy}}:{{r_port|8080}} -d {{dest_host}}:{{dest_port|22}}"
+
+  - title: proxytunnel - custom http headers
+    desc: |
+      Injects custom HTTP headers into the tunnel request sent to the proxy. 
+      This can be used to impersonate specific browsers using a User-Agent header or to pass custom metadata required by the proxy. 
+      It is a powerful feature for bypassing filters that look for the default proxytunnel header signatures. 
+      Multiple headers can be specified by repeating the -H flag as needed.
+    command: "proxytunnel -p {{proxy_host}}:{{proxy_port|8080}} -H \"{{header_name|User-Agent}}: {{header_value|Mozilla/5.0}}\" -d {{dest_host}}:{{dest_port|80}}"
+
+  - title: proxytunnel - verbose debugging
+    desc: |
+      Enables verbose output to provide detailed information about the connection process. 
+      This is essential for troubleshooting failed connections, authentication errors, or proxy rejections. 
+      It displays the HTTP headers exchanged during the CONNECT handshake. 
+      Use this during the initial setup to verify that all parameters and credentials are being sent correctly.
+    command: "proxytunnel -v -p {{proxy_host}}:{{proxy_port|8080}} -d {{dest_host}}:{{dest_port|22}}"

@@ -1,0 +1,70 @@
+tool: ssldump
+tags: [network, security, pentest, tls, ssl, analyzer, sniffing, decryption]
+
+actions:
+  # === CAPTURE AND ANALYSIS ===
+  - title: ssldump - live capture on interface
+    desc: |
+      Sniff SSL/TLS traffic live from a specific network interface. This is the most basic usage for 
+      real-time monitoring of handshakes and identifying protocol versions used by clients and servers. 
+      Note that you typically need root or administrative privileges to capture traffic directly from 
+      a hardware interface.
+    command: "ssldump -i {{interface|eth0}}"
+
+  - title: ssldump - analyze capture file
+    desc: |
+      Analyze SSL/TLS traffic stored in a previously captured pcap file. This allows for offline 
+      analysis of network traffic without being actively connected to the target environment. 
+      It is particularly useful for investigating captured logs from tools like tcpdump or Wireshark 
+      to identify handshake details.
+    command: "ssldump -r {{dumpfile}}"
+
+  - title: ssldump - detailed handshake analysis
+    desc: |
+      Display the full SSL/TLS handshake process with verbose output including certificate details. 
+      The verbose flag provides deeper insight into extensions, cipher suite negotiation, and 
+      certificate chains. Use this command when debugging connection failures or verifying 
+      security configurations of a web server.
+    command: "ssldump -i {{interface|eth0}} -v"
+
+  # === DECRYPTION ===
+  - title: ssldump - decrypt traffic using private key
+    desc: |
+      Decrypt SSL/TLS application data by providing the server's RSA private key file. This 
+      functionality only works for RSA key exchanges and will not work for cipher suites 
+      utilizing Diffie-Hellman (PFS) as the session keys cannot be derived from the private key 
+      alone. Ensure the key file is accessible and provide the password if the key is encrypted.
+    command: "ssldump -r {{dumpfile}} -k {{keyfile}} -p {{password}}"
+
+  - title: ssldump - decrypt using keylog file
+    desc: |
+      Decrypt traffic using secrets provided in a standard SSL key log file format. This method is 
+      effective for decrypting modern cipher suites that use Perfect Forward Secrecy (PFS), such 
+      as those used by modern browsers. The log file must contain the pre-master secrets or 
+      session keys exported during the capture session.
+    command: "ssldump -r {{dumpfile}} -l {{sslkeylogfile}}"
+
+  # === FILTERING AND OUTPUT ===
+  - title: ssldump - capture with BPF filters
+    desc: |
+      Apply Berkeley Packet Filters (BPF) to limit the traffic processed to specific hosts or ports. 
+      Filtering is essential in high-traffic environments to reduce CPU load and focus on 
+      relevant data. The filter syntax is identical to tcpdump, allowing for complex logic like 
+      targeting a specific IP and port combination.
+    command: "ssldump -i {{interface|eth0}} host {{target}} and port {{port|443}}"
+
+  - title: ssldump - timestamped output
+    desc: |
+      Display captured packets with absolute or relative timestamps for chronological analysis. 
+      The -t flag prints the time of each packet, which helps in correlating network events 
+      with application logs. This is vital when investigating the latency of handshakes or 
+      timing-based connection issues.
+    command: "ssldump -i {{interface|eth0}} -t"
+
+  - title: ssldump - write filtered traffic to pcap
+    desc: |
+      Save the captured traffic to a file in pcap format while simultaneously analyzing it. 
+      This is useful for archiving suspicious traffic for later forensic analysis or for 
+      sharing with other team members. Use the -w flag followed by the desired filename 
+      to ensure the raw packet data is preserved.
+    command: "ssldump -i {{interface|eth0}} -w {{outpcapfile|output.pcap}}"
