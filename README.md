@@ -5,8 +5,8 @@
   <img src="https://img.shields.io/badge/Platform-Linux%20%7C%20macOS-lightgrey" alt="Platform">
   <img src="https://img.shields.io/github/license/halilkirazkaya/arsenal-ng?color=yellow" alt="License">
   <br>
-  <img src="https://img.shields.io/badge/Tools-242-blueviolet?style=flat&logo=linux&logoColor=white" alt="Tools Count">
-  <img src="https://img.shields.io/badge/Commands-2872-ff69b4?style=flat&logo=gnubash&logoColor=white" alt="Commands Count">
+  <img src="https://img.shields.io/badge/Tools-247-blueviolet?style=flat&logo=linux&logoColor=white" alt="Tools Count">
+  <img src="https://img.shields.io/badge/Commands-2926-ff69b4?style=flat&logo=gnubash&logoColor=white" alt="Commands Count">
 </p>
 
 <p align="center">
@@ -33,7 +33,15 @@ go install -v github.com/halilkirazkaya/arsenal-ng/cmd/arsenal-ng@latest
 > Requires Go 1.24.0 Ensure `$(go env GOPATH)/bin` is in your `$PATH`.
 
 
-### Option 2: Build from Source Code
+### Option 2: Kali Linux (APT)
+
+Kali Linux ships `arsenal-ng` in its official repositories. [Package tracker](https://pkg.kali.org/pkg/arsenal-ng)
+
+```bash
+sudo apt install arsenal-ng
+```
+
+### Option 3: Build from Source Code
 
 ```bash
 git clone https://github.com/halilkirazkaya/arsenal-ng.git
@@ -63,9 +71,41 @@ source ~/.bashrc
 
 | Platform | Status | Notes |
 |----------|--------|-------|
-| **Linux** | ✅ Fully Supported | Requires kernel 6.2+ configuration for terminal prefill (see [Troubleshooting](#-troubleshooting)) |
+| **Linux** | ✅ Fully Supported | Requires kernel 6.2+ configuration for terminal prefill (see [Linux Configuration](#linux-configuration)) |
 | **macOS** | ✅ Fully Supported | Works out of the box, no additional configuration needed |
 | **Windows** | ⚠️ WSL Only | Native (CMD/PowerShell) is **unsupported**. Use via **WSL**. |
+
+---
+
+## 🛠️ Linux Configuration
+
+### Terminal Prefill Not Working (Linux kernel 6.2+)
+
+`arsenal-ng` relies on this feature to prefill the terminal buffer. You have two options to enable this functionality, both of which come with security trade-offs.
+
+#### Option 1: Enable TIOCSTI Globally
+The TIOCSTI ioctl is disabled by default in newer Linux kernels for security reasons.
+
+```bash
+# Temporary (current session only)
+sudo sysctl -w dev.tty.legacy_tiocsti=1
+
+# Permanent (survives reboot)
+echo "dev.tty.legacy_tiocsti=1" | sudo tee /etc/sysctl.d/99-tiocsti.conf
+sudo sysctl --system
+```
+
+#### Option 2: Grant CAP_SYS_ADMIN Capability
+Instead of modifying system-wide settings, you can grant the `CAP_SYS_ADMIN` capability specifically to the arsenal-ng binary.
+CAP_SYS_ADMIN is powerful and virtually equivalent to `root` access. Use this method only if you fully understand the risks.
+
+```Bash
+# Ensure 'setcap' is installed (Debian/Kali/Ubuntu)
+sudo apt-get install libcap2-bin
+
+# Grant the required capability to the binary
+sudo setcap "cap_sys_admin+ep" $(which arsenal-ng)
+```
 
 ---
 
@@ -327,39 +367,7 @@ make build
 - Add descriptive titles and tags to commands
 - Test your changes before submitting PRs
 
----
-
-## ⚠️ Troubleshooting
-
-### Terminal Prefill Not Working (Linux kernel 6.2+)
-
-`arsenal-ng` relies on this feature to prefill the terminal buffer. You have two options to enable this functionality, both of which come with security trade-offs.
-
-#### Option 1: Enable TIOCSTI Globally
-The TIOCSTI ioctl is disabled by default in newer Linux kernels for security reasons.
-
-```bash
-# Temporary (current session only)
-sudo sysctl -w dev.tty.legacy_tiocsti=1
-
-# Permanent (survives reboot)
-echo "dev.tty.legacy_tiocsti=1" | sudo tee /etc/sysctl.d/99-tiocsti.conf
-sudo sysctl --system
-```
-
-#### Option 2: Grant CAP_SYS_ADMIN Capability
-Instead of modifying system-wide settings, you can grant the `CAP_SYS_ADMIN` capability specifically to the arsenal-ng binary.
-CAP_SYS_ADMIN is powerful and virtually equivalent to `root` access. Use this method only if you fully understand the risks.
-
-```Bash
-# Ensure 'setcap' is installed (Debian/Kali/Ubuntu)
-sudo apt-get install libcap2-bin
-
-# Grant the required capability to the binary
-sudo setcap "cap_sys_admin+ep" $(which arsenal-ng)
-```
-
-## 🤝 Contributing
+## ✨ Features
 
 This project is **open source** and contributions are welcome!
 

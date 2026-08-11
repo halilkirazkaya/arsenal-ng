@@ -1,0 +1,76 @@
+tool: arping
+tags: [network, scanner, security, pentest, enumeration, discovery, arp]
+
+actions:
+# === BASIC USAGE ===
+ - title: arping - basic arp ping
+   desc: |
+     Send ARP requests to a specific target IP address on the local network. 
+     This is useful for verifying if a host is alive and obtaining its MAC address even if ICMP (standard ping) is blocked. 
+     Note that this tool requires root privileges to send raw packets and only works within the local broadcast domain.
+   command: "arping -i {{interface|eth0}} {{target_ip}}"
+
+ - title: arping - ping with specific count
+   desc: |
+     Stop the arping process after a specified number of packets are sent to the target. 
+     This prevents the command from running indefinitely and is useful for script integration or quick connectivity checks. 
+     The utility will provide a summary of transmitted and received packets once the count is reached.
+   command: "arping -c {{count|4}} -i {{interface|eth0}} {{target_ip}}"
+
+ - title: arping - timeout-based ping
+   desc: |
+     Specify a timeout in seconds before the utility exits regardless of how many packets were sent. 
+     This is useful in automated environments where a hanging command could block other processes. 
+     It ensures that the reconnaissance phase does not exceed a predefined time window.
+   command: "arping -w {{seconds|5}} -i {{interface|eth0}} {{target_ip}}"
+
+# === ENUMERATION & DETECTION ===
+ - title: arping - duplicate ip detection
+   desc: |
+     Detect if multiple MAC addresses are responding to the same IP address on the network. 
+     This is a crucial check for identifying IP address conflicts or potential ARP spoofing attacks. 
+     The command will exit with an error code if more than one MAC address responds to the request.
+   command: "arping -d -i {{interface|eth0}} {{target_ip}}"
+
+ - title: arping - audible discovery
+   desc: |
+     Enable audible pings that beep every time a successful reply is received from the target. 
+     This is particularly helpful for hardware troubleshooting when you cannot constantly look at the terminal. 
+     Alternatively, use the -e flag to beep only when there is no reply to detect intermittent connectivity.
+   command: "arping -a -i {{interface|eth0}} {{target_ip}}"
+
+ - title: arping - raw output for scripting
+   desc: |
+     Display only the MAC address or IP address in a raw format for each reply. 
+     This stripped-down output is ideal for piping into other tools or saving to a list for further enumeration. 
+     It removes all the human-readable metadata, leaving only the essential addressing information.
+   command: "arping -r -i {{interface|eth0}} {{target_ip}}"
+
+# === ADVANCED NETWORKING ===
+ - title: arping - ping from unconfigured interface
+   desc: |
+     Send ARP requests using a source IP address of 0.0.0.0. 
+     This is typically used when the local interface has not yet been assigned an IP address, such as during the initial stages of DHCP. 
+     It allows for basic network discovery without needing a valid IP in the subnet.
+   command: "arping -0 -i {{interface|eth0}} {{target_ip}}"
+
+ - title: arping - send unsolicited arp
+   desc: |
+     Send an unsolicited ARP reply, also known as a Gratuitous ARP, to the network. 
+     This is often used to update the ARP caches of other hosts, for instance, when an IP address moves to a different MAC. 
+     Use this with extreme caution as it can disrupt network traffic if directed at an incorrect address.
+   command: "arping -U -i {{interface|eth0}} {{source_ip}}"
+
+ - title: arping - spoofed source address
+   desc: |
+     Send ARP requests using a custom source IP and a custom source MAC address. 
+     This can be used to test how a target or firewall reacts to different identities on the wire. 
+     You may need to enable promiscuous mode using the -p flag if the interface does not own the specified MAC.
+   command: "arping -S {{source_ip}} -s {{source_mac}} -p -i {{interface|eth0}} {{target_ip}}"
+
+ - title: arping - vlan tagged ping
+   desc: |
+     Send ARP requests containing a specific 802.1Q VLAN tag to a target. 
+     This is essential for testing connectivity across different VLAN segments when the network interface is connected to a trunk port. 
+     It helps in verifying that VLAN tagging and routing are correctly configured on the switch level.
+   command: "arping -V {{vlan_id|10}} -i {{interface|eth0}} {{target_ip}}"
