@@ -80,11 +80,18 @@ func run() error {
 		return nil
 	}
 
-	// Output command to terminal
+	// Output command to terminal. When prefill is unavailable (e.g. TIOCSTI is
+	// disabled on Linux 6.2+), fall back to printing the command so it is never
+	// silently lost — otherwise the app appears to just exit after the user
+	// finishes entering arguments.
 	log.Printf("Outputting command to terminal: %s", model.FinalCommand)
-	output.ToTerminal(model.FinalCommand)
+	if err := output.ToTerminal(model.FinalCommand); err != nil {
+		log.Printf("Terminal prefill unavailable (%v); falling back to stdout", err)
+		fmt.Fprintln(os.Stderr, "arsenal-ng: could not prefill your shell (terminal injection is disabled by the kernel).")
+		fmt.Fprintln(os.Stderr, "Copy the command below, or see \"Linux Configuration\" in the README to enable auto-prefill.")
+		fmt.Println(model.FinalCommand)
+	}
 	log.Printf("Application completed successfully")
 
 	return nil
 }
-
