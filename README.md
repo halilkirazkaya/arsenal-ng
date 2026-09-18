@@ -23,7 +23,7 @@
 
 ---
 
-## 📦 Installation
+## Installation
 
 ### Option 1: Go Install
 
@@ -67,7 +67,7 @@ source ~/.bashrc
 ```
 ---
 
-## 🖥️ Platform Support
+## Platform Support
 
 | Platform | Status | Notes |
 |----------|--------|-------|
@@ -77,7 +77,7 @@ source ~/.bashrc
 
 ---
 
-## 🛠️ Linux Configuration
+## Linux Configuration
 
 ### Terminal Prefill Not Working (Linux kernel 6.2+)
 
@@ -109,7 +109,7 @@ sudo setcap "cap_sys_admin+ep" $(which arsenal-ng)
 
 ---
 
-## ✨ Features
+## Features
 
 | Feature | Description |
 |---------|-------------|
@@ -127,7 +127,7 @@ sudo setcap "cap_sys_admin+ep" $(which arsenal-ng)
 
 ---
 
-## 🚀 Usage
+## Usage
 
 ### Quick Start
 
@@ -217,7 +217,7 @@ nmap -sS 10.10.10.10
 
 ---
 
-## 🌐 Global Variables
+## Global Variables
 
 Set variables once and reuse them across all commands in your session. Variables automatically pre-fill argument fields in commands.
 
@@ -280,7 +280,7 @@ unset ip
 
 ---
 
-## 📄 Cheat File Format
+## Cheat File Format
 
 Add your own commands by creating YAML files in `internal/loader/cheat-files/`:
 
@@ -323,7 +323,7 @@ actions:
 
 ---
 
-## 🔧 Development
+## Development
 
 ### Prerequisites
 
@@ -367,7 +367,7 @@ make build
 - Add descriptive titles and tags to commands
 - Test your changes before submitting PRs
 
-## ✨ Features
+## Features
 
 This project is **open source** and contributions are welcome!
 
