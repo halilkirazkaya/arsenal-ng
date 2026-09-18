@@ -1,0 +1,125 @@
+tool: ike-scan
+tags: [network, scanner, security, pentest, enumeration, vpn, ipsec]
+
+actions:
+  # === HOST DISCOVERY & BASIC RECONNAISSANCE ===
+
+  - title: ike-scan - basic main mode discovery scan
+    desc: |
+      Perform a default Main Mode scan against a single VPN gateway target.
+      This serves as the primary starting point for identifying IPsec/ISAKMP services listening on UDP port 500.
+      The command sends standard IKE Phase-1 proposals and displays returned Vendor IDs and handshake parameters.
+      Root privileges may be required if binding to default privileged source port 500.
+    command: "ike-scan {{target}}"
+
+  - title: ike-scan - scan target network range with multiline decode
+    desc: |
+      Scan an entire CIDR subnet range with formatted multiline payload decoding enabled.
+      Using multiline mode formats each returned ISAKMP payload onto separate indented lines for scannability.
+      It helps pentesters systematically catalog active VPN gateways across an internal or external address block.
+      Be cautious of network bandwidth consumption when scanning very broad CIDR notations.
+    command: "ike-scan -M {{network_cidr|192.168.1.0/24}}"
+
+  - title: ike-scan - target list scanning from file
+    desc: |
+      Read and scan a predefined list of target hostnames or IP addresses from an external text file.
+      This approach is ideal for batch assessments and automated pipelines where targets are dynamically generated.
+      The target file must contain one IP address or hostname per line without extra delimiters.
+      You can also use a hyphen instead of a filename to stream host targets directly from standard input.
+    command: "ike-scan --file={{targets_file|targets.txt}}"
+
+  # === AGGRESSIVE MODE & PSK HARVESTING ===
+
+  - title: ike-scan - aggressive mode enumeration
+    desc: |
+      Query a target using IKE Aggressive Mode rather than default Main Mode.
+      Aggressive Mode collapses Phase-1 negotiations into fewer round trips and frequently exposes gateway identification payloads.
+      This allows testers to evaluate whether the remote endpoint allows potentially insecure pre-shared key handshakes.
+      You can combine this with specific Diffie-Hellman groups to align with legacy or modern concentrator configurations.
+    command: "ike-scan -A {{target}}"
+
+  - title: ike-scan - capture aggressive mode psk hash for cracking
+    desc: |
+      Initiate an Aggressive Mode handshake specifying a group ID to dump the pre-shared key hash into an offline file.
+      The captured output is saved in a formatted syntax consumable by the companion `psk-crack` utility or Hashcat mode 5400.
+      This technique exposes PSK material to dictionary attacks without requiring access to the internal network.
+      Note that a valid group ID (ID_USER_FQDN) is often required by enterprise VPN endpoints to return authentication data.
+    command: "ike-scan -A -P{{output_file|ike_psk.txt}} --id={{group_id|vpn}} {{target}}"
+
+  - title: ike-scan - aggressive mode with custom dh group and id type
+    desc: |
+      Send an Aggressive Mode probe using a specific Diffie-Hellman group and identification type number.
+      Certain VPN concentrators reject standard proposals unless the DH group and identity type precisely match their policy.
+      This allows deep enumeration of legacy setups (such as Group 1 or 2) versus hardened modern deployments (such as Group 14 or 19).
+      Consult RFC 2407 section 4.6.2 to reference numerical ID types such as FQDN, KEY_ID, or USER_FQDN.
+    command: "ike-scan -A --dhgroup={{dhgroup|2}} --id={{group_id|vpn}} --idtype={{idtype|3}} {{target}}"
+
+  # === FINGERPRINTING & TRANSFORMS ===
+
+  - title: ike-scan - implementation fingerprinting via backoff analysis
+    desc: |
+      Fingerprint the underlying operating system and IKE software stack using packet retransmission backoff timing.
+      The command tracks the exact millisecond delays between unacknowledged packets and matches them against known vendor signatures.
+      Wait times up to 60 seconds are common while the scanner gathers sufficient backoff samples.
+      Ensure firewalls do not drop subsequent probes to prevent skewed timing signatures.
+    command: "ike-scan --showbackoff={{wait_time|60}} {{target}}"
+
+  - title: ike-scan - scan with custom transform suite
+    desc: |
+      Inject specific encryption, hashing, authentication, and Diffie-Hellman parameters using transform syntax.
+      This allows targeted probing of legacy or hardened endpoints that silently ignore default transform bundles.
+      The shorthand format follows enc[/len],hash,auth,group (for example, AES-256 with SHA1, PSK, and DH Group 5).
+      Repeat the argument multiple times to advertise several custom proposals simultaneously.
+    command: "ike-scan --trans={{transform|7/256,2,1,5}} {{target}}"
+
+  - title: ike-scan - attribute-based custom transform specification
+    desc: |
+      Supply granular attribute-value pairs to construct highly customized Phase-1 proposal payloads.
+      Attribute keys follow RFC 2409 specifications, allowing fine-grained testing for obscure cipher combinations.
+      Brackets must be carefully escaped or quoted to avoid premature interpretation by local shell environments.
+      This enables testing for specific cipher vulnerabilities and unusual key-length negotiation bugs.
+    command: "ike-scan --trans=\"(1=7,14=128,2=1,3=1,4=2)\" {{target}}"
+
+  # === PROTOCOL VARIATIONS & TRANSPORT ===
+
+  - title: ike-scan - experimental ikev2 protocol scan
+    desc: |
+      Transmit IKEv2-formatted initiation packets instead of legacy IKEv1 packets.
+      Modern VPN gateways increasingly disable IKEv1, necessitating IKEv2 probes for detection and validation.
+      The scanner decodes returned IKEv2 response payloads and displays negotiated capabilities.
+      This flag currently sends default proposals and does not support arbitrary custom transforms.
+    command: "ike-scan --ikev2 {{target}}"
+
+  - title: ike-scan - nat-traversal scan on port 4500
+    desc: |
+      Send probes encapsulated with RFC 3947 NAT-Traversal non-ESP markers targeting port 4500.
+      This alters both default source and destination UDP ports to 4500, simulating an endpoint located behind NAT.
+      It is particularly useful when edge firewalls block direct UDP port 500 traffic but allow NAT-T passthrough.
+      Source and destination ports can be further adjusted using `--sport` and `--dport` if placed after this flag.
+    command: "ike-scan --nat-t {{target}}"
+
+  - title: ike-scan - scan ike over tcp encapsulation
+    desc: |
+      Test VPN gateways that encapsulate IKE Phase-1 exchanges inside stateful TCP connections.
+      Certain vendors support TCP transport on proprietary ports to bypass restrictive customer firewalls.
+      Setting the transport option to 1 tests raw Checkpoint IKE over TCP, whereas mode 2 evaluates Cisco TCP encapsulation.
+      Only a single target host can be evaluated at a time when TCP transport mode is enabled.
+    command: "ike-scan --tcp={{tcp_type|1}} --dport={{port|500}} {{target}}"
+
+  # === NETWORK & TIMING TUNING ===
+
+  - title: ike-scan - throttled stealth scan with bandwidth and timing controls
+    desc: |
+      Execute rate-limited scanning against targets by constraining outbound bandwidth and per-host retry behavior.
+      Restricting bandwidth prevents network congestion and helps bypass simple rate-limiting and threshold-based IDS alerts.
+      Initial timeouts, backoff multipliers, and retry limits can be configured together for maximum reliability over lossy links.
+      Bandwidth can be specified in bits, kilobits (K), or megabits (M) per second.
+    command: "ike-scan -B {{bandwidth|64K}} --retry={{retries|2}} --timeout={{timeout_ms|800}} {{target}}"
+
+  - title: ike-scan - randomized large-scale scan with non-privileged source port
+    desc: |
+      Shuffle the destination host list and bind to an ephemeral high source port for unprivileged execution.
+      Shuffling target ordering mitigates sequential port scan detection across inspected network ranges.
+      Using an unprivileged source port avoids requiring root privileges, though some strict gateways only respond to source port 500.
+      Disable DNS name resolution via the nodns flag to accelerate scanning speed across broad network ranges.
+    command: "ike-scan -R -N --sport={{source_port|0}} {{network_cidr|10.0.0.0/16}}"
