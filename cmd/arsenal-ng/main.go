@@ -80,11 +80,18 @@ func run() error {
 		return nil
 	}
 
-	// Output command to terminal
+	// Output command to terminal.
 	log.Printf("Outputting command to terminal: %s", model.FinalCommand)
-	output.ToTerminal(model.FinalCommand)
+	if err := output.ToTerminal(model.FinalCommand); err != nil {
+		log.Printf("Terminal prefill unavailable (%v)", err)
+		fmt.Fprintln(os.Stderr, "")
+		fmt.Fprintln(os.Stderr, "arsenal-ng: could not prefill your shell (terminal injection is disabled by the kernel).")
+		fmt.Fprintln(os.Stderr, "")
+		fmt.Fprintln(os.Stderr, "To enable auto-prefill, see:")
+		fmt.Fprintln(os.Stderr, "  https://github.com/halilkirazkaya/arsenal-ng#linux-configuration")
+		fmt.Fprintln(os.Stderr, "")
+	}
 	log.Printf("Application completed successfully")
 
 	return nil
 }
-
