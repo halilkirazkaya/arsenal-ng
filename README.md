@@ -5,8 +5,8 @@
   <img src="https://img.shields.io/badge/Platform-Linux%20%7C%20macOS-lightgrey" alt="Platform">
   <img src="https://img.shields.io/github/license/halilkirazkaya/arsenal-ng?color=yellow" alt="License">
   <br>
-  <img src="https://img.shields.io/badge/Tools-247-blueviolet?style=flat&logo=linux&logoColor=white" alt="Tools Count">
-  <img src="https://img.shields.io/badge/Commands-2926-ff69b4?style=flat&logo=gnubash&logoColor=white" alt="Commands Count">
+  <img src="https://img.shields.io/badge/Tools-248-blueviolet?style=flat&logo=linux&logoColor=white" alt="Tools Count">
+  <img src="https://img.shields.io/badge/Commands-2940-ff69b4?style=flat&logo=gnubash&logoColor=white" alt="Commands Count">
 </p>
 
 <p align="center">
