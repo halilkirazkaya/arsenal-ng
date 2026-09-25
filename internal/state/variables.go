@@ -231,6 +231,11 @@ func (g *Global) LoadFromFile() error {
 		return fmt.Errorf("failed to parse variables.json: %w", err)
 	}
 
+	// A file containing "null" decodes to a nil map, and Set would panic on it
+	if vars == nil {
+		vars = make(map[string]string)
+	}
+
 	// Replace existing variables with loaded ones
 	g.variables = vars
 	return nil
@@ -261,9 +266,12 @@ func (g *Global) SaveToFile() error {
 		return fmt.Errorf("failed to marshal variables: %w", err)
 	}
 
-	// Write atomically using a temporary file
+	// Write atomically using a temporary file. Variables often hold passwords
+	// and hashes, so the file is readable by its owner only. A leftover temp
+	// file is removed first: os.WriteFile keeps the mode of an existing file.
 	tmpPath := g.filePath + ".tmp"
-	if err := os.WriteFile(tmpPath, data, 0644); err != nil {
+	_ = os.Remove(tmpPath)
+	if err := os.WriteFile(tmpPath, data, 0600); err != nil {
 		log.Printf("ERROR: Failed to write variables file: %v", err)
 		return fmt.Errorf("failed to write variables file: %w", err)
 	}
