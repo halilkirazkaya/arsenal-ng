@@ -7,7 +7,6 @@ package model
 
 import (
 	"regexp"
-	"strings"
 )
 
 // =============================================================================
@@ -19,8 +18,9 @@ import (
 //   - {{ip}}           -> name="ip", default=""
 //   - {{port|8080}}    -> name="port", default="8080"
 //   - {{output|scan}}  -> name="output", default="scan"
+//   - {{domain|}}      -> name="domain", default="" (optional, may be left empty)
 
-var ArgPattern = regexp.MustCompile(`\{\{([^{}|]+)(?:\|([^{}]+))?\}\}`)
+var ArgPattern = regexp.MustCompile(`\{\{([^{}|]+)(?:\|([^{}]*))?\}\}`)
 
 // =============================================================================
 // Argument Parsing
@@ -42,9 +42,11 @@ func ParseArguments(command string) []Argument {
 		}
 		seen[name] = true
 
-		// Extract default value if present
+		// Extract default value if present. Any argument written with "|"
+		// is optional, so {{arg|}} may be submitted empty.
 		var defaultVal string
-		if match[4] != -1 {
+		optional := match[4] != -1
+		if optional {
 			defaultVal = command[match[4]:match[5]]
 		}
 
@@ -52,6 +54,7 @@ func ParseArguments(command string) []Argument {
 			Name:         name,
 			DefaultValue: defaultVal,
 			Value:        defaultVal, // Pre-fill with default
+			Optional:     optional,
 			Position:     match[0],
 		})
 	}
@@ -65,17 +68,21 @@ func ParseArguments(command string) []Argument {
 
 // BuildCommand replaces all {{arg}} placeholders with their values.
 // Returns the final executable command string.
+// Placeholders are replaced in a single pass, so a value that itself contains
+// "{{...}}" is inserted literally instead of being substituted again.
 func BuildCommand(command string, args []Argument) string {
-	// First normalize all {{arg|default}} to {{arg}}
-	result := ArgPattern.ReplaceAllString(command, "{{$1}}")
-
-	// Then replace each placeholder with its value
+	values := make(map[string]string, len(args))
 	for _, arg := range args {
-		placeholder := "{{" + arg.Name + "}}"
-		result = strings.ReplaceAll(result, placeholder, arg.Value)
+		values[arg.Name] = arg.Value
 	}
 
-	return result
+	return ArgPattern.ReplaceAllStringFunc(command, func(match string) string {
+		name := ArgPattern.FindStringSubmatch(match)[1]
+		if value, ok := values[name]; ok {
+			return value
+		}
+		return match
+	})
 }
 
 // =============================================================================
@@ -83,21 +90,21 @@ func BuildCommand(command string, args []Argument) string {
 // =============================================================================
 
 // HasEmptyArgs checks if any required argument is still empty.
-// Returns true if at least one argument has no value.
+// Returns true if at least one required argument has no value.
 func HasEmptyArgs(args []Argument) bool {
 	for _, arg := range args {
-		if arg.Value == "" {
+		if arg.Value == "" && !arg.Optional {
 			return true
 		}
 	}
 	return false
 }
 
-// GetEmptyArgs returns a list of argument names that have no value.
+// GetEmptyArgs returns a list of required argument names that have no value.
 func GetEmptyArgs(args []Argument) []string {
 	var empty []string
 	for _, arg := range args {
-		if arg.Value == "" {
+		if arg.Value == "" && !arg.Optional {
 			empty = append(empty, arg.Name)
 		}
 	}

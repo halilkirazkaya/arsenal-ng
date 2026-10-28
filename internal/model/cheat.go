@@ -45,5 +45,6 @@ type Argument struct {
 	Name         string // Argument name (e.g., "ip", "port")
 	DefaultValue string // Default value if specified with |
 	Value        string // Current value (user input or default)
+	Optional     bool   // Written as {{name|...}}, so it may be left empty
 	Position     int    // Position in command string
 }
