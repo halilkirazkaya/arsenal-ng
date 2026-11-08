@@ -5,6 +5,8 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+
+	"github.com/halilkirazkaya/arsenal-ng/internal/paths"
 )
 
 // =============================================================================
@@ -19,7 +21,7 @@ func TestNewFallsBackToEmptyStore(t *testing.T) {
 	}
 	t.Cleanup(func() { _ = os.Chmod(tmp, 0o755) })
 	t.Setenv("HOME", tmp)
-
+	t.Setenv("XDG_CONFIG_HOME", filepath.Join(tmp, ".config"))
 	a := New(nil)
 	if a.globals == nil || a.globals.Count() != 0 {
 		t.Fatal("fallback store must be empty and usable")
@@ -48,8 +50,12 @@ func TestSetUnsetDiskError(t *testing.T) {
 	if err := a.globals.Set("k", "v"); err != nil {
 		t.Fatal(err)
 	}
-	// Freeze the config dir so subsequent saves fail.
-	cfg := filepath.Join(os.Getenv("HOME"), "Library", "Application Support", "arsenal-ng")
+	// Freeze the real config dir so subsequent saves fail.
+	varsPath, err := paths.Variables()
+	if err != nil {
+		t.Fatal(err)
+	}
+	cfg := filepath.Dir(varsPath)
 	if err := os.Chmod(cfg, 0o555); err != nil {
 		t.Fatal(err)
 	}

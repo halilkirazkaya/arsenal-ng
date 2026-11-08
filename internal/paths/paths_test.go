@@ -82,6 +82,9 @@ func TestConfigDirFailsWhenHomeReadonly(t *testing.T) {
 	// Restore write access so temp cleanup can remove the directory.
 	t.Cleanup(func() { _ = os.Chmod(tmp, 0o755) })
 	t.Setenv("HOME", tmp)
+	// Linux prefers XDG_CONFIG_HOME over HOME, so point it inside the
+	// read-only dir too; otherwise the test passes vacuously there.
+	t.Setenv("XDG_CONFIG_HOME", filepath.Join(tmp, ".config"))
 
 	if _, err := ConfigDir(); err == nil {
 		t.Fatal("read-only HOME = nil error")

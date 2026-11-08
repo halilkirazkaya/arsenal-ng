@@ -43,14 +43,15 @@ func TestSaveErrorReadonlyDir(t *testing.T) {
 // TestNewFailsWhenConfigDirUnwritable verifies New errors without a config dir.
 func TestNewFailsWhenConfigDirUnwritable(t *testing.T) {
 	isolateHome(t)
-	// HOME itself read-only: "Library/Application Support" can't be made.
-	// (darwin ignores XDG_CONFIG_HOME, so HOME must be the blocker.)
+	// HOME itself read-only so no config dir can be made. Linux prefers
+	// XDG_CONFIG_HOME, so point it inside the read-only dir as well.
 	tmp := t.TempDir()
 	if err := os.Chmod(tmp, 0o555); err != nil {
 		t.Fatal(err)
 	}
 	t.Cleanup(func() { _ = os.Chmod(tmp, 0o755) })
 	t.Setenv("HOME", tmp)
+	t.Setenv("XDG_CONFIG_HOME", filepath.Join(tmp, ".config"))
 
 	if _, err := New(); err == nil {
 		t.Fatal("New with unwritable config dir = nil error")
