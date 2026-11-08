@@ -28,12 +28,12 @@ func newPtyPair() (master, slave int, err error) {
 	num, err := unix.IoctlGetInt(master, unix.TIOCGPTN)
 	if err != nil {
 		unix.Close(master)
-		return 0, 0, fmt.Errorf("pty number: %w", errno)
+		return 0, 0, fmt.Errorf("pty number: %w", err)
 	}
 	slave, err = unix.Open(fmt.Sprintf("/dev/pts/%d", num), unix.O_RDWR|unix.O_NOCTTY, 0)
 	if err != nil {
 		unix.Close(master)
-		return 0, 0, fmt.Errorf("open pty slave: %w", errno)
+		return 0, 0, fmt.Errorf("open pty slave: %w", err)
 	}
 	return master, slave, nil
 }
