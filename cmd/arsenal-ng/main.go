@@ -8,42 +8,42 @@ import (
 	"fmt"
 	"log"
 	"os"
-
-	tea "github.com/charmbracelet/bubbletea"
-
-	"github.com/halilkirazkaya/arsenal-ng/internal/config"
-	"github.com/halilkirazkaya/arsenal-ng/internal/loader"
-	"github.com/halilkirazkaya/arsenal-ng/internal/output"
-	"github.com/halilkirazkaya/arsenal-ng/internal/ui"
 )
 
+// =============================================================================
+// Entry Point
+// =============================================================================
+
+// main runs the launcher and exits nonzero on failure.
 func main() {
-	if err := run(); err != nil {
+	if err := run(production{}); err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 		os.Exit(1)
 	}
 }
 
-func run() error {
-	// Setup logging to file (same directory as variables.json)
-	logPath, err := config.GetLogPath()
+// =============================================================================
+// Run Pipeline
+// =============================================================================
+
+// run loads cheats, runs the TUI, and prefills the chosen command.
+func run(d deps) error {
+	// Logging is optional: a broken log path only warns and continues.
+	logPath, err := d.logPath()
 	if err != nil {
-		// Log error but don't fail - logging is optional
-		fmt.Fprintf(os.Stderr, "Warning: failed to get log path: %v\n", err)
+		d.warn("Warning: failed to get log path: %v", err)
 	} else {
-		logFile, err := tea.LogToFile(logPath, config.AppName)
+		logFile, err := d.setupLog(logPath)
 		if err != nil {
-			// Log error but don't fail - logging is optional
-			fmt.Fprintf(os.Stderr, "Warning: failed to setup logging: %v\n", err)
+			d.warn("Warning: failed to setup logging: %v", err)
 		} else {
 			defer logFile.Close()
 			log.Printf("Application started, logging to: %s", logPath)
 		}
 	}
 
-	// Load cheat files
 	log.Printf("Loading cheat files...")
-	cheats, err := loader.Load()
+	cheats, err := d.load()
 	if err != nil {
 		log.Printf("ERROR: Failed to load cheats: %v", err)
 		return fmt.Errorf("failed to load cheats: %w", err)
@@ -56,40 +56,33 @@ func run() error {
 		return fmt.Errorf("no cheats found")
 	}
 
-	// Run TUI
 	log.Printf("Starting TUI...")
-	app := ui.New(cheats)
-	program := tea.NewProgram(app, tea.WithAltScreen())
-
-	result, err := program.Run()
+	app, err := d.interact(cheats)
 	if err != nil {
 		log.Printf("ERROR: TUI error: %v", err)
 		return fmt.Errorf("TUI error: %w", err)
 	}
 
-	// Handle result
-	model := result.(ui.App)
-
-	if model.Cancelled {
+	if app.Cancelled {
 		log.Printf("Application cancelled by user")
 		return nil
 	}
 
-	if model.FinalCommand == "" {
+	if app.FinalCommand == "" {
 		log.Printf("No command selected")
 		return nil
 	}
 
-	// Output command to terminal.
-	log.Printf("Outputting command to terminal: %s", model.FinalCommand)
-	if err := output.ToTerminal(model.FinalCommand); err != nil {
+	// A failed prefill only warns: the command is still printed by the TUI.
+	log.Printf("Outputting command to terminal: %s", app.FinalCommand)
+	if err := d.prefill(app.FinalCommand); err != nil {
 		log.Printf("Terminal prefill unavailable (%v)", err)
-		fmt.Fprintln(os.Stderr, "")
-		fmt.Fprintln(os.Stderr, "arsenal-ng: could not prefill your shell (terminal injection is disabled by the kernel).")
-		fmt.Fprintln(os.Stderr, "")
-		fmt.Fprintln(os.Stderr, "To enable auto-prefill, see:")
-		fmt.Fprintln(os.Stderr, "  https://github.com/halilkirazkaya/arsenal-ng#linux-configuration")
-		fmt.Fprintln(os.Stderr, "")
+		d.warn("")
+		d.warn("arsenal-ng: could not prefill your shell (terminal injection is disabled by the kernel).")
+		d.warn("")
+		d.warn("To enable auto-prefill, see:")
+		d.warn("  https://github.com/halilkirazkaya/arsenal-ng#linux-configuration")
+		d.warn("")
 	}
 	log.Printf("Application completed successfully")
 
