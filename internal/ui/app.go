@@ -26,7 +26,7 @@ func New(cheats []*model.Cheat) App {
 	globals, err := variables.New()
 	if err != nil {
 		log.Printf("WARNING: Failed to load global variables, continuing with empty store: %v", err)
-		globals = &variables.Store{}
+		globals = variables.Empty()
 	}
 
 	return App{

@@ -58,7 +58,7 @@ actions:
      Update all or specific packages to the latest version allowed by the semver range in package.json. 
      This command will respect the carets and tildes defined in your configuration. 
      It is recommended to run tests after updating to ensure no breaking changes were introduced.
-   command: "npm update {{package_name}}"
+   command: "npm update {{package_name|}}"
 
  - title: npm - uninstall package
    desc: |
@@ -80,7 +80,7 @@ actions:
      Automatically apply suggested fixes for vulnerabilities identified during an audit. 
      This command will update package versions to the nearest secure release within semver constraints. 
      Use the --force flag if you need to install updates that might involve breaking changes.
-   command: "npm audit fix {{force_flag}}"
+   command: "npm audit fix {{force_flag|}}"
 
 # === EXECUTION AND SCRIPTS ===
  - title: npm - run custom script

@@ -75,7 +75,8 @@ func (m Model) submit() (Model, tea.Cmd, Outcome, string) {
 	// Missing required args block submission with an empty command.
 	if !model.HasEmptyArgs(m.Args) {
 		command := model.BuildCommand(m.Cheat.Command, m.Args)
-		log.Printf("Command built from args: %s", command)
+		// Never log the command: arguments often hold credentials.
+		log.Printf("Command built from %d args (%d bytes)", len(m.Args), len(command))
 		return m, nil, Submit, command
 	}
 	log.Printf("WARNING: Attempted to submit args with empty values")

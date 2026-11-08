@@ -23,7 +23,8 @@ func (g *Store) Set(name, value string) error {
 	if existed {
 		action = "Updated"
 	}
-	log.Printf("%s variable: %s = %s", action, name, value)
+	// Never log the value: variables often hold passwords and hashes.
+	log.Printf("%s variable: %s", action, name)
 
 	if err := g.saveToFile(); err != nil {
 		log.Printf("ERROR: Failed to save variables after Set: %v", err)

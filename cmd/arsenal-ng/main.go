@@ -74,7 +74,8 @@ func run(d deps) error {
 	}
 
 	// A failed prefill only warns: the command is still printed by the TUI.
-	log.Printf("Outputting command to terminal: %s", app.FinalCommand)
+	// Never log the command: it may contain credentials.
+	log.Printf("Outputting command to terminal (%d bytes)", len(app.FinalCommand))
 	if err := d.prefill(app.FinalCommand); err != nil {
 		log.Printf("Terminal prefill unavailable (%v)", err)
 		d.warn("")

@@ -27,6 +27,13 @@ type Store struct {
 	filePath string
 }
 
+// Empty creates an in-memory store with persistence disabled.
+// Use it as a fallback when the config directory is unavailable: all
+// operations work, but nothing is written to disk.
+func Empty() *Store {
+	return &Store{variables: make(map[string]string)}
+}
+
 // New creates a new variables store and loads existing variables from disk.
 // If the variables.json file doesn't exist, it will be created on first save.
 // It returns an error if the config directory cannot be created or accessed.

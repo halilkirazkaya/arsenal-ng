@@ -21,9 +21,10 @@ func newPtyPair() (master, slave int, err error) {
 	if err != nil {
 		return 0, 0, fmt.Errorf("open ptmx: %w", err)
 	}
-	if _, _, errno := unix.Syscall(unix.SYS_IOCTL, uintptr(master), unix.TIOCSPTLCK, 0); errno != 0 {
+	// TIOCSPTLCK takes a pointer to int; a null arg fails with EFAULT.
+	if err := unix.IoctlSetInt(master, unix.TIOCSPTLCK, 0); err != nil {
 		unix.Close(master)
-		return 0, 0, fmt.Errorf("unlock pty: %w", errno)
+		return 0, 0, fmt.Errorf("unlock pty: %w", err)
 	}
 	num, err := unix.IoctlGetInt(master, unix.TIOCGPTN)
 	if err != nil {

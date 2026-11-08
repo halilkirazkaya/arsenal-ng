@@ -30,7 +30,7 @@ func (m App) applySet(query string) App {
 			return m
 		}
 	}
-	log.Printf("Invalid set command format: %s", query)
+	log.Printf("Invalid set command format")
 	m.search.StatusMsg = "✗ Usage: set name=value"
 	m.search.StatusIsError = true
 	return m
