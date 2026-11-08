@@ -20,8 +20,8 @@ func TestOptionalPlaceholdersKept(t *testing.T) {
 		want []string
 	}{
 		{"cheat-files/npm.yaml", []string{"package_name|", "force_flag|"}},
-		{"cheat-files/impacket/impacket-goldenpac.yaml", []string{"binary_arguments|"}},
-		{"cheat-files/impacket/impacket-mssqlclient.yaml", []string{"domain|"}},
+		{"cheat-files/impacket-goldenpac.yaml", []string{"binary_arguments|"}},
+		{"cheat-files/impacket-mssqlclient.yaml", []string{"domain|"}},
 	}
 	for _, tc := range cases {
 		cheats, err := parseCheatFile(embeddedCheats, tc.file)
