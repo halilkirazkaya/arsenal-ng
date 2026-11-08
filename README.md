@@ -1,7 +1,7 @@
 <h1 align="center">arsenal-ng</h1>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Go-1.24.0+-00ADD8?style=flat&logo=go" alt="Go Version">
+  <img src="https://img.shields.io/badge/Go-1.26.0+-00ADD8?style=flat&logo=go" alt="Go Version">
   <img src="https://img.shields.io/badge/Platform-Linux%20%7C%20macOS-lightgrey" alt="Platform">
   <img src="https://img.shields.io/github/license/halilkirazkaya/arsenal-ng?color=yellow" alt="License">
   <br>
@@ -30,7 +30,7 @@
 ```bash
 go install -v github.com/halilkirazkaya/arsenal-ng/cmd/arsenal-ng@latest
 ```
-> Requires Go 1.24.0 Ensure `$(go env GOPATH)/bin` is in your `$PATH`.
+> Requires Go 1.26.0 Ensure `$(go env GOPATH)/bin` is in your `$PATH`.
 
 
 ### Option 2: Kali Linux (APT)
@@ -327,7 +327,7 @@ actions:
 
 ### Prerequisites
 
-- Go 1.24.0 or higher
+- Go 1.26.0 or higher
 - Make (optional, for using Makefile)
 
 ### Building from Source
