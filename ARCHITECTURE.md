@@ -84,8 +84,10 @@ internal/
 
 ### State and Paths
 
-- `internal/variables/store.go` — Thread-safe `Store` with JSON
-  persistence (`New`, `Set`, `Get`, `Unset`, `All`, `Count`).
+- `internal/variables/store.go` — `Store` type with `New` (loads from
+  disk) and `Empty` (in-memory fallback, persistence disabled).
+- `internal/variables/crud.go` — `Set`, `Get`, `Unset`, `All`, `Count`;
+  values are never written to logs.
 - `internal/variables/file.go` — Atomic save (temp file + rename, 0600)
   and tolerant load (missing/empty/null).
 - `internal/paths/paths.go` — `ConfigDir`, `Variables`, `Log`;
