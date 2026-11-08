@@ -11,6 +11,7 @@ import (
 // =============================================================================
 
 // Truncate shortens s to max width, using ellipsis for overflow.
+// Cutting is rune-based so multi-byte characters are never split.
 func Truncate(s string, max int) string {
 	// Newlines would break single-line rows, so flatten them first.
 	s = strings.ReplaceAll(s, "\n", " ")
@@ -18,13 +19,14 @@ func Truncate(s string, max int) string {
 	if max <= 0 {
 		return ""
 	}
+	runes := []rune(s)
 	if max <= 3 {
-		return s[:min(len(s), max)]
+		return string(runes[:min(len(runes), max)])
 	}
-	if len(s) <= max {
+	if len(runes) <= max {
 		return s
 	}
-	return s[:max-3] + "..."
+	return string(runes[:max-3]) + "..."
 }
 
 // =============================================================================
@@ -32,6 +34,7 @@ func Truncate(s string, max int) string {
 // =============================================================================
 
 // Wrap breaks text at word boundaries so lines fit width.
+// Widths are measured in runes so multi-byte text wraps correctly.
 func Wrap(text string, width int) string {
 	if width <= 0 {
 		return text
@@ -41,7 +44,7 @@ func Wrap(text string, width int) string {
 	text = strings.ReplaceAll(text, "\n", " ")
 
 	// Short input needs no work, preserving spacing exactly.
-	if len(text) <= width {
+	if len([]rune(text)) <= width {
 		return text
 	}
 
@@ -57,7 +60,7 @@ func Wrap(text string, width int) string {
 		}
 		testLine += word
 
-		if len(testLine) > width && currentLine != "" {
+		if len([]rune(testLine)) > width && currentLine != "" {
 			// Current line is full, so flush it and start fresh.
 			result.WriteString(currentLine)
 			result.WriteString("\n")

@@ -2,6 +2,7 @@
 package main
 
 import (
+	"fmt"
 	"io"
 	"log"
 	"os"
@@ -73,9 +74,9 @@ func (s *stub) prefill(command string) error {
 	return s.prefillErr
 }
 
-// warn records a warning format for later assertions.
+// warn records a formatted warning for later assertions.
 func (s *stub) warn(format string, args ...any) {
-	s.warnings = append(s.warnings, format)
+	s.warnings = append(s.warnings, fmt.Sprintf(format, args...))
 }
 
 // quiet silences the standard logger for the duration of a test.

@@ -58,7 +58,8 @@ func applySetVar(m finder.Model, globals *variables.Store, name, value string) f
 		m.StatusMsg = fmt.Sprintf("✗ Failed to save variable: %v", err)
 		m.StatusIsError = true
 	} else {
-		m.StatusMsg = fmt.Sprintf("✓ Set %s = %s", name, value)
+		// Name-only: values may be secrets visible on screen recordings.
+		m.StatusMsg = fmt.Sprintf("✓ Set %s", name)
 	}
 	return m
 }

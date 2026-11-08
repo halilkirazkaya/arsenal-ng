@@ -29,6 +29,9 @@ func TestTruncate(t *testing.T) {
 		{"negative max", "nmap", -1, ""},
 		{"tiny max raw slice", "nmap", 2, "nm"},
 		{"tiny max shorter input", "n", 3, "n"},
+		{"multibyte kept whole", "éééééé", 5, "éé..."},
+		{"multibyte tiny max", "ééé", 2, "éé"},
+		{"multibyte exact fit", "café", 4, "café"},
 	}
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
@@ -58,6 +61,7 @@ func TestWrap(t *testing.T) {
 		{"nonpositive width passthrough", "a b", 0, "a b"},
 		{"negative width passthrough", "a b", -3, "a b"},
 		{"long word kept whole", "superlongword x", 5, "superlongword\nx"},
+		{"multibyte width in runes", "éé éé éé", 5, "éé éé\néé"},
 	}
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {

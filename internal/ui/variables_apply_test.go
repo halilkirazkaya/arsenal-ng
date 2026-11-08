@@ -19,8 +19,11 @@ func TestApplySetSuccessClearsQuery(t *testing.T) {
 	if !ok || v != "10.0.0.1" {
 		t.Fatalf("stored = %q,%v", v, ok)
 	}
-	if !strings.Contains(got.search.StatusMsg, "Set ip = 10.0.0.1") {
+	if !strings.Contains(got.search.StatusMsg, "Set ip") {
 		t.Fatalf("status = %q", got.search.StatusMsg)
+	}
+	if strings.Contains(got.search.StatusMsg, "10.0.0.1") {
+		t.Fatalf("status leaks value: %q", got.search.StatusMsg)
 	}
 	if got.search.Input.Value() != "" {
 		t.Fatal("query must be cleared after set")

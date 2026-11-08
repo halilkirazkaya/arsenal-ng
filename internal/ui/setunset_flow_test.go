@@ -20,8 +20,11 @@ func TestFlowSetVar(t *testing.T) {
 	if !ok || v != "1.2.3.4" {
 		t.Fatalf("var not stored: %v %v", v, ok)
 	}
-	if !strings.Contains(got.search.StatusMsg, "Set ip = 1.2.3.4") {
+	if !strings.Contains(got.search.StatusMsg, "Set ip") {
 		t.Fatalf("status = %q", got.search.StatusMsg)
+	}
+	if strings.Contains(got.search.StatusMsg, "1.2.3.4") {
+		t.Fatalf("status leaks value: %q", got.search.StatusMsg)
 	}
 	if got.search.StatusIsError {
 		t.Fatal("success must not be error")

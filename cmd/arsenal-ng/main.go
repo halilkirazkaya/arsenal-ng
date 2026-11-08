@@ -73,11 +73,13 @@ func run(d deps) error {
 		return nil
 	}
 
-	// A failed prefill only warns: the command is still printed by the TUI.
-	// Never log the command: it may contain credentials.
+	// A failed prefill prints the command: the TUI already exited, so this
+	// is the only way the user receives it. Never log the command: it may
+	// contain credentials.
 	log.Printf("Outputting command to terminal (%d bytes)", len(app.FinalCommand))
 	if err := d.prefill(app.FinalCommand); err != nil {
 		log.Printf("Terminal prefill unavailable (%v)", err)
+		d.warn("%s", app.FinalCommand)
 		d.warn("")
 		d.warn("arsenal-ng: could not prefill your shell (terminal injection is disabled by the kernel).")
 		d.warn("")

@@ -67,6 +67,9 @@ func TestRunPrefillErrorWarns(t *testing.T) {
 	if !strings.Contains(joined, "could not prefill") {
 		t.Fatalf("warnings = %q, want prefill hint", joined)
 	}
+	if !strings.Contains(joined, "nmap x") {
+		t.Fatalf("warnings = %q, want fallback command", joined)
+	}
 }
 
 // TestRunLoggingOptional verifies broken logging only warns and continues.
