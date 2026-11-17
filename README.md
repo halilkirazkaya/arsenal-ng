@@ -186,8 +186,10 @@ nmap -sS 10.10.10.10
 #### Argument Input View
 | Key | Action |
 |-----|--------|
-| `Tab` / `↓` | Move to next argument field |
+| `Tab` | Complete file path; with nothing to complete, move to next field |
+| `↓` | Move to next argument field |
 | `Shift+Tab` / `↑` | Move to previous argument field |
+| `Ctrl+N` / `Ctrl+P` | Cycle listed path completions |
 | `Enter` | Execute command with filled arguments |
 | `Esc` | Go back to search view |
 

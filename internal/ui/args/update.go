@@ -49,7 +49,15 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd, Outcome, string) {
 		case keys.Enter:
 			return m.submit()
 
-		case keys.Tab, keys.Down:
+		case keys.Tab:
+			// Tab completes a path when there is a suggestion left to
+			// append; otherwise it moves on like ↓.
+			in := m.Inputs[m.Cursor]
+			if len(in.CurrentSuggestion()) <= len(in.Value()) {
+				return m.Next(), nil, Stay, ""
+			}
+
+		case keys.Down:
 			return m.Next(), nil, Stay, ""
 
 		case keys.ShiftTab, keys.Up:
@@ -57,7 +65,11 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd, Outcome, string) {
 		}
 	}
 
+	before := m.Inputs[m.Cursor].Value()
 	m.Inputs[m.Cursor], cmd = m.Inputs[m.Cursor].Update(msg)
+	if m.Inputs[m.Cursor].Value() != before {
+		m.suggest()
+	}
 	return m, cmd, Stay, ""
 }
 

@@ -4,6 +4,7 @@ package args
 
 import (
 	"fmt"
+	"path/filepath"
 	"strings"
 
 	"github.com/halilkirazkaya/arsenal-ng/internal/frame"
@@ -39,7 +40,7 @@ func (m Model) View(width int) string {
 
 	// Footer documents the form keys.
 	b.WriteString("\n")
-	b.WriteString(theme.Help.Render("tab/↓: next │ shift+tab/↑: prev │ enter: confirm │ esc: back"))
+	b.WriteString(theme.Help.Render("tab/↓: next │ shift+tab/↑: prev │ ctrl+n/p: cycle │ enter: confirm │ esc: back"))
 
 	return b.String()
 }
@@ -55,5 +56,41 @@ func (m Model) row(index int, arg model.Argument) string {
 	name := theme.ArgName.Render(fmt.Sprintf("%-15s", arg.Name))
 	input := m.Inputs[index].View()
 
-	return fmt.Sprintf("%s%s = %s\n", cursor, name, input)
+	return fmt.Sprintf("%s%s = %s\n", cursor, name, input) + m.matches(index)
+}
+
+// matchPage is how many path completions show under the focused field.
+const matchPage = 8
+
+// matches lists the focused field's path completions when more than one
+// fits, paged around the one Ctrl+N/Ctrl+P has selected.
+func (m Model) matches(index int) string {
+	if index != m.Cursor {
+		return ""
+	}
+	in := m.Inputs[index]
+	all := in.MatchedSuggestions()
+	if len(all) < 2 {
+		return ""
+	}
+
+	dir, _ := filepath.Split(in.Value())
+	cur := in.CurrentSuggestionIndex()
+	start := cur - cur%matchPage
+	end := min(start+matchPage, len(all))
+
+	var b strings.Builder
+	pad := strings.Repeat(" ", 22)
+	for i := start; i < end; i++ {
+		name := strings.TrimPrefix(all[i], dir)
+		if i == cur {
+			b.WriteString(pad + theme.Cursor.Render("▸ "+name) + "\n")
+		} else {
+			b.WriteString(pad + theme.Help.Render("  "+name) + "\n")
+		}
+	}
+	if len(all) > matchPage {
+		b.WriteString(pad + theme.Help.Render(fmt.Sprintf("  %d-%d of %d", start+1, end, len(all))) + "\n")
+	}
+	return b.String()
 }

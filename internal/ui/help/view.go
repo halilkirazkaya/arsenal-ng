@@ -66,8 +66,9 @@ func argumentsSection() string {
 	b.WriteString("\n")
 	b.WriteString(lineStyle.Render(separator))
 	b.WriteString("\n")
-	b.WriteString(fmt.Sprintf("  %s  %s\n", keyStyle.Render("Tab          "), descStyle.Render("Move to next argument field")))
+	b.WriteString(fmt.Sprintf("  %s  %s\n", keyStyle.Render("Tab          "), descStyle.Render("Complete file path, else next argument field")))
 	b.WriteString(fmt.Sprintf("  %s  %s\n", keyStyle.Render("Shift+Tab    "), descStyle.Render("Move to previous argument field")))
+	b.WriteString(fmt.Sprintf("  %s  %s\n", keyStyle.Render("Ctrl+N/Ctrl+P"), descStyle.Render("Cycle listed path completions")))
 	b.WriteString(fmt.Sprintf("  %s  %s\n", keyStyle.Render("Enter        "), descStyle.Render("Execute command with filled arguments")))
 	return b.String()
 }
