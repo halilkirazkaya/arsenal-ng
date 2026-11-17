@@ -1,0 +1,216 @@
+tool: hurl
+tags: [encoding, decoding, pentest, hex, url, base64, hash, crypto]
+
+actions:
+# === URL / HTML / BASE64 ===
+ - title: hurl - url encode
+   desc: |
+     URL-encodes a string, converting special characters to percent notation.
+     Useful for crafting payloads for web injection or bypassing input filters.
+   command: "hURL -U {{string|hello world}}"
+
+ - title: hurl - url decode
+   desc: |
+     Decodes a percent-encoded URL string back to plain text.
+     Standard step when analyzing captured requests or encoded payloads.
+   command: "hURL -u {{encoded|hello%20world}}"
+
+ - title: hurl - double url encode
+   desc: |
+     Encodes a string twice, turning % into %25.
+     Handy for bypassing WAFs that decode input only once.
+   command: "hURL -D {{string|hello world}}"
+
+ - title: hurl - double url decode
+   desc: |
+     Decodes a doubly-encoded URL string.
+     Use when a payload was encoded twice or passed two filter layers.
+   command: "hURL -d {{encoded|hello%2520world}}"
+
+ - title: hurl - base64 encode
+   desc: |
+     Encodes a string to Base64.
+     Common for building basic-auth headers or obfuscating payloads.
+   command: "hURL -B {{string|hello world}}"
+
+ - title: hurl - base64 decode
+   desc: |
+     Decodes a Base64 string back to plain text.
+     First step when inspecting tokens, blobs, or encoded exfil data.
+   command: "hURL -b {{encoded|aGVsbG8gd29ybGQ=}}"
+
+ - title: hurl - html encode
+   desc: |
+     Encodes a string into HTML entities.
+     Useful for testing XSS filters and reflected output handling.
+   command: "hURL -H {{string|<hello world>}}"
+
+ - title: hurl - html decode
+   desc: |
+     Decodes HTML entities back to plain characters.
+     Use when analyzing stored or reflected XSS output.
+   command: "hURL -h {{encoded|&lt;hello world&gt;}}"
+
+# === HEX / INT / BIN / OCT / FLOAT ===
+ - title: hurl - ascii to hex
+   desc: |
+     Converts plain ASCII text to lowercase hex pairs.
+     Standard for building shellcode buffers and exploit payloads.
+   command: "hURL -X {{string|hello world}}"
+
+ - title: hurl - hex to ascii
+   desc: |
+     Converts hex pairs back to ASCII text.
+     Use to decode hex dumps found in binaries or traffic.
+   command: "hURL -x {{hex|68656c6c6f20776f726c64}}"
+
+ - title: hurl - int to hex
+   desc: |
+     Converts a decimal integer to hex.
+     Handy for address/offset math during exploitation.
+   command: "hURL -I {{int|10}}"
+
+ - title: hurl - hex to int
+   desc: |
+     Converts a hex value to a decimal integer.
+     Use for interpreting return addresses and offsets.
+   command: "hURL -i {{hex|0xa}}"
+
+ - title: hurl - negative int to hex
+   desc: |
+     Converts a negative integer to its hex representation.
+     Needed when working with signed offsets in exploits.
+   command: "hURL -n -- {{negint|-77}}"
+
+ - title: hurl - negative hex to int
+   desc: |
+     Converts a two's-complement hex value to a signed integer.
+     Use to interpret negative offsets from crash dumps.
+   command: "hURL -N {{hex|0xffffffb3}}"
+
+ - title: hurl - int to binary
+   desc: |
+     Converts a decimal integer to binary.
+     Useful for bit-flag and permission analysis.
+   command: "hURL -T {{int|30}}"
+
+ - title: hurl - binary to int
+   desc: |
+     Converts a binary string to a decimal integer.
+     Use when decoding bitfields or flags.
+   command: "hURL -t {{bin|1010}}"
+
+ - title: hurl - float to hex
+   desc: |
+     Converts a float to its IEEE-754 hex representation.
+     Needed when patching or analyzing float values in binaries.
+   command: "hURL -F {{float|3.33}}"
+
+ - title: hurl - hex to float
+   desc: |
+     Converts IEEE-754 hex back to a float.
+     Use to interpret raw float bytes from memory dumps.
+   command: "hURL -l {{hex|0x40551ed8}}"
+
+ - title: hurl - octal to hex
+   desc: |
+     Converts an octal value to hex.
+     Useful when dealing with Unix permission-style encodings.
+   command: "hURL -o {{octal|35}}"
+
+ - title: hurl - hex to octal
+   desc: |
+     Converts a hex value to octal.
+     Use for cross-base conversions during shellcode work.
+   command: "hURL -O {{hex|0x12}}"
+
+ - title: hurl - binary to hex
+   desc: |
+     Converts a binary string to hex.
+     Handy for compacting binary shellcode representations.
+   command: "hURL -0 {{bin|1100011}}"
+
+ - title: hurl - hex to binary
+   desc: |
+     Converts a hex value to binary.
+     Use to inspect individual bits of an address or flag.
+   command: "hURL -1 {{hex|0x63}}"
+
+# === HASHES / MISC ===
+ - title: hurl - sha1 checksum
+   desc: |
+     Computes the SHA1 digest of a string.
+     Quick way to fingerprint payloads or verify integrity.
+   command: "hURL -2 {{string|hello world}}"
+
+ - title: hurl - sha224 checksum
+   desc: |
+     Computes the SHA224 digest of a string.
+     Less common variant; use when a target expects 224-bit digests.
+   command: "hURL -3 {{string|hello world}}"
+
+ - title: hurl - sha256 checksum
+   desc: |
+     Computes the SHA256 digest of a string.
+     Standard for integrity checks and password hash comparison.
+   command: "hURL -4 {{string|hello world}}"
+
+ - title: hurl - sha384 checksum
+   desc: |
+     Computes the SHA384 digest of a string.
+     Use when a 384-bit digest is required by the target.
+   command: "hURL -5 {{string|hello world}}"
+
+ - title: hurl - sha512 checksum
+   desc: |
+     Computes the SHA512 digest of a string.
+     Common in modern hash storage and verification flows.
+   command: "hURL -6 {{string|hello world}}"
+
+ - title: hurl - md5 digest
+   desc: |
+     Computes the MD5 digest of a string.
+     Still widespread for quick checksums despite being cryptographically broken.
+   command: "hURL -m {{string|hello world}}"
+
+ - title: hurl - rot13 encode
+   desc: |
+     Applies ROT13 to a string (symmetric: same op decodes).
+     Trivial obfuscation for strings in payloads or CTFs.
+   command: "hURL -7 {{string|hello world}}"
+
+ - title: hurl - stack push format (corelan)
+   desc: |
+     Formats a string as a series of stack pushes for exploit dev.
+     Output follows the Corelan tutorial style for direct use in exploits.
+   command: "hURL -9 {{string|hello world}}"
+
+ - title: hurl - int to hex network byte order
+   desc: |
+     Converts an integer (e.g. a port) to hex in network byte order.
+     Essential for building bind/reverse shellcode port values.
+   command: "hURL -e {{int|4444}}"
+
+ - title: hurl - hex network byte order to int
+   desc: |
+     Converts network-byte-order hex back to an integer.
+     Use to decode ports or values extracted from shellcode.
+   command: "hURL -E {{hex|5c11}}"
+
+ - title: hurl - hex file to binary file
+   desc: |
+     Converts a hex dump file to a raw binary file.
+     Use to reconstruct payloads or shellcode binaries from text.
+   command: "hURL -w -f {{infile}} {{outfile}}"
+
+ - title: hurl - binary file to hex (corelan)
+   desc: |
+     Converts a binary file to hex in Corelan format.
+     Standard step to embed binary payloads into exploits.
+   command: "hURL -r -f {{binfile|/tmp/msgbox.bin}}"
+
+ - title: hurl - menu gui
+   desc: |
+     Launches the interactive menu-driven interface.
+     Easiest way to explore all conversions without memorizing flags.
+   command: "hURL -M"

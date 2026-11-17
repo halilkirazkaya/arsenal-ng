@@ -1,0 +1,39 @@
+tool: addspn
+tags: [active-directory, pentest, kerberos, spn, impacket]
+
+actions:
+ - title: addspn - query current spns
+   desc: |
+     Lists the SPNs currently registered on the target account.
+     Always run first to see existing state before adding or removing.
+   command: "addspn.py {{dc_host}} -u {{domain}}/{{username}} -p {{password}} -t {{target}} -q"
+
+ - title: addspn - add spn
+   desc: |
+     Registers a new ServicePrincipalName on the target user or computer.
+     Classic step for Kerberoasting setups or service impersonation.
+   command: "addspn.py {{dc_host}} -u {{domain}}/{{username}} -p {{password}} -t {{target}} -s {{spn|http/target.domain.local}}"
+
+ - title: addspn - remove spn
+   desc: |
+     Removes a specific SPN from the target account.
+     Use for cleanup after an engagement or to break Kerberoast exposure.
+   command: "addspn.py {{dc_host}} -u {{domain}}/{{username}} -p {{password}} -t {{target}} -s {{spn|http/target.domain.local}} -r"
+
+ - title: addspn - clear all spns
+   desc: |
+     Removes every SPN from the target account at once.
+     Destructive; confirm the target before running in production.
+   command: "addspn.py {{dc_host}} -u {{domain}}/{{username}} -p {{password}} -t {{target}} -c"
+
+ - title: addspn - add via additional hostname
+   desc: |
+     Adds the SPN through msDS-AdditionalDnsHostName instead of servicePrincipalName.
+     Bypasses checks that only inspect the SPN attribute; useful for shadow-credential style setups.
+   command: "addspn.py {{dc_host}} -u {{domain}}/{{username}} -p {{password}} -t {{target}} -s {{spn|host/evil.domain.local}} -a"
+
+ - title: addspn - kerberos auth with hashes
+   desc: |
+     Authenticates with Kerberos or Pass-the-Hash instead of a cleartext password.
+     Use when operating from a host with only hashes or a ccache available.
+   command: "addspn.py {{dc_host}} -u {{domain}}/{{username}} -hashes {{lm_hash|aad3b435b51404eeaad3b435b51404ee}}:{{nt_hash}} -k -t {{target}} -s {{spn|http/target.domain.local}} -dc-ip {{dc_ip}}"

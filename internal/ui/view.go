@@ -1,63 +1,39 @@
 // Package ui provides the terminal user interface for arsenal-ng.
 //
-// This file contains the main View() router function that routes to appropriate
-// view renderers based on application state, and common render functions like
-// renderHeader() and renderFooter() used across multiple views.
+// App implements tea.Model and composes one sub-model per view. Views
+// report outcomes; the parent owns cross-view transitions and shared data.
 package ui
 
 import (
-	"fmt"
+	tea "charm.land/bubbletea/v2"
 
-	"github.com/charmbracelet/lipgloss"
-
-	"github.com/halilkirazkaya/arsenal-ng/internal/config"
+	"github.com/halilkirazkaya/arsenal-ng/internal/ui/help"
 )
 
-// View implements tea.Model. Routes to appropriate view based on state.
-func (m App) View() string {
-	switch m.state {
-	case stateSearch:
-		return m.viewSearch()
-	case stateArgs:
-		return m.viewArgs()
-	case stateShowVars:
-		return m.viewShowVars()
-	case stateShowTools:
-		return m.viewShowTools()
-	case stateHelp:
-		return m.viewHelp()
+// =============================================================================
+// View Rendering
+// =============================================================================
+
+// View implements tea.Model and delegates rendering to the active view.
+func (m App) View() tea.View {
+	v := tea.NewView(m.render())
+	v.AltScreen = true
+	return v
+}
+
+// render builds the active view as a plain string.
+func (m App) render() string {
+	switch m.view {
+	case viewSearch:
+		return m.search.View(m.globals.All())
+	case viewArgs:
+		return m.args.View(m.Width())
+	case viewVariables:
+		return m.variables.View(m.globals.All())
+	case viewTools:
+		return m.tools.View(m.cheats)
+	case viewHelp:
+		return help.View()
 	}
 	return ""
-}
-
-// =============================================================================
-// Common Render Functions
-// =============================================================================
-
-// renderHeader renders the application header with logo and version.
-func (m App) renderHeader() string {
-	logo := logoStyle.Render(config.Logo)
-	version := versionStyle.Render(" " + config.GetVersionInfo())
-	return lipgloss.JoinHorizontal(lipgloss.Bottom, logo, version)
-}
-
-// renderFooter renders the footer with status information and help text.
-func (m App) renderFooter() string {
-	// Status count
-	cursorPos := m.cursor + 1
-	if m.cursor < 0 {
-		cursorPos = 0
-	}
-	status := statusBarStyle.Render(fmt.Sprintf(" %d/%d ", cursorPos, len(m.filtered)))
-
-	// Variable count (if any)
-	varInfo := ""
-	if count := m.globals.Count(); count > 0 {
-		varInfo = varCountStyle.Render(fmt.Sprintf("│ active variable count: %d ", count))
-	}
-
-	// Help text
-	help := statusBarStyle.Render("│ ↑/↓: nav │ set key=value │ unset key │ variables │ tools │ help │ esc: quit")
-
-	return status + varInfo + help
 }

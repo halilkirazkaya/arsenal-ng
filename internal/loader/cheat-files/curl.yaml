@@ -50,7 +50,7 @@ actions:
      You must manually set the 'Content-Type: application/json' header for the server to parse the data correctly. 
      This is the standard way to interact with modern RESTful APIs. 
      Be careful with shell quoting when writing the JSON string directly in the terminal.
-   command: "curl -X POST -H \"Content-Type: application/json\" -d '{{json_data|{\"key\":\"value\"}}}' {{url}}"
+   command: "curl -X POST -H \"Content-Type: application/json\" -d '{{json_data}}' {{url}}"
 
  - title: curl - upload a file
    desc: |

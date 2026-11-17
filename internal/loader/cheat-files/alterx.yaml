@@ -26,7 +26,7 @@ actions:
      This allows the user to define exactly how suffixes, prefixes, and separators 
      are combined with the base domain. It is extremely effective when targeting 
      specific naming conventions within an organization, such as environment-based prefixes.
-   command: "alterx -list {{subdomains_file}} -pattern {{custom_pattern|'{{word}}-{{sub}}.{{suffix}}'}}"
+   command: "alterx -list {{subdomains_file}} -pattern {{custom_pattern|word-sub.suffix}}"
 
  - title: alterx - custom payload wordlist
    desc: |

@@ -1,42 +1,49 @@
 // Package ui provides the terminal user interface for arsenal-ng.
 //
-// This file contains the main Update() router function that routes messages
-// to appropriate state handlers based on application state. It also handles
-// global window resize events.
+// App implements tea.Model and composes one sub-model per view. Views
+// report outcomes; the parent owns cross-view transitions and shared data.
 package ui
 
 import (
-	tea "github.com/charmbracelet/bubbletea"
+	tea "charm.land/bubbletea/v2"
+
+	"github.com/halilkirazkaya/arsenal-ng/internal/ui/help"
 )
 
-// Update implements tea.Model. Routes messages to appropriate state handler.
+// =============================================================================
+// Message Routing
+// =============================================================================
+
+// Update implements tea.Model and routes messages to the active view.
 func (m App) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	// Handle window resize globally
-	if msg, ok := msg.(tea.WindowSizeMsg); ok {
+	// Ignore zero-size events so headless resizes never shrink the input.
+	if msg, ok := msg.(tea.WindowSizeMsg); ok && msg.Width > 0 && msg.Height > 0 {
 		m.width = msg.Width
 		m.height = msg.Height
-		m.searchInput.Width = msg.Width - 10
-		// Reinitialize tools table if in tools view
-		if m.state == stateShowTools && m.toolsPerPage > 0 {
-			m = m.initToolsTable()
+		m.search = m.search.Resize(msg.Width, msg.Height)
+		// Tables cache their rows, so rebuild them after a resize.
+		if m.view == viewTools {
+			m.tools = m.tools.Rebuild(m.cheats, m.Width(), m.height)
 		}
-		// Reinitialize vars table if in vars view
-		if m.state == stateShowVars {
-			m = m.initVarsTable()
+		if m.view == viewVariables {
+			m.variables = m.variables.Rebuild(m.globals.All(), m.height, m.Width())
 		}
 	}
 
-	switch m.state {
-	case stateSearch:
+	switch m.view {
+	case viewSearch:
 		return m.updateSearch(msg)
-	case stateArgs:
+	case viewArgs:
 		return m.updateArgs(msg)
-	case stateShowVars:
-		return m.updateShowVars(msg)
-	case stateShowTools:
-		return m.updateShowTools(msg)
-	case stateHelp:
-		return m.updateHelp(msg)
+	case viewVariables:
+		return m.updateVariables(msg)
+	case viewTools:
+		return m.updateTools(msg)
+	case viewHelp:
+		if help.Update(msg) == help.Back {
+			m = m.backToSearch()
+		}
+		return m, nil
 	}
 	return m, nil
 }
