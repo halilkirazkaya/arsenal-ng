@@ -45,7 +45,7 @@ func (m App) applyUnset(query string) App {
 		m.search = m.search.ResetList(m.cheats)
 		return m
 	}
-	log.Printf("Invalid unset command format: %s", query)
+	log.Printf("Invalid unset command format")
 	m.search.StatusMsg = "✗ Usage: unset name"
 	m.search.StatusIsError = true
 	return m
