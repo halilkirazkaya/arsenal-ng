@@ -350,7 +350,7 @@ go build -o bin/arsenal-ng ./cmd/arsenal-ng
 ### Adding New Tools
 
 1. Create a new YAML file in `internal/loader/cheat-files/`
-2. Follow the format above (see [Cheat File Format](#-cheat-file-format))
+2. Follow the format above (see [Cheat File Format](#cheat-file-format))
 3. Rebuild: `make build`
 
 ### Testing
@@ -391,7 +391,17 @@ The easiest way to contribute is by adding new cheat sheet YAML files:
 4. Test your changes locally
 5. Submit a pull request
 
-See [Cheat File Format](#-cheat-file-format) for details.
+See [Cheat File Format](#cheat-file-format) for details.
+
+### Star History
+
+<a href="https://www.star-history.com/?repos=halilkirazkaya%2Farsenal-ng&type=date&legend=bottom-right">
+ <picture>
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=halilkirazkaya/arsenal-ng&type=date&theme=light&legend=top-left" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=halilkirazkaya/arsenal-ng&type=date&legend=top-left" />
+   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=halilkirazkaya/arsenal-ng&type=date&legend=top-left" />
+ </picture>
+</a>
 
 ---
 
