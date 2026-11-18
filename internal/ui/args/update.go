@@ -4,6 +4,7 @@ package args
 
 import (
 	"log"
+	"slices"
 
 	tea "charm.land/bubbletea/v2"
 
@@ -49,7 +50,32 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd, Outcome, string) {
 		case keys.Enter:
 			return m.submit()
 
-		case keys.Tab, keys.Down:
+		case keys.Tab:
+			// Tab completes a path when there is a suggestion left to
+			// append; otherwise it moves on like ↓. The empty-match
+			// guard matters: after Ctrl+P with no matches bubbles can
+			// leave the suggestion index at -1, where
+			// CurrentSuggestion would index out of bounds.
+			in := m.Inputs[m.Cursor]
+			if len(in.MatchedSuggestions()) == 0 || len(in.CurrentSuggestion()) <= len(in.Value()) {
+				return m.Next(), nil, Stay, ""
+			}
+			// The suggestion list is a cached filesystem snapshot, so a
+			// selected entry may have vanished since it was listed. If
+			// the selection no longer exists, refresh: with remaining
+			// matches show the new list and wait for another Tab
+			// instead of inserting a path the user did not select;
+			// with no matches left, advance like ↓.
+			if !slices.Contains(pathSuggestions(in.Value()), in.CurrentSuggestion()) {
+				m.suggest()
+				in = m.Inputs[m.Cursor]
+				if len(in.MatchedSuggestions()) == 0 {
+					return m.Next(), nil, Stay, ""
+				}
+				return m, nil, Stay, ""
+			}
+
+		case keys.Down:
 			return m.Next(), nil, Stay, ""
 
 		case keys.ShiftTab, keys.Up:
@@ -57,7 +83,11 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd, Outcome, string) {
 		}
 	}
 
+	before := m.Inputs[m.Cursor].Value()
 	m.Inputs[m.Cursor], cmd = m.Inputs[m.Cursor].Update(msg)
+	if m.Inputs[m.Cursor].Value() != before {
+		m.suggest()
+	}
 	return m, cmd, Stay, ""
 }
 

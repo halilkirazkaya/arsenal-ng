@@ -55,6 +55,7 @@ func New(cheat *model.Cheat, globals *variables.Store) Model {
 		ti.CharLimit = config.ArgCharLimit
 		ti.SetWidth(40)
 		ti.SetValue(arg.Value)
+		ti.ShowSuggestions = true
 
 		if arg.Value == "" && firstEmpty == -1 {
 			firstEmpty = i
@@ -70,6 +71,7 @@ func New(cheat *model.Cheat, globals *variables.Store) Model {
 	} else {
 		m.Cursor = firstEmpty
 	}
+	m.suggest()
 
 	return m
 }
@@ -79,6 +81,7 @@ func (m Model) Next() Model {
 	m.Inputs[m.Cursor].Blur()
 	m.Cursor = (m.Cursor + 1) % len(m.Args)
 	m.Inputs[m.Cursor].Focus()
+	m.suggest()
 	return m
 }
 
@@ -90,5 +93,6 @@ func (m Model) Prev() Model {
 		m.Cursor = len(m.Args) - 1
 	}
 	m.Inputs[m.Cursor].Focus()
+	m.suggest()
 	return m
 }
