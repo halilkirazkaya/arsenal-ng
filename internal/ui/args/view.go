@@ -40,7 +40,7 @@ func (m Model) View(width int) string {
 
 	// Footer documents the form keys.
 	b.WriteString("\n")
-	b.WriteString(theme.Help.Render("tab: complete │ ↓: next field │ shift+tab/↑: previous field │ ctrl+n/p: browse matches │ enter: confirm │ esc: back"))
+	b.WriteString(theme.Help.Render("tab: complete path/next field │ ↓: next field │ shift+tab/↑: previous field │ ctrl+n/p: browse matches │ enter: confirm │ esc: back"))
 
 	return b.String()
 }

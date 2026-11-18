@@ -7,6 +7,8 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"unicode"
+	"unicode/utf8"
 )
 
 // =============================================================================
@@ -49,6 +51,12 @@ func pathSuggestions(value string) []string {
 		if strings.HasPrefix(name, ".") && !strings.HasPrefix(base, ".") {
 			continue
 		}
+		// Bubbles stores suggestions as runes without sanitizing them, so a
+		// name with control characters (e.g. a newline) would land in the
+		// field literally; see completableName.
+		if !completableName(name) {
+			continue
+		}
 		if isDir(readDir, e) {
 			name += "/"
 		}
@@ -71,12 +79,26 @@ func hasAnyPrefix(s string, prefixes ...string) bool {
 	return false
 }
 
+// completableName reports whether a directory entry can round-trip through
+// Bubbles' textinput suggestions. Control characters (newlines, tabs, ...)
+// would land in the single-line field literally, and invalid UTF-8
+// collapses to U+FFFD when stored as runes, so "bad\xff" becomes
+// indistinguishable from a real "bad�" and Tab could complete the wrong
+// file. Valid UTF-8 containing a literal U+FFFD stays completable.
+func completableName(name string) bool {
+	return utf8.ValidString(name) && strings.IndexFunc(name, unicode.IsControl) < 0
+}
+
 // isDir reports whether the entry is a directory, following symlinks.
+// dir is concatenated, not filepath.Join'ed: dir may intentionally contain
+// ".." (e.g. "./alias/../"), which Join would clean away and resolve the
+// symlink target in the wrong directory. dir always ends in a separator
+// here because it comes from filepath.Split (or the "~/" expansion above).
 func isDir(dir string, e fs.DirEntry) bool {
 	if e.Type()&fs.ModeSymlink == 0 {
 		return e.IsDir()
 	}
-	info, err := os.Stat(filepath.Join(dir, e.Name()))
+	info, err := os.Stat(dir + e.Name())
 	return err == nil && info.IsDir()
 }
 

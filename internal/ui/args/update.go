@@ -4,7 +4,9 @@ package args
 
 import (
 	"log"
+	"slices"
 
+	"charm.land/bubbles/v2/textinput"
 	tea "charm.land/bubbletea/v2"
 
 	"github.com/halilkirazkaya/arsenal-ng/internal/keys"
@@ -28,6 +30,18 @@ const (
 	// Cancel quits the application without a command.
 	Cancel
 )
+
+// staleSuggestion reports whether the selected completion no longer exists
+// on disk. Bubbles caches matches from an earlier keystroke while the
+// filesystem may change underneath, so Tab revalidates the selection
+// through the same pathSuggestions mechanism before accepting it.
+func staleSuggestion(in textinput.Model) bool {
+	sel := in.CurrentSuggestion()
+	if sel == "" || len(in.MatchedSuggestions()) == 0 {
+		return false
+	}
+	return !slices.Contains(pathSuggestions(in.Value()), sel)
+}
 
 // =============================================================================
 // Message Handling
@@ -58,6 +72,18 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd, Outcome, string) {
 			in := m.Inputs[m.Cursor]
 			if len(in.MatchedSuggestions()) == 0 || len(in.CurrentSuggestion()) <= len(in.Value()) {
 				return m.Next(), nil, Stay, ""
+			}
+			// The suggestion list is a cached filesystem snapshot, so a
+			// selected entry may have vanished since it was listed. Tab
+			// must complete to something that still exists: refresh and
+			// fall through only if the selection survives, otherwise
+			// advance when nothing matches anymore.
+			if staleSuggestion(in) {
+				m.suggest()
+				in = m.Inputs[m.Cursor]
+				if len(in.MatchedSuggestions()) == 0 {
+					return m.Next(), nil, Stay, ""
+				}
 			}
 
 		case keys.Down:

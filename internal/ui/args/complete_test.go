@@ -68,50 +68,29 @@ func TestTabCompletesPathThenAdvances(t *testing.T) {
 	}
 }
 
-// chdirTemp creates a temp dir, moves the test into it, and restores the
-// previous working directory on cleanup.
-func chdirTemp(t *testing.T) string {
-	t.Helper()
-	dir := t.TempDir()
-	old, err := os.Getwd()
-	if err != nil {
-		t.Fatal(err)
-	}
-	if err := os.Chdir(dir); err != nil {
-		t.Fatal(err)
-	}
-	t.Cleanup(func() { _ = os.Chdir(old) })
-	return dir
-}
-
 // TestPathSuggestionsCoversRelativeAbsoluteAndSymlinks verifies the ./ and
 // ../ prefixes, absolute paths, symlink-to-directory trailing slashes, the
 // exact-match exclusion, and failed directory reads.
 func TestPathSuggestionsCoversRelativeAbsoluteAndSymlinks(t *testing.T) {
 	g := testStore(t, nil) // sets HOME to a temp dir
 	_ = g
-	dir := chdirTemp(t)
-	work := filepath.Join(dir, "work")
-	docs := filepath.Join(dir, "docs")
-	for _, d := range []string{work, docs} {
+	work := t.TempDir()
+	docs := filepath.Join(work, "docs")
+	for _, d := range []string{filepath.Join(work, "work"), docs} {
 		if err := os.MkdirAll(d, 0o755); err != nil {
 			t.Fatal(err)
 		}
 	}
 	for _, f := range []string{"work/report", "work/report.txt"} {
-		if err := os.WriteFile(filepath.Join(dir, f), nil, 0o644); err != nil {
+		if err := os.WriteFile(filepath.Join(work, f), nil, 0o644); err != nil {
 			t.Fatal(err)
 		}
 	}
 	// "work/link" is a symlink to ../docs, a directory.
-	if err := os.Symlink(docs, filepath.Join(work, "link")); err != nil {
+	if err := os.Symlink(docs, filepath.Join(work, "work", "link")); err != nil {
 		t.Fatal(err)
 	}
-
-	// Path reads below are relative to "work".
-	if err := os.Chdir(work); err != nil {
-		t.Fatal(err)
-	}
+	t.Chdir(filepath.Join(work, "work"))
 
 	// Exact matches are excluded so the longer sibling stays completable.
 	if got := pathSuggestions("./report"); !slices.Equal(got, []string{"./report.txt"}) {
@@ -127,7 +106,8 @@ func TestPathSuggestionsCoversRelativeAbsoluteAndSymlinks(t *testing.T) {
 	}
 
 	// Absolute paths and nonexistent directories.
-	if got := pathSuggestions(filepath.Join(dir, "work", "re")); !slices.Equal(got, []string{filepath.Join(dir, "work", "report"), filepath.Join(dir, "work", "report.txt")}) {
+	abs := filepath.Join(work, "work")
+	if got := pathSuggestions(filepath.Join(abs, "re")); !slices.Equal(got, []string{filepath.Join(abs, "report"), filepath.Join(abs, "report.txt")}) {
 		t.Fatalf("pathSuggestions(abs) = %v", got)
 	}
 	if got := pathSuggestions("./nope/x"); got != nil {
@@ -230,5 +210,116 @@ func TestMatchesPagination(t *testing.T) {
 		if !strings.Contains(v, want) {
 			t.Fatalf("second page missing %q:\n%s", want, v)
 		}
+	}
+}
+
+// TestCompletableName verifies which directory entries may round-trip
+// through Bubbles' textinput suggestions: control characters would land in
+// the single-line field literally, and invalid UTF-8 collapses to U+FFFD
+// when stored as runes, making "bad\xff" indistinguishable from a real
+// "bad�" so Tab could complete the wrong file. A literal U+FFFD inside a
+// valid name stays completable.
+func TestCompletableName(t *testing.T) {
+	for _, tc := range []struct {
+		name string
+		want bool
+	}{
+		{"report.txt", true},
+		{"ok�name", true},
+		{"bad\nname", false},
+		{"bad\tname", false},
+		{"bad\xffname", false},
+		{"", true},
+	} {
+		if got := completableName(tc.name); got != tc.want {
+			t.Errorf("completableName(%q) = %v, want %v", tc.name, got, tc.want)
+		}
+	}
+}
+
+// TestPathSuggestionsSkipsUnsafeNames verifies a newline in a filename
+// never reaches Bubbles: it would land in the field literally while the
+// inline preview hides it. A valid name containing U+FFFD still completes.
+func TestPathSuggestionsSkipsUnsafeNames(t *testing.T) {
+	_ = testStore(t, nil)
+	work := t.TempDir()
+	good := "ok�name"
+	for _, name := range []string{"good.txt", good, "bad\nname"} {
+		if err := os.WriteFile(filepath.Join(work, name), nil, 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+	t.Chdir(work)
+
+	if got, want := pathSuggestions("./good"), []string{"./good.txt"}; !slices.Equal(got, want) {
+		t.Fatalf("pathSuggestions(./good) = %v, want %v", got, want)
+	}
+	if got := pathSuggestions("./bad"); got != nil {
+		t.Fatalf("pathSuggestions(./bad) = %v, want nil", got)
+	}
+	if got, want := pathSuggestions("./ok"), []string{"./" + good}; !slices.Equal(got, want) {
+		t.Fatalf("pathSuggestions(./ok) = %v, want %v", got, want)
+	}
+}
+
+// TestTabRevalidatesDeletedFile is the regression test for a stale cached
+// match: if the selected entry disappears after it was listed, Tab must
+// not insert the ghost path and must advance when nothing matches.
+func TestTabRevalidatesDeletedFile(t *testing.T) {
+	_ = testStore(t, nil)
+	work := t.TempDir()
+	if err := os.WriteFile(filepath.Join(work, "report.txt"), nil, 0o644); err != nil {
+		t.Fatal(err)
+	}
+	t.Chdir(work)
+
+	tab := tea.KeyPressMsg{Code: tea.KeyTab}
+	m := New(plainCheat(), testStore(t, nil))
+	m.Inputs[0].SetValue("./rep")
+	m.suggest()
+	if got := m.Inputs[0].MatchedSuggestions(); !slices.Equal(got, []string{"./report.txt"}) {
+		t.Fatalf("setup: matched = %v", got)
+	}
+	if err := os.Remove(filepath.Join(work, "report.txt")); err != nil {
+		t.Fatal(err)
+	}
+
+	m, _, _, _ = m.Update(tab) // must not insert the deleted path
+	if got := m.Inputs[0].Value(); got != "./rep" {
+		t.Fatalf("value after stale tab = %q, want ./rep", got)
+	}
+	if m.Cursor != 1 {
+		t.Fatalf("cursor after stale tab = %d, want 1", m.Cursor)
+	}
+}
+
+// TestTabCompletesSymlinkThroughDotDot verifies isDir stats through the
+// uncleaned directory path: alias -> ../else/nested, so "./alias/../"
+// lists else and "item" there is a symlink to a directory. filepath.Join
+// would clean "alias/../item" down to "item" and stat the wrong directory,
+// dropping the trailing "/"; concatenating keeps the lookup on target.
+func TestTabCompletesSymlinkThroughDotDot(t *testing.T) {
+	_ = testStore(t, nil)
+	work := t.TempDir()
+	target := filepath.Join(work, "targetdir")
+	nested := filepath.Join(work, "else", "nested")
+	for _, d := range []string{target, nested, filepath.Join(work, "work")} {
+		if err := os.MkdirAll(d, 0o755); err != nil {
+			t.Fatal(err)
+		}
+	}
+	// else/item is a symlink to a directory.
+	if err := os.Symlink(target, filepath.Join(work, "else", "item")); err != nil {
+		t.Fatal(err)
+	}
+	// work/alias points at ../else/nested, a directory.
+	if err := os.Symlink(filepath.Join(work, "else", "nested"), filepath.Join(work, "work", "alias")); err != nil {
+		t.Fatal(err)
+	}
+	t.Chdir(filepath.Join(work, "work"))
+
+	// ./alias/../ lists else: the dir-symlink keeps "/", the real dir too.
+	if got, want := pathSuggestions("./alias/../"), []string{"./alias/../item/", "./alias/../nested/"}; !slices.Equal(got, want) {
+		t.Fatalf("pathSuggestions(./alias/../) = %v, want %v", got, want)
 	}
 }
