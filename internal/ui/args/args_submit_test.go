@@ -63,7 +63,7 @@ func TestSubmitQuotesCompletedPathWithSpace(t *testing.T) {
 	if oc != Submit {
 		t.Fatalf("submit outcome = %v, want Submit", oc)
 	}
-	if cmd != "cat '~/annual report.txt'" {
+	if cmd != "cat ~/'annual report.txt'" {
 		t.Fatalf("submit must quote spaced path as one word: %q", cmd)
 	}
 }

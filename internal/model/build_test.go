@@ -23,6 +23,8 @@ func TestBuildCommand(t *testing.T) {
 		{"default value used", "ffuf {{w|admin}}", []Argument{{Name: "w", Value: "admin"}}, "ffuf admin"},
 		{"no placeholders", "ls -la", []Argument{{Name: "x", Value: "y"}}, "ls -la"},
 		{"path with space quoted", "cat {{file}}", []Argument{{Name: "file", Value: "./annual report.txt"}}, "cat './annual report.txt'"},
+		{"home path with space quoted", "cat {{file}}", []Argument{{Name: "file", Value: "~/annual report.txt"}}, "cat ~/'annual report.txt'"},
+		{"plain home path untouched", "cat {{file}}", []Argument{{Name: "file", Value: "~/report.txt"}}, "cat ~/report.txt"},
 		{"plain path untouched", "cat {{file}}", []Argument{{Name: "file", Value: "./report.txt"}}, "cat ./report.txt"},
 		{"non-path with space untouched", "echo {{msg}}", []Argument{{Name: "msg", Value: "hello world"}}, "echo hello world"},
 		{"quoted placeholder untouched", `cat "{{file}}"`, []Argument{{Name: "file", Value: "./annual report.txt"}}, `cat "./annual report.txt"`},

@@ -48,12 +48,15 @@ func BuildCommand(command string, args []Argument) string {
 // needsShellQuoteAt reports whether value must be quoted at the placeholder
 // spanning command[start:end]. Only standalone words (bounded by whitespace
 // or string edges) are quoted, and only when the same span is not already
-// inside single or double quotes in the template.
+// inside single or double quotes in the template. A leading ~/ is excluded
+// from the metacharacter check so plain home-relative paths stay unquoted
+// and expandable; shellQuote then keeps ~/ outside the quotes.
 func needsShellQuoteAt(command string, start, end int, value string) bool {
 	if !looksLikePath(value) || !isStandaloneWordAt(command, start, end) || isQuotedAt(command, start) {
 		return false
 	}
-	return strings.ContainsAny(value, " \t\n\"'\\$`!*?[]{}()<>|&;~#")
+	rest := strings.TrimPrefix(value, "~/")
+	return strings.ContainsAny(rest, " \t\n\"'\\$`!*?[]{}()<>|&;~#")
 }
 
 // isStandaloneWordAt reports whether command[start:end] spans a whole shell
@@ -109,8 +112,19 @@ func looksLikePath(value string) bool {
 		strings.HasPrefix(value, "../")
 }
 
-// shellQuote wraps s in single quotes, escaping embedded quotes the
-// standard POSIX way ('foo'"'"'bar').
+// shellQuote quotes s as one shell word, keeping a leading ~/ outside the
+// quotes so the shell still expands it to the home directory: ~/report.txt
+// stays unquoted, ~/annual report.txt becomes ~/'annual report.txt'.
+// Embedded single quotes use the standard POSIX '"'"' idiom.
 func shellQuote(s string) string {
+	if after, ok := strings.CutPrefix(s, "~/"); ok {
+		return "~/" + quoteWord(after)
+	}
+	return quoteWord(s)
+}
+
+// quoteWord wraps s in single quotes, escaping embedded quotes the
+// standard POSIX way ('foo'"'"'bar').
+func quoteWord(s string) string {
 	return "'" + strings.ReplaceAll(s, "'", "'\"'\"'") + "'"
 }

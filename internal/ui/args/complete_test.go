@@ -293,6 +293,49 @@ func TestTabRevalidatesDeletedFile(t *testing.T) {
 	}
 }
 
+// TestTabDoesNotAcceptDifferentPath is the regression test for a stale
+// selection with surviving siblings: selecting ./report-b.txt, deleting it,
+// then pressing Tab must not insert ./report-a.txt. The refreshed list is
+// shown instead and Tab waits; a follow-up Tab completes the visible match.
+func TestTabDoesNotAcceptDifferentPath(t *testing.T) {
+	_ = testStore(t, nil)
+	work := t.TempDir()
+	for _, f := range []string{"report-a.txt", "report-b.txt"} {
+		if err := os.WriteFile(filepath.Join(work, f), nil, 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+	t.Chdir(work)
+
+	tab := tea.KeyPressMsg{Code: tea.KeyTab}
+	m := New(plainCheat(), testStore(t, nil))
+	m.Inputs[0].SetValue("./report-")
+	m.suggest()
+	m, _, _, _ = m.Update(tea.KeyPressMsg{Code: 'n', Mod: tea.ModCtrl})
+	if got := m.Inputs[0].CurrentSuggestion(); got != "./report-b.txt" {
+		t.Fatalf("setup: selected = %q, want ./report-b.txt", got)
+	}
+	if err := os.Remove(filepath.Join(work, "report-b.txt")); err != nil {
+		t.Fatal(err)
+	}
+
+	m, _, _, _ = m.Update(tab) // must not insert ./report-a.txt
+	if got := m.Inputs[0].Value(); got != "./report-" {
+		t.Fatalf("value after stale tab = %q, want ./report-", got)
+	}
+	if m.Cursor != 0 {
+		t.Fatalf("cursor after stale tab with matches = %d, want 0", m.Cursor)
+	}
+	if got := m.Inputs[0].MatchedSuggestions(); !slices.Equal(got, []string{"./report-a.txt"}) {
+		t.Fatalf("refreshed matches = %v, want [./report-a.txt]", got)
+	}
+
+	m, _, _, _ = m.Update(tab) // second Tab completes the visible match
+	if got := m.Inputs[0].Value(); got != "./report-a.txt" {
+		t.Fatalf("value after 2nd tab = %q, want ./report-a.txt", got)
+	}
+}
+
 // TestTabCompletesSymlinkThroughDotDot verifies isDir stats through the
 // uncleaned directory path: alias -> ../else/nested, so "./alias/../"
 // lists else and "item" there is a symlink to a directory. filepath.Join
