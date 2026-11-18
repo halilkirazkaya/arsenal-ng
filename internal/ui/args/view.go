@@ -40,7 +40,7 @@ func (m Model) View(width int) string {
 
 	// Footer documents the form keys.
 	b.WriteString("\n")
-	b.WriteString(theme.Help.Render("tab/↓: next │ shift+tab/↑: prev │ ctrl+n/p: cycle │ enter: confirm │ esc: back"))
+	b.WriteString(theme.Help.Render("tab: complete │ ↓: next field │ shift+tab/↑: previous field │ ctrl+n/p: browse matches │ enter: confirm │ esc: back"))
 
 	return b.String()
 }
@@ -62,6 +62,11 @@ func (m Model) row(index int, arg model.Argument) string {
 // matchPage is how many path completions show under the focused field.
 const matchPage = 8
 
+// matchPad lines the completion list up under the focused input. It must
+// track the fixed parts of row()'s format: the 2-cell cursor marker, the
+// 15-column name field, and the " = " separator.
+const matchPad = 2 + 15 + 3
+
 // matches lists the focused field's path completions when more than one
 // fits, paged around the one Ctrl+N/Ctrl+P has selected.
 func (m Model) matches(index int) string {
@@ -80,7 +85,7 @@ func (m Model) matches(index int) string {
 	end := min(start+matchPage, len(all))
 
 	var b strings.Builder
-	pad := strings.Repeat(" ", 22)
+	pad := strings.Repeat(" ", matchPad)
 	for i := start; i < end; i++ {
 		name := strings.TrimPrefix(all[i], dir)
 		if i == cur {

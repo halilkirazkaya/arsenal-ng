@@ -15,10 +15,11 @@ import (
 
 // pathSuggestions lists filesystem entries that extend value, keeping the
 // directory part exactly as typed (including a leading "~/") so Tab
-// completion only appends. Directories end in "/" so Tab can continue
-// into them. Hidden entries only appear once the typed name starts with ".".
-// Only values that look like paths touch the filesystem, so IPs, URLs and
-// usernames cost nothing.
+// completion only appends. Entries that already equal value are skipped so
+// a longer sibling ("./report" vs "./report.txt") stays completable.
+// Directories end in "/" so Tab can continue into them. Hidden entries
+// only appear once the typed name starts with ".". Only values that look
+// like paths touch the filesystem, so IPs, URLs and usernames cost nothing.
 func pathSuggestions(value string) []string {
 	if !hasAnyPrefix(value, "/", "~/", "./", "../") {
 		return nil
@@ -51,7 +52,11 @@ func pathSuggestions(value string) []string {
 		if isDir(readDir, e) {
 			name += "/"
 		}
-		out = append(out, dir+name)
+		full := dir + name
+		if full == value {
+			continue
+		}
+		out = append(out, full)
 	}
 	return out
 }

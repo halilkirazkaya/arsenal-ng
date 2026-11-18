@@ -51,9 +51,12 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd, Outcome, string) {
 
 		case keys.Tab:
 			// Tab completes a path when there is a suggestion left to
-			// append; otherwise it moves on like ↓.
+			// append; otherwise it moves on like ↓. The empty-match
+			// guard matters: after Ctrl+P with no matches bubbles can
+			// leave the suggestion index at -1, where
+			// CurrentSuggestion would index out of bounds.
 			in := m.Inputs[m.Cursor]
-			if len(in.CurrentSuggestion()) <= len(in.Value()) {
+			if len(in.MatchedSuggestions()) == 0 || len(in.CurrentSuggestion()) <= len(in.Value()) {
 				return m.Next(), nil, Stay, ""
 			}
 
