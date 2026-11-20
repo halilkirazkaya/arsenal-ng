@@ -4,74 +4,144 @@ tags: [password-cracking, zip, security, forensics, pentest, brute-force]
 # === PASSWORD RECOVERY ACTIONS ===
 
 actions:
- - title: fcrackzip - dictionary attack
-   desc: |
-     Performs a password recovery attempt using a specified wordlist. This is generally the most efficient method if the password is a common word or part of a known leak. 
-     The -u flag is highly recommended as it uses unzip to weed out false positives, ensuring the found password actually decrypts the file.
-     This method is significantly faster than brute-force for complex but common passwords.
+ - title:
+     en: fcrackzip - dictionary attack
+     tr: fcrackzip - sözlük saldırısı
+   desc:
+     en: |
+       Performs a password recovery attempt using a specified wordlist. This is generally the most efficient method if the password is a common word or part of a known leak. 
+       The -u flag is highly recommended as it uses unzip to weed out false positives, ensuring the found password actually decrypts the file.
+       This method is significantly faster than brute-force for complex but common passwords.
+     tr: |
+       Belirtilen bir wordlist ile parola kurtarma denemesi yapar. Parola yaygın bir sözcükse veya bilinen bir sızıntının parçasıysa genellikle en verimli yöntemdir.
+       -u bayrağı şiddetle önerilir; yanlış pozitifleri elemek için unzip kullanır ve bulunan parolanın dosyayı gerçekten çözdüğünü garantiler.
+       Bu yöntem, karmaşık ama yaygın parolalarda kaba kuvvetten belirgin şekilde hızlıdır.
    command: "fcrackzip -D -p {{wordlist|/usr/share/wordlists/rockyou.txt}} -u {{zip_file}}"
 
- - title: fcrackzip - brute force lowercase alphabetic
-   desc: |
-     Attempts to crack the zip file using a brute-force approach with lowercase characters (a-z). 
-     Use this when dictionary attacks fail and you suspect a simple alphabetic password. 
-     The -l flag defines the length range (min-max) to search; keeping this range narrow significantly reduces completion time.
-     The -b flag explicitly enables the brute-force algorithm.
+ - title:
+     en: fcrackzip - brute force lowercase alphabetic
+     tr: fcrackzip - küçük harf kaba kuvvet saldırısı
+   desc:
+     en: |
+       Attempts to crack the zip file using a brute-force approach with lowercase characters (a-z). 
+       Use this when dictionary attacks fail and you suspect a simple alphabetic password. 
+       The -l flag defines the length range (min-max) to search; keeping this range narrow significantly reduces completion time.
+       The -b flag explicitly enables the brute-force algorithm.
+     tr: |
+       Zip dosyasını küçük harflerle (a-z) kaba kuvvet yaklaşımıyla kırmaya çalışır.
+       Sözlük saldırıları başarısız olduğunda ve basit alfabetik bir paroladan şüphelenildiğinde kullanın.
+       -l bayrağı aranacak uzunluk aralığını (min-maks) tanımlar; aralığı dar tutmak tamamlanma süresini ciddi ölçüde kısaltır.
+       -b bayrağı kaba kuvvet algoritmasını açıkça etkinleştirir.
    command: "fcrackzip -b -c a -l {{min_length|1}}-{{max_length|6}} -u {{zip_file}}"
 
- - title: fcrackzip - brute force numeric (PIN)
-   desc: |
-     Specifically targets numeric passwords by using only the digit charset (0-9). 
-     This is much faster than a full alphanumeric search and is ideal for recovering PINs or date-based passwords. 
-     If you know the exact length of the PIN, set the min and max length to the same value to optimize performance.
-     This is often the first brute-force attempt performed after dictionary attacks.
+ - title:
+     en: fcrackzip - brute force numeric (PIN)
+     tr: fcrackzip - sayısal kaba kuvvet saldırısı (PIN)
+   desc:
+     en: |
+       Specifically targets numeric passwords by using only the digit charset (0-9). 
+       This is much faster than a full alphanumeric search and is ideal for recovering PINs or date-based passwords. 
+       If you know the exact length of the PIN, set the min and max length to the same value to optimize performance.
+       This is often the first brute-force attempt performed after dictionary attacks.
+     tr: |
+       Yalnızca rakam karakter kümesini (0-9) kullanarak özellikle sayısal parolaları hedefler.
+       Tam alfasayısal aramadan çok daha hızlıdır ve PIN veya tarih tabanlı parolaları kurtarmak için idealdir.
+       PIN'in tam uzunluğunu biliyorsanız performansı iyileştirmek için min ve maks uzunluğu aynı değere ayarlayın.
+       Bu, sözlük saldırılarından sonra yapılan ilk kaba kuvvet denemesidir.
    command: "fcrackzip -b -c 1 -l {{min_length|4}}-{{max_length|6}} -u {{zip_file}}"
 
- - title: fcrackzip - brute force alphanumeric
-   desc: |
-     Searches for passwords containing both lowercase letters and numbers. 
-     This increases complexity and search time significantly compared to single-charset attacks. 
-     The -v (verbose) flag is added here to monitor the progress and see the current passwords being tested.
-     Note that as the length increases, the time required grows exponentially.
+ - title:
+     en: fcrackzip - brute force alphanumeric
+     tr: fcrackzip - alfasayısal kaba kuvvet saldırısı
+   desc:
+     en: |
+       Searches for passwords containing both lowercase letters and numbers. 
+       This increases complexity and search time significantly compared to single-charset attacks. 
+       The -v (verbose) flag is added here to monitor the progress and see the current passwords being tested.
+       Note that as the length increases, the time required grows exponentially.
+     tr: |
+       Hem küçük harf hem rakam içeren parolaları arar.
+       Tek karakter kümeli saldırılara kıyasla karmaşıklığı ve arama süresini belirgin ölçüde artırır.
+       İlerlemeyi izlemek ve o an denenen parolaları görmek için buraya -v (ayrıntılı) bayrağı eklenmiştir.
+       Uzunluk arttıkça gereken sürenin katlanarak büyüdüğünü unutmayın.
    command: "fcrackzip -b -c a1 -l {{min_length|1}}-{{max_length|6}} -u -v {{zip_file}}"
 
- - title: fcrackzip - custom charset brute force
-   desc: |
-     Allows the user to specify a custom set of characters for the brute-force attack. 
-     This is useful if you have partial knowledge of the password composition, such as the inclusion of specific symbols or uppercase letters. 
-     Use the -c flag followed by the literal characters you want to include in the search space.
-     Be careful with shell-special characters in the charset; you may need to escape them or wrap the charset in quotes.
+ - title:
+     en: fcrackzip - custom charset brute force
+     tr: fcrackzip - özel karakter kümeli kaba kuvvet saldırısı
+   desc:
+     en: |
+       Allows the user to specify a custom set of characters for the brute-force attack. 
+       This is useful if you have partial knowledge of the password composition, such as the inclusion of specific symbols or uppercase letters. 
+       Use the -c flag followed by the literal characters you want to include in the search space.
+       Be careful with shell-special characters in the charset; you may need to escape them or wrap the charset in quotes.
+     tr: |
+       Kaba kuvvet saldırısı için özel bir karakter kümesi belirlemenizi sağlar.
+       Belirli semboller veya büyük harfler gibi parola yapısına dair kısmi bilginiz varsa kullanışlıdır.
+       Arama uzayına dahil edilecek karakterleri -c bayrağının ardından yazın.
+       Karakter kümesindeki kabuk (shell) özel karakterlerine dikkat edin; kaçış uygulamanız veya kümeyi tırnak içine almanız gerekebilir.
    command: "fcrackzip -b -c {{charset|aA1!}} -l {{length|5}} -u {{zip_file}}"
 
- - title: fcrackzip - resume or start from specific string
-   desc: |
-     Starts the brute-force sequence from a specific initial string. 
-     This can be used to manually resume a session that was interrupted or to skip ahead in a predictable sequence. 
-     It is particularly useful for distributed cracking where you want different machines to start at different points in the keyspace.
-     The length parameter (-l) must be compatible with the initial password provided.
+ - title:
+     en: fcrackzip - resume or start from specific string
+     tr: fcrackzip - belirli dizeden sürdürme veya başlatma
+   desc:
+     en: |
+       Starts the brute-force sequence from a specific initial string. 
+       This can be used to manually resume a session that was interrupted or to skip ahead in a predictable sequence. 
+       It is particularly useful for distributed cracking where you want different machines to start at different points in the keyspace.
+       The length parameter (-l) must be compatible with the initial password provided.
+     tr: |
+       Kaba kuvvet dizisini belirli bir başlangıç dizesinden başlatır.
+       Kesintiye uğramış bir oturumu elle sürdürmek veya öngörülebilir bir dizide ileri atlamak için kullanılabilir.
+       Farklı makinelerin anahtar uzayında farklı noktalardan başlamasını istediğiniz dağıtık kırma işleri için özellikle kullanışlıdır.
+       Uzunluk parametresi (-l), verilen başlangıç parolasıyla uyumlu olmalıdır.
    command: "fcrackzip -b -p {{start_string|aaaa}} -l {{length|4}} -u {{zip_file}}"
 
 # === UTILITY AND PERFORMANCE ===
 
- - title: fcrackzip - perform benchmark
-   desc: |
-     Executes a small internal benchmark to test the cracking speed on your current hardware. 
-     This helps in estimating how long a large-scale brute-force attack might take given the current CPU constraints. 
-     It does not attempt to crack a specific file but rather tests the raw performance of the internal algorithms.
-     Use this to compare performance across different systems or virtual machine configurations.
+ - title:
+     en: fcrackzip - perform benchmark
+     tr: fcrackzip - hız testi yapma
+   desc:
+     en: |
+       Executes a small internal benchmark to test the cracking speed on your current hardware. 
+       This helps in estimating how long a large-scale brute-force attack might take given the current CPU constraints. 
+       It does not attempt to crack a specific file but rather tests the raw performance of the internal algorithms.
+       Use this to compare performance across different systems or virtual machine configurations.
+     tr: |
+       Mevcut donanımınızdaki kırma hızını test etmek için küçük bir dahili hız testi çalıştırır.
+       Mevcut CPU kısıtları altında büyük ölçekli bir kaba kuvvet saldırısının ne kadar sürebileceğini tahmin etmeye yardımcı olur.
+       Belirli bir dosyayı kırmaya çalışmaz; dahili algoritmaların ham performansını test eder.
+       Farklı sistemler veya sanal makine yapılandırmaları arasında performans karşılaştırmak için kullanın.
    command: "fcrackzip -B"
 
- - title: fcrackzip - validation check
-   desc: |
-     Performs a sanity-check on the cracking algorithm to ensure it is functioning correctly on the current architecture. 
-     This is a diagnostic tool used to verify that the software was compiled correctly and yields expected results.
-     It is rarely used in daily operations but is vital for troubleshooting unexpected behavior or false negatives.
+ - title:
+     en: fcrackzip - validation check
+     tr: fcrackzip - doğrulama denetimi
+   desc:
+     en: |
+       Performs a sanity-check on the cracking algorithm to ensure it is functioning correctly on the current architecture. 
+       This is a diagnostic tool used to verify that the software was compiled correctly and yields expected results.
+       It is rarely used in daily operations but is vital for troubleshooting unexpected behavior or false negatives.
+     tr: |
+       Kırma algoritmasının mevcut mimaride doğru çalıştığından emin olmak için bir sağlamlık denetimi yapar.
+       Bu, yazılımın doğru derlendiğini ve beklenen sonuçları verdiğini doğrulayan bir tanı aracıdır.
+       Günlük işlemlerde nadiren kullanılır ancak beklenmeyen davranışları veya yanlış negatifleri gidermede hayati önem taşır.
    command: "fcrackzip -V"
 
- - title: fcrackzip - specific method selection
-   desc: |
-     Forces the use of a specific cracking method (e.g., zip2). 
-     Different ZIP compression tools use different encryption standards; while fcrackzip defaults to method 2 (zip2), some older or specific files might require method 0 or 1.
-     Using the wrong method will result in failed recovery even if the password is correct.
-     Check the help output to see which methods are compiled into your specific version of the tool.
+ - title:
+     en: fcrackzip - specific method selection
+     tr: fcrackzip - belirli yöntem seçimi
+   desc:
+     en: |
+       Forces the use of a specific cracking method (e.g., zip2). 
+       Different ZIP compression tools use different encryption standards; while fcrackzip defaults to method 2 (zip2), some older or specific files might require method 0 or 1.
+       Using the wrong method will result in failed recovery even if the password is correct.
+       Check the help output to see which methods are compiled into your specific version of the tool.
+     tr: |
+       Belirli bir kırma yönteminin (örn. zip2) kullanılmasını zorlar.
+       Farklı ZIP sıkıştırma araçları farklı şifreleme standartları kullanır; fcrackzip varsayılan 2. yöntemi (zip2) kullanırken bazı eski veya özel dosyalar 0 ya da 1. yöntemi gerektirebilir.
+       Yanlış yöntem kullanmak, parola doğru olsa bile kurtarmanın başarısız olmasına yol açar.
+       Aracınızın sürümüne hangi yöntemlerin derlendiğini görmek için yardım çıktısına bakın.
    command: "fcrackzip -m {{method_number|2}} -b -l {{length|4}} {{zip_file}}"

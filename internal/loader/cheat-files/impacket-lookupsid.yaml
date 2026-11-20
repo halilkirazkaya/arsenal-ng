@@ -3,61 +3,117 @@ tags: [pentest, enumeration, security, active-directory, smb, reconnaissance, wi
 
 actions:
   # === BASIC ENUMERATION ===
-  - title: impacket-lookupsid - anonymous sid lookup
-    desc: |
-      This command attempts to enumerate SIDs using a null session or anonymous connection. 
-      It is highly effective against older Windows systems or misconfigured environments where LSA access is not properly restricted. 
-      If successful, it reveals valid usernames and groups by translating RIDs to their corresponding account names without requiring valid credentials.
+  - title:
+      en: impacket-lookupsid - anonymous sid lookup
+      tr: impacket-lookupsid - anonim SID araması
+    desc:
+      en: |
+        This command attempts to enumerate SIDs using a null session or anonymous connection. 
+        It is highly effective against older Windows systems or misconfigured environments where LSA access is not properly restricted. 
+        If successful, it reveals valid usernames and groups by translating RIDs to their corresponding account names without requiring valid credentials.
+      tr: |
+        Bu komut, boş oturum veya anonim bağlantıyla SID numaralandırmayı dener.
+        LSA erişiminin düzgün kısıtlanmadığı eski Windows sistemlerinde veya yanlış yapılandırılmış ortamlarda oldukça etkilidir.
+        Başarılı olursa geçerli kimlik bilgisi gerekmeden RID'leri ilgili hesap adlarına çevirerek geçerli kullanıcı adlarını ve grupları ortaya çıkarır.
     command: "impacket-lookupsid {{username|''}}@{{target}}"
 
-  - title: impacket-lookupsid - authenticated enumeration
-    desc: |
-      This action uses valid domain or local credentials to perform a reliable SID enumeration. 
-      By default, the tool iterates through RIDs up to 4000 to identify users, groups, and aliases associated with the target. 
-      This is a crucial step in internal reconnaissance to map out the target's security principal structure and discover hidden accounts.
+  - title:
+      en: impacket-lookupsid - authenticated enumeration
+      tr: impacket-lookupsid - kimlik doğrulamalı numaralandırma
+    desc:
+      en: |
+        This action uses valid domain or local credentials to perform a reliable SID enumeration. 
+        By default, the tool iterates through RIDs up to 4000 to identify users, groups, and aliases associated with the target. 
+        This is a crucial step in internal reconnaissance to map out the target's security principal structure and discover hidden accounts.
+      tr: |
+        Bu eylem, güvenilir SID numaralandırması için geçerli etki alanı veya yerel kimlik bilgileri kullanır.
+        Araç varsayılan olarak hedefle ilişkili kullanıcıları, grupları ve diğer adları belirlemek için RID'leri 4000'e kadar tek tek dener.
+        Hedefin güvenlik aslı yapısını haritalamak ve gizli hesapları keşfetmek için iç keşifte kritik bir adımdır.
     command: "impacket-lookupsid {{domain}}/{{username}}:{{password}}@{{target}}"
 
   # === ADVANCED AUTHENTICATION ===
-  - title: impacket-lookupsid - pass-the-hash enumeration
-    desc: |
-      This command utilizes the Pass-the-Hash (PtH) technique to authenticate and perform SID lookups without needing a cleartext password. 
-      It is particularly useful when you have obtained NTLM hashes through techniques like LLMNR/NBT-NS poisoning or from a dumped SAM database. 
-      Ensure the LM hash is set to the standard 32-zero placeholder if only the NT hash is available.
+  - title:
+      en: impacket-lookupsid - pass-the-hash enumeration
+      tr: impacket-lookupsid - hash ile (pass-the-hash) numaralandırma
+    desc:
+      en: |
+        This command utilizes the Pass-the-Hash (PtH) technique to authenticate and perform SID lookups without needing a cleartext password. 
+        It is particularly useful when you have obtained NTLM hashes through techniques like LLMNR/NBT-NS poisoning or from a dumped SAM database. 
+        Ensure the LM hash is set to the standard 32-zero placeholder if only the NT hash is available.
+      tr: |
+        Bu komut, açık parola gerekmeden SID aramaları yapmak için Pass-the-Hash (PtH) tekniğini kullanır.
+        LLMNR/NBT-NS zehirlenmesiyle veya dökülmüş SAM veritabanından NTLM hash'leri elde ettiğinizde özellikle kullanışlıdır.
+        Yalnızca NT hash'i varsa LM hash'ini standart 32 sıfırlı yer tutucuya ayarladığınızdan emin olun.
     command: "impacket-lookupsid -hashes {{hash}} {{domain}}/{{username}}@{{target}}"
 
-  - title: impacket-lookupsid - kerberos authentication
-    desc: |
-      This command uses Kerberos for authentication instead of NTLM, which helps in environments where NTLM is disabled or to stay under the radar. 
-      The tool will attempt to grab credentials from the ccache file specified in the KRB5CCNAME environment variable. 
-      Ensure that your system's time is synchronized with the Domain Controller and that the target name is provided as a FQDN.
+  - title:
+      en: impacket-lookupsid - kerberos authentication
+      tr: impacket-lookupsid - Kerberos ile kimlik doğrulama
+    desc:
+      en: |
+        This command uses Kerberos for authentication instead of NTLM, which helps in environments where NTLM is disabled or to stay under the radar. 
+        The tool will attempt to grab credentials from the ccache file specified in the KRB5CCNAME environment variable. 
+        Ensure that your system's time is synchronized with the Domain Controller and that the target name is provided as a FQDN.
+      tr: |
+        Bu komut NTLM yerine Kerberos ile kimlik doğrulaması yapar; NTLM'nin devre dışı olduğu ortamlarda veya radarda kalmak için yardımcı olur.
+        Araç, kimlik bilgilerini KRB5CCNAME ortam değişkeninde belirtilen ccache dosyasından almaya çalışır.
+        Sistem saatinizin Etki Alanı Denetleyicisiyle eşitli ve hedef adının FQDN olarak verildiğinden emin olun.
     command: "impacket-lookupsid -k -no-pass {{domain}}/{{username}}@{{target}}"
 
   # === CUSTOM CONFIGURATION ===
-  - title: impacket-lookupsid - extended rid range
-    desc: |
-      This command allows you to specify a higher maximum Relative Identifier (RID) value to ensure no users or groups are missed. 
-      While the default value is 4000, large Active Directory environments often have accounts with significantly higher RID values. 
-      Increasing this value will cause the scan to take more time but results in a much more comprehensive user list.
+  - title:
+      en: impacket-lookupsid - extended rid range
+      tr: impacket-lookupsid - genişletilmiş RID aralığı
+    desc:
+      en: |
+        This command allows you to specify a higher maximum Relative Identifier (RID) value to ensure no users or groups are missed. 
+        While the default value is 4000, large Active Directory environments often have accounts with significantly higher RID values. 
+        Increasing this value will cause the scan to take more time but results in a much more comprehensive user list.
+      tr: |
+        Bu komut, hiçbir kullanıcı veya grubun gözden kaçmaması için daha yüksek bir en büyük Göreli Tanımlayıcı (RID) değeri belirtmenize olanak tanır.
+        Varsayılan değer 4000 olsa da büyük Active Directory ortamlarında RID değerleri belirgin yüksek hesaplar sıkça bulunur.
+        Bu değeri artırmak taramayı uzatır ancak çok daha kapsamlı bir kullanıcı listesi verir.
     command: "impacket-lookupsid {{domain}}/{{username}}@{{target}} {{max_rid|10000}}"
 
-  - title: impacket-lookupsid - target specific ip
-    desc: |
-      Use this command when the target's NetBIOS name is known but cannot be resolved by your current DNS settings. 
-      The -target-ip flag forces the connection to a specific IP address while maintaining the target name for authentication purposes. 
-      This is particularly useful when pivoting through different network segments or using a VPN.
+  - title:
+      en: impacket-lookupsid - target specific ip
+      tr: impacket-lookupsid - belirli IP'yi hedefleme
+    desc:
+      en: |
+        Use this command when the target's NetBIOS name is known but cannot be resolved by your current DNS settings. 
+        The -target-ip flag forces the connection to a specific IP address while maintaining the target name for authentication purposes. 
+        This is particularly useful when pivoting through different network segments or using a VPN.
+      tr: |
+        Hedefin NetBIOS adı biliniyor ancak mevcut DNS ayarlarınızla çözülemediğinde bu komutu kullanın.
+        -target-ip bayrağı, kimlik doğrulamada hedef adını korurken bağlantıyı belirli bir IP adresine zorlar.
+        Bu, farklı ağ segmentleri arasında geçiş yaparken veya VPN kullanırken özellikle kullanışlıdır.
     command: "impacket-lookupsid -target-ip {{ip_address}} {{domain}}/{{username}}@{{target_name}}"
 
   # === SPECIALIZED ENUMERATION ===
-  - title: impacket-lookupsid - domain sid enumeration
-    desc: |
-      The -domain-sids flag specifically instructs the tool to enumerate SIDs for the entire domain. 
-      This often involves the target server forwarding the LSA requests to the primary Domain Controller if the target itself is not a DC. 
-      Identifying the Domain SID is a critical prerequisite for advanced attacks like generating Golden or Silver Tickets.
+  - title:
+      en: impacket-lookupsid - domain sid enumeration
+      tr: impacket-lookupsid - etki alanı SID numaralandırma
+    desc:
+      en: |
+        The -domain-sids flag specifically instructs the tool to enumerate SIDs for the entire domain. 
+        This often involves the target server forwarding the LSA requests to the primary Domain Controller if the target itself is not a DC. 
+        Identifying the Domain SID is a critical prerequisite for advanced attacks like generating Golden or Silver Tickets.
+      tr: |
+        -domain-sids bayrağı araca özellikle tüm etki alanı için SID numaralandırması yapmasını söyler.
+        Bu genellikle hedef sunucunun LSA isteklerini kendisi DC değilse birincil Etki Alanı Denetleyicisine iletmesini içerir.
+        Etki Alanı SID'ini belirlemek, Golden veya Silver Ticket üretmek gibi gelişmiş saldırılar için kritik bir ön koşuldur.
     command: "impacket-lookupsid -domain-sids {{domain}}/{{username}}@{{target}}"
 
-  - title: impacket-lookupsid - custom smb port
-    desc: |
-      This command is used when the SMB service is running on a non-standard port, which might occur during port forwarding or tunneling. 
-      Specifying the custom port ensures the tool connects to the correct service listener. 
-      This is commonly used when interacting with targets hidden behind a firewall or a proxy redirector.
+  - title:
+      en: impacket-lookupsid - custom smb port
+      tr: impacket-lookupsid - özel SMB portu
+    desc:
+      en: |
+        This command is used when the SMB service is running on a non-standard port, which might occur during port forwarding or tunneling. 
+        Specifying the custom port ensures the tool connects to the correct service listener. 
+        This is commonly used when interacting with targets hidden behind a firewall or a proxy redirector.
+      tr: |
+        Bu komut, port yönlendirme veya tünelleme sırasında olabileceği gibi SMB hizmeti standart dışı bir portta çalışırken kullanılır.
+        Özel portu belirtmek aracın doğru hizmet dinleyicisine bağlanmasını sağlar.
+        Bu, güvenlik duvarı arkasına veya proxy yönlendirici arkasına gizlenmiş hedeflerle etkileşimde yaygın kullanılır.
     command: "impacket-lookupsid -port {{port|445}} {{domain}}/{{username}}@{{target}}"

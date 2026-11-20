@@ -4,62 +4,118 @@ tags: [pentest, security, credentials, exploitation, smb, windows, lateral-movem
 actions:
 # === AUTHENTICATION & CONNECTION ===
 
- - title: impacket-mimikatz - basic interactive session
-   desc: |
-     Establish an interactive Mimikatz shell on the remote target using cleartext credentials.
-     This command is the most common way to start a session when administrative credentials are known.
-     It allows the operator to execute various Mimikatz commands directly on the remote system via RPC.
-     Ensure you have local administrator rights on the target machine for successful execution.
+ - title:
+     en: impacket-mimikatz - basic interactive session
+     tr: impacket-mimikatz - temel etkileşimli oturum
+   desc:
+     en: |
+       Establish an interactive Mimikatz shell on the remote target using cleartext credentials.
+       This command is the most common way to start a session when administrative credentials are known.
+       It allows the operator to execute various Mimikatz commands directly on the remote system via RPC.
+       Ensure you have local administrator rights on the target machine for successful execution.
+     tr: |
+       Açık kimlik bilgileriyle uzak hedefte etkileşimli Mimikatz kabuğu kurar.
+       Yönetici kimlik bilgileri bilindiğinde oturum başlatmanın en yaygın yoludur.
+       Operatörün RPC üzerinden uzak sistemde çeşitli Mimikatz komutlarını doğrudan çalıştırmasına olanak tanır.
+       Başarılı çalıştırma için hedef makinede yerel yönetici haklarına sahip olduğunuzdan emin olun.
    command: "impacket-mimikatz {{domain}}/{{username}}:{{password}}@{{target}}"
 
- - title: impacket-mimikatz - pass-the-hash authentication
-   desc: |
-     Perform authentication using NTLM hashes instead of a cleartext password.
-     This is a critical technique for lateral movement when only the NT hash of an administrator has been recovered.
-     The LM hash can be padded with zeros if it is unknown or not required.
-     It bypasses the need for the original password while providing full administrative access to the remote Mimikatz RPC server.
+ - title:
+     en: impacket-mimikatz - pass-the-hash authentication
+     tr: impacket-mimikatz - hash ile (pass-the-hash) kimlik doğrulama
+   desc:
+     en: |
+       Perform authentication using NTLM hashes instead of a cleartext password.
+       This is a critical technique for lateral movement when only the NT hash of an administrator has been recovered.
+       The LM hash can be padded with zeros if it is unknown or not required.
+       It bypasses the need for the original password while providing full administrative access to the remote Mimikatz RPC server.
+     tr: |
+       Açık parola yerine NTLM hash'leriyle kimlik doğrulaması yapar.
+       Yöneticinin yalnızca NT hash'i kurtarıldığında yanal hareket için kritik bir tekniktir.
+       LM hash'i sıfırlarla doldurulabilir.
+       Uzak Mimikatz RPC sunucusuna tam yönetici erişimi sağlarken asıl parolaya ihtiyacı ortadan kaldırır.
    command: "impacket-mimikatz -hashes {{lmhash|00000000000000000000000000000000}}:{{nthash}} {{domain}}/{{username}}@{{target}}"
 
- - title: impacket-mimikatz - kerberos authentication
-   desc: |
-     Use Kerberos tickets for authentication instead of NTLM.
-     The command will attempt to use the ticket defined in the KRB5CCNAME environment variable.
-     This method is often stealthier and is required in environments where NTLM authentication is strictly disabled.
-     The -no-pass flag ensures the tool does not prompt for a password when using the cached ticket.
+ - title:
+     en: impacket-mimikatz - kerberos authentication
+     tr: impacket-mimikatz - Kerberos ile kimlik doğrulama
+   desc:
+     en: |
+       Use Kerberos tickets for authentication instead of NTLM.
+       The command will attempt to use the ticket defined in the KRB5CCNAME environment variable.
+       This method is often stealthier and is required in environments where NTLM authentication is strictly disabled.
+       The -no-pass flag ensures the tool does not prompt for a password when using the cached ticket.
+     tr: |
+       NTLM yerine kimlik doğrulamada Kerberos biletlerini kullanır.
+       Komut, KRB5CCNAME ortam değişkeninde tanımlı bileti kullanmaya çalışır.
+       Bu yöntem genellikle daha gizlidir ve NTLM kimlik doğrulamasının sıkıca devre dışı olduğu ortamlarda gereklidir.
+       -no-pass bayrağı, önbellekteki bilet kullanılırken aracın parola sormamasını sağlar.
    command: "impacket-mimikatz -k -no-pass -dc-ip {{dc_ip}} {{domain}}/{{username}}@{{target}}"
 
- - title: impacket-mimikatz - aes key authentication
-   desc: |
-     Authenticate using a specific AES hex key (128 or 256 bit) for Kerberos.
-     This is useful when you have extracted a user's AES keys and want to authenticate without the cleartext password.
-     The tool will handle the Kerberos exchange using the provided key to establish the session.
-     This provides a robust alternative for authentication in modern Active Directory environments.
+ - title:
+     en: impacket-mimikatz - aes key authentication
+     tr: impacket-mimikatz - AES anahtarıyla kimlik doğrulama
+   desc:
+     en: |
+       Authenticate using a specific AES hex key (128 or 256 bit) for Kerberos.
+       This is useful when you have extracted a user's AES keys and want to authenticate without the cleartext password.
+       The tool will handle the Kerberos exchange using the provided key to establish the session.
+       This provides a robust alternative for authentication in modern Active Directory environments.
+     tr: |
+       Kerberos için belirli bir AES onaltılık anahtarla (128 veya 256 bit) kimlik doğrulaması yapar.
+       Kullanıcının AES anahtarlarını çıkarıp açık parola olmadan kimlik doğrulamak istediğinizde kullanışlıdır.
+       Araç, oturumu kurmak için Kerberos alışverişini sağlanan anahtarla yönetir.
+       Modern Active Directory ortamlarında kimlik doğrulama için sağlam bir alternatif sunar.
    command: "impacket-mimikatz -aesKey {{hex_key}} {{domain}}/{{username}}@{{target}}"
 
 # === AUTOMATION & EXECUTION ===
 
- - title: impacket-mimikatz - execute commands from file
-   desc: |
-     Read and execute a sequence of Mimikatz commands from a local text file.
-     This is highly effective for automating credential harvesting, such as running "sekurlsa::logonpasswords" across multiple hosts.
-     Using a file prevents manual entry errors and speeds up the post-exploitation workflow.
-     The output of each command in the file will be displayed in the terminal session.
+ - title:
+     en: impacket-mimikatz - execute commands from file
+     tr: impacket-mimikatz - dosyadan komut çalıştırma
+   desc:
+     en: |
+       Read and execute a sequence of Mimikatz commands from a local text file.
+       This is highly effective for automating credential harvesting, such as running "sekurlsa::logonpasswords" across multiple hosts.
+       Using a file prevents manual entry errors and speeds up the post-exploitation workflow.
+       The output of each command in the file will be displayed in the terminal session.
+     tr: |
+       Yerel bir metin dosyasındaki Mimikatz komut dizisini okur ve çalıştırır.
+       "sekurlsa::logonpasswords" gibi kimlik bilgisi toplamayı birden çok makinede otomatikleştirmek için oldukça etkilidir.
+       Dosya kullanmak elle giriş hatalarını önler ve sızma sonrası iş akışını hızlandırır.
+       Dosyadaki her komutun çıktısı terminal oturumunda görüntülenir.
    command: "impacket-mimikatz -file {{commands_file|commands.txt}} {{domain}}/{{username}}:{{password}}@{{target}}"
 
- - title: impacket-mimikatz - force target ip address
-   desc: |
-     Connect to a specific IP address while maintaining the target's NetBIOS or DNS name.
-     This is particularly useful when name resolution is failing or when targeting a specific multi-homed machine.
-     It ensures that the SMB/RPC traffic is routed to the exact network interface intended by the operator.
-     This flag helps avoid issues with misconfigured DNS in internal environments.
+ - title:
+     en: impacket-mimikatz - force target ip address
+     tr: impacket-mimikatz - hedef IP adresini zorlama
+   desc:
+     en: |
+       Connect to a specific IP address while maintaining the target's NetBIOS or DNS name.
+       This is particularly useful when name resolution is failing or when targeting a specific multi-homed machine.
+       It ensures that the SMB/RPC traffic is routed to the exact network interface intended by the operator.
+       This flag helps avoid issues with misconfigured DNS in internal environments.
+     tr: |
+       Hedefin NetBIOS veya DNS adını korurken belirli bir IP adresine bağlanır.
+       Ad çözümlemesi başarısız olduğunda veya belirli çok evli (multi-homed) bir makineyi hedeflerken özellikle kullanışlıdır.
+       SMB/RPC trafiğinin operatörün amaçladığı ağ arayüzüne yönlenmesini sağlar.
+       İç ortamlardaki yanlış yapılandırılmış DNS sorunlarından kaçınmaya yardımcı olur.
    command: "impacket-mimikatz -target-ip {{target_ip}} {{domain}}/{{username}}:{{password}}@{{target_name}}"
 
 # === DEBUGGING & LOGGING ===
 
- - title: impacket-mimikatz - debug mode with timestamps
-   desc: |
-     Run the tool with debug output enabled and timestamps on every log entry.
-     This is essential for troubleshooting connection issues or understanding RPC errors during execution.
-     The debug flag provides verbose information about the underlying Impacket library operations.
-     Timestamps help in correlating the tool's actions with system logs on the target or domain controller.
+ - title:
+     en: impacket-mimikatz - debug mode with timestamps
+     tr: impacket-mimikatz - zaman damgalı hata ayıklama modu
+   desc:
+     en: |
+       Run the tool with debug output enabled and timestamps on every log entry.
+       This is essential for troubleshooting connection issues or understanding RPC errors during execution.
+       The debug flag provides verbose information about the underlying Impacket library operations.
+       Timestamps help in correlating the tool's actions with system logs on the target or domain controller.
+     tr: |
+       Aracı hata ayıklama çıktısı etkin ve her günlük girdisinde zaman damgasıyla çalıştırır.
+       Bağlantı sorunlarını gidermek veya çalıştırma sırasındaki RPC hatalarını anlamak için esastır.
+       Hata ayıklama bayrağı, temel Impacket kütüphane işlemleri hakkında ayrıntılı bilgi verir.
+       Zaman damgaları, aracın eylemlerini hedef veya etki alanı denetleyicisindeki sistem günlükleriyle ilişkilendirmeye yardımcı olur.
    command: "impacket-mimikatz -debug -ts {{domain}}/{{username}}:{{password}}@{{target}}"

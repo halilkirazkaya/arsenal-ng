@@ -3,112 +3,217 @@ tags: [network, security, vpn, wireguard, connectivity, pentest, mesh]
 
 actions:
   # === AUTHENTICATION AND CONNECTION ===
-  - title: tailscale - connect to tailnet
-    desc: |
-      Connects the current machine to the Tailscale network and performs login if necessary. 
-      This is the primary command used to initialize the Tailscale daemon and join the private mesh. 
-      Users can provide an auth key to automate the login process on headless servers or CI/CD pipelines.
+  - title:
+      en: tailscale - connect to tailnet
+      tr: tailscale - tailnet'e bağlanma
+    desc:
+      en: |
+        Connects the current machine to the Tailscale network and performs login if necessary. 
+        This is the primary command used to initialize the Tailscale daemon and join the private mesh. 
+        Users can provide an auth key to automate the login process on headless servers or CI/CD pipelines.
+      tr: |
+        Geçerli makineyi Tailscale ağına bağlar ve gerekirse giriş yapar.
+        Tailscale hizmetini başlatıp özel ağa katılmanın birincil komutudur.
+        Başsız sunucularda veya CI/CD hatlarında girişi otomatikleştirmek için kimlik doğrulama anahtarı verebilirsiniz.
     command: "tailscale up --authkey {{auth_key}}"
 
-  - title: tailscale - disconnect from tailnet
-    desc: |
-      Disconnects the machine from the Tailscale network without logging out. 
-      This stops all Tailscale-managed traffic and removes the virtual network interface. 
-      It is useful for temporarily returning to a standard network state without losing the node's identity.
+  - title:
+      en: tailscale - disconnect from tailnet
+      tr: tailscale - tailnet bağlantısını kesme
+    desc:
+      en: |
+        Disconnects the machine from the Tailscale network without logging out. 
+        This stops all Tailscale-managed traffic and removes the virtual network interface. 
+        It is useful for temporarily returning to a standard network state without losing the node's identity.
+      tr: |
+        Makinenin Tailscale ağıyla bağlantısını, çıkış yapmadan keser.
+        Tailscale yönetimli tüm trafiği durdurur ve sanal ağ arayüzünü kaldırır.
+        Düğüm kimliğini kaybetmeden geçici olarak normal ağ durumuna dönmek için yararlıdır.
     command: "tailscale down"
 
-  - title: tailscale - logout and expire node
-    desc: |
-      Disconnects from the tailnet and invalidates the current node's authentication key. 
-      This requires a full re-authentication (typically via browser) to reconnect the device later. 
-      Use this when decommissioning a machine or switching to a completely different Tailscale account.
+  - title:
+      en: tailscale - logout and expire node
+      tr: tailscale - çıkış yapma ve düğümü süresiz kapatma
+    desc:
+      en: |
+        Disconnects from the tailnet and invalidates the current node's authentication key. 
+        This requires a full re-authentication (typically via browser) to reconnect the device later. 
+        Use this when decommissioning a machine or switching to a completely different Tailscale account.
+      tr: |
+        Tailnet bağlantısını keser ve geçerli düğümün kimlik doğrulama anahtarını geçersiz kılar.
+        Cihazı sonra yeniden bağlamak için tam yeniden kimlik doğrulama (genelde tarayıcıyla) gerekir.
+        Makineyi hizmet dışı bırakırken veya tamamen farklı bir Tailscale hesabına geçerken kullanın.
     command: "tailscale logout"
 
   # === INFORMATION AND ENUMERATION ===
-  - title: tailscale - check connection status
-    desc: |
-      Displays a comprehensive list of all peers in the tailnet and their current connection status. 
-      It provides details such as the Tailscale IP addresses, the operating system of peers, and whether the connection is direct or relayed. 
-      This is the best way to verify if a specific remote machine is reachable.
+  - title:
+      en: tailscale - check connection status
+      tr: tailscale - bağlantı durumunu denetleme
+    desc:
+      en: |
+        Displays a comprehensive list of all peers in the tailnet and their current connection status. 
+        It provides details such as the Tailscale IP addresses, the operating system of peers, and whether the connection is direct or relayed. 
+        This is the best way to verify if a specific remote machine is reachable.
+      tr: |
+        Tailnet'teki tüm eşlerin ve bağlantı durumlarının kapsamlı listesini gösterir.
+        Tailscale IP adresleri, eşlerin işletim sistemi ve bağlantının doğrudan mı aktarmalı mı olduğu gibi ayrıntılar verir.
+        Belirli bir uzak makineye erişilebildiğini doğrulamanın en iyi yoludur.
     command: "tailscale status"
 
-  - title: tailscale - show IP addresses
-    desc: |
-      Retrieves the internal Tailscale IPv4 and IPv6 addresses assigned to the local machine. 
-      These addresses are static within your tailnet and can be used for internal service configuration. 
-      Specify the version flag to return only the specific protocol address needed for your scripts.
+  - title:
+      en: tailscale - show IP addresses
+      tr: tailscale - IP adreslerini gösterme
+    desc:
+      en: |
+        Retrieves the internal Tailscale IPv4 and IPv6 addresses assigned to the local machine. 
+        These addresses are static within your tailnet and can be used for internal service configuration. 
+        Specify the version flag to return only the specific protocol address needed for your scripts.
+      tr: |
+        Yerel makineye atanan dahili Tailscale IPv4 ve IPv6 adreslerini alır.
+        Bu adresler tailnet içinde statiktir ve iç servis yapılandırmasında kullanılabilir.
+        Betikleriniz için gereken belirli protokol adresini döndürmek üzere sürüm flag'ini belirtin.
     command: "tailscale ip -{{version|4}}"
 
-  - title: tailscale - identify peer information
-    desc: |
-      Provides detailed information about the user and machine associated with a specific Tailscale IP. 
-      This command is useful for auditing traffic and identifying which person or service owns a specific node. 
-      It works for any IP address within the internal 100.x.y.z range or the Tailscale IPv6 range.
+  - title:
+      en: tailscale - identify peer information
+      tr: tailscale - eş bilgisini belirleme
+    desc:
+      en: |
+        Provides detailed information about the user and machine associated with a specific Tailscale IP. 
+        This command is useful for auditing traffic and identifying which person or service owns a specific node. 
+        It works for any IP address within the internal 100.x.y.z range or the Tailscale IPv6 range.
+      tr: |
+        Belirli bir Tailscale IP'siyle ilişkili kullanıcı ve makine hakkında ayrıntılı bilgi verir.
+        Trafiği denetlemek ve belirli bir düğümün hangi kişiye veya servise ait olduğunu belirlemek için yararlıdır.
+        Dahili 100.x.y.z aralığındaki veya Tailscale IPv6 aralığındaki her IP için çalışır.
     command: "tailscale whois {{peer_ip}}"
 
   # === NETWORK DIAGNOSTICS ===
-  - title: tailscale - layer 2 connectivity test
-    desc: |
-      Performs a connectivity test to a specific host at the Tailscale network layer. 
-      Unlike standard system ping, this reveals if the path is established via a direct WireGuard connection or a DERP relay. 
-      It is an essential tool for troubleshooting high latency or peer discovery issues.
+  - title:
+      en: tailscale - layer 2 connectivity test
+      tr: tailscale - 2. katman bağlantı testi
+    desc:
+      en: |
+        Performs a connectivity test to a specific host at the Tailscale network layer. 
+        Unlike standard system ping, this reveals if the path is established via a direct WireGuard connection or a DERP relay. 
+        It is an essential tool for troubleshooting high latency or peer discovery issues.
+      tr: |
+        Tailscale ağ katmanında belirli bir makineye bağlantı testi yapar.
+        Standart sistem ping'inden farklı olarak yolun doğrudan WireGuard bağlantısı mı DERP aktarımı mı olduğunu gösterir.
+        Yüksek gecikme veya eş bulma sorunlarını gidermek için temel bir araçtır.
     command: "tailscale ping {{target_host}}"
 
-  - title: tailscale - diagnose network conditions
-    desc: |
-      Analyzes the local network environment to detect NAT types and firewall restrictions. 
-      The output shows which Tailscale relay (DERP) servers are closest and whether the node can make direct UDP connections. 
-      Use this if you are experiencing slow speeds or "relayed" status in your connection.
+  - title:
+      en: tailscale - diagnose network conditions
+      tr: tailscale - ağ koşullarını teşhis etme
+    desc:
+      en: |
+        Analyzes the local network environment to detect NAT types and firewall restrictions. 
+        The output shows which Tailscale relay (DERP) servers are closest and whether the node can make direct UDP connections. 
+        Use this if you are experiencing slow speeds or "relayed" status in your connection.
+      tr: |
+        NAT türlerini ve güvenlik duvarı kısıtlamalarını tespit için yerel ağ ortamını analiz eder.
+        Çıktı, en yakın Tailscale aktarma (DERP) sunucularını ve düğümün doğrudan UDP bağlantısı kurup kuramadığını gösterir.
+        Bağlantınızda yavaş hız veya aktarmalı durum görüyorsanız kullanın.
     command: "tailscale netcheck"
 
   # === REMOTE ACCESS AND FILE OPERATIONS ===
-  - title: tailscale - secure remote shell
-    desc: |
-      Initiates an SSH session to a remote node using Tailscale's built-in SSH feature. 
-      This leverages Tailscale's identity-based access control instead of traditional SSH keys for authentication. 
-      The destination machine must have Tailscale SSH enabled in its configuration for this to work.
+  - title:
+      en: tailscale - secure remote shell
+      tr: tailscale - güvenli uzak kabuk
+    desc:
+      en: |
+        Initiates an SSH session to a remote node using Tailscale's built-in SSH feature. 
+        This leverages Tailscale's identity-based access control instead of traditional SSH keys for authentication. 
+        The destination machine must have Tailscale SSH enabled in its configuration for this to work.
+      tr: |
+        Yerel Tailscale düğümünden uzak düğüme Tailscale'in yerleşik SSH özelliğiyle SSH oturumu başlatır.
+        Geleneksel SSH anahtarları yerine Tailscale'in kimlik tabanlı erişim denetimini kullanır.
+        Hedef makinede yapılandırmada Tailscale SSH'in etkin olması gerekir.
     command: "tailscale ssh {{user|root}}@{{host}}"
 
-  - title: tailscale - send files to peer
-    desc: |
-      Transfers a file to another machine on your tailnet using the Taildrop protocol. 
-      The file will be stored in the default Taildrop incoming folder on the receiving device. 
-      This provides a secure, encrypted way to move data between devices without using external cloud storage.
+  - title:
+      en: tailscale - send files to peer
+      tr: tailscale - eşe dosya gönderme
+    desc:
+      en: |
+        Transfers a file to another machine on your tailnet using the Taildrop protocol. 
+        The file will be stored in the default Taildrop incoming folder on the receiving device. 
+        This provides a secure, encrypted way to move data between devices without using external cloud storage.
+      tr: |
+        Taildrop protokolüyle tailnet'teki başka bir makineye dosya aktarır.
+        Dosya, alıcı cihazda varsayılan Taildrop gelen kutusuna kaydedilir.
+        Cihazlar arasında harici bulut depolama olmadan güvenli ve şifreli veri taşıma sağlar.
     command: "tailscale file cp {{file_path}} {{target_node_name}}:"
 
-  - title: tailscale - receive pending files
-    desc: |
-      Checks for and downloads any files that have been sent to the current machine via Taildrop. 
-      By default, it will save the files to the current working directory unless a specific path is provided. 
-      This is the manual way to retrieve incoming transfers on Linux systems where a GUI is not available.
+  - title:
+      en: tailscale - receive pending files
+      tr: tailscale - bekleyen dosyaları alma
+    desc:
+      en: |
+        Checks for and downloads any files that have been sent to the current machine via Taildrop. 
+        By default, it will save the files to the current working directory unless a specific path is provided. 
+        This is the manual way to retrieve incoming transfers on Linux systems where a GUI is not available.
+      tr: |
+        Geçerli makineye Taildrop ile gönderilmiş dosyaları denetler ve indirir.
+        Belirli bir yol verilmezse dosyaları varsayılan olarak çalışma dizinine kaydeder.
+        Grafik arayüzün olmadığı Linux sistemlerinde gelen aktarımları almanın manuel yoludur.
     command: "tailscale file get {{destination_directory|.}}"
 
   # === SERVICE EXPOSURE ===
-  - title: tailscale - serve local web service
-    desc: |
-      Exposes a local port to your private tailnet as a web service. 
-      This allows other machines in your tailnet to access your local development server via your Tailscale node name. 
-      It can also handle automatic HTTPS certificate generation and termination for the service.
+  - title:
+      en: tailscale - serve local web service
+      tr: tailscale - yerel web servisini sunma
+    desc:
+      en: |
+        Exposes a local port to your private tailnet as a web service. 
+        This allows other machines in your tailnet to access your local development server via your Tailscale node name. 
+        It can also handle automatic HTTPS certificate generation and termination for the service.
+      tr: |
+        Yerel bir portu özel tailnet'inize web servisi olarak açar.
+        Tailnet'teki diğer makinelerin yerel geliştirme sunucunuza Tailscale düğüm adınızla erişmesini sağlar.
+        Servis için otomatik HTTPS sertifikası üretimi ve sonlandırmayı da üstlenebilir.
     command: "tailscale serve --https {{port|443}} {{local_target|http://127.0.0.1:8080}}"
 
-  - title: tailscale - expose service to internet (Funnel)
-    desc: |
-      Makes a local service accessible from the public internet via the Tailscale Funnel. 
-      This routes public traffic through Tailscale's edge nodes into your private machine. 
-      Use this with extreme caution, as it bypasses the private nature of the tailnet for the specified port.
+  - title:
+      en: tailscale - expose service to internet (Funnel)
+      tr: tailscale - servisi internete açma (Funnel)
+    desc:
+      en: |
+        Makes a local service accessible from the public internet via the Tailscale Funnel. 
+        This routes public traffic through Tailscale's edge nodes into your private machine. 
+        Use this with extreme caution, as it bypasses the private nature of the tailnet for the specified port.
+      tr: |
+        Tailscale Funnel ile yerel bir servisi genel internete açar.
+        Herkese açık trafiği Tailscale'in uç düğümleri üzerinden özel makinenize yönlendirir.
+        Belirtilen portta tailnet'in özel doğasını aştığından son derece dikkatli kullanın.
     command: "tailscale funnel {{port|443}} on"
 
   # === ADVANCED ROUTING ===
-  - title: tailscale - enable exit node routing
-    desc: |
-      Configures the local machine to route all its non-internal internet traffic through a specific exit node. 
-      This functions like a traditional VPN, masking your local public IP with the IP of the exit node. 
-      The target node must be configured and authorized to act as an exit node in the Tailscale admin console.
+  - title:
+      en: tailscale - enable exit node routing
+      tr: tailscale - çıkış düğümü yönlendirmeyi etkinleştirme
+    desc:
+      en: |
+        Configures the local machine to route all its non-internal internet traffic through a specific exit node. 
+        This functions like a traditional VPN, masking your local public IP with the IP of the exit node. 
+        The target node must be configured and authorized to act as an exit node in the Tailscale admin console.
+      tr: |
+        Yerel makinenin internete çıkmayan tüm trafiğini belirli bir çıkış düğümü üzerinden yönlendirir.
+        Yerel herkese açık IP'nizi çıkış düğümünün IP'siyle maskeleyen geleneksel VPN gibi çalışır.
+        Hedef düğümün Tailscale yönetim konsolunda çıkış düğümü olarak yapılandırılıp yetkilendirilmesi gerekir.
     command: "tailscale up --exit-node={{exit_node_ip_or_name}}"
 
-  - title: tailscale - list available exit nodes
-    desc: |
-      Displays all machines in the current tailnet that have been configured to act as exit nodes. 
-      This helps you identify which nodes are available for routing your internet traffic. 
-      The output includes the location and status of each potential exit node.
+  - title:
+      en: tailscale - list available exit nodes
+      tr: tailscale - kullanılabilir çıkış düğümlerini listeleme
+    desc:
+      en: |
+        Displays all machines in the current tailnet that have been configured to act as exit nodes. 
+        This helps you identify which nodes are available for routing your internet traffic. 
+        The output includes the location and status of each potential exit node.
+      tr: |
+        Geçerli tailnet'te çıkış düğümü olarak yapılandırılmış tüm makineleri listeler.
+        İnternet trafiğinizi yönlendirebileceğiniz düğümleri belirlemenize yardımcı olur.
+        Çıktı her olası çıkış düğümünün konumunu ve durumunu içerir.
     command: "tailscale exit-node list"

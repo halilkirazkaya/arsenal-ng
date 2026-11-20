@@ -3,117 +3,229 @@ tags: [active-directory, ldap, enumeration, pentest, security, network, discover
 
 actions:
   # === BASIC ENUMERATION ===
-  - title: windapsearch - check domain functionality
-    desc: |
-      Enumerates the Domain Functionality level of the target Active Directory environment.
-      This is often possible through an anonymous bind and provides the first glimpse into the domain's age and features.
-      It helps in determining which modern AD attacks might be applicable based on the functional level.
+  - title:
+      en: windapsearch - check domain functionality
+      tr: windapsearch - alan işlevsellik düzeyini denetleme
+    desc:
+      en: |
+        Enumerates the Domain Functionality level of the target Active Directory environment.
+        This is often possible through an anonymous bind and provides the first glimpse into the domain's age and features.
+        It helps in determining which modern AD attacks might be applicable based on the functional level.
+      tr: |
+        Hedef Active Directory ortamının Alan İşlevsellik düzeyini numaralandırır.
+        Bu genellikle anonim bir bağlantıyla bile mümkündür ve alanın yaşı ve özellikleri hakkında ilk fikri verir.
+        İşlevsel düzeye göre hangi modern AD saldırılarının uygulanabileceğini belirlemeye yardımcı olur.
     command: "windapsearch --dc-ip {{dc_ip}} --functionality"
 
-  - title: windapsearch - list all domain users
-    desc: |
-      Performs a full enumeration of all user objects within the Active Directory domain.
-      This is a fundamental reconnaissance step used to build a list of valid usernames for password spraying.
-      Requires a valid domain account or an environment where anonymous LDAP binds are permitted.
+  - title:
+      en: windapsearch - list all domain users
+      tr: windapsearch - tüm alan kullanıcılarını listeleme
+    desc:
+      en: |
+        Performs a full enumeration of all user objects within the Active Directory domain.
+        This is a fundamental reconnaissance step used to build a list of valid usernames for password spraying.
+        Requires a valid domain account or an environment where anonymous LDAP binds are permitted.
+      tr: |
+        Active Directory alanındaki tüm kullanıcı nesnelerinin tam numaralandırmasını gerçekleştirir.
+        Bu, parola püskürtme için geçerli kullanıcı adı listesi oluşturmak üzere kullanılan temel bir keşif adımıdır.
+        Geçerli bir alan hesabı veya anonim LDAP bağlantılarına izin veren bir ortam gerektirir.
     command: "windapsearch --dc-ip {{dc_ip}} -u {{username}} -p {{password}} -U"
 
-  - title: windapsearch - list all domain groups
-    desc: |
-      Retrieves a complete list of all security and distribution groups within the domain.
-      Useful for mapping the organizational structure and identifying groups that may hold sensitive permissions.
-      Analysts use this to find non-standard groups that might be overlooked during basic enumeration.
+  - title:
+      en: windapsearch - list all domain groups
+      tr: windapsearch - tüm alan gruplarını listeleme
+    desc:
+      en: |
+        Retrieves a complete list of all security and distribution groups within the domain.
+        Useful for mapping the organizational structure and identifying groups that may hold sensitive permissions.
+        Analysts use this to find non-standard groups that might be overlooked during basic enumeration.
+      tr: |
+        Alan içindeki tüm güvenlik ve dağıtım gruplarının eksiksiz listesini alır.
+        Kuruluş yapısını haritalamak ve hassas izinlere sahip olabilecek grupları belirlemek için kullanışlıdır.
+        Analistler bunu temel numaralandırmada gözden kaçabilecek standart dışı grupları bulmak için kullanır.
     command: "windapsearch --dc-ip {{dc_ip}} -u {{username}} -p {{password}} -G"
 
-  - title: windapsearch - list all computer objects
-    desc: |
-      Queries LDAP to find all computer objects registered in the Active Directory domain.
-      This command is essential for identifying workstations and servers that can be targeted for lateral movement.
-      It helps in visualizing the network topology and identifying high-value servers like SQL or Exchange.
+  - title:
+      en: windapsearch - list all computer objects
+      tr: windapsearch - tüm bilgisayar nesnelerini listeleme
+    desc:
+      en: |
+        Queries LDAP to find all computer objects registered in the Active Directory domain.
+        This command is essential for identifying workstations and servers that can be targeted for lateral movement.
+        It helps in visualizing the network topology and identifying high-value servers like SQL or Exchange.
+      tr: |
+        Active Directory alanına kayıtlı tüm bilgisayar nesnelerini bulmak için LDAP sorgular.
+        Bu komut, yanal hareket için hedeflenebilecek iş istasyonlarını ve sunucuları belirlemek için gereklidir.
+        Ağ topolojisini görselleştirmeye ve SQL veya Exchange gibi yüksek değerli sunucuları belirlemeye yardımcı olur.
     command: "windapsearch --dc-ip {{dc_ip}} -u {{username}} -p {{password}} -C"
 
   # === PRIVILEGE & ACCESS ENUMERATION ===
-  - title: windapsearch - recursive domain admin members
-    desc: |
-      Specifically targets the "Domain Admins" group and lists all its members recursively.
-      Recursion is critical here because it finds users who are members of other groups that are nested inside Domain Admins.
-      This identifies the highest-privileged users in the domain, making them primary targets for credential theft.
+  - title:
+      en: windapsearch - recursive domain admin members
+      tr: windapsearch - özyinelemeli alan yöneticisi üyeleri
+    desc:
+      en: |
+        Specifically targets the "Domain Admins" group and lists all its members recursively.
+        Recursion is critical here because it finds users who are members of other groups that are nested inside Domain Admins.
+        This identifies the highest-privileged users in the domain, making them primary targets for credential theft.
+      tr: |
+        "Domain Admins" grubunu özellikle hedefler ve tüm üyelerini özyinelemeli listeler.
+        Özyineleme burada kritiktir çünkü Domain Admins içine iç içe geçmiş diğer grupların üyesi olan kullanıcıları bulur.
+        Bu, alandaki en yüksek ayrıcalıklı kullanıcıları belirler ve onları kimlik bilgisi hırsızlığı için birincil hedefler haline getirir.
     command: "windapsearch --dc-ip {{dc_ip}} -u {{username}} -p {{password}} --da"
 
-  - title: windapsearch - enumerate privileged users
-    desc: |
-      Finds all users who have high-level privileges within the Active Directory forest.
-      This command performs recursive lookups for nested members across various administrative groups.
-      It is a comprehensive way to identify the "Keys to the Kingdom" beyond just the standard Domain Admins group.
+  - title:
+      en: windapsearch - enumerate privileged users
+      tr: windapsearch - ayrıcalıklı kullanıcıları numaralandırma
+    desc:
+      en: |
+        Finds all users who have high-level privileges within the Active Directory forest.
+        This command performs recursive lookups for nested members across various administrative groups.
+        It is a comprehensive way to identify the "Keys to the Kingdom" beyond just the standard Domain Admins group.
+      tr: |
+        Active Directory ormanında yüksek düzey ayrıcalıklara sahip tüm kullanıcıları bulur.
+        Bu komut, çeşitli yönetimsel gruplardaki iç içe üyeler için özyinelemeli aramalar gerçekleştirir.
+        Standart Domain Admins grubunun ötesinde "Krallığın Anahtarlarını" belirlemenin kapsamlı bir yoludur.
     command: "windapsearch --dc-ip {{dc_ip}} -u {{username}} -p {{password}} -PU"
 
-  - title: windapsearch - search for admin objects (Protected ACLs)
-    desc: |
-      Enumerates all objects that have protected Access Control Lists (ACLs).
-      In AD, objects with `adminCount=1` are protected by the AdminSDHolder process, typically signifying administrative accounts.
-      This helps identify accounts that might not be in standard admin groups but still possess elevated rights.
+  - title:
+      en: windapsearch - search for admin objects (Protected ACLs)
+      tr: windapsearch - yönetici nesnelerini arama (Korumalı ACL'ler)
+    desc:
+      en: |
+        Enumerates all objects that have protected Access Control Lists (ACLs).
+        In AD, objects with `adminCount=1` are protected by the AdminSDHolder process, typically signifying administrative accounts.
+        This helps identify accounts that might not be in standard admin groups but still possess elevated rights.
+      tr: |
+        Korumalı Erişim Kontrol Listelerine (ACL) sahip tüm nesneleri numaralandırır.
+        AD'de `adminCount=1` olan nesneler AdminSDHolder süreciyle korunur ve bu genellikle yönetici hesaplarını gösterir.
+        Bu, standart yönetici gruplarında olmayan ancak yine de yükseltilmiş haklara sahip hesapları bulmaya yardımcı olur.
     command: "windapsearch --dc-ip {{dc_ip}} -u {{username}} -p {{password}} --admin-objects"
 
-  - title: windapsearch - group membership lookup
-    desc: |
-      Lists all members of a specific, user-defined Active Directory group.
-      This is useful when you find an interesting group name (e.g., "IT_Admins" or "Finance_Access") and want to see who belongs to it.
-      Replace the placeholder with the exact group name you wish to investigate.
+  - title:
+      en: windapsearch - group membership lookup
+      tr: windapsearch - grup üyeliği sorgulama
+    desc:
+      en: |
+        Lists all members of a specific, user-defined Active Directory group.
+        This is useful when you find an interesting group name (e.g., "IT_Admins" or "Finance_Access") and want to see who belongs to it.
+        Replace the placeholder with the exact group name you wish to investigate.
+      tr: |
+        Kullanıcının belirttiği belirli bir Active Directory grubunun tüm üyelerini listeler.
+        Bu, ilginç bir grup adı bulduğunuzda (örn. "IT_Admins" veya "Finance_Access") kimin üye olduğunu görmek için kullanışlıdır.
+        Araştırmak istediğiniz grubun tam adını yer tutucuyla değiştirin.
     command: "windapsearch --dc-ip {{dc_ip}} -u {{username}} -p {{password}} -m {{group_name}}"
 
   # === VULNERABILITY & MISCONFIGURATION DISCOVERY ===
-  - title: windapsearch - identify kerberoastable users
-    desc: |
-      Enumerates all user objects that have a Service Principal Name (SPN) set.
-      These accounts are vulnerable to Kerberoasting, allowing an attacker to request a service ticket and attempt to crack the password offline.
-      This is one of the most common and effective ways to escalate privileges in an AD environment.
+  - title:
+      en: windapsearch - identify kerberoastable users
+      tr: windapsearch - kerberoast edilebilir kullanıcıları belirleme
+    desc:
+      en: |
+        Enumerates all user objects that have a Service Principal Name (SPN) set.
+        These accounts are vulnerable to Kerberoasting, allowing an attacker to request a service ticket and attempt to crack the password offline.
+        This is one of the most common and effective ways to escalate privileges in an AD environment.
+      tr: |
+        Hizmet Asıl Adı (SPN) ayarlanmış tüm kullanıcı nesnelerini numaralandırır.
+        Bu hesaplar Kerberoasting'e savunmasızdır; saldırgan bir hizmet bileti isteyip parolayı çevrimdışı kırmayı deneyebilir.
+        Bu, AD ortamında ayrıcalık yükseltmenin en yaygın ve etkili yollarından biridir.
     command: "windapsearch --dc-ip {{dc_ip}} -u {{username}} -p {{password}} --user-spns"
 
-  - title: windapsearch - users with unconstrained delegation
-    desc: |
-      Identifies user accounts configured with unconstrained delegation.
-      When a user with unconstrained delegation is compromised, an attacker can impersonate any user who authenticates to that service.
-      This is a major security risk and a common finding in security audits of older AD environments.
+  - title:
+      en: windapsearch - users with unconstrained delegation
+      tr: windapsearch - kısıtsız temsil yetkili kullanıcılar
+    desc:
+      en: |
+        Identifies user accounts configured with unconstrained delegation.
+        When a user with unconstrained delegation is compromised, an attacker can impersonate any user who authenticates to that service.
+        This is a major security risk and a common finding in security audits of older AD environments.
+      tr: |
+        Kısıtsız temsil ile yapılandırılmış kullanıcı hesaplarını tespit eder.
+        Kısıtsız temsilli bir kullanıcı ele geçirildiğinde, saldırgan o serviste kimlik doğrulayan herhangi bir kullanıcıyı taklit edebilir.
+        Bu büyük bir güvenlik riskidir ve eski AD ortamlarının güvenlik denetimlerinde yaygın bir bulgudur.
     command: "windapsearch --dc-ip {{dc_ip}} -u {{username}} -p {{password}} --unconstrained-users"
 
-  - title: windapsearch - computers with unconstrained delegation
-    desc: |
-      Lists computer objects in the domain that are allowed to perform unconstrained delegation.
-      Compromising such a machine allows an attacker to harvest TGTs of any user who connects to it (e.g., via the Printer Bug).
-      This is frequently used in modern AD exploitation chains to move from a domain user to a domain admin.
+  - title:
+      en: windapsearch - computers with unconstrained delegation
+      tr: windapsearch - kısıtsız temsil yetkili bilgisayarlar
+    desc:
+      en: |
+        Lists computer objects in the domain that are allowed to perform unconstrained delegation.
+        Compromising such a machine allows an attacker to harvest TGTs of any user who connects to it (e.g., via the Printer Bug).
+        This is frequently used in modern AD exploitation chains to move from a domain user to a domain admin.
+      tr: |
+        Kısıtsız temsil gerçekleştirmesine izin verilen alandaki bilgisayar nesnelerini listeler.
+        Böyle bir makinenin ele geçirilmesi, saldırganın ona bağlanan herhangi bir kullanıcının TGT'sini toplamasıan olanak tanır (örn. Printer Bug ile).
+        Bu, modern AD sömürü zincirlerinde alan kullanıcısından alan yöneticisine geçişte sıkça kullanılır.
     command: "windapsearch --dc-ip {{dc_ip}} -u {{username}} -p {{password}} --unconstrained-computers"
 
-  - title: windapsearch - list group policy objects (GPOs)
-    desc: |
-      Enumerate all Group Policy Objects (GPOs) defined in the Active Directory.
-      GPOs control the security configuration of the entire domain and can contain sensitive information like scripts or registry settings.
-      Understanding GPOs helps an attacker identify how security policies are enforced and where they might be bypassed.
+  - title:
+      en: windapsearch - list group policy objects (GPOs)
+      tr: windapsearch - grup ilkesi nesnelerini listeleme (GPO)
+    desc:
+      en: |
+        Enumerate all Group Policy Objects (GPOs) defined in the Active Directory.
+        GPOs control the security configuration of the entire domain and can contain sensitive information like scripts or registry settings.
+        Understanding GPOs helps an attacker identify how security policies are enforced and where they might be bypassed.
+      tr: |
+        Active Directory'de tanımlı tüm Grup İlkesi Nesnelerini (GPO) numaralandırır.
+        GPO'lar tüm alanın güvenlik yapılandırmasını kontrol eder ve betikler veya kayıt defteri ayarları gibi hassas bilgiler içerebilir.
+        GPO'ları anlamak saldırganın güvenlik politikalarının nasıl uygulandığını ve nerelerde aşılabileceğini belirlemesine yardımcı olur.
     command: "windapsearch --dc-ip {{dc_ip}} -u {{username}} -p {{password}} --gpos"
 
   # === ADVANCED QUERIES & OUTPUT ===
-  - title: windapsearch - custom LDAP filter
-    desc: |
-      Executes a completely custom LDAP query against the target Domain Controller.
-      This allows for highly specific searches, such as finding users with specific Account Control flags or custom attributes.
-      The user must provide a valid LDAP filter string to ensure the query executes correctly.
+  - title:
+      en: windapsearch - custom LDAP filter
+      tr: windapsearch - özel LDAP filtresi
+    desc:
+      en: |
+        Executes a completely custom LDAP query against the target Domain Controller.
+        This allows for highly specific searches, such as finding users with specific Account Control flags or custom attributes.
+        The user must provide a valid LDAP filter string to ensure the query executes correctly.
+      tr: |
+        Hedef Etki Alanı Denetleyicisine karşı tamamen özel bir LDAP sorgusu çalıştırır.
+        Bu, belirli Hesap Denetimi bayraklarına veya özel özniteliklere sahip kullanıcıları bulmak gibi oldukça belirli aramalara olanak tanır.
+        Sorgunun doğru çalışması için kullanıcının geçerli bir LDAP filtre dizesi vermesi gerekir.
     command: "windapsearch --dc-ip {{dc_ip}} -u {{username}} -p {{password}} --custom \"{{ldap_filter|(objectClass=user)}}\""
 
-  - title: windapsearch - search with custom attributes
-    desc: |
-      Performs a user search while only returning specific LDAP attributes.
-      By default, LDAP returns many fields; this narrows it down to specific data like 'lastLogon' or 'badPwdCount'.
-      This is useful for gathering targeted intel without sifting through massive amounts of redundant data.
+  - title:
+      en: windapsearch - search with custom attributes
+      tr: windapsearch - özel özniteliklerle arama
+    desc:
+      en: |
+        Performs a user search while only returning specific LDAP attributes.
+        By default, LDAP returns many fields; this narrows it down to specific data like 'lastLogon' or 'badPwdCount'.
+        This is useful for gathering targeted intel without sifting through massive amounts of redundant data.
+      tr: |
+        Yalnızca belirli LDAP özniteliklerini döndürerek kullanıcı araması gerçekleştirir.
+        LDAP varsayılan olarak çok alan döndürür; bu, veriyi 'lastLogon' veya 'badPwdCount' gibi belirli verilere daraltır.
+        Bu, büyük miktarda gereksiz veriyi elemeden hedefli istihbarat toplamak için kullanışlıdır.
     command: "windapsearch --dc-ip {{dc_ip}} -u {{username}} -p {{password}} -U --attrs {{attributes|sAMAccountName,description,memberOf}}"
 
-  - title: windapsearch - fuzzy search for objects
-    desc: |
-      Performs a fuzzy search across the directory for all entries matching a specific term.
-      This is helpful when you know part of a name or a service but aren't sure of its exact DN or object class.
-      It scans multiple fields to find the most relevant matches for the provided search term.
+  - title:
+      en: windapsearch - fuzzy search for objects
+      tr: windapsearch - bulanık nesne araması
+    desc:
+      en: |
+        Performs a fuzzy search across the directory for all entries matching a specific term.
+        This is helpful when you know part of a name or a service but aren't sure of its exact DN or object class.
+        It scans multiple fields to find the most relevant matches for the provided search term.
+      tr: |
+        Belirli bir terimle eşleşen tüm girdiler için dizinde bulanık bir arama gerçekleştirir.
+        Bu, bir adın veya servisin bir kısmını bildiğinizde ancak tam DN veya nesne sınıfından emin olmadığınızda yardımcı olur.
+        Verilen arama terimi için en ilgili eşleşmeleri bulmak üzere birden fazla alanı tarar.
     command: "windapsearch --dc-ip {{dc_ip}} -u {{username}} -p {{password}} -s {{search_term}}"
 
-  - title: windapsearch - full attribute dump to file
-    desc: |
-      Dumps every single available LDAP attribute for all users and saves the output to a directory.
-      The `--full` flag ensures no data is left behind, which is vital for deep offline analysis.
-      The output is saved in TSV format, making it easy to import into spreadsheets or other analysis tools.
+  - title:
+      en: windapsearch - full attribute dump to file
+      tr: windapsearch - tam öznitelik dökümünü dosyaya alma
+    desc:
+      en: |
+        Dumps every single available LDAP attribute for all users and saves the output to a directory.
+        The `--full` flag ensures no data is left behind, which is vital for deep offline analysis.
+        The output is saved in TSV format, making it easy to import into spreadsheets or other analysis tools.
+      tr: |
+        Tüm kullanıcılar için mevcut her LDAP özniteliğini dökerek çıktıyı bir dizine kaydeder.
+        `--full` bayrağı derin çevrimdışı analiz için hiçbir verinin geride bırakılmamasını sağlar.
+        Çıktı TSV biçiminde kaydedilir, böylece elektronik tablolara veya diğer analiz araçlarına kolayca aktarılabilir.
     command: "windapsearch --dc-ip {{dc_ip}} -u {{username}} -p {{password}} -U --full -o {{output_dir|results}}"

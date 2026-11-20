@@ -70,6 +70,16 @@ func TestVariablesAndLogPaths(t *testing.T) {
 	if filepath.Dir(variables) != filepath.Dir(log) {
 		t.Fatal("variables and log must share a directory")
 	}
+	language, err := Language()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if filepath.Base(language) != "language.json" {
+		t.Fatalf("language = %q", language)
+	}
+	if filepath.Dir(variables) != filepath.Dir(language) {
+		t.Fatal("variables and language must share a directory")
+	}
 }
 
 // TestConfigDirFailsWhenHomeReadonly verifies unreadable HOME surfaces errors.
@@ -91,6 +101,9 @@ func TestConfigDirFailsWhenHomeReadonly(t *testing.T) {
 	}
 	if _, err := Variables(); err == nil {
 		t.Fatal("Variables with bad HOME = nil error")
+	}
+	if _, err := Language(); err == nil {
+		t.Fatal("Language with bad HOME = nil error")
 	}
 	if _, err := Log(); err == nil {
 		t.Fatal("Log with bad HOME = nil error")

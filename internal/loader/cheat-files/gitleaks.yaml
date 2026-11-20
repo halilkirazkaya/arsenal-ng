@@ -4,94 +4,180 @@ tags: [security, secrets, git, scanning, static-analysis, pentest, devsecops, re
 # === DETECTION & SCANNING ===
 
 actions:
- - title: gitleaks - detect secrets in current directory
-   desc: |
-     Scans the current directory or git repository for hardcoded secrets. This command 
-     is the primary way to analyze git history and the current state of files for 
-     sensitive information like API keys or passwords. It uses the default rules 
-     unless a custom configuration is provided.
+ - title:
+     en: gitleaks - detect secrets in current directory
+     tr: gitleaks - mevcut dizinde sırları tespit etme
+   desc:
+     en: |
+       Scans the current directory or git repository for hardcoded secrets. This command 
+       is the primary way to analyze git history and the current state of files for 
+       sensitive information like API keys or passwords. It uses the default rules 
+       unless a custom configuration is provided.
+     tr: |
+       Mevcut dizini veya git deposunu koda gömülü sırlara karşı tarar. Bu komut,
+       API anahtarları veya parolalar gibi hassas bilgiler için git geçmişini ve
+       dosyaların mevcut durumunu analiz etmenin birincil yoludur. Özel bir
+       yapılandırma verilmedikçe varsayılan kuralları kullanır.
    command: "gitleaks detect"
 
- - title: gitleaks - scan a specific target source
-   desc: |
-     Runs a detection scan on a specific path provided by the user. This is useful 
-     when you want to audit a repository that is not your current working directory. 
-     Ensure that the target directory is a valid git repository for full history scanning 
-     capabilities.
+ - title:
+     en: gitleaks - scan a specific target source
+     tr: gitleaks - belirli bir hedef kaynağı tarama
+   desc:
+     en: |
+       Runs a detection scan on a specific path provided by the user. This is useful 
+       when you want to audit a repository that is not your current working directory. 
+       Ensure that the target directory is a valid git repository for full history scanning 
+       capabilities.
+     tr: |
+       Kullanıcının verdiği belirli bir yolda tespit taraması çalıştırır. Mevcut çalışma
+       dizininiz olmayan bir depoyu denetlemek istediğinizde kullanışlıdır.
+       Tam geçmiş tarama yeteneği için hedef dizinin geçerli bir git deposu
+       olduğundan emin olun.
    command: "gitleaks detect --source {{source_path}}"
 
- - title: gitleaks - verbose scan with report generation
-   desc: |
-     Performs a detailed scan and saves the findings into a structured report file. 
-     The verbose flag ensures that findings are printed to the console during the 
-     scanning process. The report is essential for documenting vulnerabilities 
-     during a penetration test or security audit.
+ - title:
+     en: gitleaks - verbose scan with report generation
+     tr: gitleaks - rapor üreten ayrıntılı tarama
+   desc:
+     en: |
+       Performs a detailed scan and saves the findings into a structured report file. 
+       The verbose flag ensures that findings are printed to the console during the 
+       scanning process. The report is essential for documenting vulnerabilities 
+       during a penetration test or security audit.
+     tr: |
+       Ayrıntılı bir tarama yapıp bulguları yapısal bir rapor dosyasına kaydeder.
+       Ayrıntı (verbose) bayrağı, bulguların tarama sırasında konsola yazdırılmasını sağlar.
+       Rapor, sızma testi veya güvenlik denetimi sırasında zafiyetleri belgelemek için gereklidir.
    command: "gitleaks detect --verbose --report-path {{report_name|results.json}} --report-format {{format|json}}"
 
- - title: gitleaks - scan using a custom configuration file
-   desc: |
-     Initiates a scan using a user-defined TOML configuration file. This allows 
-     you to define custom regex patterns, extend default rules, or whitelist specific 
-     false positives. It is highly recommended for enterprise environments with 
-     proprietary token formats.
+ - title:
+     en: gitleaks - scan using a custom configuration file
+     tr: gitleaks - özel yapılandırma dosyasıyla tarama
+   desc:
+     en: |
+       Initiates a scan using a user-defined TOML configuration file. This allows 
+       you to define custom regex patterns, extend default rules, or whitelist specific 
+       false positives. It is highly recommended for enterprise environments with 
+       proprietary token formats.
+     tr: |
+       Kullanıcı tanımlı bir TOML yapılandırma dosyasıyla tarama başlatır. Bu, özel
+       regex kalıpları tanımlamanıza, varsayılan kuralları genişletmenize veya belirli
+       yanlış pozitifleri beyaz listeye almanıza olanak tanır. Özel jeton biçimleri
+       olan kurumsal ortamlar için şiddetle önerilir.
    command: "gitleaks detect --config {{config_path|.gitleaks.toml}}"
 
 # === PREVENTION & PROTECTION ===
 
- - title: gitleaks - protect uncommitted changes
-   desc: |
-     Scans only the changes that have been made but not yet committed to the git history. 
-     This command is ideal for pre-commit hooks to prevent developers from accidentally 
-     leaking secrets into the codebase. It helps in maintaining a clean repository 
-     history from the start.
+ - title:
+     en: gitleaks - protect uncommitted changes
+     tr: gitleaks - commit'lenmemiş değişiklikleri koruma
+   desc:
+     en: |
+       Scans only the changes that have been made but not yet committed to the git history. 
+       This command is ideal for pre-commit hooks to prevent developers from accidentally 
+       leaking secrets into the codebase. It helps in maintaining a clean repository 
+       history from the start.
+     tr: |
+       Yalnızca yapılıp henüz git geçmişine commit'lenmemiş değişiklikleri tarar.
+       Bu komut, geliştiricilerin yanlışlıkla sırları koda sızdırmasını önlemek için
+       commit öncesi kancalarda idealdir. Baştan temiz bir depo geçmişi
+       sürdürmeye yardımcı olur.
    command: "gitleaks protect --staged"
 
- - title: gitleaks - protect with verbose output
-   desc: |
-     Runs a protection scan on staged changes while providing detailed output for 
-     any leaks found. Use this when you need to identify exactly which line and 
-     file triggered a secret detection during development. This helps in quick 
-     remediation before a push.
+ - title:
+     en: gitleaks - protect with verbose output
+     tr: gitleaks - ayrıntılı çıktıyla koruma
+   desc:
+     en: |
+       Runs a protection scan on staged changes while providing detailed output for 
+       any leaks found. Use this when you need to identify exactly which line and 
+       file triggered a secret detection during development. This helps in quick 
+       remediation before a push.
+     tr: |
+       Hazırlanmış değişikliklerde, bulunan sızıntılar için ayrıntılı çıktı vererek
+       koruma taraması çalıştırır. Geliştirme sırasında sır tespitini tam olarak hangi
+       satır ve dosyanın tetiklediğini belirlemeniz gerektiğinde kullanın. Bu,
+       gönderim öncesi hızlı düzeltmeye yardımcı olur.
    command: "gitleaks protect --verbose"
 
 # === ADVANCED FILTERING & OUTPUT ===
 
- - title: gitleaks - redact secrets from output logs
-   desc: |
-     Scans for secrets but masks the sensitive values in the terminal output and reports. 
-     This prevents the tool itself from inadvertently exposing the secrets it finds 
-     within CI/CD logs or console history. It is a best practice for automated 
-     pipeline security.
+ - title:
+     en: gitleaks - redact secrets from output logs
+     tr: gitleaks - çıktılardan sırları maskeleme
+   desc:
+     en: |
+       Scans for secrets but masks the sensitive values in the terminal output and reports. 
+       This prevents the tool itself from inadvertently exposing the secrets it finds 
+       within CI/CD logs or console history. It is a best practice for automated 
+       pipeline security.
+     tr: |
+       Sırları tarar ancak terminal çıktısı ve raporlardaki hassas değerleri maskeler.
+       Bu, aracın bulduğu sırları CI/CD kayıtlarında veya konsol geçmişinde istemeden
+       açığa çıkarmasını engeller. Otomatik hat güvenliği için en iyi uygulamadır.
    command: "gitleaks detect --redact"
 
- - title: gitleaks - skip large files during scan
-   desc: |
-     Configures the scanner to ignore files that exceed a specific size in megabytes. 
-     This is useful for improving scan performance and avoiding crashes when 
-     dealing with repositories containing large binary blobs or datasets. Files 
-     larger than the threshold will be completely bypassed.
+ - title:
+     en: gitleaks - skip large files during scan
+     tr: gitleaks - taramada büyük dosyaları atlama
+   desc:
+     en: |
+       Configures the scanner to ignore files that exceed a specific size in megabytes. 
+       This is useful for improving scan performance and avoiding crashes when 
+       dealing with repositories containing large binary blobs or datasets. Files 
+       larger than the threshold will be completely bypassed.
+     tr: |
+       Tarayıcıyı, megabayt cinsinden belirli boyutu aşan dosyaları yoksayacak şekilde yapılandırır.
+       Büyük ikili blob'lar veya veri kümeleri içeren depolarla uğraşırken tarama
+       performansını artırmak ve çökmelerden kaçınmak için kullanışlıdır. Eşiği aşan
+       dosyalar tamamen atlanır.
    command: "gitleaks detect --max-target-megabytes {{size|50}}"
 
- - title: gitleaks - ignore known leaks with a baseline
-   desc: |
-     Uses a baseline report to ignore previously discovered secrets that have been 
-     vetted or accepted as risks. This reduces noise by ensuring that only new 
-     potential leaks are reported in subsequent scans. It is vital for managing 
-     large, older repositories with many legacy findings.
+ - title:
+     en: gitleaks - ignore known leaks with a baseline
+     tr: gitleaks - taban çizgiyle bilinen sızıntıları yoksayma
+   desc:
+     en: |
+       Uses a baseline report to ignore previously discovered secrets that have been 
+       vetted or accepted as risks. This reduces noise by ensuring that only new 
+       potential leaks are reported in subsequent scans. It is vital for managing 
+       large, older repositories with many legacy findings.
+     tr: |
+       İncelenmiş veya risk olarak kabul edilmiş önceden keşfedilmiş sırları yoksaymak için
+       bir taban raporu kullanır. Bu, sonraki taramalarda yalnızca yeni olası sızıntıların
+       bildirilmesini sağlayarak gürültüyü azaltır. Çok sayıda eski bulgusu olan büyük,
+       köklü depoları yönetmek için hayati önem taşır.
    command: "gitleaks detect --baseline-path {{baseline_path|gitleaks-baseline.json}}"
 
- - title: gitleaks - set custom log level
-   desc: |
-     Adjusts the granularity of the logging output during the execution of Gitleaks. 
-     Available levels include trace, debug, info, warn, error, and fatal. Higher 
-     levels like debug or trace are helpful for troubleshooting configuration 
-     issues or rule matching logic.
+ - title:
+     en: gitleaks - set custom log level
+     tr: gitleaks - özel kayıt seviyesi ayarlama
+   desc:
+     en: |
+       Adjusts the granularity of the logging output during the execution of Gitleaks. 
+       Available levels include trace, debug, info, warn, error, and fatal. Higher 
+       levels like debug or trace are helpful for troubleshooting configuration 
+       issues or rule matching logic.
+     tr: |
+       Gitleaks çalışması sırasındaki kayıt çıktısının ayrıntı düzeyini ayarlar.
+       Kullanılabilir seviyeler arasında trace, debug, info, warn, error ve fatal bulunur.
+       Debug veya trace gibi yüksek seviyeler, yapılandırma sorunlarını veya kural
+       eşleşme mantığını gidermede yararlıdır.
    command: "gitleaks detect --log-level {{level|debug}}"
 
- - title: gitleaks - custom exit code for automation
-   desc: |
-     Sets a specific exit code for the process if leaks are found during the scan. 
-     This is particularly useful in CI/CD scripts where you want to distinguish 
-     between a tool error and a successful scan that discovered vulnerabilities. 
-     The default exit code is usually 1 if leaks are encountered.
+ - title:
+     en: gitleaks - custom exit code for automation
+     tr: gitleaks - otomasyon için özel çıkış kodu
+   desc:
+     en: |
+       Sets a specific exit code for the process if leaks are found during the scan. 
+       This is particularly useful in CI/CD scripts where you want to distinguish 
+       between a tool error and a successful scan that discovered vulnerabilities. 
+       The default exit code is usually 1 if leaks are encountered.
+     tr: |
+       Tarama sırasında sızıntı bulunursa işlem için belirli bir çıkış kodu ayarlar.
+       Bu, özellikle bir araç hatasıyla zafiyet bulan başarılı bir taramayı ayırt etmek
+       istediğiniz CI/CD betiklerinde kullanışlıdır.
+       Sızıntıyla karşılaşılırsa varsayılan çıkış kodu genellikle 1'dir.
    command: "gitleaks detect --exit-code {{code|1}}"

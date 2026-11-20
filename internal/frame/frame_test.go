@@ -58,30 +58,34 @@ func TestFooter(t *testing.T) {
 		cursor   int
 		total    int
 		varCount int
+		lang     string
 		contains []string
 		absent   []string
 	}{
-		{"no variables", 1, 10, 0,
-			[]string{" 1/10 ", "↑/↓: nav", "esc: quit"},
+		{"no variables", 1, 10, 0, "en",
+			[]string{" 1/10 ", "↑/↓: nav", "esc: quit", "lang: en"},
 			[]string{"active variable count"}},
-		{"with variables", 3, 7, 2,
-			[]string{" 3/7 ", "active variable count: 2"},
+		{"with variables", 3, 7, 2, "tr",
+			[]string{" 3/7 ", "active variable count: 2", "lang: tr"},
 			nil},
-		{"zero total", 0, 0, 0,
-			[]string{" 0/0 "},
+		{"zero total", 0, 0, 0, "en",
+			[]string{" 0/0 ", "lang: en"},
 			[]string{"active variable count"}},
+		{"unknown lang hides badge", 1, 10, 0, "",
+			[]string{" 1/10 "},
+			[]string{"lang:"}},
 	}
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			got := Footer(tc.cursor, tc.total, tc.varCount)
+			got := Footer(tc.cursor, tc.total, tc.varCount, tc.lang)
 			for _, s := range tc.contains {
 				if !strings.Contains(got, s) {
-					t.Fatalf("Footer(%d,%d,%d) missing %q: %q", tc.cursor, tc.total, tc.varCount, s, got)
+					t.Fatalf("Footer(%d,%d,%d,%q) missing %q: %q", tc.cursor, tc.total, tc.varCount, tc.lang, s, got)
 				}
 			}
 			for _, s := range tc.absent {
 				if strings.Contains(got, s) {
-					t.Fatalf("Footer(%d,%d,%d) must not contain %q: %q", tc.cursor, tc.total, tc.varCount, s, got)
+					t.Fatalf("Footer(%d,%d,%d,%q) must not contain %q: %q", tc.cursor, tc.total, tc.varCount, tc.lang, s, got)
 				}
 			}
 		})

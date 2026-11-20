@@ -3,103 +3,201 @@ tags: [wordlist, password-cracking, reconnaissance, security, pentest, enumerati
 
 actions:
   # === BASIC USAGE ===
-  - title: cewl - basic wordlist generation
-    desc: |
-      Generate a custom wordlist by spidering the provided URL.
-      By default, it crawls to a depth of 2 levels and outputs the results to the terminal.
-      This is highly effective for creating targeted wordlists for password cracking based on site-specific terminology.
+  - title:
+      en: cewl - basic wordlist generation
+      tr: cewl - temel kelime listesi üretme
+    desc:
+      en: |
+        Generate a custom wordlist by spidering the provided URL.
+        By default, it crawls to a depth of 2 levels and outputs the results to the terminal.
+        This is highly effective for creating targeted wordlists for password cracking based on site-specific terminology.
+      tr: |
+        Verilen adresi tarayarak siteye özel kelime listesi üretir.
+        Varsayılan olarak 2 düzey derinlikte dolaşır, sonuçları uçbirime yazar.
+        Siteye özgü kavramlara dayalı, hedef odaklı parola listeleri hazırlamak için oldukça etkilidir.
     command: "cewl {{url}}"
 
-  - title: cewl - save output to file
-    desc: |
-      Save the generated wordlist directly to a specified text file.
-      Writing to a file is recommended for large sites to avoid losing data in the terminal buffer.
-      The output file will contain one unique word per line found during the spidering process.
+  - title:
+      en: cewl - save output to file
+      tr: cewl - çıktıyı dosyaya kaydetme
+    desc:
+      en: |
+        Save the generated wordlist directly to a specified text file.
+        Writing to a file is recommended for large sites to avoid losing data in the terminal buffer.
+        The output file will contain one unique word per line found during the spidering process.
+      tr: |
+        Üretilen kelime listesini doğrudan belirtilen metin dosyasına kaydeder.
+        Geniş sitelerde uçbirim arabelleğinde veri yitirmemek için dosyaya yazmak önerilir.
+        Çıktı dosyası tarama sırasında bulunan her benzersiz kelimeyi satır başına tek kayıtla tutar.
     command: "cewl -w {{output_file|wordlist.txt}} {{url}}"
 
-  - title: cewl - set spidering depth
-    desc: |
-      Control how deep the spider will follow links from the initial page.
-      Increasing the depth (default is 2) will result in a much larger wordlist but will take significantly more time.
-      Be cautious with high depth values as it may lead to spidering unintended sections of a web application.
+  - title:
+      en: cewl - set spidering depth
+      tr: cewl - tarama derinliğini ayarlama
+    desc:
+      en: |
+        Control how deep the spider will follow links from the initial page.
+        Increasing the depth (default is 2) will result in a much larger wordlist but will take significantly more time.
+        Be cautious with high depth values as it may lead to spidering unintended sections of a web application.
+      tr: |
+        Tarayıcının başlangıç sayfasından itibaren bağlantıları kaç düzey izleyeceğini belirler.
+        Derinliği artırmak (varsayılan değer 2) çok daha büyük liste üretir, ancak ciddi ölçüde zaman alır.
+        Web uygulamasının istenmeyen bölümlerine taşmamak için yüksek derinlik değerlerinde dikkatli olun.
     command: "cewl -d {{depth|3}} {{url}}"
 
   # === WORD FILTERING & TRANSFORMATION ===
-  - title: cewl - minimum word length
-    desc: |
-      Filter the wordlist to only include words that meet a minimum character length.
-      This is useful when targeting systems with specific password complexity requirements (e.g., minimum 8 characters).
-      It helps reduce the size of the wordlist by removing short, common words that are unlikely to be passwords.
+  - title:
+      en: cewl - minimum word length
+      tr: cewl - en kısa kelime uzunluğu
+    desc:
+      en: |
+        Filter the wordlist to only include words that meet a minimum character length.
+        This is useful when targeting systems with specific password complexity requirements (e.g., minimum 8 characters).
+        It helps reduce the size of the wordlist by removing short, common words that are unlikely to be passwords.
+      tr: |
+        Kelime listesini süzerek yalnızca en kısa karakter uzunluğunu karşılayan kayıtları tutar.
+        Belirli parola karmaşıklığı arayan sistemleri hedeflerken yararlıdır (örneğin en az 8 karakter).
+        Parola olması düşük kısa ve yaygın kelimeleri eleyerek liste boyutunu küçültür.
     command: "cewl -m {{min_length|8}} {{url}}"
 
-  - title: cewl - maximum word length
-    desc: |
-      Limit the length of words captured by the spider.
-      Use this when you know the target system has a maximum character limit for passwords.
-      This prevents the wordlist from being cluttered with extremely long strings or concatenated text blocks.
+  - title:
+      en: cewl - maximum word length
+      tr: cewl - en uzun kelime uzunluğu
+    desc:
+      en: |
+        Limit the length of words captured by the spider.
+        Use this when you know the target system has a maximum character limit for passwords.
+        This prevents the wordlist from being cluttered with extremely long strings or concatenated text blocks.
+      tr: |
+        Tarayıcının topladığı kelimelerin uzunluğunu sınırlar.
+        Hedef sistemde üst karakter sınırı olduğunu bildiğinizde kullanın.
+        Listenin aşırı uzun dizgeler veya bitişik metin parçalarıyla kalabalıklaşmasını önler.
     command: "cewl -x {{max_length|15}} {{url}}"
 
-  - title: cewl - lowercase all words
-    desc: |
-      Convert every word found during the crawl to lowercase.
-      This is helpful for normalization before passing the list to a tool like Hashcat or John the Ripper.
-      It ensures that unique words are not duplicated based only on their casing.
+  - title:
+      en: cewl - lowercase all words
+      tr: cewl - tüm kelimeleri küçük harfe çevirme
+    desc:
+      en: |
+        Convert every word found during the crawl to lowercase.
+        This is helpful for normalization before passing the list to a tool like Hashcat or John the Ripper.
+        It ensures that unique words are not duplicated based only on their casing.
+      tr: |
+        Tarama sırasında bulunan her kelimeyi küçük harfe dönüştürür.
+        Listeyi Hashcat veya John the Ripper benzeri araca vermeden önce tekbiçimlendirme için yararlıdır.
+        Benzersiz kelimelerin yalnızca yazım farkıyla yinelenmesini engeller.
     command: "cewl --lowercase {{url}}"
 
-  - title: cewl - include words with numbers
-    desc: |
-      Include words that contain numbers in addition to letters.
-      By default, CeWL focuses on alphabetic strings; this flag expands the search to alphanumeric strings.
-      This is crucial for capturing modern passwords which frequently include numbers.
+  - title:
+      en: cewl - include words with numbers
+      tr: cewl - sayı içeren kelimeleri dahil etme
+    desc:
+      en: |
+        Include words that contain numbers in addition to letters.
+        By default, CeWL focuses on alphabetic strings; this flag expands the search to alphanumeric strings.
+        This is crucial for capturing modern passwords which frequently include numbers.
+      tr: |
+        Harflere ek olarak sayı içeren kelimeleri listeye dahil eder.
+        CeWL varsayılan olarak abecesel dizgelere odaklanır; bu seçenek aramayı harf-sayı karışımı dizgelere genişletir.
+        Sayı barındıran güncel parolaları yakalamak için kritik önem taşır.
     command: "cewl --with-numbers {{url}}"
 
   # === DATA EXTRACTION ===
-  - title: cewl - extract email addresses
-    desc: |
-      Search for and extract email addresses found within the target website's content.
-      The extracted emails can be saved to a separate file for use in username lists or social engineering campaigns.
-      Note that this often finds administrative or support addresses that are valuable targets.
+  - title:
+      en: cewl - extract email addresses
+      tr: cewl - e-posta adreslerini çıkarma
+    desc:
+      en: |
+        Search for and extract email addresses found within the target website's content.
+        The extracted emails can be saved to a separate file for use in username lists or social engineering campaigns.
+        Note that this often finds administrative or support addresses that are valuable targets.
+      tr: |
+        Hedef sitenin içeriğindeki e-posta adreslerini arar ve çıkarır.
+        Çıkarılan adresler kullanıcı adı listeleri veya oltalama çalışmaları için ayrı dosyaya kaydedilebilir.
+        Genellikle değerli hedef sayılan yönetim veya destek adreslerini ortaya çıkarır.
     command: "cewl -e --email_file {{email_file|emails.txt}} {{url}}"
 
-  - title: cewl - extract document metadata
-    desc: |
-      Download files found on the site (like PDFs, DOCX) and extract metadata using exiftool.
-      This can reveal internal usernames, software versions, printer paths, and creation dates.
-      The results are written to a metadata file, providing a different layer of reconnaissance.
+  - title:
+      en: cewl - extract document metadata
+      tr: cewl - belge üstverisini çıkarma
+    desc:
+      en: |
+        Download files found on the site (like PDFs, DOCX) and extract metadata using exiftool.
+        This can reveal internal usernames, software versions, printer paths, and creation dates.
+        The results are written to a metadata file, providing a different layer of reconnaissance.
+      tr: |
+        Sitede bulunan dosyaları (PDF, DOCX benzeri) indirir, exiftool yardımıyla üstveriyi çıkarır.
+        Dahili kullanıcı adları, yazılım sürümleri, yazıcı yolları ve oluşturulma tarihlerini ortaya çıkarabilir.
+        Sonuçlar üstveri dosyasına yazılır, farklı keşif katmanı sağlar.
     command: "cewl -a --meta_file {{meta_file|metadata.txt}} {{url}}"
 
-  - title: cewl - show word frequency count
-    desc: |
-      Count how many times each word appears across the crawled pages.
-      Knowing the frequency of words allows you to sort the wordlist by probability.
-      Words that appear more frequently on a company's site are often more likely to be part of a password.
+  - title:
+      en: cewl - show word frequency count
+      tr: cewl - kelime sıklık sayısını gösterme
+    desc:
+      en: |
+        Count how many times each word appears across the crawled pages.
+        Knowing the frequency of words allows you to sort the wordlist by probability.
+        Words that appear more frequently on a company's site are often more likely to be part of a password.
+      tr: |
+        Taranan sayfalarda her kelimenin kaç kez geçtiğini sayar.
+        Sıklık bilgisi listeyi olasılığa göre sıralamaya olanak tanır.
+        Kurum sitesinde sık geçen kelimeler genellikle parolada yer alma olasılığı yüksek kayıtlardır.
     command: "cewl -c {{url}}"
 
   # === ADVANCED CONFIGURATION ===
-  - title: cewl - authenticated crawl
-    desc: |
-      Perform a crawl using Basic or Digest authentication to access protected areas of the site.
-      Authentication is often necessary to reach internal dashboards or user-specific content.
-      Ensure you have permission to crawl these areas, as authenticated scanning is more intrusive.
+  - title:
+      en: cewl - authenticated crawl
+      tr: cewl - kimlik doğrulamalı tarama
+    desc:
+      en: |
+        Perform a crawl using Basic or Digest authentication to access protected areas of the site.
+        Authentication is often necessary to reach internal dashboards or user-specific content.
+        Ensure you have permission to crawl these areas, as authenticated scanning is more intrusive.
+      tr: |
+        Sitenin korumalı bölümlerine erişmek için Basic veya Digest kimlik doğrulamasıyla tarama yapar.
+        Dahili panolara veya kullanıcıya özel içeriğe ulaşmak için kimlik doğrulama çoğunlukla gereklidir.
+        Kimlik doğrulamalı tarama daha müdahaleci olduğundan bu alanları tarama izniniz bulunduğunu doğrulayın.
     command: "cewl --auth_type {{auth_type|basic}} --auth_user {{username}} --auth_pass {{password}} {{url}}"
 
-  - title: cewl - use proxy for requests
-    desc: |
-      Route all spidering traffic through a specified proxy server.
-      This is useful for bypassing IP-based restrictions or for monitoring CeWL's traffic in tools like Burp Suite.
-      Ensure the proxy host and port are correctly configured to avoid connection errors.
+  - title:
+      en: cewl - use proxy for requests
+      tr: cewl - istekler için vekil sunucu kullanma
+    desc:
+      en: |
+        Route all spidering traffic through a specified proxy server.
+        This is useful for bypassing IP-based restrictions or for monitoring CeWL's traffic in tools like Burp Suite.
+        Ensure the proxy host and port are correctly configured to avoid connection errors.
+      tr: |
+        Tüm tarama trafiğini belirtilen vekil sunucu üzerinden yönlendirir.
+        IP tabanlı kısıtları aşmak veya CeWL trafiğini Burp Suite benzeri araçta izlemek için yararlıdır.
+        Bağlantı hatalarından kaçınmak için vekil adresi ile bağlantı noktasını doğru yapılandırın.
     command: "cewl --proxy_host {{proxy_ip}} --proxy_port {{proxy_port|8080}} {{url}}"
 
-  - title: cewl - custom user-agent
-    desc: |
-      Specify a custom User-Agent string for the spider's HTTP requests.
-      Many web servers or WAFs block the default Ruby/CeWL user agent to prevent scraping.
-      Using a standard browser User-Agent helps the tool blend in with legitimate traffic.
+  - title:
+      en: cewl - custom user-agent
+      tr: cewl - özel kullanıcı aracısı
+    desc:
+      en: |
+        Specify a custom User-Agent string for the spider's HTTP requests.
+        Many web servers or WAFs block the default Ruby/CeWL user agent to prevent scraping.
+        Using a standard browser User-Agent helps the tool blend in with legitimate traffic.
+      tr: |
+        Tarayıcının HTTP istekleri için özel User-Agent dizgesi belirtir.
+        Birçok web sunucusu veya WAF kazımayı engellemek amacıyla varsayılan Ruby/CeWL kullanıcı aracısını engeller.
+        Sıradan tarayıcı User-Agent değeri kullanmak aracın meşru trafik arasında gizlenmesine yardımcı olur.
     command: "cewl -u \"{{user_agent|Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36}}\" {{url}}"
 
-  - title: cewl - custom headers
-    desc: |
-      Add custom HTTP headers to every request sent by the spider.
-      This can be used to bypass certain security controls or to provide session cookies.
-      Multiple headers can be provided by repeating the flag if necessary.
+  - title:
+      en: cewl - custom headers
+      tr: cewl - özel başlıklar
+    desc:
+      en: |
+        Add custom HTTP headers to every request sent by the spider.
+        This can be used to bypass certain security controls or to provide session cookies.
+        Multiple headers can be provided by repeating the flag if necessary.
+      tr: |
+        Tarayıcının gönderdiği her isteğe özel HTTP başlıkları ekler.
+        Belirli güvenlik denetimlerini aşmak veya oturum çerezleri taşımak için kullanılabilir.
+        Gerekirse seçenek yinelenerek birden fazla başlık verilebilir.
     command: "cewl -H \"{{header_name|X-Forwarded-For}}: {{header_value|127.0.0.1}}\" {{url}}"

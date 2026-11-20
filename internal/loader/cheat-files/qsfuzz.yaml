@@ -3,76 +3,146 @@ tags: [web, security, pentest, fuzzer, bugbounty, reconnaissance, automation]
 
 actions:
   # === BASIC USAGE ===
-  - title: qsfuzz - basic query string fuzzing
-    desc: |
-      Performs basic fuzzing on a list of URLs provided via standard input. 
-      This is the primary way to use the tool, typically by piping output from discovery tools like gau or waybackurls. 
-      It checks the parameters against built-in or default rules to find potential vulnerabilities.
+  - title:
+      en: qsfuzz - basic query string fuzzing
+      tr: qsfuzz - temel sorgu dizgisi fuzzing
+    desc:
+      en: |
+        Performs basic fuzzing on a list of URLs provided via standard input. 
+        This is the primary way to use the tool, typically by piping output from discovery tools like gau or waybackurls. 
+        It checks the parameters against built-in or default rules to find potential vulnerabilities.
+      tr: |
+        Standart girdiden verilen URL listesi üzerinde temel fuzzing yapar.
+        Genellikle gau veya waybackurls gibi keşif araçlarının çıktısını pipe ile aktararak kullanılır; aracın birincil kullanım şeklidir.
+        Parametreleri yerleşik (varsayılan) kurallara göre denetleyerek olası zafiyetleri bulur.
     command: "cat {{url_list}} | qsfuzz"
 
-  - title: qsfuzz - fuzzing with custom configuration
-    desc: |
-      Executes the fuzzer using a specific configuration file containing custom rules. 
-      The config file allows you to define specific payloads and matching patterns for vulnerabilities like XSS, SQLi, or SSRF. 
-      This is essential for targeted testing where default rules might not be sufficient for the specific technology stack.
+  - title:
+      en: qsfuzz - fuzzing with custom configuration
+      tr: qsfuzz - özel yapılandırmayla fuzzing
+    desc:
+      en: |
+        Executes the fuzzer using a specific configuration file containing custom rules. 
+        The config file allows you to define specific payloads and matching patterns for vulnerabilities like XSS, SQLi, or SSRF. 
+        This is essential for targeted testing where default rules might not be sufficient for the specific technology stack.
+      tr: |
+        Özel kurallar içeren bir yapılandırma dosyasıyla fuzzing aracını çalıştırır.
+        Yapılandırma dosyası, XSS, SQLi veya SSRF gibi zafiyetlere yönelik özel payload ve eşleşme kalıpları tanımlamanıza olanak tanır.
+        Varsayılan kuralların belirli teknoloji yığını için yetersiz kalabileceği hedef odaklı testler için gereklidir.
     command: "cat {{url_list}} | qsfuzz -c {{config_path|~/.config/qsfuzz/config.yaml}}"
 
   # === AUTHENTICATION & HEADERS ===
-  - title: qsfuzz - authenticated fuzzing with headers
-    desc: |
-      Adds custom HTTP headers to all fuzzing requests sent by the tool. 
-      This is crucial for testing endpoints that require authorization tokens or custom headers for identification. 
-      Multiple headers can be included by separating them with a semi-colon within the string.
+  - title:
+      en: qsfuzz - authenticated fuzzing with headers
+      tr: qsfuzz - başlıklarla kimlik doğrulamalı fuzzing
+    desc:
+      en: |
+        Adds custom HTTP headers to all fuzzing requests sent by the tool. 
+        This is crucial for testing endpoints that require authorization tokens or custom headers for identification. 
+        Multiple headers can be included by separating them with a semi-colon within the string.
+      tr: |
+        Aracın gönderdiği tüm fuzzing isteklerine özel HTTP başlıkları ekler.
+        Yetkilendirme jetonu veya tanımlama için özel başlık gerektiren uç noktaları test etmek için kritik öneme sahiptir.
+        Dizgi içinde noktalı virgülle ayırarak birden fazla başlık eklenebilir.
     command: "cat {{url_list}} | qsfuzz -H \"{{headers|Authorization: Bearer token; X-Custom-Header: value}}\""
 
-  - title: qsfuzz - authenticated fuzzing with cookies
-    desc: |
-      Includes session cookies in every request to fuzz protected or authenticated areas of a web application. 
-      This allows the fuzzer to reach internal logic and parameters that are not accessible to unauthenticated users. 
-      Ensure the cookies are valid and the session is active before starting the long-running scan.
+  - title:
+      en: qsfuzz - authenticated fuzzing with cookies
+      tr: qsfuzz - çerezlerle kimlik doğrulamalı fuzzing
+    desc:
+      en: |
+        Includes session cookies in every request to fuzz protected or authenticated areas of a web application. 
+        This allows the fuzzer to reach internal logic and parameters that are not accessible to unauthenticated users. 
+        Ensure the cookies are valid and the session is active before starting the long-running scan.
+      tr: |
+        Web uygulamasının korumalı veya kimlik doğrulama gerektiren alanlarını fuzz etmek için her isteğe oturum çerezlerini ekler.
+        Böylece fuzzing aracı, kimliği doğrulanmamış kullanıcıların erişemediği iç mantık ve parametrelere ulaşabilir.
+        Uzun sürecek taramaya başlamadan önce çerezlerin geçerli ve oturumun aktif olduğundan emin olun.
     command: "cat {{url_list}} | qsfuzz -cookies \"{{cookies|session=abc123xyz}}\""
 
   # === PERFORMANCE & OPTIMIZATION ===
-  - title: qsfuzz - high-concurrency fuzzing
-    desc: |
-      Sets the number of concurrent workers and adjusts the request timeout for faster processing. 
-      Increasing the worker count can significantly speed up the scanning of large URL lists but may lead to rate limiting. 
-      Setting a lower timeout helps the tool skip unresponsive servers quickly to maintain overall scanning momentum.
+  - title:
+      en: qsfuzz - high-concurrency fuzzing
+      tr: qsfuzz - yüksek eşzamanlılıklı fuzzing
+    desc:
+      en: |
+        Sets the number of concurrent workers and adjusts the request timeout for faster processing. 
+        Increasing the worker count can significantly speed up the scanning of large URL lists but may lead to rate limiting. 
+        Setting a lower timeout helps the tool skip unresponsive servers quickly to maintain overall scanning momentum.
+      tr: |
+        Daha hızlı işlem için eşzamanlı çalışan işçi (worker) sayısını ayarlar ve istek zaman aşımını düzenler.
+        İşçi sayısını artırmak büyük URL listelerinin taramasını belirgin biçimde hızlandırır, ancak hız sınırlamaya (rate limiting) yol açabilir.
+        Daha düşük bir zaman aşımı, aracın yanıt vermeyen sunucuları hızla atlayarak genel tarama hızını korumasına yardımcı olur.
     command: "cat {{url_list}} | qsfuzz -w {{workers|50}} -t {{timeout|10}}"
 
-  - title: qsfuzz - silent mode for automation
-    desc: |
-      Mutes all status updates and only prints successful evaluations or positive matches to the terminal. 
-      This mode is specifically designed for use in automation pipelines and shell scripts where only the findings are relevant. 
-      It prevents the terminal or log files from being cluttered with progress indicators and non-critical information.
+  - title:
+      en: qsfuzz - silent mode for automation
+      tr: qsfuzz - otomasyon için sessiz mod
+    desc:
+      en: |
+        Mutes all status updates and only prints successful evaluations or positive matches to the terminal. 
+        This mode is specifically designed for use in automation pipelines and shell scripts where only the findings are relevant. 
+        It prevents the terminal or log files from being cluttered with progress indicators and non-critical information.
+      tr: |
+        Tüm durum güncellemelerini kapatır ve terminale yalnızca başarılı değerlendirmeleri veya olumlu eşleşmeleri yazdırır.
+        Bu mod, yalnızca bulguların önemli olduğu otomasyon hatları ve kabuk betikleri için tasarlanmıştır.
+        Terminalin veya kayıt dosyalarının ilerleme göstergeleri ve kritik olmayan bilgilerle kalabalıklaşmasını önler.
     command: "cat {{url_list}} | qsfuzz -s"
 
   # === ADVANCED BEHAVIOR ===
-  - title: qsfuzz - fuzzing with decoded parameters
-    desc: |
-      Sends fuzzing requests with decoded query strings and parameters instead of URL-encoded ones. 
-      This technique can sometimes bypass security filters or WAFs that only inspect encoded inputs. 
-      Be cautious as this might cause some web servers to return 400 Bad Request errors if they expect standard encoding.
+  - title:
+      en: qsfuzz - fuzzing with decoded parameters
+      tr: qsfuzz - çözülmüş parametrelerle fuzzing
+    desc:
+      en: |
+        Sends fuzzing requests with decoded query strings and parameters instead of URL-encoded ones. 
+        This technique can sometimes bypass security filters or WAFs that only inspect encoded inputs. 
+        Be cautious as this might cause some web servers to return 400 Bad Request errors if they expect standard encoding.
+      tr: |
+        Fuzzing isteklerini URL kodlamalı halleri yerine çözülmüş sorgu dizgileri ve parametrelerle gönderir.
+        Bu teknik, yalnızca kodlanmış girdileri denetleyen güvenlik filtrelerini veya WAF'ları bazen atlatabilir.
+        Standart kodlama bekleyen bazı web sunucularının 400 Bad Request hatası döndürebileceğini unutmayın; dikkatli kullanın.
     command: "cat {{url_list}} | qsfuzz -d"
 
-  - title: qsfuzz - disable redirect following
-    desc: |
-      Prevents the tool from following HTTP redirects (3xx status codes) during the fuzzing process. 
-      By default, qsfuzz follows redirects, but disabling it is useful when you want to analyze the immediate response of the target URL. 
-      This can help in identifying Open Redirect vulnerabilities or specific server behaviors on the initial landing page.
+  - title:
+      en: qsfuzz - disable redirect following
+      tr: qsfuzz - yönlendirme takibini kapat
+    desc:
+      en: |
+        Prevents the tool from following HTTP redirects (3xx status codes) during the fuzzing process. 
+        By default, qsfuzz follows redirects, but disabling it is useful when you want to analyze the immediate response of the target URL. 
+        This can help in identifying Open Redirect vulnerabilities or specific server behaviors on the initial landing page.
+      tr: |
+        Fuzzing işlemi sırasında aracın HTTP yönlendirmelerini (3xx durum kodları) takip etmesini engeller.
+        qsfuzz varsayılan olarak yönlendirmeleri takip eder; ancak hedef URL'nin anlık yanıtını analiz etmek istediğinizde bunu kapatmak kullanışlıdır.
+        Açık yönlendirme (open redirect) zafiyetlerini veya açılış sayfasındaki sunucu davranışlarını tespit etmeye yardımcı olabilir.
     command: "cat {{url_list}} | qsfuzz -nr"
 
   # === INTEGRATION ===
-  - title: qsfuzz - slack notification integration
-    desc: |
-      Sends all positive matches and discovered vulnerabilities directly to a Slack channel via a webhook. 
-      The Slack API key and destination details must be correctly configured in the qsfuzz config file beforehand. 
-      This is an excellent feature for continuous monitoring or long-running scans where you want real-time alerts on your mobile or desktop.
+  - title:
+      en: qsfuzz - slack notification integration
+      tr: qsfuzz - Slack bildirimi entegrasyonu
+    desc:
+      en: |
+        Sends all positive matches and discovered vulnerabilities directly to a Slack channel via a webhook. 
+        The Slack API key and destination details must be correctly configured in the qsfuzz config file beforehand. 
+        This is an excellent feature for continuous monitoring or long-running scans where you want real-time alerts on your mobile or desktop.
+      tr: |
+        Tüm olumlu eşleşmeleri ve keşfedilen zafiyetleri bir webhook aracılığıyla doğrudan Slack kanalına gönderir.
+        Slack API anahtarı ve hedef bilgilerinin önceden qsfuzz yapılandırma dosyasında doğru şekilde ayarlanmış olması gerekir.
+        Gerçek zamanlı uyarı almak istediğiniz sürekli izleme veya uzun süreli taramalar için mükemmel bir özelliktir; uyarıları mobil veya masaüstünüzden takip edebilirsiniz.
     command: "cat {{url_list}} | qsfuzz -ts"
 
-  - title: qsfuzz - debug mode for troubleshooting
-    desc: |
-      Enables verbose debug mode to provide more detailed information about failed or malformed requests. 
-      This is extremely helpful when the tool is not behaving as expected or when you are trying to debug connectivity issues. 
-      It will print detailed error messages for every URL that fails to process, helping you refine your input list or configuration.
+  - title:
+      en: qsfuzz - debug mode for troubleshooting
+      tr: qsfuzz - sorun giderme için hata ayıklama modu
+    desc:
+      en: |
+        Enables verbose debug mode to provide more detailed information about failed or malformed requests. 
+        This is extremely helpful when the tool is not behaving as expected or when you are trying to debug connectivity issues. 
+        It will print detailed error messages for every URL that fails to process, helping you refine your input list or configuration.
+      tr: |
+        Başarısız veya bozuk istekler hakkında daha ayrıntılı bilgi veren ayrıntılı hata ayıklama modunu etkinleştirir.
+        Araç beklediğiniz gibi davranmadığında veya bağlantı sorunlarını ayıklamaya çalışırken son derece yardımcıdır.
+        İşlenemeyen her URL için ayrıntılı hata iletileri yazdırarak girdi listenizi veya yapılandırmanızı iyileştirmenize yardımcı olur.
     command: "cat {{url_list}} | qsfuzz -debug"

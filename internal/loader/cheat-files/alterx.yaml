@@ -3,77 +3,145 @@ tags: [subdomain, reconnaissance, wordlist, pentest, automation, dsl, enumeratio
 
 actions:
 # === BASIC PERMUTATIONS ===
- - title: alterx - generate permutations from list
-   desc: |
-     Generate permutations and alterations for a list of subdomains. This is the primary 
-     method for discovering hidden subdomains based on existing ones by applying common 
-     transformation rules. It reads from a file and outputs results to the console, allowing 
-     researchers to find variations like dev-target.com from target.com.
+ - title:
+     en: alterx - generate permutations from list
+     tr: alterx - listeden permütasyon üretme
+   desc:
+     en: |
+       Generate permutations and alterations for a list of subdomains. This is the primary 
+       method for discovering hidden subdomains based on existing ones by applying common 
+       transformation rules. It reads from a file and outputs results to the console, allowing 
+       researchers to find variations like dev-target.com from target.com.
+     tr: |
+       Bir alt alan adı listesi için permütasyon ve varyasyon üretir. Bu, yaygın
+       dönüştürme kuralları uygulayarak mevcut olanlara dayanıp gizli alt alan adlarını
+       keşfetmenin birincil yöntemidir. Dosyadan okuyup sonuçları konsola yazar; böylece
+       araştırmacılar target.com'dan dev-target.com gibi varyasyonları bulabilir.
    command: "alterx -list {{subdomains_file}}"
 
- - title: alterx - save results to file
-   desc: |
-     Generate alterations from a subdomain list and save the results to a specific file. 
-     This is crucial for automation pipelines where the output needs to be passed to 
-     other tools like httpx or dnsx. Saving to a file ensures that large wordlists 
-     are preserved for future analysis without rerunning the generation process.
+ - title:
+     en: alterx - save results to file
+     tr: alterx - sonuçları dosyaya kaydetme
+   desc:
+     en: |
+       Generate alterations from a subdomain list and save the results to a specific file. 
+       This is crucial for automation pipelines where the output needs to be passed to 
+       other tools like httpx or dnsx. Saving to a file ensures that large wordlists 
+       are preserved for future analysis without rerunning the generation process.
+     tr: |
+       Bir alt alan adı listesinden varyasyon üretip sonuçları belirli bir dosyaya kaydeder.
+       Bu, çıktının httpx veya dnsx gibi diğer araçlara aktarılması gereken otomasyon hatları için kritiktir.
+       Dosyaya kaydetmek, üretim sürecini tekrar çalıştırmadan büyük kelime listelerinin
+       ilerideki analizler için saklanmasını sağlar.
    command: "alterx -list {{subdomains_file}} -output {{output_file|output.txt}}"
 
 # === PATTERN & PAYLOAD MANIPULATION ===
- - title: alterx - custom pattern permutation
-   desc: |
-     Use a Domain Specific Language (DSL) pattern to generate highly targeted subdomains. 
-     This allows the user to define exactly how suffixes, prefixes, and separators 
-     are combined with the base domain. It is extremely effective when targeting 
-     specific naming conventions within an organization, such as environment-based prefixes.
+ - title:
+     en: alterx - custom pattern permutation
+     tr: alterx - özel kalıp permütasyonu
+   desc:
+     en: |
+       Use a Domain Specific Language (DSL) pattern to generate highly targeted subdomains. 
+       This allows the user to define exactly how suffixes, prefixes, and separators 
+       are combined with the base domain. It is extremely effective when targeting 
+       specific naming conventions within an organization, such as environment-based prefixes.
+     tr: |
+       Son derece hedefli alt alan adları üretmek için Alana Özgü Dil (DSL) kalıbı kullanır.
+       Bu, son ek, ön ek ve ayraçların ana alan adıyla nasıl birleştirileceğini tam tanımlamaya olanak tanır.
+       Ortam tabanlı ön ekler gibi kuruluş içi belirli adlandırma kurallarını hedeflerken son derece etkilidir.
    command: "alterx -list {{subdomains_file}} -pattern {{custom_pattern|word-sub.suffix}}"
 
- - title: alterx - custom payload wordlist
-   desc: |
-     Inject custom words from a local text file into the permutation engine using a 
-     key-value format. By using the payload flag, you can replace specific variables 
-     defined in your patterns with custom values from your own wordlists. This is 
-     essential for testing organizational-specific department names or internal codes.
+ - title:
+     en: alterx - custom payload wordlist
+     tr: alterx - özel yük kelime listesi
+   desc:
+     en: |
+       Inject custom words from a local text file into the permutation engine using a 
+       key-value format. By using the payload flag, you can replace specific variables 
+       defined in your patterns with custom values from your own wordlists. This is 
+       essential for testing organizational-specific department names or internal codes.
+     tr: |
+       Anahtar-değer biçimiyle yerel metin dosyasındaki özel kelimeleri permütasyon motoruna enjekte eder.
+       Payload bayrağıyla kalıplarınızda tanımlı belirli değişkenleri kendi kelime listelerinizdeki
+       özel değerlerle değiştirebilirsiniz. Bu, kuruluşa özgü departman adlarını veya iç kodları
+       test etmek için gereklidir.
    command: "alterx -list {{subdomains_file}} -pp {{payload_mapping|'word=words.txt'}}"
 
 # === ADVANCED CONFIGURATION ===
- - title: alterx - enrich wordlist from input
-   desc: |
-     Extract unique words from the provided subdomain list to create more relevant 
-     permutations dynamically. The enrichment process analyzes the input file to 
-     identify common naming strings and adds them to the internal wordlist used for 
-     generation. This makes the tool context-aware for the specific target infrastructure.
+ - title:
+     en: alterx - enrich wordlist from input
+     tr: alterx - girdiden kelime listesini zenginleştirme
+   desc:
+     en: |
+       Extract unique words from the provided subdomain list to create more relevant 
+       permutations dynamically. The enrichment process analyzes the input file to 
+       identify common naming strings and adds them to the internal wordlist used for 
+       generation. This makes the tool context-aware for the specific target infrastructure.
+     tr: |
+       Daha ilgili permütasyonları dinamik oluşturmak için verilen alt alan adı listesinden benzersiz kelimeleri çıkarır.
+       Zenginleştirme işlemi girdi dosyasını analiz ederek yaygın adlandırma dizelerini tespit edip
+       üretimde kullanılan dahili kelime listesine ekler. Bu, aracı hedef altyapıya özgü bağlama duyarlı yapar.
    command: "alterx -list {{subdomains_file}} -enrich"
 
- - title: alterx - estimate permutation count
-   desc: |
-     Calculate the total number of subdomains that would be generated without actually 
-     running the permutation process. This prevents filling up disk space or 
-     overwhelming network resources with massive, unmanageable wordlists. It is a 
-     highly recommended first step before executing complex or broad patterns.
+ - title:
+     en: alterx - estimate permutation count
+     tr: alterx - permütasyon sayısını tahmin etme
+   desc:
+     en: |
+       Calculate the total number of subdomains that would be generated without actually 
+       running the permutation process. This prevents filling up disk space or 
+       overwhelming network resources with massive, unmanageable wordlists. It is a 
+       highly recommended first step before executing complex or broad patterns.
+     tr: |
+       Permütasyon sürecini gerçekten çalıştırmadan üretilecek toplam alt alan adı sayısını hesaplar.
+       Bu, devasa yönetilemez kelime listeleriyle disk doldurmayı veya ağ kaynaklarını tüketmeyi önler.
+       Karmaşık veya geniş kalıpları çalıştırmadan önce şiddetle önerilen ilk adımdır.
    command: "alterx -list {{subdomains_file}} -estimate"
 
- - title: alterx - limit output results
-   desc: |
-     Restrict the number of generated subdomains to a specific integer count. 
-     This is useful when you only want a quick sample of potential subdomains 
-     rather than an exhaustive list that might take too long to resolve. It 
-     helps in managing the speed and scope of subsequent DNS resolution phases.
+ - title:
+     en: alterx - limit output results
+     tr: alterx - çıktı sonuçlarını sınırlama
+   desc:
+     en: |
+       Restrict the number of generated subdomains to a specific integer count. 
+       This is useful when you only want a quick sample of potential subdomains 
+       rather than an exhaustive list that might take too long to resolve. It 
+       helps in managing the speed and scope of subsequent DNS resolution phases.
+     tr: |
+       Üretilen alt alan adı sayısını belirli bir tam sayıyla sınırlar.
+       Çözümlenmesi uzun sürebilecek kapsamlı liste yerine potansiyel alt alan adlarından
+       hızlı bir örnek istediğinizde yararlıdır. Sonraki DNS çözümleme aşamalarının
+       hız ve kapsam yönetimine yardımcı olur.
    command: "alterx -list {{subdomains_file}} -limit {{result_limit|1000}}"
 
 # === WORKFLOW INTEGRATION ===
- - title: alterx - silent mode for piping
-   desc: |
-     Run the tool in silent mode to only display the generated results in the standard output. 
-     This is the preferred method when piping the output directly into other command-line 
-     tools like dnsx for immediate resolution. It removes headers, banners, and 
-     informational logs that would otherwise break the input of the next tool.
+ - title:
+     en: alterx - silent mode for piping
+     tr: alterx - aktarma için sessiz kip
+   desc:
+     en: |
+       Run the tool in silent mode to only display the generated results in the standard output. 
+       This is the preferred method when piping the output directly into other command-line 
+       tools like dnsx for immediate resolution. It removes headers, banners, and 
+       informational logs that would otherwise break the input of the next tool.
+     tr: |
+       Aracı yalnızca üretilen sonuçları standart çıktıya yazan sessiz kipte çalıştırır.
+       Bu, çıktıyı anında çözümleme için dnsx gibi diğer komut satırı araçlarına aktarırken
+       tercih edilen yöntemdir. Sonraki aracın girdisini bozacak başlık, banner ve
+       bilgi loglarını kaldırır.
    command: "alterx -list {{subdomains_file}} -silent | {{next_tool|dnsx}}"
 
- - title: alterx - update to latest version
-   desc: |
-     Check for and install the latest version of the tool directly from the source repository. 
-     Keeping the tool updated ensures you have the latest permutation patterns and 
-     DSL features. It is a good practice to run this periodically to maintain 
-     the efficiency of your reconnaissance toolkit.
+ - title:
+     en: alterx - update to latest version
+     tr: alterx - en son sürüme güncelleme
+   desc:
+     en: |
+       Check for and install the latest version of the tool directly from the source repository. 
+       Keeping the tool updated ensures you have the latest permutation patterns and 
+       DSL features. It is a good practice to run this periodically to maintain 
+       the efficiency of your reconnaissance toolkit.
+     tr: |
+       Aracın en son sürümünü doğrudan kaynak depodan denetler ve kurar.
+       Aracı güncel tutmak en yeni permütasyon kalıplarına ve DSL özelliklerine sahip olmanızı sağlar.
+       Keşif araç setinizin verimini korumak için bunu düzenli çalıştırmak iyi uygulamadır.
    command: "alterx -update"

@@ -3,60 +3,116 @@ tags: [web, security, pentest, bypass, reconnaissance, enumeration, bugbounty]
 
 actions:
   # === BASIC USAGE ===
-  - title: 403bypasser - basic scan
-    desc: |
-      Perform a standard scan against a target URL to identify potential 403 Forbidden bypasses. 
-      This command uses the internal default wordlist to test common endpoint patterns and techniques. 
-      It is the most common starting point for reconnaissance when encountering access-restricted directories.
+  - title:
+      en: 403bypasser - basic scan
+      tr: 403bypasser - temel tarama
+    desc:
+      en: |
+        Perform a standard scan against a target URL to identify potential 403 Forbidden bypasses. 
+        This command uses the internal default wordlist to test common endpoint patterns and techniques. 
+        It is the most common starting point for reconnaissance when encountering access-restricted directories.
+      tr: |
+        Potansiyel 403 Forbidden atlatmalarını tespit etmek için hedef URL'ye standart tarama yapar.
+        Bu komut, yaygın uç nokta kalıplarını ve tekniklerini test etmek için dahili varsayılan kelime listesini kullanır.
+        Erişimi kısıtlı dizinlerle karşılaşıldığında keşif için en yaygın başlangıç noktasıdır.
     command: "403bypasser -u {{url}}"
 
-  - title: 403bypasser - custom wordlist scan
-    desc: |
-      Execute the bypasser using a specific wordlist provided by the user instead of the default one. 
-      This is useful when you have a targeted list of potential endpoints or when the default list is insufficient for the target environment. 
-      Ensure the path to the wordlist is correct and the file is readable by the tool.
+  - title:
+      en: 403bypasser - custom wordlist scan
+      tr: 403bypasser - özel kelime listesi taraması
+    desc:
+      en: |
+        Execute the bypasser using a specific wordlist provided by the user instead of the default one. 
+        This is useful when you have a targeted list of potential endpoints or when the default list is insufficient for the target environment. 
+        Ensure the path to the wordlist is correct and the file is readable by the tool.
+      tr: |
+        Atlatma aracını varsayılan yerine kullanıcının verdiği belirli bir kelime listesiyle çalıştırır.
+        Hedeflenmiş potansiyel uç nokta listeniz olduğunda veya varsayılan liste hedef ortam için yetersiz kaldığında yararlıdır.
+        Kelime listesi yolunun doğru olduğundan ve dosyanın araç tarafından okunabildiğinden emin olun.
     command: "403bypasser -u {{url}} -w {{wordlist_path|wordlists/common.txt}}"
 
   # === ADVANCED TECHNIQUES ===
-  - title: 403bypasser - deep scan mode
-    desc: |
-      Enable comprehensive testing using the deep scan flag for exhaustive analysis. 
-      This mode performs nested header and path fuzzing, testing every possible combination of bypass techniques. 
-      While it is significantly slower than a standard scan, it offers a much higher success rate against hardened targets.
+  - title:
+      en: 403bypasser - deep scan mode
+      tr: 403bypasser - derin tarama kipi
+    desc:
+      en: |
+        Enable comprehensive testing using the deep scan flag for exhaustive analysis. 
+        This mode performs nested header and path fuzzing, testing every possible combination of bypass techniques. 
+        While it is significantly slower than a standard scan, it offers a much higher success rate against hardened targets.
+      tr: |
+        Kapsamlı analiz için derin tarama bayrağıyla kapsamlı testi etkinleştirir.
+        Bu kip, iç içe başlık ve yol bulanıklaştırması yaparak her olası atlatma tekniği kombinasyonunu dener.
+        Standart taramadan belirgin şekilde yavaş olsa da güçlendirilmiş hedeflere karşı çok daha yüksek başarı oranı sunar.
     command: "403bypasser -u {{url}} --deep"
 
-  - title: 403bypasser - authenticated scan with cookies
-    desc: |
-      Provide raw session cookies to the scanning engine to test for bypasses within an authenticated context. 
-      This is critical when the 403 error occurs for a specific user role or after a session has been established. 
-      Ensure the cookie string is properly formatted as it would appear in an HTTP request header.
+  - title:
+      en: 403bypasser - authenticated scan with cookies
+      tr: 403bypasser - çerezlerle kimlik doğrulamalı tarama
+    desc:
+      en: |
+        Provide raw session cookies to the scanning engine to test for bypasses within an authenticated context. 
+        This is critical when the 403 error occurs for a specific user role or after a session has been established. 
+        Ensure the cookie string is properly formatted as it would appear in an HTTP request header.
+      tr: |
+        Kimlik doğrulamalı bağlamda atlatmaları test etmek için tarama motoruna ham oturum çerezleri verir.
+        403 hatası belirli bir kullanıcı rolü için veya oturum açıldıktan sonra oluştuğunda bu kritiktir.
+        Çerez dizesinin bir HTTP istek başlığında görüneceği gibi düzgün biçimlendirildiğinden emin olun.
     command: "403bypasser -u {{url}} -c {{cookies|JSESSIONID=xyz}}"
 
-  - title: 403bypasser - custom header injection
-    desc: |
-      Add custom HTTP headers such as Bearer tokens, API keys, or specific User-Agents to the scan requests. 
-      This feature is essential for bypassing WAFs or accessing APIs that require specific identification headers. 
-      You can append multiple headers by repeating the flag if the tool's implementation supports it for complex scenarios.
+  - title:
+      en: 403bypasser - custom header injection
+      tr: 403bypasser - özel başlık enjeksiyonu
+    desc:
+      en: |
+        Add custom HTTP headers such as Bearer tokens, API keys, or specific User-Agents to the scan requests. 
+        This feature is essential for bypassing WAFs or accessing APIs that require specific identification headers. 
+        You can append multiple headers by repeating the flag if the tool's implementation supports it for complex scenarios.
+      tr: |
+        Tarama isteklerine Bearer token, API anahtarı veya belirli User-Agent gibi özel HTTP başlıkları ekler.
+        Bu özellik, WAF'leri atlatmak veya belirli kimlik başlıkları gerektiren API'lere erişmek için gereklidir.
+        Aracın uygulaması destekliyorsa karmaşık senaryolarda bayrağı tekrarlayarak birden çok başlık ekleyebilirsiniz.
     command: "403bypasser -u {{url}} -H {{header|'Authorization: Bearer token'}}"
 
   # === PROXY AND EVASION ===
-  - title: 403bypasser - proxy integration
-    desc: |
-      Route all tool traffic through an external proxy server like Burp Suite, Caido, or ZAP. 
-      This allows for manual inspection of the specific bypass payloads and headers being sent to the target. 
-      It is highly recommended for troubleshooting why a specific bypass might be failing or for documenting the proof of concept.
+  - title:
+      en: 403bypasser - proxy integration
+      tr: 403bypasser - vekil sunucu entegrasyonu
+    desc:
+      en: |
+        Route all tool traffic through an external proxy server like Burp Suite, Caido, or ZAP. 
+        This allows for manual inspection of the specific bypass payloads and headers being sent to the target. 
+        It is highly recommended for troubleshooting why a specific bypass might be failing or for documenting the proof of concept.
+      tr: |
+        Tüm araç trafiğini Burp Suite, Caido veya ZAP gibi harici bir vekil sunucudan geçirir.
+        Bu, hedefe gönderilen atlatma yüklerinin ve başlıkların elle incelenmesine olanak tanır.
+        Belirli bir atlatmanın neden başarısız olduğunu gidermek veya kavram kanıtını belgelemek için şiddetle önerilir.
     command: "403bypasser -u {{url}} --proxy {{proxy_url|http://127.0.0.1:8080}}"
 
-  - title: 403bypasser - rate limit evasion
-    desc: |
-      Adjust the scanning speed and concurrency to avoid triggering Web Application Firewalls (WAF) or rate limits. 
-      Using a higher delay and fewer threads makes the scan stealthier and less likely to result in an IP ban. 
-      This is particularly important when testing production environments or targets with aggressive security monitoring.
+  - title:
+      en: 403bypasser - rate limit evasion
+      tr: 403bypasser - hız sınırı atlatma
+    desc:
+      en: |
+        Adjust the scanning speed and concurrency to avoid triggering Web Application Firewalls (WAF) or rate limits. 
+        Using a higher delay and fewer threads makes the scan stealthier and less likely to result in an IP ban. 
+        This is particularly important when testing production environments or targets with aggressive security monitoring.
+      tr: |
+        Web Uygulaması Güvenlik Duvarlarını (WAF) veya hız sınırlarını tetiklememek için tarama hızını ve eşzamanlılığı ayarlar.
+        Daha yüksek gecikme ve daha az iş parçacığı taramayı daha gizli yapar ve IP yasağı olasılığını azaltır.
+        Bu, üretim ortamlarını veya agresif güvenlik izlemesi olan hedefleri test ederken özellikle önemlidir.
     command: "403bypasser -u {{url}} -t {{threads|5}} --delay {{delay_ms|500}}"
 
-  - title: 403bypasser - full evasion suite
-    desc: |
-      Combine deep scanning with proxying and rate limiting for a thorough and controlled bypass attempt. 
-      This command is the "gold standard" for a comprehensive assessment of a single restricted endpoint. 
-      It ensures every bypass method is tried while allowing you to monitor the traffic and stay under the radar of simple detection systems.
+  - title:
+      en: 403bypasser - full evasion suite
+      tr: 403bypasser - tam atlatma paketi
+    desc:
+      en: |
+        Combine deep scanning with proxying and rate limiting for a thorough and controlled bypass attempt. 
+        This command is the "gold standard" for a comprehensive assessment of a single restricted endpoint. 
+        It ensures every bypass method is tried while allowing you to monitor the traffic and stay under the radar of simple detection systems.
+      tr: |
+        Kapsamlı ve kontrollü bir atlatma denemesi için derin taramayı vekil sunucu ve hız sınırlamayla birleştirir.
+        Bu komut, tek bir kısıtlı uç noktanın kapsamlı değerlendirmesi için "altın standart"tır.
+        Trafiği izlemenize ve basit tespit sistemlerinin radarında kalmamanıza olanak tanırken her atlatma yönteminin denenmesini sağlar.
     command: "403bypasser -u {{url}} --deep --proxy {{proxy_url|http://127.0.0.1:8080}} --delay {{delay_ms|1000}} -t {{threads|1}}"

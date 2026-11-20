@@ -3,96 +3,187 @@ tags: [network, security, pentest, enumeration, brute-force, authentication]
 
 actions:
   # === BASIC AUTHENTICATION ===
-  - title: medusa - basic authentication
-    desc: |
-      Performs a login attempt against a single host with a single username and password. 
-      This is the simplest form of authentication testing and is useful for verifying credentials or testing a specific account after manual discovery. 
-      Ensure the correct module name is provided for the service running on the host (e.g., ssh, ftp, telnet).
+  - title:
+      en: medusa - basic authentication
+      tr: medusa - temel kimlik doğrulama
+    desc:
+      en: |
+        Performs a login attempt against a single host with a single username and password. 
+        This is the simplest form of authentication testing and is useful for verifying credentials or testing a specific account after manual discovery. 
+        Ensure the correct module name is provided for the service running on the host (e.g., ssh, ftp, telnet).
+      tr: |
+        Tek bir makineye karşı tek kullanıcı adı ve parolayla oturum açma denemesi gerçekleştirir.
+        En basit kimlik doğrulama testi biçimidir ve kimlik bilgilerini doğrulamak veya manuel keşiften sonra belirli bir hesabı test etmek için kullanışlıdır.
+        Makinede çalışan hizmet için doğru modül adının verildiğinden emin olun (ör. ssh, ftp, telnet).
     command: "medusa -h {{target}} -u {{username}} -p {{password}} -M {{module}}"
 
-  - title: medusa - password wordlist attack
-    desc: |
-      Attempts to login to a target using a single username and a list of passwords from a specified file. 
-      This is the most common use case for recovering forgotten passwords or testing for weak security configurations during a pentest. 
-      Large wordlists might significantly increase the time required and the risk of account lockout on the target system.
+  - title:
+      en: medusa - password wordlist attack
+      tr: medusa - parola sözlüğü saldırısı
+    desc:
+      en: |
+        Attempts to login to a target using a single username and a list of passwords from a specified file. 
+        This is the most common use case for recovering forgotten passwords or testing for weak security configurations during a pentest. 
+        Large wordlists might significantly increase the time required and the risk of account lockout on the target system.
+      tr: |
+        Tek bir kullanıcı adıyla belirtilen dosyadaki parola listesini kullanarak hedefe oturum açmayı dener.
+        Unutulan parolaları kurtarmak veya sızma testi sırasında zayıf güvenlik yapılandırmalarını test etmek için en yaygın kullanım durumudur.
+        Büyük sözlükler gereken süreyi ve hedef sistemde hesap kilitlenme riskini önemli ölçüde artırabilir.
     command: "medusa -h {{target}} -u {{username}} -P {{password_list|/usr/share/wordlists/rockyou.txt}} -M {{module}}"
 
-  - title: medusa - user and password wordlist attack
-    desc: |
-      Tests multiple usernames against multiple passwords on a single target host. 
-      Medusa will iterate through the user list and try every password in the password list for each user. 
-      This exhaustive search is powerful but generates a high volume of traffic and log entries on the target.
+  - title:
+      en: medusa - user and password wordlist attack
+      tr: medusa - kullanıcı ve parola sözlüğü saldırısı
+    desc:
+      en: |
+        Tests multiple usernames against multiple passwords on a single target host. 
+        Medusa will iterate through the user list and try every password in the password list for each user. 
+        This exhaustive search is powerful but generates a high volume of traffic and log entries on the target.
+      tr: |
+        Tek bir hedef makinede birden fazla kullanıcı adını birden fazla parolaya karşı dener.
+        Medusa kullanıcı listesini dolaşır ve her kullanıcı için parola listesindeki her parolayı dener.
+        Bu kapsamlı arama güçlüdür ancak hedefte yüksek hacimli trafik ve günlük kaydı üretir.
     command: "medusa -h {{target}} -U {{user_list}} -P {{password_list}} -M {{module}}"
 
   # === MULTI-TARGET & COMBO ATTACKS ===
-  - title: medusa - attack multiple hosts
-    desc: |
-      Reads target IP addresses or hostnames from a text file to perform concurrent attacks across a network. 
-      This is highly effective for internal network assessments where multiple servers might share similar credentials or configurations. 
-      Use the -T flag to control how many hosts are processed in parallel to manage resource consumption.
+  - title:
+      en: medusa - attack multiple hosts
+      tr: medusa - birden fazla makineye saldırı
+    desc:
+      en: |
+        Reads target IP addresses or hostnames from a text file to perform concurrent attacks across a network. 
+        This is highly effective for internal network assessments where multiple servers might share similar credentials or configurations. 
+        Use the -T flag to control how many hosts are processed in parallel to manage resource consumption.
+      tr: |
+        Ağ genelinde eşzamanlı saldırılar için hedef IP adreslerini veya makine adlarını bir metin dosyasından okur.
+        Birden fazla sunucunun benzer kimlik bilgileri veya yapılandırmaları paylaşabileceği iç ağ değerlendirmeleri için oldukça etkilidir.
+        Kaynak tüketimini yönetmek için kaç makinenin paralel işleneceğini denetlemek üzere -T bayrağını kullanın.
     command: "medusa -H {{host_file}} -u {{username}} -P {{password_list}} -M {{module}}"
 
-  - title: medusa - combo file attack
-    desc: |
-      Uses a specialized 'combo' file where each line contains a username and password pair separated by a colon (user:pass). 
-      This is efficient when you have leaked credential pairs or specific combinations gathered from other reconnaissance phases. 
-      It streamlines the process by avoiding the massive cross-product of separate user and password files.
+  - title:
+      en: medusa - combo file attack
+      tr: medusa - kombine dosya saldırısı
+    desc:
+      en: |
+        Uses a specialized 'combo' file where each line contains a username and password pair separated by a colon (user:pass). 
+        This is efficient when you have leaked credential pairs or specific combinations gathered from other reconnaissance phases. 
+        It streamlines the process by avoiding the massive cross-product of separate user and password files.
+      tr: |
+        Her satırın iki nokta üst üste ile ayrılmış bir kullanıcı adı ve parola çifti (user:pass) içerdiği özel bir 'combo' dosyası kullanır.
+        Sızdırılmış kimlik bilgisi çiftleriniz veya diğer keşif aşamalarından toplanmış belirli kombinasyonlarınız olduğunda verimlidir.
+        Ayrı kullanıcı ve parola dosyalarının devasa çapraz çarpımından kaçınarak süreci kolaylaştırır.
     command: "medusa -h {{target}} -C {{combo_file}} -M {{module}}"
 
   # === MODULE SPECIFIC EXAMPLES ===
-  - title: medusa - ssh brute-force
-    desc: |
-      Specifically targets the SSH service on a host to attempt credential discovery. 
-      SSH is a high-value target for attackers, so this module is frequently used to gain initial access to Linux/Unix systems. 
-      Be mindful of 'fail2ban' or similar Intrusion Prevention Systems (IPS) that might block your IP after several failed attempts.
+  - title:
+      en: medusa - ssh brute-force
+      tr: medusa - ssh kaba kuvvet
+    desc:
+      en: |
+        Specifically targets the SSH service on a host to attempt credential discovery. 
+        SSH is a high-value target for attackers, so this module is frequently used to gain initial access to Linux/Unix systems. 
+        Be mindful of 'fail2ban' or similar Intrusion Prevention Systems (IPS) that might block your IP after several failed attempts.
+      tr: |
+        Kimlik bilgisi keşfi denemek için makinedeki SSH hizmetini özellikle hedefler.
+        SSH saldırganlar için yüksek değerli bir hedeftir, bu nedenle bu modül Linux/Unix sistemlerine ilk erişimi kazanmak için sık kullanılır.
+        Birkaç başarısız denemeden sonra IP'nizi engelleyebilecek 'fail2ban' veya benzeri Saldırı Önleme Sistemlerine (IPS) dikkat edin.
     command: "medusa -h {{target}} -u {{username|root}} -P {{password_list}} -M ssh"
 
-  - title: medusa - web form http authentication
-    desc: |
-      Performs brute-force against services using HTTP basic, digest, or NTLM authentication. 
-      It is useful for testing routers, administrative web interfaces, or protected web directories. 
-      If the service resides in a specific subdirectory, use the -m flag to pass the directory parameter to the module.
+  - title:
+      en: medusa - web form http authentication
+      tr: medusa - web formu http kimlik doğrulaması
+    desc:
+      en: |
+        Performs brute-force against services using HTTP basic, digest, or NTLM authentication. 
+        It is useful for testing routers, administrative web interfaces, or protected web directories. 
+        If the service resides in a specific subdirectory, use the -m flag to pass the directory parameter to the module.
+      tr: |
+        HTTP basic, digest veya NTLM kimlik doğrulaması kullanan hizmetlere karşı kaba kuvvet uygular.
+        Yönlendiricileri, yönetici web arayüzlerini veya korumalı web dizinlerini test etmek için kullanışlıdır.
+        Hizmet belirli bir alt dizindeyse dizin parametresini modüle aktarmak için -m bayrağını kullanın.
     command: "medusa -h {{target}} -u {{username|admin}} -P {{password_list}} -M http -m {{web_path|DIR:/admin}}"
 
-  - title: medusa - mssql database attack
-    desc: |
-      Targets Microsoft SQL Server instances to find valid database administrative or user credentials. 
-      This can lead to full database compromise or even remote code execution if 'xp_cmdshell' is enabled. 
-      Always ensure you have permission to test database instances as it can impact production performance.
+  - title:
+      en: medusa - mssql database attack
+      tr: medusa - mssql veritabanı saldırısı
+    desc:
+      en: |
+        Targets Microsoft SQL Server instances to find valid database administrative or user credentials. 
+        This can lead to full database compromise or even remote code execution if 'xp_cmdshell' is enabled. 
+        Always ensure you have permission to test database instances as it can impact production performance.
+      tr: |
+        Geçerli veritabanı yönetici veya kullanıcı kimlik bilgilerini bulmak için Microsoft SQL Server örneklerini hedefler.
+        'xp_cmdshell' etkinse bu, veritabanının tamamen ele geçirilmesine hatta uzaktan kod çalıştırılmasına yol açabilir.
+        Üretim performansını etkileyebileceğinden veritabanı örneklerini test etme izniniz olduğundan mutlaka emin olun.
     command: "medusa -h {{target}} -u {{username|sa}} -P {{password_list}} -M mssql"
 
   # === OPTIMIZATION & ADVANCED OPTIONS ===
-  - title: medusa - check for empty or matching passwords
-    desc: |
-      Automatically checks if the password is empty (n) or identical to the username (s) before trying the wordlist. 
-      Many misconfigured systems or default installations still use these weak credential patterns. 
-      This is a quick way to find "low-hanging fruit" during the initial phase of a security audit.
+  - title:
+      en: medusa - check for empty or matching passwords
+      tr: medusa - boş veya eşleşen parola denetimi
+    desc:
+      en: |
+        Automatically checks if the password is empty (n) or identical to the username (s) before trying the wordlist. 
+        Many misconfigured systems or default installations still use these weak credential patterns. 
+        This is a quick way to find "low-hanging fruit" during the initial phase of a security audit.
+      tr: |
+        Sözlüğü denemeden önce parolanın boş (n) veya kullanıcı adıyla aynı (s) olup olmadığını otomatik denetler.
+        Birçok yanlış yapılandırılmış sistem veya varsayılan kurulum hâlâ bu zayıf kimlik bilgisi kalıplarını kullanır.
+        Güvenlik denetiminin ilk aşamasında "kolay hedefleri" bulmanın hızlı bir yoludur.
     command: "medusa -h {{target}} -u {{username}} -e {{check_type|ns}} -M {{module}}"
 
-  - title: medusa - optimized parallel scanning
-    desc: |
-      Increases the speed of the brute-force attack by adjusting the number of concurrent threads. 
-      The -t flag controls the number of login attempts per host, while -T controls the number of hosts scanned simultaneously. 
-      Setting these values too high may cause network congestion, packet loss, or crash the target service.
+  - title:
+      en: medusa - optimized parallel scanning
+      tr: medusa - optimize paralel tarama
+    desc:
+      en: |
+        Increases the speed of the brute-force attack by adjusting the number of concurrent threads. 
+        The -t flag controls the number of login attempts per host, while -T controls the number of hosts scanned simultaneously. 
+        Setting these values too high may cause network congestion, packet loss, or crash the target service.
+      tr: |
+        Eşzamanlı iş parçacığı sayısını ayarlayarak kaba kuvvet saldırısının hızını artırır.
+        -t bayrağı makine başına oturum açma denemesi sayısını, -T ise aynı anda taranan makine sayısını denetler.
+        Bu değerleri çok yüksek ayarlamak ağ tıkanıklığına, paket kaybına veya hedef hizmetin çökmesine yol açabilir.
     command: "medusa -h {{target}} -U {{user_file}} -P {{password_list}} -M {{module}} -t {{threads|10}} -T {{host_threads|5}}"
 
-  - title: medusa - scan over ssl with custom port
-    desc: |
-      Forces the connection to use SSL/TLS encryption and specifies a non-standard TCP port. 
-      This is mandatory for encrypted services like HTTPS (port 443), LDAPS (port 636), or custom-wrapped legacy services. 
-      Using the -s flag ensures that Medusa attempts an SSL handshake before sending authentication data.
+  - title:
+      en: medusa - scan over ssl with custom port
+      tr: medusa - özel portla ssl üzerinden tarama
+    desc:
+      en: |
+        Forces the connection to use SSL/TLS encryption and specifies a non-standard TCP port. 
+        This is mandatory for encrypted services like HTTPS (port 443), LDAPS (port 636), or custom-wrapped legacy services. 
+        Using the -s flag ensures that Medusa attempts an SSL handshake before sending authentication data.
+      tr: |
+        Bağlantıyı SSL/TLS şifrelemesi kullanmaya zorlar ve standart dışı bir TCP portu belirtir.
+        HTTPS (443 numaralı port), LDAPS (636 numaralı port) gibi şifreli hizmetler veya özel sarılmış eski hizmetler için zorunludur.
+        -s bayrağını kullanmak Medusa'nın kimlik doğrulama verisi göndermeden önce SSL el sıkışması denemesini sağlar.
     command: "medusa -h {{target}} -u {{username}} -P {{password_list}} -M {{module}} -s -n {{port}}"
 
-  - title: medusa - stop on valid credentials
-    desc: |
-      Terminates the scanning process immediately after a valid set of credentials is discovered. 
-      The -f flag stops scanning the current host, while -F stops the entire audit across all hosts in the list. 
-      This is a "stealthier" and more efficient approach once your access objective is achieved.
+  - title:
+      en: medusa - stop on valid credentials
+      tr: medusa - geçerli kimlik bilgisinde durma
+    desc:
+      en: |
+        Terminates the scanning process immediately after a valid set of credentials is discovered. 
+        The -f flag stops scanning the current host, while -F stops the entire audit across all hosts in the list. 
+        This is a "stealthier" and more efficient approach once your access objective is achieved.
+      tr: |
+        Geçerli bir kimlik bilgisi bulunduktan hemen sonra tarama sürecini sonlandırır.
+        -f bayrağı geçerli makinenin taramasını durdururken -F listedeki tüm makinelerde tüm denetimi durdurur.
+        Erişim hedefinize ulaşıldığında bu daha "gizli" ve verimli bir yaklaşımdır.
     command: "medusa -h {{target}} -U {{user_file}} -P {{password_list}} -M {{module}} -f"
 
-  - title: medusa - resume previous scan
-    desc: |
-      Resumes a previously interrupted scan based on a map file generated during the initial run. 
-      This is extremely useful for long-running brute-force sessions that were stopped due to network issues or time constraints. 
-      It prevents redundant testing of credentials that have already been checked.
+  - title:
+      en: medusa - resume previous scan
+      tr: medusa - önceki taramayı sürdürme
+    desc:
+      en: |
+        Resumes a previously interrupted scan based on a map file generated during the initial run. 
+        This is extremely useful for long-running brute-force sessions that were stopped due to network issues or time constraints. 
+        It prevents redundant testing of credentials that have already been checked.
+      tr: |
+        İlk çalıştırma sırasında üretilen bir harita dosyasına dayanarak daha önce kesintiye uğramış bir taramayı sürdürür.
+        Ağ sorunları veya zaman kısıtlamaları nedeniyle durdurulmuş uzun süreli kaba kuvvet oturumları için son derece kullanışlıdır.
+        Zaten denetlenmiş kimlik bilgilerinin gereksiz yeniden test edilmesini önler.
     command: "medusa -Z {{map_file_from_previous_scan}}"

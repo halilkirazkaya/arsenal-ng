@@ -3,84 +3,161 @@ tags: [reconnaissance, dns, enumeration, subdomains, osint, pentest, security]
 
 actions:
   # === BASIC ENUMERATION ===
-  - title: amass - passive subdomain discovery
-    desc: |
-      Performs passive reconnaissance by gathering data from public sources without directly interacting with the target's infrastructure. 
-      This is the safest method for initial discovery to avoid detection or when the scope forbids active scanning. 
-      It aggregates results from search engines, certificate transparency logs, and web archives.
+  - title:
+      en: amass - passive subdomain discovery
+      tr: amass - pasif alt alan adı keşfi
+    desc:
+      en: |
+        Performs passive reconnaissance by gathering data from public sources without directly interacting with the target's infrastructure. 
+        This is the safest method for initial discovery to avoid detection or when the scope forbids active scanning. 
+        It aggregates results from search engines, certificate transparency logs, and web archives.
+      tr: |
+        Hedef altyapıyla doğrudan etkileşime girmeden herkese açık kaynaklardan veri toplayarak pasif keşif yapar.
+        Tespitten kaçınmak için ilk keşifte veya kapsam aktif taramayı yasakladığında en güvenli yöntemdir.
+        Arama motorları, sertifika şeffaflık logları ve web arşivlerinden sonuçları birleştirir.
     command: "amass enum -passive -d {{domain}}"
 
-  - title: amass - active subdomain enumeration
-    desc: |
-      Conducts a thorough search by actively attempting to resolve potential subdomains using DNS queries and certificate pulling. 
-      This mode includes techniques like brute-forcing, DNS zone transfers, and service banner grabbing if configured. 
-      Be aware that this method is much more intrusive and can be detected by security monitoring systems or trigger alerts.
+  - title:
+      en: amass - active subdomain enumeration
+      tr: amass - aktif alt alan adı numaralandırma
+    desc:
+      en: |
+        Conducts a thorough search by actively attempting to resolve potential subdomains using DNS queries and certificate pulling. 
+        This mode includes techniques like brute-forcing, DNS zone transfers, and service banner grabbing if configured. 
+        Be aware that this method is much more intrusive and can be detected by security monitoring systems or trigger alerts.
+      tr: |
+        DNS sorguları ve sertifika çekme ile potansiyel alt alan adlarını aktif çözümlemeye çalışarak kapsamlı arama yapar.
+        Bu kip, yapılandırılırsa kaba kuvvet, DNS bölge aktarımı ve hizmet banner yakalama gibi teknikleri içerir.
+        Bu yöntemin çok daha saldırgan olduğunu ve güvenlik izleme sistemlerince tespit edilip alarm üretebileceğini unutmayın.
     command: "amass enum -active -d {{domain}} -brute"
 
   # === ADVANCED CONFIGURATION ===
-  - title: amass - enumeration with config file
-    desc: |
-      Utilizes a specific configuration file to manage API keys, data source settings, and recursive depth. 
-      Loading API keys for services like Censys, BinaryEdge, or Shodan significantly increases the breadth of the results. 
-      Ensure the config file path is correct and permissions are restricted, as it usually contains sensitive credentials.
+  - title:
+      en: amass - enumeration with config file
+      tr: amass - yapılandırma dosyasıyla numaralandırma
+    desc:
+      en: |
+        Utilizes a specific configuration file to manage API keys, data source settings, and recursive depth. 
+        Loading API keys for services like Censys, BinaryEdge, or Shodan significantly increases the breadth of the results. 
+        Ensure the config file path is correct and permissions are restricted, as it usually contains sensitive credentials.
+      tr: |
+        API anahtarları, veri kaynağı ayarları ve özyinelemeli derinliği yönetmek için belirli bir yapılandırma dosyası kullanır.
+        Censys, BinaryEdge veya Shodan gibi servislerin API anahtarlarını yüklemek sonuçların kapsamını belirgin artırır.
+        Dosya genellikle hassas kimlik bilgileri içerdiğinden yolun doğru ve izinlerin kısıtlı olduğundan emin olun.
     command: "amass enum -config {{config|~/.config/amass/config.yaml}} -d {{domain}}"
 
-  - title: amass - restricted data sources
-    desc: |
-      Runs an enumeration using only a specific subset of data sources or by excluding certain ones. 
-      This is useful when you want to troubleshoot a specific provider or speed up the process by disabling slow sources. 
-      Use the -include or -exclude flags to precisely control where Amass fetches its intelligence data.
+  - title:
+      en: amass - restricted data sources
+      tr: amass - kısıtlı veri kaynakları
+    desc:
+      en: |
+        Runs an enumeration using only a specific subset of data sources or by excluding certain ones. 
+        This is useful when you want to troubleshoot a specific provider or speed up the process by disabling slow sources. 
+        Use the -include or -exclude flags to precisely control where Amass fetches its intelligence data.
+      tr: |
+        Numaralandırmayı yalnızca belirli bir veri kaynağı alt kümesiyle veya bazılarını hariç tutarak çalıştırır.
+        Belirli bir sağlayıcıyı gidermek veya yavaş kaynakları kapatarak süreci hızlandırmak istediğinizde yararlıdır.
+        Amass'in istihbarat verisini nereden alacağını hassas denetlemek için -include veya -exclude bayraklarını kullanın.
     command: "amass enum -include {{sources|crtsh,hackertarget}} -d {{domain}}"
 
   # === INFRASTRUCTURE & INTEL ===
-  - title: amass - discover assets via ASN
-    desc: |
-      Identifies the Autonomous System Number (ASN) and associated IP ranges belonging to a specific organization. 
-      This helps in understanding the global network footprint and identifying hosted infrastructure that might not be linked via DNS. 
-      It is an essential step for broad scope engagements covering multiple network segments and data centers.
+  - title:
+      en: amass - discover assets via ASN
+      tr: amass - ASN ile varlık keşfi
+    desc:
+      en: |
+        Identifies the Autonomous System Number (ASN) and associated IP ranges belonging to a specific organization. 
+        This helps in understanding the global network footprint and identifying hosted infrastructure that might not be linked via DNS. 
+        It is an essential step for broad scope engagements covering multiple network segments and data centers.
+      tr: |
+        Belirli bir kuruluşa ait Otonom Sistem Numarasını (ASN) ve ilişkili IP aralıklarını belirler.
+        Bu, küresel ağ izini anlamaya ve DNS ile bağlı olmayabilecek barındırılan altyapıyı tespit etmeye yardımcı olur.
+        Birden çok ağ bölümü ve veri merkezini kapsayan geniş kapsamlı çalışmalarda gerekli adımdır.
     command: "amass enum -asn {{asn_number}}"
 
-  - title: amass - scan specific IP ranges
-    desc: |
-      Performs discovery against specific CIDR blocks to find associated domain names and infrastructure assets. 
-      This bridges the gap between traditional network scanning and domain enumeration by mapping IPs back to hostnames. 
-      It is particularly effective for identifying "shadow IT" hosted on company-owned address space.
+  - title:
+      en: amass - scan specific IP ranges
+      tr: amass - belirli IP aralıklarını tarama
+    desc:
+      en: |
+        Performs discovery against specific CIDR blocks to find associated domain names and infrastructure assets. 
+        This bridges the gap between traditional network scanning and domain enumeration by mapping IPs back to hostnames. 
+        It is particularly effective for identifying "shadow IT" hosted on company-owned address space.
+      tr: |
+        İlişkili alan adlarını ve altyapı varlıklarını bulmak için belirli CIDR bloklarına keşif yapar.
+        Bu, IP'leri host adlarına eşleyerek geleneksel ağ taramasıyla alan adı numaralandırma arasındaki boşluğu kapatır.
+        Şirkete ait adres alanında barındırılan "gölge BT"yi tespit etmede özellikle etkilidir.
     command: "amass enum -cidr {{cidr|192.168.1.0/24}}"
 
   # === ANALYSIS & TRACKING ===
-  - title: amass - track differences between runs
-    desc: |
-      Compares the results of the current enumeration with previous runs stored in the internal OAM database. 
-      It highlights new, moved, or removed assets, allowing security teams to monitor attack surface drift over time. 
-      This is a critical feature for continuous monitoring and identifying newly exposed services in a dynamic environment.
+  - title:
+      en: amass - track differences between runs
+      tr: amass - çalıştırmalar arası farkları izleme
+    desc:
+      en: |
+        Compares the results of the current enumeration with previous runs stored in the internal OAM database. 
+        It highlights new, moved, or removed assets, allowing security teams to monitor attack surface drift over time. 
+        This is a critical feature for continuous monitoring and identifying newly exposed services in a dynamic environment.
+      tr: |
+        Geçerli numaralandırma sonuçlarını dahili OAM veritabanındaki önceki çalıştırmalarla karşılaştırır.
+        Yeni, taşınmış veya kaldırılmış varlıkları vurgulayarak güvenlik ekiplerinin saldırı yüzeyi değişimini izlemesini sağlar.
+        Bu, sürekli izleme ve dinamik ortamda yeni açığa çıkan hizmetleri tespit için kritik özelliktir.
     command: "amass track -d {{domain}}"
 
-  - title: amass - subdomain statistics and analysis
-    desc: |
-      Analyzes the discovered subdomains and presents a summarized view of the data. 
-      It provides insights into the distribution of IP addresses, data sources, and top-level domains. 
-      This is helpful for a quick high-level overview before diving into deep technical exploitation or for reporting purposes.
+  - title:
+      en: amass - subdomain statistics and analysis
+      tr: amass - alt alan adı istatistik ve analizi
+    desc:
+      en: |
+        Analyzes the discovered subdomains and presents a summarized view of the data. 
+        It provides insights into the distribution of IP addresses, data sources, and top-level domains. 
+        This is helpful for a quick high-level overview before diving into deep technical exploitation or for reporting purposes.
+      tr: |
+        Keşfedilen alt alan adlarını analiz edip verinin özet görünümünü sunar.
+        IP adresleri, veri kaynakları ve üst düzey alan adlarının dağılımına dair içgörüler verir.
+        Derin teknik sömürüye girmeden hızlı üst düzey bakış veya raporlama için yararlıdır.
     command: "amass subs -d {{domain}}"
 
   # === VISUALIZATION ===
-  - title: amass - generate graph visualization
-    desc: |
-      Processes the discovered data from the database to create interactive graph visualizations. 
-      Supported formats include D3.js (web-ready), Graphistry, or files compatible with Gephi. 
-      Visualization helps in understanding complex relationships between domains, subdomains, IPs, and ASNs that are hard to spot in text logs.
+  - title:
+      en: amass - generate graph visualization
+      tr: amass - grafik görselleştirmesi üretme
+    desc:
+      en: |
+        Processes the discovered data from the database to create interactive graph visualizations. 
+        Supported formats include D3.js (web-ready), Graphistry, or files compatible with Gephi. 
+        Visualization helps in understanding complex relationships between domains, subdomains, IPs, and ASNs that are hard to spot in text logs.
+      tr: |
+        Veritabanındaki keşif verisini işleyerek etkileşimli grafik görselleştirmeleri oluşturur.
+        Desteklenen biçimler D3.js (web'e hazır), Graphistry veya Gephi uyumlu dosyalardır.
+        Görselleştirme, metin loglarında zor görünen alan adı, alt alan adı, IP ve ASN arası karmaşık ilişkileri anlamaya yardımcı olur.
     command: "amass viz -d3 -d {{domain}}"
 
   # === DATABASE MANAGEMENT ===
-  - title: amass - list enumeration history
-    desc: |
-      Displays a list of all previous enumeration sessions stored in the local graph database. 
-      Each session is assigned a unique index or UUID which can be used for tracking or comparative analysis. 
-      This is useful for managing multiple projects or long-term monitoring of the same target.
+  - title:
+      en: amass - list enumeration history
+      tr: amass - numaralandırma geçmişini listeleme
+    desc:
+      en: |
+        Displays a list of all previous enumeration sessions stored in the local graph database. 
+        Each session is assigned a unique index or UUID which can be used for tracking or comparative analysis. 
+        This is useful for managing multiple projects or long-term monitoring of the same target.
+      tr: |
+        Yerel grafik veritabanında saklanan tüm önceki numaralandırma oturumlarının listesini gösterir.
+        Her oturuma izleme veya karşılaştırmalı analizde kullanılabilen benzersiz indeks veya UUID atanır.
+        Bu, birden çok projeyi yönetmek veya aynı hedefi uzun süre izlemek için yararlıdır.
     command: "amass enum -list"
 
-  - title: amass - export results to text
-    desc: |
-      Exports the discovered subdomains and their resolved IP addresses into a clean text file. 
-      This is the standard way to pipe Amass output into other tools like HTTPX, Nmap, or Nuclei. 
-      The -o flag ensures that the results are saved persistently for documentation and further processing in a pipeline.
+  - title:
+      en: amass - export results to text
+      tr: amass - sonuçları metne aktarma
+    desc:
+      en: |
+        Exports the discovered subdomains and their resolved IP addresses into a clean text file. 
+        This is the standard way to pipe Amass output into other tools like HTTPX, Nmap, or Nuclei. 
+        The -o flag ensures that the results are saved persistently for documentation and further processing in a pipeline.
+      tr: |
+        Keşfedilen alt alan adlarını ve çözümlenmiş IP adreslerini temiz bir metin dosyasına aktarır.
+        Bu, Amass çıktısını HTTPX, Nmap veya Nuclei gibi diğer araçlara aktarmanın standart yoludur.
+        -o bayrağı sonuçların belgeleme ve hat içinde ileri işleme için kalıcı kaydedilmesini sağlar.
     command: "amass enum -d {{domain}} -o {{output_file|results.txt}}"

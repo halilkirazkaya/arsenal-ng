@@ -228,6 +228,7 @@ Set variables once and reuse them across all commands in your session. Variables
 | Command | Description |
 |---------|-------------|
 | `set key=value` | Set a global variable (e.g., `set ip=10.10.10.10`) |
+| `set language=tr` | Switch UI language, persists in `language.json` (en, tr) |
 | `unset key` | Remove a global variable |
 | `variables` | List all currently set variables |
 | `tools` | Show all available tools with command counts |
@@ -299,6 +300,25 @@ actions:
     desc: Advanced scan with IP, port, and output file
     command: "mytool scan -t {{ip}} -p {{port|443}} -o {{output|scan.log}}"
 ```
+
+### Translated Titles
+
+`title` and `desc` accept either a plain string (English) or a
+per-language map. Missing translations fall back to English:
+
+```yaml
+actions:
+  - title:
+      en: mytool - basic scan
+      tr: mytool - temel tarama
+    desc:
+      en: Performs a basic scan against the target
+      tr: Hedefe karşı temel bir tarama yapar
+    command: "mytool scan {{target}}"
+```
+
+Switch languages inside the app with `set language=tr`. The choice is
+stored in `language.json` next to `variables.json`.
 
 ### Argument Syntax
 

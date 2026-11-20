@@ -34,19 +34,19 @@ func newTestApp(t *testing.T, cheats []*model.Cheat) App {
 // fixtureCheats returns one arg-ful and one arg-less cheat for tests.
 func fixtureCheats() []*model.Cheat {
 	return []*model.Cheat{
-		{Tool: "nmap", Title: "Port scan", Desc: "Scan ports", Command: "nmap {{ip}}", Filename: "nmap.yaml"},
-		{Tool: "ping", Title: "Ping host", Desc: "Ping it", Command: "ping google.com", Filename: "ping.yaml"},
+		{Tool: "nmap", Title: model.NewText("Port scan"), Desc: model.NewText("Scan ports"), Command: "nmap {{ip}}", Filename: "nmap.yaml"},
+		{Tool: "ping", Title: model.NewText("Ping host"), Desc: model.NewText("Ping it"), Command: "ping google.com", Filename: "ping.yaml"},
 	}
 }
 
 // argCheat returns a cheat requiring one argument value.
 func argCheat() *model.Cheat {
-	return &model.Cheat{Tool: "nmap", Title: "Port scan", Command: "nmap {{ip}}"}
+	return &model.Cheat{Tool: "nmap", Title: model.NewText("Port scan"), Command: "nmap {{ip}}"}
 }
 
 // noArgCheat returns a cheat that runs without arguments.
 func noArgCheat() *model.Cheat {
-	return &model.Cheat{Tool: "ping", Title: "Ping", Command: "ping google.com"}
+	return &model.Cheat{Tool: "ping", Title: model.NewText("Ping"), Command: "ping google.com"}
 }
 
 // =============================================================================

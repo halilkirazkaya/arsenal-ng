@@ -4,36 +4,68 @@ tags: [network, icmp, ipv6, reconnaissance, scanner, impacket, pentest]
 actions:
   # === CONNECTIVITY TESTING ===
 
-  - title: impacket-ping6 - basic icmpv6 echo request
-    desc: |
-      Sends a standard ICMPv6 Echo Request from a specified source IPv6 address to a destination target.
-      This tool is useful for verifying connectivity between two specific IPv6 nodes using the Impacket library's packet crafting capabilities.
-      It is often used when you need to explicitly define the source address for testing routing or firewall rules.
-      Note that this command requires valid IPv6 addresses for both parameters to function correctly.
+  - title:
+      en: impacket-ping6 - basic icmpv6 echo request
+      tr: impacket-ping6 - temel ICMPv6 yankı isteği
+    desc:
+      en: |
+        Sends a standard ICMPv6 Echo Request from a specified source IPv6 address to a destination target.
+        This tool is useful for verifying connectivity between two specific IPv6 nodes using the Impacket library's packet crafting capabilities.
+        It is often used when you need to explicitly define the source address for testing routing or firewall rules.
+        Note that this command requires valid IPv6 addresses for both parameters to function correctly.
+      tr: |
+        Belirtilen kaynak IPv6 adresinden hedefe standart bir ICMPv6 Yankı İsteği gönderir.
+        Bu araç, Impacket kütüphanesinin paket oluşturma yetenekleriyle iki belirli IPv6 düğümü arası bağlantıyı doğrulamak için kullanışlıdır.
+        Yönlendirme veya güvenlik duvarı kurallarını test etmek için kaynak adresi açıkça tanımlamanız gerektiğinde sıkça kullanılır.
+        Bu komutun düzgün çalışması için her iki parametrenin de geçerli IPv6 adresi olması gerektiğini unutmayın.
     command: "impacket-ping6 {{src_ipv6}} {{dst_ipv6}}"
 
-  - title: impacket-ping6 - link-local address validation
-    desc: |
-      Verify reachability between nodes on the same local segment using Link-Local (fe80::) addresses.
-      Link-local communication requires an explicit source address to ensure the operating system selects the correct outgoing interface.
-      This is a critical step during internal network assessments to identify active neighbors before proceeding with neighbor discovery or exploitation.
-      Ensure your local interface has the source link-local address assigned before executing the command.
+  - title:
+      en: impacket-ping6 - link-local address validation
+      tr: impacket-ping6 - bağlantı-yerel adres doğrulama
+    desc:
+      en: |
+        Verify reachability between nodes on the same local segment using Link-Local (fe80::) addresses.
+        Link-local communication requires an explicit source address to ensure the operating system selects the correct outgoing interface.
+        This is a critical step during internal network assessments to identify active neighbors before proceeding with neighbor discovery or exploitation.
+        Ensure your local interface has the source link-local address assigned before executing the command.
+      tr: |
+        Aynı yerel segmentteki düğümler arası erişilebilirliği Bağlantı-Yerel (fe80::) adresleriyle doğrular.
+        Bağlantı-yerel iletişim, işletim sisteminin doğru giden arayüzü seçmesi için açık kaynak adresi gerektirir.
+        Komşu keşfi veya sömürüye geçmeden önce etkin komşuları belirlemek için iç ağ değerlendirmelerinde kritik bir adımdır.
+        Komutu çalıştırmadan önce kaynak bağlantı-yerel adresin yerel arayüze atanmış olduğundan emin olun.
     command: "impacket-ping6 {{src_link_local_ipv6}} {{target_link_local_ipv6}}"
 
   # === TROUBLESHOOTING ===
 
-  - title: impacket-ping6 - firewall and acl testing
-    desc: |
-      Used to test if IPv6 traffic is permitted through intermediate firewalls or Access Control Lists (ACLs).
-      By specifying different source addresses, an attacker or auditor can determine which IP ranges are allowed to communicate with a target host.
-      This helps in mapping the network's security posture regarding IPv6, which is often less monitored than IPv4.
-      Failure to receive a response may indicate that ICMPv6 traffic is being filtered by a security appliance.
+  - title:
+      en: impacket-ping6 - firewall and acl testing
+      tr: impacket-ping6 - güvenlik duvarı ve ACL testi
+    desc:
+      en: |
+        Used to test if IPv6 traffic is permitted through intermediate firewalls or Access Control Lists (ACLs).
+        By specifying different source addresses, an attacker or auditor can determine which IP ranges are allowed to communicate with a target host.
+        This helps in mapping the network's security posture regarding IPv6, which is often less monitored than IPv4.
+        Failure to receive a response may indicate that ICMPv6 traffic is being filtered by a security appliance.
+      tr: |
+        IPv6 trafiğinin ara güvenlik duvarları veya Erişim Denetim Listelerinden (ACL) geçmesine izin verilip verilmediğini test etmek için kullanılır.
+        Farklı kaynak adresleri belirterek saldırgan veya denetçi hangi IP aralıklarının hedef makineyle iletişim kurabildiğini belirleyebilir.
+        IPv6 güvenlik duruşunu haritalamaya yardımcı olur; IPv6 genellikle IPv4'ten daha az izlenir.
+        Yanıt alınamaması, ICMPv6 trafiğinin güvenlik cihazınca filtrelendiğini gösterebilir.
     command: "impacket-ping6 {{authorized_src_ipv6}} {{target_ipv6}}"
 
-  - title: impacket-ping6 - cross-segment reachability test
-    desc: |
-      Tests whether IPv6 routing is properly configured between different network segments or VLANs.
-      This command sends a packet from a source in one segment to a destination in another to confirm that the gateway is forwarding ICMPv6 traffic.
-      It is essential for identifying potential lateral movement paths within an organization's IPv6 infrastructure.
-      Always verify that the target host is configured to respond to ICMPv6 echo requests as some systems might drop them by default.
+  - title:
+      en: impacket-ping6 - cross-segment reachability test
+      tr: impacket-ping6 - segmentler arası erişilebilirlik testi
+    desc:
+      en: |
+        Tests whether IPv6 routing is properly configured between different network segments or VLANs.
+        This command sends a packet from a source in one segment to a destination in another to confirm that the gateway is forwarding ICMPv6 traffic.
+        It is essential for identifying potential lateral movement paths within an organization's IPv6 infrastructure.
+        Always verify that the target host is configured to respond to ICMPv6 echo requests as some systems might drop them by default.
+      tr: |
+        Farklı ağ segmentleri veya VLAN'lar arası IPv6 yönlendirmesinin doğru yapılandırılıp yapılandırılmadığını test eder.
+        Bu komut, bir segmentteki kaynaktan diğerindeki hedefe ağ geçidinin ICMPv6 trafiğini ilettiğini doğrulamak için paket gönderir.
+        Kuruluşun IPv6 altyapısındaki olası yanal hareket yollarını belirlemek için esastır.
+        Bazı sistemlerin ICMPv6 yankı isteklerini varsayılan olarak düşürebildiğinden hedef makinenin yanıt verecek şekilde yapılandırıldığını doğrulayın.
     command: "impacket-ping6 {{src_segment_ipv6}} {{dst_segment_ipv6}}"

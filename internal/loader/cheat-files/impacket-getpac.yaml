@@ -4,46 +4,86 @@ tags: [active-directory, kerberos, security, pentest, enumeration, impacket, pac
 actions:
   # === AUTHENTICATION METHODS ===
 
-  - title: impacket-getPac - basic authentication with password
-    desc: |
-      Retrieves the Privilege Attribute Certificate (PAC) of a target user by authenticating with a cleartext password. 
-      This command is used to examine the group memberships and security identifiers (SIDs) associated with a specific domain user. 
-      The tool requests a service ticket and extracts the PAC data provided by the Domain Controller. 
-      Ensure you have valid domain credentials before running this command.
+  - title:
+      en: impacket-getPac - basic authentication with password
+      tr: impacket-getPac - parolayla temel kimlik doğrulama
+    desc:
+      en: |
+        Retrieves the Privilege Attribute Certificate (PAC) of a target user by authenticating with a cleartext password. 
+        This command is used to examine the group memberships and security identifiers (SIDs) associated with a specific domain user. 
+        The tool requests a service ticket and extracts the PAC data provided by the Domain Controller. 
+        Ensure you have valid domain credentials before running this command.
+      tr: |
+        Açık parolayla kimlik doğrulayarak hedef kullanıcının Ayrıcalık Öznitelik Sertifikasını (PAC) alır.
+        Bu komut, belirli bir etki alanı kullanıcısıyla ilişkili grup üyeliklerini ve güvenlik tanımlayıcılarını (SID) incelemek için kullanılır.
+        Araç bir hizmet bileti ister ve Etki Alanı Denetleyicisinin sağladığı PAC verisini çıkarır.
+        Bu komutu çalıştırmadan önce geçerli etki alanı kimlik bilgilerine sahip olduğunuzdan emin olun.
     command: "impacket-getPac -targetUser {{target_user}} {{domain}}/{{username}}:{{password}}"
 
-  - title: impacket-getPac - authentication with NTLM hashes
-    desc: |
-      Performs PAC retrieval using NTLM hashes for authentication instead of a cleartext password. 
-      This is a common technique in post-exploitation scenarios known as Pass-the-Hash (PtH). 
-      It allows an attacker or auditor to enumerate user details without knowing the actual password. 
-      If the LM hash is unknown, use the standard null provider string (32 zeros).
+  - title:
+      en: impacket-getPac - authentication with NTLM hashes
+      tr: impacket-getPac - NTLM hash'leriyle kimlik doğrulama
+    desc:
+      en: |
+        Performs PAC retrieval using NTLM hashes for authentication instead of a cleartext password. 
+        This is a common technique in post-exploitation scenarios known as Pass-the-Hash (PtH). 
+        It allows an attacker or auditor to enumerate user details without knowing the actual password. 
+        If the LM hash is unknown, use the standard null provider string (32 zeros).
+      tr: |
+        Açık parola yerine NTLM hash'leriyle PAC alır.
+        Sızma sonrası senaryolarda Pass-the-Hash (PtH) olarak bilinen yaygın bir tekniktir.
+        Denetçi veya saldırganın gerçek parolayı bilmeden kullanıcı ayrıntılarını numaralandırmasına olanak tanır.
+        LM hash'i bilinmiyorsa standart boş sağlayıcı dizesini (32 sıfır) kullanın.
     command: "impacket-getPac -targetUser {{target_user}} -hashes {{hash}} {{domain}}/{{username}}"
 
-  - title: impacket-getPac - interactive password prompt
-    desc: |
-      Prompts the user to enter the password interactively rather than providing it on the command line. 
-      This is a more secure method of execution as it prevents the password from being stored in the shell history file (e.g., .bash_history). 
-      The tool will behave identically to the basic authentication method once the password is provided. 
-      Use this when operating in environments where command-line logging is strictly monitored.
+  - title:
+      en: impacket-getPac - interactive password prompt
+      tr: impacket-getPac - etkileşimli parola istemi
+    desc:
+      en: |
+        Prompts the user to enter the password interactively rather than providing it on the command line. 
+        This is a more secure method of execution as it prevents the password from being stored in the shell history file (e.g., .bash_history). 
+        The tool will behave identically to the basic authentication method once the password is provided. 
+        Use this when operating in environments where command-line logging is strictly monitored.
+      tr: |
+        Parolayı komut satırında vermek yerine kullanıcıdan etkileşimli olarak girmesini ister.
+        Parolanın kabuk geçmiş dosyasına (ör. .bash_history) kaydedilmesini engellediği için daha güvenli bir çalıştırma yöntemidir.
+        Parola sağlandıktan sonra araç temel kimlik doğrulama yöntemiyle aynı şekilde davranır.
+        Komut satırı günlüğünün sıkı izlendiği ortamlarda kullanın.
     command: "impacket-getPac -targetUser {{target_user}} {{domain}}/{{username}}"
 
   # === ADVANCED LOGGING AND TROUBLESHOOTING ===
 
-  - title: impacket-getPac - verbose debugging with timestamps
-    desc: |
-      Runs the PAC retrieval process with debug output enabled and timestamps added to every log entry. 
-      The debug flag provides detailed information about the Kerberos handshake and any errors encountered during the request. 
-      Timestamps are highly useful for incident response correlation and keeping track of activity logs. 
-      This is recommended when troubleshooting connectivity issues or non-standard Kerberos configurations.
+  - title:
+      en: impacket-getPac - verbose debugging with timestamps
+      tr: impacket-getPac - zaman damgalı ayrıntılı hata ayıklama
+    desc:
+      en: |
+        Runs the PAC retrieval process with debug output enabled and timestamps added to every log entry. 
+        The debug flag provides detailed information about the Kerberos handshake and any errors encountered during the request. 
+        Timestamps are highly useful for incident response correlation and keeping track of activity logs. 
+        This is recommended when troubleshooting connectivity issues or non-standard Kerberos configurations.
+      tr: |
+        PAC alma işlemini hata ayıklama çıktısı etkin ve her günlük girdisinde zaman damgasıyla çalıştırır.
+        Hata ayıklama bayrağı, Kerberos el sıkışması ve istek sırasında karşılaşılan hatalar hakkında ayrıntılı bilgi verir.
+        Zaman damgaları olay müdahale ilişkilendirmesi ve etkinlik günlüklerini takip için oldukça yararlıdır.
+        Bağlantı sorunlarını veya standart dışı Kerberos yapılandırmalarını giderirken önerilir.
     command: "impacket-getPac -debug -ts -targetUser {{target_user}} {{domain}}/{{username}}:{{password}}"
 
   # === SPECIALIZED TARGETING ===
 
-  - title: impacket-getPac - retrieve administrator PAC
-    desc: |
-      Specifically targets the built-in Administrator account to retrieve its PAC information. 
-      Retrieving the PAC of high-privileged users can help identify sensitive group memberships or custom SIDs. 
-      The requester must still provide valid domain credentials to initiate the Kerberos request. 
-      Be aware that requesting PACs for sensitive accounts may trigger alerts in environments with robust identity monitoring.
+  - title:
+      en: impacket-getPac - retrieve administrator PAC
+      tr: impacket-getPac - yönetici PAC'ini alma
+    desc:
+      en: |
+        Specifically targets the built-in Administrator account to retrieve its PAC information. 
+        Retrieving the PAC of high-privileged users can help identify sensitive group memberships or custom SIDs. 
+        The requester must still provide valid domain credentials to initiate the Kerberos request. 
+        Be aware that requesting PACs for sensitive accounts may trigger alerts in environments with robust identity monitoring.
+      tr: |
+        PAC bilgisini almak için özellikle yerleşik Administrator hesabını hedefler.
+        Yüksek yetkili kullanıcıların PAC'ini almak hassas grup üyeliklerini veya özel SID'leri ortaya çıkarabilir.
+        Kerberos isteğini başlatmak için isteyeni yine geçerli etki alanı kimlik bilgileri sağlamalıdır.
+        Hassas hesaplar için PAC istemenin güçlü kimlik izlemesi olan ortamlarda uyarı tetikleyebileceğini unutmayın.
     command: "impacket-getPac -targetUser {{target_admin|Administrator}} {{domain}}/{{username}}:{{password}}"

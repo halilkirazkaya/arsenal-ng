@@ -3,53 +3,102 @@ tags: [forensics, storage, ntfs, impacket, security, disk-analysis, file-extract
 
 actions:
   # === BASIC EXPLORATION ===
-  - title: impacket-ntfs-read - interactive volume exploration
-    desc: |
-      Open an NTFS volume for interactive exploration in a read-only shell. 
-      This is primarily used for browsing files on a raw disk image or a physical drive without the need to mount it to the host operating system. 
-      It is an excellent tool for forensic analysis as it prevents accidental modification of file metadata like access times.
+  - title:
+      en: impacket-ntfs-read - interactive volume exploration
+      tr: impacket-ntfs-read - etkileşimli birim keşfi
+    desc:
+      en: |
+        Open an NTFS volume for interactive exploration in a read-only shell. 
+        This is primarily used for browsing files on a raw disk image or a physical drive without the need to mount it to the host operating system. 
+        It is an excellent tool for forensic analysis as it prevents accidental modification of file metadata like access times.
+      tr: |
+        NTFS birimini salt okunur etkileşimli kabukta keşif için açar.
+        Ham disk imajı veya fiziksel sürücüdeki dosyaları makineye bağlamaya gerek kalmadan gözatmak için kullanılır.
+        Erişim zamanları gibi dosya üst verilerini yanlışlıkla değiştirmeyi engellediği için adli analizde mükemmel bir araçtır.
     command: "impacket-ntfs-read {{volume}}"
 
   # === FILE EXTRACTION ===
-  - title: impacket-ntfs-read - extract specific file
-    desc: |
-      Extract a specific file from the NTFS volume using its absolute internal path. 
-      This is a common technique used during credential harvesting to pull sensitive registry hives like SAM or SECURITY from an offline disk. 
-      Ensure that the path starts with a backslash to represent the root of the NTFS partition.
+  - title:
+      en: impacket-ntfs-read - extract specific file
+      tr: impacket-ntfs-read - belirli dosyayı çıkarma
+    desc:
+      en: |
+        Extract a specific file from the NTFS volume using its absolute internal path. 
+        This is a common technique used during credential harvesting to pull sensitive registry hives like SAM or SECURITY from an offline disk. 
+        Ensure that the path starts with a backslash to represent the root of the NTFS partition.
+      tr: |
+        NTFS biriminden mutlak iç yoluyla belirli bir dosyayı çıkarır.
+        Çevrimdışı diskten SAM veya SECURITY gibi hassas kayıt defteri kovanlarını çekerken kimlik bilgisi toplamında yaygın bir tekniktir.
+        Yolun NTFS bölümünün kökünü temsil eden ters eğik çizgiyle başladığından emin olun.
     command: "impacket-ntfs-read -extract {{file_path}} {{volume}}"
 
-  - title: impacket-ntfs-read - extract system hive for decryption
-    desc: |
-      Specifically extract the Windows SYSTEM hive from the target volume. 
-      The SYSTEM hive is essential for obtaining the boot key required to decrypt secrets found in the SAM or LSA secrets. 
-      This command is highly effective when dealing with virtual machine disk files or raw forensic clones.
+  - title:
+      en: impacket-ntfs-read - extract system hive for decryption
+      tr: impacket-ntfs-read - şifre çözme için SYSTEM kovanını çıkarma
+    desc:
+      en: |
+        Specifically extract the Windows SYSTEM hive from the target volume. 
+        The SYSTEM hive is essential for obtaining the boot key required to decrypt secrets found in the SAM or LSA secrets. 
+        This command is highly effective when dealing with virtual machine disk files or raw forensic clones.
+      tr: |
+        Hedef birimden Windows SYSTEM kovanını özellikle çıkarır.
+        SYSTEM kovanı, SAM veya LSA gizli verilerinde bulunan şifreli sırları çözmek için gereken önyükleme anahtarı açısından esastır.
+        Bu komut sanal makine disk imajları veya ham adli klonlarla uğraşırken oldukça etkilidir.
     command: "impacket-ntfs-read -extract {{file_path}} {{volume}}"
 
-  - title: impacket-ntfs-read - extract ntds.dit from volume
-    desc: |
-      Attempt to extract the Active Directory database file (ntds.dit) from a domain controller's disk image. 
-      This is a critical step in offline NTDS.DIT dumping to extract domain hashes. 
-      Note that this requires access to the volume where the database is stored, which might not be the C: drive in some environments.
+  - title:
+      en: impacket-ntfs-read - extract ntds.dit from volume
+      tr: impacket-ntfs-read - birimden ntds.dit çıkarma
+    desc:
+      en: |
+        Attempt to extract the Active Directory database file (ntds.dit) from a domain controller's disk image. 
+        This is a critical step in offline NTDS.DIT dumping to extract domain hashes. 
+        Note that this requires access to the volume where the database is stored, which might not be the C: drive in some environments.
+      tr: |
+        Etki alanı denetleyicisinin disk imajından Active Directory veritabanı dosyasını (ntds.dit) çıkarmayı dener.
+        Etki alanı hash'lerini çevrimdışı NTDS.DIT dökümünde toplamanın kritik bir adımıdır.
+        Veritabanının bulunduğu birime erişim gerektirir; bazı ortamlarda bu C: sürücüsü olmayabilir.
     command: "impacket-ntfs-read -extract {{file_path}} {{volume}}"
 
   # === ADVANCED / TROUBLESHOOTING ===
-  - title: impacket-ntfs-read - debug mode for troubleshooting
-    desc: |
-      Enable verbose debug output while interacting with the NTFS volume. 
-      This is useful if the tool fails to parse the Master File Table (MFT) or encounters corruption in the filesystem. 
-      It provides detailed information about the underlying Impacket library's interaction with the NTFS structures.
+  - title:
+      en: impacket-ntfs-read - debug mode for troubleshooting
+      tr: impacket-ntfs-read - sorun gidermede hata ayıklama modu
+    desc:
+      en: |
+        Enable verbose debug output while interacting with the NTFS volume. 
+        This is useful if the tool fails to parse the Master File Table (MFT) or encounters corruption in the filesystem. 
+        It provides detailed information about the underlying Impacket library's interaction with the NTFS structures.
+      tr: |
+        NTFS birimiyle etkileşimde ayrıntılı hata ayıklama çıktısını etkinleştirir.
+        Araç Ana Dosya Tablosunu (MFT) ayrıştıramadığında veya dosya sisteminde bozulmayla karşılaştığında kullanışlıdır.
+        Temel Impacket kütüphanesinin NTFS yapılarıyla etkileşimi hakkında ayrıntılı bilgi verir.
     command: "impacket-ntfs-read -debug {{volume}}"
 
-  - title: impacket-ntfs-read - logging with timestamps
-    desc: |
-      Prepend a timestamp to every line of output generated by the tool. 
-      This is useful for maintaining a strictly timed audit log during forensic investigations or penetration testing engagements. 
-      It helps in correlating the time of file access with other events recorded in external monitoring systems.
+  - title:
+      en: impacket-ntfs-read - logging with timestamps
+      tr: impacket-ntfs-read - zaman damgalarıyla günlüğe kaydetme
+    desc:
+      en: |
+        Prepend a timestamp to every line of output generated by the tool. 
+        This is useful for maintaining a strictly timed audit log during forensic investigations or penetration testing engagements. 
+        It helps in correlating the time of file access with other events recorded in external monitoring systems.
+      tr: |
+        Aracın ürettiği çıktının her satırının başına zaman damgası ekler.
+        Adli soruşturmalarda veya sızma testi çalışmalarında sıkı zamanlı denetim günlüğü tutmak için kullanışlıdır.
+        Dosya erişim zamanını harici izleme sistemlerindeki diğer olaylarla ilişkilendirmeye yardımcı olur.
     command: "impacket-ntfs-read -ts {{volume}}"
 
-  - title: impacket-ntfs-read - full debug and extraction
-    desc: |
-      Combine extraction and debug flags to troubleshoot specific file access issues. 
-      This command will attempt to extract the specified file while printing all technical metadata being processed. 
-      Use this when a file exists but the tool is failing to locate its data runs or clusters.
+  - title:
+      en: impacket-ntfs-read - full debug and extraction
+      tr: impacket-ntfs-read - tam hata ayıklama ve çıkarma
+    desc:
+      en: |
+        Combine extraction and debug flags to troubleshoot specific file access issues. 
+        This command will attempt to extract the specified file while printing all technical metadata being processed. 
+        Use this when a file exists but the tool is failing to locate its data runs or clusters.
+      tr: |
+        Belirli dosya erişim sorunlarını gidermek için çıkarma ve hata ayıklama bayraklarını birleştirir.
+        Bu komut, işlenen tüm teknik üst verileri yazdırırken belirtilen dosyayı çıkarmayı dener.
+        Dosya varken araç veri çalışmalarını veya kümelerini bulamadığında kullanın.
     command: "impacket-ntfs-read -debug -extract {{file_path}} {{volume}}"

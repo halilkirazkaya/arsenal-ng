@@ -3,82 +3,159 @@ tags: [dns, enumeration, reconnaissance, networking, security, pentest, subdomai
 
 actions:
 # === BASIC RESOLUTION ===
- - title: dnsx - basic A record resolution
-   desc: |
-     Resolve a list of subdomains to their corresponding IPv4 addresses. 
-     This is the most common starting point for reconnaissance to identify live hosts. 
-     The output provides a clean list of resolved IP addresses for the provided input.
+ - title:
+     en: dnsx - basic A record resolution
+     tr: dnsx - temel A kaydı çözümleme
+   desc:
+     en: |
+       Resolve a list of subdomains to their corresponding IPv4 addresses. 
+       This is the most common starting point for reconnaissance to identify live hosts. 
+       The output provides a clean list of resolved IP addresses for the provided input.
+     tr: |
+       Bir subdomain listesini karşılık gelen IPv4 adreslerine çözümleyin.
+       Canlı hostları tespit etmek için keşfin en yaygın başlangıç noktasıdır.
+       Çıktı, verilen girdi için çözümlenmiş IP adreslerinin temiz bir listesini sunar.
    command: "dnsx -l {{list|subdomains.txt}}"
 
- - title: dnsx - query multiple record types
-   desc: |
-     Perform queries for multiple DNS record types including A, AAAA, CNAME, NS, TXT, and MX. 
-     This comprehensive scan helps in understanding the full DNS profile of a target domain. 
-     It is particularly useful for identifying mail servers, name servers, and third-party service verification strings.
+ - title:
+     en: dnsx - query multiple record types
+     tr: dnsx - birden çok kayıt türü sorgulama
+   desc:
+     en: |
+       Perform queries for multiple DNS record types including A, AAAA, CNAME, NS, TXT, and MX. 
+       This comprehensive scan helps in understanding the full DNS profile of a target domain. 
+       It is particularly useful for identifying mail servers, name servers, and third-party service verification strings.
+     tr: |
+       A, AAAA, CNAME, NS, TXT ve MX dahil birden çok DNS kayıt türü için sorgu yapın.
+       Bu kapsamlı tarama, hedef alan adının tüm DNS profilini anlamaya yardımcı olur.
+       Özellikle posta sunucularını, isim sunucularını ve üçüncü taraf hizmet doğrulama kayıtlarını tespit etmekte kullanışlıdır.
    command: "dnsx -l {{list}} -a -aaaa -cname -ns -txt -mx"
 
- - title: dnsx - reverse DNS lookup (PTR)
-   desc: |
-     Resolve a list of IP addresses back to their associated hostnames using PTR records. 
-     This is essential during internal assessments or when scanning cloud IP ranges to identify ownership. 
-     Reverse lookups help map out the infrastructure from an IP-centric perspective.
+ - title:
+     en: dnsx - reverse DNS lookup (PTR)
+     tr: dnsx - ters DNS sorgusu (PTR)
+   desc:
+     en: |
+       Resolve a list of IP addresses back to their associated hostnames using PTR records. 
+       This is essential during internal assessments or when scanning cloud IP ranges to identify ownership. 
+       Reverse lookups help map out the infrastructure from an IP-centric perspective.
+     tr: |
+       PTR kayıtlarını kullanarak bir IP listesini ilişkili hostname'lere çözümleyin.
+       İç ağ değerlendirmelerinde veya sahipliği tespit için bulut IP aralıkları taranırken gereklidir.
+       Ters sorgular, altyapının IP merkezli bakışla haritalanmasına yardımcı olur.
    command: "dnsx -l {{ip_list|ips.txt}} -ptr"
 
 # === BRUTEFORCING & ENUMERATION ===
- - title: dnsx - subdomain bruteforcing
-   desc: |
-     Bruteforce subdomains for a specific domain using a provided wordlist. 
-     This technique discovers hidden subdomains that are not indexed by public search engines or certificate transparency logs. 
-     dnsx handles high-concurrency bruteforcing efficiently using the retryabledns library.
+ - title:
+     en: dnsx - subdomain bruteforcing
+     tr: dnsx - subdomain kaba kuvvet saldırısı
+   desc:
+     en: |
+       Bruteforce subdomains for a specific domain using a provided wordlist. 
+       This technique discovers hidden subdomains that are not indexed by public search engines or certificate transparency logs. 
+       dnsx handles high-concurrency bruteforcing efficiently using the retryabledns library.
+     tr: |
+       Verilen bir wordlist ile belirli bir alan adına ait subdomain'leri kaba kuvvetle bulun.
+       Bu teknik, arama motorlarında veya sertifika şeffaflık kayıtlarında görünmeyen gizli subdomain'leri keşfeder.
+       dnsx, retryabledns kütüphanesiyle yüksek eşzamanlı kaba kuvvet işlemini verimli yürütür.
    command: "dnsx -d {{domain}} -w {{wordlist|subdomains-top1000.txt}}"
 
- - title: dnsx - zone transfer (AXFR)
-   desc: |
-     Attempt a DNS zone transfer for the specified list of domains. 
-     If successful, AXFR allows an attacker or auditor to see every DNS record hosted on a name server. 
-     Note that most modern servers are configured to block unauthorized zone transfers.
+ - title:
+     en: dnsx - zone transfer (AXFR)
+     tr: dnsx - zon transferi (AXFR)
+   desc:
+     en: |
+       Attempt a DNS zone transfer for the specified list of domains. 
+       If successful, AXFR allows an attacker or auditor to see every DNS record hosted on a name server. 
+       Note that most modern servers are configured to block unauthorized zone transfers.
+     tr: |
+       Belirtilen alan adı listesi için DNS zon transferi deneyin.
+       Başarılı olursa AXFR, saldırganın veya denetçinin isim sunucusundaki tüm DNS kayıtlarını görmesini sağlar.
+       Modern sunucuların çoğunun yetkisiz zon transferlerini engelleyecek şekilde yapılandırıldığını unutmayın.
    command: "dnsx -l {{list}} -axfr"
 
 # === FILTERING & PROBING ===
- - title: dnsx - filter by status code
-   desc: |
-     Filter the DNS resolution results by specific response codes such as NOERROR or SERVFAIL. 
-     This helps in reducing noise by focusing only on successfully resolved domains or identifying specific server errors. 
-     Multiple status codes can be provided as a comma-separated list.
+ - title:
+     en: dnsx - filter by status code
+     tr: dnsx - durum koduna göre filtreleme
+   desc:
+     en: |
+       Filter the DNS resolution results by specific response codes such as NOERROR or SERVFAIL. 
+       This helps in reducing noise by focusing only on successfully resolved domains or identifying specific server errors. 
+       Multiple status codes can be provided as a comma-separated list.
+     tr: |
+       DNS çözümleme sonuçlarını NOERROR veya SERVFAIL gibi yanıt kodlarına göre filtreleyin.
+       Yalnızca başarıyla çözümlenen alan adlarına odaklanarak gürültüyü azaltmaya veya belirli sunucu hatalarını tespit etmeye yardımcı olur.
+       Birden çok durum kodu virgülle ayrılmış liste olarak verilebilir.
    command: "dnsx -l {{list}} -rcode noerror,servfail"
 
- - title: dnsx - cdn and asn enumeration
-   desc: |
-     Retrieve the CDN name and ASN information for each resolved domain. 
-     This provides critical context about the hosting environment, such as whether a site is behind Cloudflare or Akamai. 
-     It is highly valuable for scoping and identifying target infrastructure ownership.
+ - title:
+     en: dnsx - cdn and asn enumeration
+     tr: dnsx - cdn ve asn bilgisi toplama
+   desc:
+     en: |
+       Retrieve the CDN name and ASN information for each resolved domain. 
+       This provides critical context about the hosting environment, such as whether a site is behind Cloudflare or Akamai. 
+       It is highly valuable for scoping and identifying target infrastructure ownership.
+     tr: |
+       Çözümlenen her alan adı için CDN adını ve ASN bilgisini alın.
+       Sitenin Cloudflare veya Akamai arkasında olup olmadığı gibi barındırma ortamı hakkında kritik bağlam sağlar.
+       Kapsam belirleme ve hedef altyapı sahipliğini tespit etme açısından oldukça değerlidir.
    command: "dnsx -l {{list}} -cdn -asn"
 
- - title: dnsx - wildcard domain detection
-   desc: |
-     Analyze a domain for wildcard DNS records to prevent false positives during enumeration. 
-     Wildcards resolve any non-existent subdomain to a specific IP, which can clutter results. 
-     This command uses a threshold to accurately identify and filter out these misleading records.
+ - title:
+     en: dnsx - wildcard domain detection
+     tr: dnsx - joker (wildcard) alan adı tespiti
+   desc:
+     en: |
+       Analyze a domain for wildcard DNS records to prevent false positives during enumeration. 
+       Wildcards resolve any non-existent subdomain to a specific IP, which can clutter results. 
+       This command uses a threshold to accurately identify and filter out these misleading records.
+     tr: |
+       Numaralandırma sırasında yanlış pozitifleri önlemek için alan adını joker DNS kayıtlarına karşı analiz edin.
+       Joker kayıtlar var olmayan her subdomain'i belirli bir IP'ye çözümleyerek sonuçları kirletebilir.
+       Bu komut, yanıltıcı kayıtları tespit edip elemek için bir eşik değeri kullanır.
    command: "dnsx -wd {{domain}} -wt 5"
 
 # === ADVANCED & OPTIMIZATION ===
- - title: dnsx - dns tracing
-   desc: |
-     Perform a full DNS trace from the root servers down to the authoritative name server. 
-     This is used to visualize the resolution path and diagnose issues like DNS hijacking or misconfigured delegations. 
-     It provides a step-by-step breakdown of how the final IP address is determined.
+ - title:
+     en: dnsx - dns tracing
+     tr: dnsx - dns izleme (trace)
+   desc:
+     en: |
+       Perform a full DNS trace from the root servers down to the authoritative name server. 
+       This is used to visualize the resolution path and diagnose issues like DNS hijacking or misconfigured delegations. 
+       It provides a step-by-step breakdown of how the final IP address is determined.
+     tr: |
+       Kök sunuculardan yetkili isim sunucusuna kadar tam bir DNS izi sürün.
+       Çözümleme yolunu görselleştirmek ve DNS kaçırma veya hatalı yetkilendirme gibi sorunları teşhis etmek için kullanılır.
+       Nihai IP adresinin nasıl belirlendiğini adım adım gösterir.
    command: "dnsx -l {{list}} -trace"
 
- - title: dnsx - custom resolvers and rate limiting
-   desc: |
-     Use a custom list of DNS resolvers and apply rate limiting to the queries. 
-     Custom resolvers (like 1.1.1.1 or 8.8.8.8) can bypass local DNS restrictions and improve speed. 
-     Rate limiting is crucial to avoid being blocked by protective DNS firewalls or overloading the network.
+ - title:
+     en: dnsx - custom resolvers and rate limiting
+     tr: dnsx - özel çözümleyiciler ve hız sınırlama
+   desc:
+     en: |
+       Use a custom list of DNS resolvers and apply rate limiting to the queries. 
+       Custom resolvers (like 1.1.1.1 or 8.8.8.8) can bypass local DNS restrictions and improve speed. 
+       Rate limiting is crucial to avoid being blocked by protective DNS firewalls or overloading the network.
+     tr: |
+       Özel bir DNS çözümleyici listesi kullanın ve sorgulara hız sınırlaması uygulayın.
+       Özel çözümleyiciler (1.1.1.1 veya 8.8.8.8 gibi) yerel DNS kısıtlamalarını aşabilir ve hızı artırabilir.
+       Koruyucu DNS güvenlik duvarlarınca engellenmemek veya ağı yormamak için hız sınırlama kritiktir.
    command: "dnsx -l {{list}} -r {{resolvers|resolvers.txt}} -rl {{rate|100}} -t {{threads|50}}"
 
- - title: dnsx - structured JSON output
-   desc: |
-     Export all DNS resolution data in a structured JSONL format. 
-     JSON output includes all metadata such as timestamps, status codes, and record values in a machine-readable way. 
-     This is the preferred method for integrating dnsx into automated security pipelines and data processing scripts.
+ - title:
+     en: dnsx - structured JSON output
+     tr: dnsx - yapısal JSON çıktısı
+   desc:
+     en: |
+       Export all DNS resolution data in a structured JSONL format. 
+       JSON output includes all metadata such as timestamps, status codes, and record values in a machine-readable way. 
+       This is the preferred method for integrating dnsx into automated security pipelines and data processing scripts.
+     tr: |
+       Tüm DNS çözümleme verilerini yapısal JSONL biçiminde dışa aktarın.
+       JSON çıktısı; zaman damgaları, durum kodları ve kayıt değerleri gibi tüm üst verileri makinece okunabilir şekilde içerir.
+       dnsx'i otomatik güvenlik hatlarına ve veri işleme betiklerine entegre etmenin tercih edilen yoludur.
    command: "dnsx -l {{list}} -json -o {{output|results.json}}"

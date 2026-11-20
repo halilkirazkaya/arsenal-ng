@@ -3,34 +3,64 @@ tags: [security, pentest, active-directory, enumeration, bloodhound, automation,
 
 actions:
 # === PROJECT MANAGEMENT ===
- - title: bloodhound-automation.py - start a new project
-   desc: |
-     Deploy a new BloodHound Community Edition instance using Docker. This command automatically sets up Neo4j and the web interface with pre-configured credentials and random passwords. It is the primary way to initialize an environment for a specific penetration testing engagement. Ensure Docker is running on your host before executing this command.
+ - title:
+     en: bloodhound-automation.py - start a new project
+     tr: bloodhound-automation.py - yeni proje başlatma
+   desc:
+     en: |
+       Deploy a new BloodHound Community Edition instance using Docker. This command automatically sets up Neo4j and the web interface with pre-configured credentials and random passwords. It is the primary way to initialize an environment for a specific penetration testing engagement. Ensure Docker is running on your host before executing this command.
+     tr: |
+       Docker kullanarak yeni bir BloodHound Community Edition örneği dağıtır. Bu komut, önceden yapılandırılmış kimlik bilgileri ve rastgele parolalarla Neo4j ile web arayüzünü otomatik kurar. Belirli bir sızma testi çalışması için ortam başlatmanın birincil yoludur. Bu komutu çalıştırmadan önce host'unuzda Docker'ın çalıştığından emin olun.
    command: "bloodhound-automation.py start -bp {{binary_port|10001}} -np {{neo4j_port|10501}} -wp {{web_port|8001}} {{project_name}}"
 
- - title: bloodhound-automation.py - list existing projects
-   desc: |
-     Display all currently managed BloodHound projects on the local system. This provides a quick overview of active and inactive environments and their directory structures. It is useful for verifying project names before performing data imports or deletions. Use this regularly to manage resources on shared assessment servers.
+ - title:
+     en: bloodhound-automation.py - list existing projects
+     tr: bloodhound-automation.py - mevcut projeleri listeleme
+   desc:
+     en: |
+       Display all currently managed BloodHound projects on the local system. This provides a quick overview of active and inactive environments and their directory structures. It is useful for verifying project names before performing data imports or deletions. Use this regularly to manage resources on shared assessment servers.
+     tr: |
+       Yerel sistemdeki yönetilen tüm BloodHound projelerini gösterir. Bu, etkin ve pasif ortamlar ile dizin yapılarına hızlı genel bakış sağlar. Veri içe aktarma veya silme öncesi proje adlarını doğrulamak için yararlıdır. Paylaşımlı değerlendirme sunucularında kaynakları yönetmek için bunu düzenli kullanın.
    command: "bloodhound-automation.py list"
 
- - title: bloodhound-automation.py - stop a running project
-   desc: |
-     Shut down the Docker containers associated with a specific project name. Use this command when an analysis session is over to free up system memory and CPU resources. The project data is preserved in the project folder and can be resumed later using the start command. This does not delete any ingested Active Directory data.
+ - title:
+     en: bloodhound-automation.py - stop a running project
+     tr: bloodhound-automation.py - çalışan projeyi durdurma
+   desc:
+     en: |
+       Shut down the Docker containers associated with a specific project name. Use this command when an analysis session is over to free up system memory and CPU resources. The project data is preserved in the project folder and can be resumed later using the start command. This does not delete any ingested Active Directory data.
+     tr: |
+       Belirli bir proje adıyla ilişkili Docker kapsayıcılarını kapatır. Analiz oturumu bitince sistem bellek ve CPU kaynaklarını boşaltmak için bu komutu kullanın. Proje verisi proje klasöründe korunur ve start komutuyla sonra sürdürülebilir. Bu, içeri alınan Active Directory verisini silmez.
    command: "bloodhound-automation.py stop {{project_name}}"
 
 # === DATA OPERATIONS ===
- - title: bloodhound-automation.py - ingest SharpHound data
-   desc: |
-     Import collected Active Directory data into a running BloodHound project instance. This action automates the JWT token retrieval and handles the sequential upload of JSON files contained within the ZIP archive. It is the standard method for feeding SharpHound or BloodHound.py output into the database. Monitor the terminal output to ensure all JSON files are processed successfully.
+ - title:
+     en: bloodhound-automation.py - ingest SharpHound data
+     tr: bloodhound-automation.py - SharpHound verisini içeri alma
+   desc:
+     en: |
+       Import collected Active Directory data into a running BloodHound project instance. This action automates the JWT token retrieval and handles the sequential upload of JSON files contained within the ZIP archive. It is the standard method for feeding SharpHound or BloodHound.py output into the database. Monitor the terminal output to ensure all JSON files are processed successfully.
+     tr: |
+       Toplanan Active Directory verisini çalışan bir BloodHound proje örneğine aktarır. Bu eylem JWT token alımını otomatikleştirip ZIP arşivindeki JSON dosyalarının sıralı yüklemesini yönetir. SharpHound veya BloodHound.py çıktısını veritabanına beslemenin standart yöntemidir. Tüm JSON dosyalarının başarıyla işlendiğinden emin olmak için terminal çıktısını izleyin.
    command: "bloodhound-automation.py data -z {{zip_file_path}} {{project_name}}"
 
- - title: bloodhound-automation.py - clear database content
-   desc: |
-     Wipe all graph data from the Neo4j database for a specific project. This command is useful when you need to perform a clean re-import of data without destroying the underlying Docker configuration. It saves time compared to deleting and recreating the entire project. Note that this action is permanent and cannot be undone.
+ - title:
+     en: bloodhound-automation.py - clear database content
+     tr: bloodhound-automation.py - veritabanı içeriğini temizleme
+   desc:
+     en: |
+       Wipe all graph data from the Neo4j database for a specific project. This command is useful when you need to perform a clean re-import of data without destroying the underlying Docker configuration. It saves time compared to deleting and recreating the entire project. Note that this action is permanent and cannot be undone.
+     tr: |
+       Belirli bir projenin Neo4j veritabanındaki tüm grafik verisini siler. Bu komut, alttaki Docker yapılandırmasını bozmadan veriyi temiz yeniden içe aktarmanız gerektiğinde yararlıdır. Tüm projeyi silip yeniden oluşturmaya göre zaman kazandırır. Bu eylemin kalıcı olduğunu ve geri alınamayacağını unutmayın.
    command: "bloodhound-automation.py clear {{project_name}}"
 
 # === CLEANUP ===
- - title: bloodhound-automation.py - delete a project
-   desc: |
-     Completely remove a project including its Docker containers, volumes, and local directories. This should be performed at the end of an engagement to ensure client data is securely removed from the assessment machine. It is a destructive operation that purges all logs, credentials, and database files. Always verify you have the correct project name to avoid accidental data loss.
+ - title:
+     en: bloodhound-automation.py - delete a project
+     tr: bloodhound-automation.py - proje silme
+   desc:
+     en: |
+       Completely remove a project including its Docker containers, volumes, and local directories. This should be performed at the end of an engagement to ensure client data is securely removed from the assessment machine. It is a destructive operation that purges all logs, credentials, and database files. Always verify you have the correct project name to avoid accidental data loss.
+     tr: |
+       Docker kapsayıcıları, birimleri ve yerel dizinleri dahil bir projeyi tamamen kaldırır. Değerlendirme makinesinden istemci verisinin güvenle kaldırılmasını sağlamak için çalışmanın sonunda yapılmalıdır. Tüm log, kimlik bilgisi ve veritabanı dosyalarını temizleyen yıkıcı işlemdir. Yanlışlıkla veri kaybından kaçınmak için proje adının doğru olduğunu her zaman doğrulayın.
    command: "bloodhound-automation.py delete {{project_name}}"

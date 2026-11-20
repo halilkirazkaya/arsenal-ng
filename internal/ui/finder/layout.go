@@ -38,7 +38,7 @@ func (m Model) infoBoxHeight() int {
 	if len(m.Filtered) == 0 || m.Cursor < 0 || m.Cursor >= len(m.Filtered) {
 		return 0
 	}
-	infoBox := InfoBox(m.Filtered[m.Cursor], m.Width())
+	infoBox := InfoBox(m.Filtered[m.Cursor], m.Width(), m.lang)
 	return lipgloss.Height(infoBox)
 }
 

@@ -3,81 +3,158 @@ tags: [network, vpn, proxy, ssh, tunneling, security, pentest, pivoting]
 
 actions:
   # === BASIC CONNECTION & ROUTING ===
-  - title: sshuttle - basic subnet routing
-    desc: |
-      Route traffic for a specific subnet through the SSH tunnel. This is the most common use case for accessing internal network resources without a full VPN setup. 
-      Local root privileges are required to modify iptables/nftables and create the transparent proxy.
+  - title:
+      en: sshuttle - basic subnet routing
+      tr: sshuttle - temel alt ağ yönlendirme
+    desc:
+      en: |
+        Route traffic for a specific subnet through the SSH tunnel. This is the most common use case for accessing internal network resources without a full VPN setup. 
+        Local root privileges are required to modify iptables/nftables and create the transparent proxy.
+      tr: |
+        Belirli bir alt ağın trafiğini SSH tüneli üzerinden yönlendirir.
+        Tam VPN kurulumu olmadan iç ağ kaynaklarına erişimin en yaygın kullanım biçimidir.
+        Yerel iptables/nftables kurallarını değiştirip şeffaf vekil oluşturmak için root yetkisi gerekir.
     command: "sshuttle -r {{user}}@{{remote_host}} {{subnet|10.0.0.0/24}}"
 
-  - title: sshuttle - route all traffic
-    desc: |
-      Forward all local traffic through the remote SSH server, acting like a full VPN. 
-      This is useful for bypassing local firewalls or hiding your local IP address for all connections. 
-      Be careful as this will redirect your internet traffic as well, which might be slow depending on the SSH connection.
+  - title:
+      en: sshuttle - route all traffic
+      tr: sshuttle - tüm trafiği yönlendirme
+    desc:
+      en: |
+        Forward all local traffic through the remote SSH server, acting like a full VPN. 
+        This is useful for bypassing local firewalls or hiding your local IP address for all connections. 
+        Be careful as this will redirect your internet traffic as well, which might be slow depending on the SSH connection.
+      tr: |
+        Tüm yerel trafiği uzak SSH sunucusu üzerinden ileterek tam VPN gibi davranır.
+        Yerel güvenlik duvarlarını aşmak veya tüm bağlantılarda yerel IP adresinizi gizlemek için yararlıdır.
+        İnternet trafiğinizin de yönlendirileceğini unutmayın; bu, SSH bağlantısına göre yavaş olabilir.
     command: "sshuttle -r {{user}}@{{remote_host}} 0.0.0.0/0"
 
-  - title: sshuttle - automatic network routing
-    desc: |
-      Automatically determine which subnets to route based on the remote server's routing table. 
-      This is extremely useful during penetration testing when you don't know the internal network layout of the target environment. 
-      It queries the remote side and sets up routes for all networks the remote host can reach.
+  - title:
+      en: sshuttle - automatic network routing
+      tr: sshuttle - otomatik ağ yönlendirme
+    desc:
+      en: |
+        Automatically determine which subnets to route based on the remote server's routing table. 
+        This is extremely useful during penetration testing when you don't know the internal network layout of the target environment. 
+        It queries the remote side and sets up routes for all networks the remote host can reach.
+      tr: |
+        Uzak sunucunun yönlendirme tablosuna göre hangi alt ağların yönlendirileceğini otomatik belirler.
+        Hedef ortamın iç ağ düzenini bilmediğiniz sızma testlerinde son derece yararlıdır.
+        Uzak tarafı sorgulayıp uzak makinenin ulaşabildiği tüm ağlara yol kurar.
     command: "sshuttle -r {{user}}@{{remote_host}} -N"
 
   # === DNS & HOSTNAME MANAGEMENT ===
-  - title: sshuttle - DNS traffic forwarding
-    desc: |
-      Capture local DNS requests and forward them to the remote DNS server. 
-      This allows you to resolve internal hostnames (like internal-db.corp.local) that are only known to the remote network. 
-      It is essential for web application testing where virtual hosts or internal domains are used.
+  - title:
+      en: sshuttle - DNS traffic forwarding
+      tr: sshuttle - DNS trafiği iletme
+    desc:
+      en: |
+        Capture local DNS requests and forward them to the remote DNS server. 
+        This allows you to resolve internal hostnames (like internal-db.corp.local) that are only known to the remote network. 
+        It is essential for web application testing where virtual hosts or internal domains are used.
+      tr: |
+        Yerel DNS isteklerini yakalayıp uzak DNS sunucusuna iletir.
+        Yalnızca uzak ağın bildiği iç makine adlarını (örn. internal-db.corp.local) çözümlemenizi sağlar.
+        Sanal makine veya iç alan adı kullanılan web uygulaması testleri için gereklidir.
     command: "sshuttle --dns -r {{user}}@{{remote_host}} {{subnet|0.0.0.0/0}}"
 
-  - title: sshuttle - automatic host file update
-    desc: |
-      Continuously scan for remote hostnames and update the local /etc/hosts file. 
-      This enables you to use friendly names instead of IP addresses for remote services automatically. 
-      It works by observing the traffic and identifying hostnames associated with the IPs being accessed.
+  - title:
+      en: sshuttle - automatic host file update
+      tr: sshuttle - otomatik makine dosyası güncelleme
+    desc:
+      en: |
+        Continuously scan for remote hostnames and update the local /etc/hosts file. 
+        This enables you to use friendly names instead of IP addresses for remote services automatically. 
+        It works by observing the traffic and identifying hostnames associated with the IPs being accessed.
+      tr: |
+        Uzak makine adlarını sürekli tarayıp yerel /etc/hosts dosyasını günceller.
+        Uzak servisler için IP adresleri yerine otomatik olarak kolay adlar kullanmanızı sağlar.
+        Erişilen IP'lerle ilişkili makine adlarını trafikten gözlemleyerek çalışır.
     command: "sshuttle -H -r {{user}}@{{remote_host}} {{subnet}}"
 
   # === ADVANCED CONFIGURATION ===
-  - title: sshuttle - exclude specific subnets
-    desc: |
-      Route traffic while explicitly excluding a specific subnet or IP address. 
-      This is useful for maintaining local connectivity to a local LAN or specific management IPs while tunneling everything else. 
-      It prevents routing loops and ensures local resources remain accessible directly.
+  - title:
+      en: sshuttle - exclude specific subnets
+      tr: sshuttle - belirli alt ağları hariç tutma
+    desc:
+      en: |
+        Route traffic while explicitly excluding a specific subnet or IP address. 
+        This is useful for maintaining local connectivity to a local LAN or specific management IPs while tunneling everything else. 
+        It prevents routing loops and ensures local resources remain accessible directly.
+      tr: |
+        Belirli bir alt ağı veya IP adresini açıkça hariç tutarak trafiği yönlendirir.
+        Diğer her şeyi tünellerken yerel LAN veya belirli yönetim IP'lerine bağlantıyı korumak için yararlıdır.
+        Yönlendirme döngülerini engeller ve yerel kaynaklara doğrudan erişimi korur.
     command: "sshuttle -r {{user}}@{{remote_host}} 0.0.0.0/0 -x {{excluded_subnet|192.168.1.0/24}}"
 
-  - title: sshuttle - specify remote python path
-    desc: |
-      Define the path to the Python interpreter on the remote server. 
-      This is necessary when Python is not in the default PATH or when the environment requires a specific version (e.g., /usr/bin/python3). 
-      The remote server must have Python installed for sshuttle to function as it uploads a small helper script.
+  - title:
+      en: sshuttle - specify remote python path
+      tr: sshuttle - uzak python yolunu belirtme
+    desc:
+      en: |
+        Define the path to the Python interpreter on the remote server. 
+        This is necessary when Python is not in the default PATH or when the environment requires a specific version (e.g., /usr/bin/python3). 
+        The remote server must have Python installed for sshuttle to function as it uploads a small helper script.
+      tr: |
+        Uzak sunucudaki Python yorumlayıcısının yolunu tanımlar.
+        Python varsayılan PATH'te yoksa veya ortam belirli bir sürüm (örn. /usr/bin/python3) gerektiriyorsa gerekir.
+        sshuttle küçük bir yardımcı betik yüklediğinden uzak sunucuda Python kurulu olmalıdır.
     command: "sshuttle -r {{user}}@{{remote_host}} --python {{python_path|/usr/bin/python3}} {{subnet}}"
 
-  - title: sshuttle - use custom SSH command
-    desc: |
-      Specify a custom command to use for the SSH connection. 
-      This is useful for passing specific SSH options like identity files, port numbers, or disabling host key checking. 
-      It provides flexibility when the remote SSH server uses non-standard configurations.
+  - title:
+      en: sshuttle - use custom SSH command
+      tr: sshuttle - özel SSH komutu kullanma
+    desc:
+      en: |
+        Specify a custom command to use for the SSH connection. 
+        This is useful for passing specific SSH options like identity files, port numbers, or disabling host key checking. 
+        It provides flexibility when the remote SSH server uses non-standard configurations.
+      tr: |
+        SSH bağlantısı için kullanılacak özel bir komut belirtir.
+        Kimlik dosyaları, port numaraları veya makine anahtarı denetimini kapatma gibi SSH seçeneklerini geçirmek için yararlıdır.
+        Uzak SSH sunucusu standart dışı yapılandırma kullandığında esneklik sağlar.
     command: "sshuttle -e 'ssh -i {{identity_file}} -p {{port|22}}' -r {{user}}@{{remote_host}} {{subnet}}"
 
   # === OPERATIONAL MODES ===
-  - title: sshuttle - run in background (daemon)
-    desc: |
-      Start the sshuttle process as a background daemon. 
-      This is ideal for persistent pivoting during an engagement where you don't want to keep a dedicated terminal open. 
-      Use the pidfile option to easily track and kill the process when the session is finished.
+  - title:
+      en: sshuttle - run in background (daemon)
+      tr: sshuttle - arka planda çalıştırma (daemon)
+    desc:
+      en: |
+        Start the sshuttle process as a background daemon. 
+        This is ideal for persistent pivoting during an engagement where you don't want to keep a dedicated terminal open. 
+        Use the pidfile option to easily track and kill the process when the session is finished.
+      tr: |
+        sshuttle sürecini arka plan hizmeti olarak başlatır.
+        Ayrı bir terminal açık tutmak istemediğiniz kalıcı yanal hareket işlerinde idealdir.
+        Oturum bitince süreci kolayca bulup sonlandırmak için pidfile seçeneğini kullanın.
     command: "sshuttle -D --pidfile {{pid_file|/tmp/sshuttle.pid}} -r {{user}}@{{remote_host}} {{subnet}}"
 
-  - title: sshuttle - verbose debugging
-    desc: |
-      Increase the verbosity of the output to debug connection issues. 
-      Using multiple 'v' flags provides more detailed information about the inner workings and packet forwarding. 
-      This is helpful when the tunnel connects but traffic is not flowing as expected.
+  - title:
+      en: sshuttle - verbose debugging
+      tr: sshuttle - ayrıntılı hata ayıklama
+    desc:
+      en: |
+        Increase the verbosity of the output to debug connection issues. 
+        Using multiple 'v' flags provides more detailed information about the inner workings and packet forwarding. 
+        This is helpful when the tunnel connects but traffic is not flowing as expected.
+      tr: |
+        Bağlantı sorunlarını ayıklamak için çıktı ayrıntısını artırır.
+        Birden çok 'v' flag'i iç işleyiş ve paket iletme hakkında daha ayrıntılı bilgi verir.
+        Tünel bağlanıyor ama trafik akmıyorsa yararlıdır.
     command: "sshuttle -vv -r {{user}}@{{remote_host}} {{subnet}}"
 
-  - title: sshuttle - specify tproxy method
-    desc: |
-      Manually specify the firewall hijacking method such as nft, nat, or tproxy. 
-      By default, sshuttle tries to guess the best method, but sometimes manual overrides are needed for specific Linux distributions. 
-      This can resolve issues where the default method fails due to kernel or firewall configuration limits.
+  - title:
+      en: sshuttle - specify tproxy method
+      tr: sshuttle - tproxy yöntemini belirtme
+    desc:
+      en: |
+        Manually specify the firewall hijacking method such as nft, nat, or tproxy. 
+        By default, sshuttle tries to guess the best method, but sometimes manual overrides are needed for specific Linux distributions. 
+        This can resolve issues where the default method fails due to kernel or firewall configuration limits.
+      tr: |
+        Güvenlik duvarı ele geçirme yöntemini (nft, nat veya tproxy) manuel belirtir.
+        sshuttle varsayılan olarak en iyi yöntemi tahmin etmeye çalışır ama bazı Linux dağıtımlarında manuel geçersiz kılma gerekir.
+        Varsayılan yöntemin çekirdek veya güvenlik duvarı sınırları nedeniyle başarısız olduğu durumlarda sorunu çözer.
     command: "sshuttle --method {{method|nft}} -r {{user}}@{{remote_host}} {{subnet}}"

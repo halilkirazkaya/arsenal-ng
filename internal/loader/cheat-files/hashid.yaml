@@ -3,44 +3,100 @@ tags: [security, pentest, cryptography, hashing, forensics, reconnaissance]
 
 actions:
 # === IDENTIFICATION ===
- - title: hashid - identify a single hash
-   desc: |
-     Identify the algorithm used for a specific hash string provided as input. This is the primary function of the tool when you encounter an unknown hash in a database or capture. It helps narrow down which cracking tools or parameters to use next for password recovery.
+ - title:
+     en: hashid - identify a single hash
+     tr: hashid - tek hash tespit
+   desc:
+     en: |
+       Identify the algorithm used for a specific hash string provided as input. This is the primary function of the tool when you encounter an unknown hash in a database or capture. It helps narrow down which cracking tools or parameters to use next for password recovery.
+     tr: |
+       Girdi olarak verilen belirli hash dizesinin algoritmasını tespit eder.
+       Bilinmeyen hash ile karşılaşıldığında hangi kırma aracı veya parametresinin kullanılacağını daraltır.
+       Parola kurtarmaya geçmeden önce ilk adımdır.
    command: "hashid {{hash_string}}"
 
- - title: hashid - extended identification including salted hashes
-   desc: |
-     Use the extended mode to list all possible hash algorithms, including those that typically use salts. This is useful when a standard scan doesn't provide a clear result or when you suspect a web application hash like vBulletin or IPB. Note that this will increase the number of potential matches significantly, requiring manual verification.
+ - title:
+     en: hashid - extended identification including salted hashes
+     tr: hashid - tuzlu hash dahil genişletilmiş tespit
+   desc:
+     en: |
+       Use the extended mode to list all possible hash algorithms, including those that typically use salts. This is useful when a standard scan doesn't provide a clear result or when you suspect a web application hash like vBulletin or IPB. Note that this will increase the number of potential matches significantly, requiring manual verification.
+     tr: |
+       Tuz kullananlar dahil tüm olası hash algoritmalarını listelemek için genişletilmiş modu kullanır.
+       Standart tarama sonuç vermezse veya vBulletin/IPB gibi web uygulaması hash'lerinden şüpheleniliyorsa faydalıdır.
+       Olası eşleşme sayısını ciddi artırır; elle doğrulama gerekir.
    command: "hashid -e {{hash_string}}"
 
 # === INTEGRATION ===
- - title: hashid - show Hashcat modes
-   desc: |
-     Identify the hash type and display the corresponding Hashcat mode number for each result. This is extremely helpful for security professionals preparing a brute-force attack using Hashcat. It eliminates the manual work of looking up mode numbers in the Hashcat documentation or help menus.
+ - title:
+     en: hashid - show Hashcat modes
+     tr: hashid - Hashcat modlarını göster
+   desc:
+     en: |
+       Identify the hash type and display the corresponding Hashcat mode number for each result. This is extremely helpful for security professionals preparing a brute-force attack using Hashcat. It eliminates the manual work of looking up mode numbers in the Hashcat documentation or help menus.
+     tr: |
+       Hash türünü tespit edip her sonuç için Hashcat mod numarasını gösterir.
+       Hashcat ile kaba kuvvet saldırısına hazırlananlar için elle mod arama işini ortadan kaldırır.
+       Kırma iş akışına doğrudan geçiş sağlar.
    command: "hashid -m {{hash_string}}"
 
- - title: hashid - show JohnTheRipper formats
-   desc: |
-     Identify the hash type and display the corresponding JohnTheRipper format string. Use this command when you intend to use JohnTheRipper for password recovery or security auditing. It ensures you use the correct format flag during the cracking process to avoid errors.
+ - title:
+     en: hashid - show JohnTheRipper formats
+     tr: hashid - JohnTheRipper formatlarını göster
+   desc:
+     en: |
+       Identify the hash type and display the corresponding JohnTheRipper format string. Use this command when you intend to use JohnTheRipper for password recovery or security auditing. It ensures you use the correct format flag during the cracking process to avoid errors.
+     tr: |
+       Hash türünü tespit edip JohnTheRipper format dizesini gösterir.
+       JohnTheRipper ile parola kurtarma veya denetim yapacaklar içindir.
+       Kırma sırasında hataları önlemek için doğru format bayrağını garanti eder.
    command: "hashid -j {{hash_string}}"
 
- - title: hashid - show Hashcat and John formats together
-   desc: |
-     Identify hashes while simultaneously displaying both Hashcat mode numbers and JohnTheRipper format names. This provides a comprehensive overview for users who utilize multiple cracking tools within their environment. It is the most verbose way to identify unknown hashes for exploitation and auditing.
+ - title:
+     en: hashid - show Hashcat and John formats together
+     tr: hashid - Hashcat ve John formatlarını birlikte göster
+   desc:
+     en: |
+       Identify hashes while simultaneously displaying both Hashcat mode numbers and JohnTheRipper format names. This provides a comprehensive overview for users who utilize multiple cracking tools within their environment. It is the most verbose way to identify unknown hashes for exploitation and auditing.
+     tr: |
+       Hash'leri tespit ederken Hashcat mod numaralarını ve JohnTheRipper format adlarını birlikte gösterir.
+       Ortamında birden fazla kırma aracı kullananlara kapsamlı genel bakış sunar.
+       Bilinmeyen hash'leri tespit etmenin en ayrıntılı yoludur.
    command: "hashid -m -j {{hash_string}}"
 
 # === FILE OPERATIONS ===
- - title: hashid - identify hashes from a file
-   desc: |
-     Process a list of hashes stored in a text file instead of providing them manually on the command line. This is the most efficient way to analyze multiple unknown hashes extracted from a target system or database. Ensure the file contains one hash per line for accurate identification by the tool.
+ - title:
+     en: hashid - identify hashes from a file
+     tr: hashid - dosyadan hash tespit
+   desc:
+     en: |
+       Process a list of hashes stored in a text file instead of providing them manually on the command line. This is the most efficient way to analyze multiple unknown hashes extracted from a target system or database. Ensure the file contains one hash per line for accurate identification by the tool.
+     tr: |
+       Hash'leri komut satırından tek tek vermek yerine metin dosyasından topluca işler.
+       Hedef sistemden çıkarılan çok sayıda bilinmeyen hash'i analiz etmenin en verimli yoludur.
+       Doğru tespit için dosyada satır başına bir hash olmalıdır.
    command: "hashid {{input_file|hashes.txt}}"
 
- - title: hashid - save results to a file
-   desc: |
-     Perform hash identification and save the detailed results directly to a specified output file. This is useful for documentation purposes or when integrating the tool into a larger automated penetration testing workflow. It prevents the terminal output from being lost and allows for easier grepping of results later.
+ - title:
+     en: hashid - save results to a file
+     tr: hashid - sonuçları dosyaya kaydet
+   desc:
+     en: |
+       Perform hash identification and save the detailed results directly to a specified output file. This is useful for documentation purposes or when integrating the tool into a larger automated penetration testing workflow. It prevents the terminal output from being lost and allows for easier grepping of results later.
+     tr: |
+       Hash tespitini yapıp detaylı sonuçları belirtilen dosyaya yazar.
+       Dokümantasyon veya daha büyük otomatik pentest iş akışına bütünleşme için faydalıdır.
+       Terminal çıktısının kaybolmasını engeller ve sonradan grep ile incelemeyi kolaylaştırır.
    command: "hashid -o {{output_file|results.txt}} {{hash_string}}"
 
- - title: hashid - process file and output tool formats
-   desc: |
-     Read multiple hashes from a file and output their corresponding cracking tool formats (Hashcat and John) to an external file. This command combines file input, tool mapping, and file output for a streamlined reconnaissance workflow. It is highly recommended when dealing with large password dumps from an assessment.
+ - title:
+     en: hashid - process file and output tool formats
+     tr: hashid - dosya işle ve araç formatlarını çıkar
+   desc:
+     en: |
+       Read multiple hashes from a file and output their corresponding cracking tool formats (Hashcat and John) to an external file. This command combines file input, tool mapping, and file output for a streamlined reconnaissance workflow. It is highly recommended when dealing with large password dumps from an assessment.
+     tr: |
+       Dosyadaki birden fazla hash'i okuyup kırma aracı formatlarıyla (Hashcat ve John) harici dosyaya yazar.
+       Dosya girdisi, araç eşlemesi ve dosya çıktısını tek akışta birleştirir.
+       Geniş parola dökümlerinde streamline keşif iş akışı için önerilir.
    command: "hashid -m -j -o {{output_file|cracking_refs.txt}} {{input_file|hashes.txt}}"

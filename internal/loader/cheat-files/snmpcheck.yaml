@@ -4,62 +4,111 @@ tags: [network, scanner, security, pentest, enumeration, snmp, reconnaissance]
 # === ENUMERATION ACTIONS ===
 
 actions:
- - title: snmp-check - basic enumeration
-   desc: |
-     Performs a standard SNMP enumeration against a target using default settings. 
-     This command attempts to retrieve system information, network interfaces, and running processes using the 'public' community string and SNMPv1.
-     It is the most common starting point for gathering intelligence from a networked device like a router, switch, or server.
-     Note that many modern systems might have the default 'public' community string disabled for security reasons.
+ - title:
+     en: snmp-check - basic enumeration
+     tr: snmp-check - temel numaralandırma
+   desc:
+     en: |
+       Performs a standard SNMP enumeration against a target using default settings. 
+       This command attempts to retrieve system information, network interfaces, and running processes using the 'public' community string and SNMPv1.
+       It is the most common starting point for gathering intelligence from a networked device like a router, switch, or server.
+       Note that many modern systems might have the default 'public' community string disabled for security reasons.
+     tr: |
+       Varsayılan ayarlarla hedefe karşı standart bir SNMP numaralandırması yapar.
+       'public' community dizesi ve SNMPv1 ile sistem bilgisi, ağ arayüzleri ve çalışan işlemleri almaya çalışır.
+       Yönlendirici, anahtar veya sunucu gibi ağ cihazlarından bilgi toplamada en yaygın başlangıç noktasıdır.
    command: "snmp-check {{target}}"
 
- - title: snmp-check - custom community string
-   desc: |
-     Connects to the target using a specific SNMP community string. 
-     Community strings act as a clear-text password in SNMP versions 1 and 2c to authorize access to the Management Information Base (MIB). 
-     If the default 'public' string is not accepted, you must provide a valid string discovered via brute-force or documentation.
-     Successful authentication can reveal sensitive data such as routing tables, software versions, and user accounts.
+ - title:
+     en: snmp-check - custom community string
+     tr: snmp-check - özel community dizesi
+   desc:
+     en: |
+       Connects to the target using a specific SNMP community string. 
+       Community strings act as a clear-text password in SNMP versions 1 and 2c to authorize access to the Management Information Base (MIB). 
+       If the default 'public' string is not accepted, you must provide a valid string discovered via brute-force or documentation.
+       Successful authentication can reveal sensitive data such as routing tables, software versions, and user accounts.
+     tr: |
+       Hedefe belirli bir SNMP community dizesiyle bağlanır.
+       Community dizeleri, SNMP 1 ve 2c sürümlerinde Yönetim Bilgi Tabanına (MIB) erişimi yetkilendiren açık metin parola görevi görür.
+       Varsayılan 'public' dizesi kabul edilmezse kaba kuvvet veya dokümantasyondan bulunan geçerli bir dize vermelisiniz.
    command: "snmp-check -c {{community|public}} {{target}}"
 
- - title: snmp-check - version 2c enumeration
-   desc: |
-     Forces the tool to use SNMP version 2c for communication with the target. 
-     SNMPv2c is more prevalent in modern environments as it supports 64-bit counters and provides better error handling than version 1. 
-     Using this version is often necessary when scanning high-performance networking equipment or newer operating systems.
-     If the target does not respond to version 1 requests, switching to 2c is the logical next step.
+ - title:
+     en: snmp-check - version 2c enumeration
+     tr: snmp-check - 2c sürümüyle numaralandırma
+   desc:
+     en: |
+       Forces the tool to use SNMP version 2c for communication with the target. 
+       SNMPv2c is more prevalent in modern environments as it supports 64-bit counters and provides better error handling than version 1. 
+       Using this version is often necessary when scanning high-performance networking equipment or newer operating systems.
+       If the target does not respond to version 1 requests, switching to 2c is the logical next step.
+     tr: |
+       Hedefle iletişim için SNMP 2c sürümünü kullanmaya zorlar.
+       SNMPv2c, 64 bit sayaç desteği ve daha iyi hata yönetimiyle modern ortamlarda daha yaygındır.
+       Yüksek performanslı ağ ekipmanlarında veya yeni işletim sistemlerinde 1. sürüm yanıt vermezse sıradaki mantıklı adımdır.
    command: "snmp-check -v 2c -c {{community|public}} {{target}}"
 
- - title: snmp-check - custom port scan
-   desc: |
-     Directs the tool to a specific UDP port instead of the default SNMP port 161. 
-     Administrators sometimes move the SNMP service to a non-standard port to hide it from automated scanners or to avoid conflicts. 
-     You should use this option if your initial port scan (e.g., via Nmap) identified an SNMP service running elsewhere.
-     Always ensure that the target port is reachable and not blocked by intermediate firewalls.
+ - title:
+     en: snmp-check - custom port scan
+     tr: snmp-check - özel port taraması
+   desc:
+     en: |
+       Directs the tool to a specific UDP port instead of the default SNMP port 161. 
+       Administrators sometimes move the SNMP service to a non-standard port to hide it from automated scanners or to avoid conflicts. 
+       You should use this option if your initial port scan (e.g., via Nmap) identified an SNMP service running elsewhere.
+       Always ensure that the target port is reachable and not blocked by intermediate firewalls.
+     tr: |
+       Aracı varsayılan SNMP portu 161 yerine belirli bir UDP portuna yönlendirir.
+       Yöneticiler SNMP servisini otomatik tarayıcılardan gizlemek için standart dışı porta taşıyabilir.
+       İlk port taramasında (örn. Nmap) SNMP servisi başka yerde tespit edildiyse bu seçeneği kullanın.
    command: "snmp-check -p {{port|161}} {{target}}"
 
 # === SPECIALIZED CHECKS ===
 
- - title: snmp-check - write access detection
-   desc: |
-     Specifically tests whether the provided community string grants write permissions on the target. 
-     Finding an SNMP community string with write access is a critical security vulnerability, as it may allow an attacker to modify device configurations. 
-     This action is performed as a separate check from the standard enumeration to highlight potential exploitation paths.
-     Be cautious when testing write access on production systems, as unauthorized changes can lead to service disruptions.
+ - title:
+     en: snmp-check - write access detection
+     tr: snmp-check - yazma erişimi tespiti
+   desc:
+     en: |
+       Specifically tests whether the provided community string grants write permissions on the target. 
+       Finding an SNMP community string with write access is a critical security vulnerability, as it may allow an attacker to modify device configurations. 
+       This action is performed as a separate check from the standard enumeration to highlight potential exploitation paths.
+       Be cautious when testing write access on production systems, as unauthorized changes can lead to service disruptions.
+     tr: |
+       Verilen community dizesinin hedefte yazma izni verip vermediğini özellikle test eder.
+       Yazma izni veren bir SNMP community dizesi, cihaz yapılandırmasının değiştirilebilmesi nedeniyle kritik bir güvenlik zafiyetidir.
+       Üretim sistemlerinde yetkisiz değişiklikler kesintiye yol açabileceğinden dikkatli test edin.
    command: "snmp-check -c {{community|private}} -w {{target}}"
 
- - title: snmp-check - disable tcp enumeration
-   desc: |
-     Instructs the tool to skip the enumeration of TCP connections and listening ports. 
-     This is useful for speeding up the scanning process when you only care about hardware details or network interface statistics. 
-     It also reduces the amount of SNMP traffic sent, making the scan slightly less noisy on the network.
-     Use this flag if the target has a massive number of active connections that cause the tool to hang or produce excessive output.
+ - title:
+     en: snmp-check - disable tcp enumeration
+     tr: snmp-check - TCP numaralandırmasını devre dışı bırakma
+   desc:
+     en: |
+       Instructs the tool to skip the enumeration of TCP connections and listening ports. 
+       This is useful for speeding up the scanning process when you only care about hardware details or network interface statistics. 
+       It also reduces the amount of SNMP traffic sent, making the scan slightly less noisy on the network.
+       Use this flag if the target has a massive number of active connections that cause the tool to hang or produce excessive output.
+     tr: |
+       Araca TCP bağlantıları ve dinleyen portların numaralandırmasını atlamasını söyler.
+       Yalnızca donanım ayrıntıları veya ağ arayüzü istatistikleriyle ilgilenirken taramayı hızlandırır.
+       Gönderilen SNMP trafiğini de azaltarak taramayı ağda daha az gürültülü hale getirir.
    command: "snmp-check -d {{target}}"
 
 # === PERFORMANCE & TIMING ===
 
- - title: snmp-check - timing and retries tuning
-   desc: |
-     Adjusts the timeout duration and the number of retries for SNMP requests. 
-     These parameters are vital when scanning targets over high-latency links, satellite connections, or unstable networks. 
-     Increasing the timeout ensures the tool waits longer for a response, while increasing retries helps overcome packet loss.
-     The default timeout is 5 seconds, and the default retry count is 1.
+ - title:
+     en: snmp-check - timing and retries tuning
+     tr: snmp-check - zamanlama ve yeniden deneme ayarı
+   desc:
+     en: |
+       Adjusts the timeout duration and the number of retries for SNMP requests. 
+       These parameters are vital when scanning targets over high-latency links, satellite connections, or unstable networks. 
+       Increasing the timeout ensures the tool waits longer for a response, while increasing retries helps overcome packet loss.
+       The default timeout is 5 seconds, and the default retry count is 1.
+     tr: |
+       SNMP istekleri için zaman aşımı süresini ve yeniden deneme sayısını ayarlar.
+       Yüksek gecikmeli veya dengesiz bağlantılarda hedef tararken bu parametreler hayati önem taşır.
+       Zaman aşımını artırmak yanıt beklemeyi uzatır, yeniden denemeyi artırmak paket kaybını telafi eder.
    command: "snmp-check -t {{timeout|5}} -r {{retries|1}} {{target}}"

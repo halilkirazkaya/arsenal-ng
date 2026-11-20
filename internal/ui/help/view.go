@@ -85,6 +85,7 @@ func variablesSection() string {
 	// Align arrows by padding commands to fixed width.
 	cmdWidth := 20
 	b.WriteString(fmt.Sprintf("  %s%s %s %s\n", cmdStyle.Render("set key=value"), strings.Repeat(" ", cmdWidth-len("set key=value")), arrowStyle.Render("→"), descStyle.Render("Sets a variable")))
+	b.WriteString(fmt.Sprintf("  %s%s %s %s\n", cmdStyle.Render("set language=tr"), strings.Repeat(" ", cmdWidth-len("set language=tr")), arrowStyle.Render("→"), descStyle.Render("Switches UI language (en, tr)")))
 	b.WriteString(fmt.Sprintf("  %s%s %s %s\n", cmdStyle.Render("unset key"), strings.Repeat(" ", cmdWidth-len("unset key")), arrowStyle.Render("→"), descStyle.Render("Removes a variable")))
 	b.WriteString(fmt.Sprintf("  %s%s %s %s\n", cmdStyle.Render("variables"), strings.Repeat(" ", cmdWidth-len("variables")), arrowStyle.Render("→"), descStyle.Render("Lists all your variables")))
 	b.WriteString(fmt.Sprintf("  %s%s %s %s\n", cmdStyle.Render("tools"), strings.Repeat(" ", cmdWidth-len("tools")), arrowStyle.Render("→"), descStyle.Render("Lists all available tools")))

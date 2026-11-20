@@ -3,60 +3,116 @@ tags: [network, pentest, exploitation, smb, samba, cve-2017-7494, remote-code-ex
 
 actions:
   # === BASIC EXPLOITATION ===
-  - title: impacket-sambaPipe - basic exploitation with password
-    desc: |
-      This command initiates the exploitation of the SambaCry vulnerability (CVE-2017-7494). 
-      It uploads a specified shared object (.so) file to a writable share on the target server and triggers its execution. 
-      This is the most common usage when you have valid cleartext credentials for a user with write access to at least one share.
+  - title:
+      en: impacket-sambaPipe - basic exploitation with password
+      tr: impacket-sambaPipe - parola ile temel istismar
+    desc:
+      en: |
+        This command initiates the exploitation of the SambaCry vulnerability (CVE-2017-7494). 
+        It uploads a specified shared object (.so) file to a writable share on the target server and triggers its execution. 
+        This is the most common usage when you have valid cleartext credentials for a user with write access to at least one share.
+      tr: |
+        Bu komut, SambaCry zafiyetinin (CVE-2017-7494) istismarını başlatır.
+        Belirtilen paylaşılan nesne (.so) dosyasını hedef sunucudaki yazılabilir bir paylaşıma yükleyip çalıştırılmasını tetikler.
+        En az bir paylaşıma yazma erişimi olan bir kullanıcı için geçerli açık kimlik bilgilerine sahipken en yaygın kullanım budur.
     command: "impacket-sambaPipe -so {{so_file|exploit.so}} {{domain|.}}/{{username}}:{{password}}@{{target}}"
 
-  - title: impacket-sambaPipe - exploitation using NTLM hashes
-    desc: |
-      Performs the exploit using Pass-the-Hash authentication instead of a cleartext password. 
-      This is useful in scenarios where you have extracted NTLM hashes from memory or a database but cannot crack them. 
-      The hash should be provided in the LMHASH:NTHASH format; if you only have the NT hash, leave the LM part empty.
+  - title:
+      en: impacket-sambaPipe - exploitation using NTLM hashes
+      tr: impacket-sambaPipe - NTLM hash'leri ile istismar
+    desc:
+      en: |
+        Performs the exploit using Pass-the-Hash authentication instead of a cleartext password. 
+        This is useful in scenarios where you have extracted NTLM hashes from memory or a database but cannot crack them. 
+        The hash should be provided in the LMHASH:NTHASH format; if you only have the NT hash, leave the LM part empty.
+      tr: |
+        İstismarı açık parola yerine Pass-the-Hash kimlik doğrulaması ile gerçekleştirir.
+        Bellekten veya bir veritabanından NTLM hash'lerini çıkarıp kıramadığınız senaryolarda faydalıdır.
+        Hash, LMHASH:NTHASH biçiminde verilmelidir; yalnızca NT hash'i varsa LM kısmını boş bırakın.
     command: "impacket-sambaPipe -so {{so_file|exploit.so}} -hashes {{hash}} {{domain|.}}/{{username}}@{{target}}"
 
   # === ADVANCED AUTHENTICATION ===
-  - title: impacket-sambaPipe - Kerberos authentication
-    desc: |
-      Executes the exploit using Kerberos tickets for authentication in an Active Directory environment. 
-      This command requires a valid Kerberos cache file (ccache) to be present and pointed to by the KRB5CCNAME environment variable. 
-      It is often used to bypass NTLM-specific monitoring or when NTLM authentication is disabled on the target.
+  - title:
+      en: impacket-sambaPipe - Kerberos authentication
+      tr: impacket-sambaPipe - Kerberos kimlik doğrulaması
+    desc:
+      en: |
+        Executes the exploit using Kerberos tickets for authentication in an Active Directory environment. 
+        This command requires a valid Kerberos cache file (ccache) to be present and pointed to by the KRB5CCNAME environment variable. 
+        It is often used to bypass NTLM-specific monitoring or when NTLM authentication is disabled on the target.
+      tr: |
+        İstismarı bir Active Directory ortamında kimlik doğrulama için Kerberos biletleriyle gerçekleştirir.
+        Bu komut, geçerli bir Kerberos önbellek (ccache) dosyasının bulunmasını ve KRB5CCNAME ortam değişkeniyle gösterilmesini gerektirir.
+        NTLM'e özgü izlemeyi atlatmak için veya hedefte NTLM kimlik doğrulaması devre dışıyken sıkça kullanılır.
     command: "impacket-sambaPipe -so {{so_file|exploit.so}} -k -no-pass {{domain}}/{{username}}@{{target}}"
 
-  - title: impacket-sambaPipe - Kerberos with AES key
-    desc: |
-      Authenticates using a specific Kerberos AES key (128 or 256 bits). 
-      This method is useful when you have intercepted or extracted the AES keys for a specific account. 
-      It allows for Kerberos authentication without needing the original cleartext password or a pre-generated ccache file.
+  - title:
+      en: impacket-sambaPipe - Kerberos with AES key
+      tr: impacket-sambaPipe - AES anahtarlı Kerberos
+    desc:
+      en: |
+        Authenticates using a specific Kerberos AES key (128 or 256 bits). 
+        This method is useful when you have intercepted or extracted the AES keys for a specific account. 
+        It allows for Kerberos authentication without needing the original cleartext password or a pre-generated ccache file.
+      tr: |
+        Belirli bir Kerberos AES anahtarıyla (128 veya 256 bit) kimlik doğrulaması yapar.
+        Belirli bir hesabın AES anahtarlarını ele geçirdiğinizde veya çıkardığınızda faydalı bir yöntemdir.
+        Özgün açık parolaya veya önceden üretilmiş bir ccache dosyasına gerek kalmadan Kerberos kimlik doğrulamasına olanak tanır.
     command: "impacket-sambaPipe -so {{so_file|exploit.so}} -aesKey {{hex_key}} {{domain}}/{{username}}@{{target}}"
 
   # === CONNECTION & TROUBLESHOOTING ===
-  - title: impacket-sambaPipe - custom target IP and port
-    desc: |
-      Manually specifies the target IP address and destination port for the SMB connection. 
-      Use this when the target's NetBIOS name cannot be resolved or when the Samba service is running on a non-standard port. 
-      Explicitly defining the target-ip is also helpful when routing through complex network segments or tunnels.
+  - title:
+      en: impacket-sambaPipe - custom target IP and port
+      tr: impacket-sambaPipe - özel hedef IP ve port
+    desc:
+      en: |
+        Manually specifies the target IP address and destination port for the SMB connection. 
+        Use this when the target's NetBIOS name cannot be resolved or when the Samba service is running on a non-standard port. 
+        Explicitly defining the target-ip is also helpful when routing through complex network segments or tunnels.
+      tr: |
+        SMB bağlantısı için hedef IP adresini ve hedef portu elle belirtir.
+        Hedefin NetBIOS adı çözülemediğinde veya Samba hizmeti standart dışı bir portta çalıştığında kullanın.
+        Hedef IP'yi açıkça tanımlamak, karmaşık ağ kesimleri veya tüneller üzerinden yönlendirme yaparken de yardımcı olur.
     command: "impacket-sambaPipe -so {{so_file|exploit.so}} -target-ip {{ip_address}} -port {{port|445}} {{domain|.}}/{{username}}:{{password}}@{{target_name}}"
 
-  - title: impacket-sambaPipe - domain controller specification
-    desc: |
-      Specifies the IP address of the Domain Controller to be used for authentication. 
-      This is particularly important in multi-homed environments or when DNS resolution for the domain name fails. 
-      Providing the DC-IP ensures that the authentication request is sent directly to the correct identity provider.
+  - title:
+      en: impacket-sambaPipe - domain controller specification
+      tr: impacket-sambaPipe - etki alanı denetleyicisi belirtme
+    desc:
+      en: |
+        Specifies the IP address of the Domain Controller to be used for authentication. 
+        This is particularly important in multi-homed environments or when DNS resolution for the domain name fails. 
+        Providing the DC-IP ensures that the authentication request is sent directly to the correct identity provider.
+      tr: |
+        Kimlik doğrulama için kullanılacak Etki Alanı Denetleyicisinin IP adresini belirtir.
+        Özellikle çok arayüzlü ortamlarda veya etki alanı adının DNS çözümlemesi başarısız olduğunda önemlidir.
+        DC-IP vermek, kimlik doğrulama isteğinin doğrudan doğru kimlik sağlayıcıya gönderilmesini sağlar.
     command: "impacket-sambaPipe -so {{so_file|exploit.so}} -dc-ip {{dc_ip}} {{domain}}/{{username}}:{{password}}@{{target}}"
 
-  - title: impacket-sambaPipe - verbose debug output
-    desc: |
-      Enables debug mode to provide highly detailed information about the SMB handshake and exploit sequence. 
-      This is critical for troubleshooting failed exploitation attempts or connection resets. 
-      The output will show the specific pipe names being attempted and the server's response to the module loading request.
+  - title:
+      en: impacket-sambaPipe - verbose debug output
+      tr: impacket-sambaPipe - ayrıntılı hata ayıklama çıktısı
+    desc:
+      en: |
+        Enables debug mode to provide highly detailed information about the SMB handshake and exploit sequence. 
+        This is critical for troubleshooting failed exploitation attempts or connection resets. 
+        The output will show the specific pipe names being attempted and the server's response to the module loading request.
+      tr: |
+        SMB el sıkışması ve istismar sırası hakkında oldukça ayrıntılı bilgi sağlamak için hata ayıklama kipini etkinleştirir.
+        Başarısız istismar denemelerini veya bağlantı sıfırlamalarını gidermede kritik öneme sahiptir.
+        Çıktı, denenen belirli boru adlarını ve sunucunun modül yükleme isteğine verdiği yanıtı gösterir.
     command: "impacket-sambaPipe -debug -so {{so_file|exploit.so}} {{domain|.}}/{{username}}:{{password}}@{{target}}"
 
-  - title: impacket-sambaPipe - exploit with timestamped logging
-    desc: |
-      Adds a timestamp to every line of the logging output during the exploitation process. 
-      This is useful for documentation purposes and for correlating exploit attempts with server-side logs during a red team engagement. 
-      It helps in tracking exactly when the .so file was uploaded and when the trigger command was sent.
+  - title:
+      en: impacket-sambaPipe - exploit with timestamped logging
+      tr: impacket-sambaPipe - zaman damgalı günlükle istismar
+    desc:
+      en: |
+        Adds a timestamp to every line of the logging output during the exploitation process. 
+        This is useful for documentation purposes and for correlating exploit attempts with server-side logs during a red team engagement. 
+        It helps in tracking exactly when the .so file was uploaded and when the trigger command was sent.
+      tr: |
+        İstismar süreci boyunca günlük çıktısının her satırına zaman damgası ekler.
+        Belgelendirme amacıyla ve kırmızı ekip çalışmasında istismar denemelerini sunucu tarafı günlüklerle ilişkilendirmek için faydalıdır.
+        .so dosyasının tam olarak ne zaman yüklendiğini ve tetikleme komutunun ne zaman gönderildiğini izlemeye yardımcı olur.
     command: "impacket-sambaPipe -ts -so {{so_file|exploit.so}} {{domain|.}}/{{username}}:{{password}}@{{target}}"

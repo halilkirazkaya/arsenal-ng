@@ -4,48 +4,88 @@ tags: [dns, enumeration, reconnaissance, footprinting, subdomain, pentest, netwo
 actions:
 # === BASIC ENUMERATION ===
 
- - title: fierce - basic domain scan
-   desc: |
-     This command performs a standard reconnaissance of the target domain. It begins by attempting a DNS zone transfer (AXFR) to retrieve all records at once. If the transfer fails, it automatically falls back to brute-forcing subdomains using its internal wordlist. This is the most common starting point for mapping out a target's external attack surface.
+ - title:
+     en: fierce - basic domain scan
+     tr: fierce - temel alan adı taraması
+   desc:
+     en: |
+       This command performs a standard reconnaissance of the target domain. It begins by attempting a DNS zone transfer (AXFR) to retrieve all records at once. If the transfer fails, it automatically falls back to brute-forcing subdomains using its internal wordlist. This is the most common starting point for mapping out a target's external attack surface.
+     tr: |
+       Bu komut hedef alan adının standart keşfini yapar. Önce tüm kayıtları bir anda almak için DNS zon transferi (AXFR) dener. Transfer başarısız olursa dahili wordlist'iyle subdomain kaba kuvvetine otomatik geçer. Bu, bir hedefin dış saldırı yüzeyini haritalamanın en yaygın başlangıç noktasıdır.
    command: "fierce --domain {{domain}}"
 
- - title: fierce - brute force with custom subdomains
-   desc: |
-     Use this command to perform a targeted brute force attack using a specific list of subdomain names. This is useful when you have a custom wordlist or suspect specific naming conventions like 'dev', 'staging', or 'vpn'. Providing specific subdomains can significantly speed up the discovery process compared to a full list.
+ - title:
+     en: fierce - brute force with custom subdomains
+     tr: fierce - özel subdomain listesiyle kaba kuvvet
+   desc:
+     en: |
+       Use this command to perform a targeted brute force attack using a specific list of subdomain names. This is useful when you have a custom wordlist or suspect specific naming conventions like 'dev', 'staging', or 'vpn'. Providing specific subdomains can significantly speed up the discovery process compared to a full list.
+     tr: |
+       Belirli bir subdomain adı listesiyle hedefli kaba kuvvet saldırısı yapmak için bu komutu kullanın. Özel bir wordlist'iniz olduğunda veya 'dev', 'staging' ya da 'vpn' gibi adlandırma düzenlerinden şüphelenildiğinde kullanışlıdır. Belirli subdomain'ler vermek, tam listeye kıyasla keşif işlemini ciddi ölçüde hızlandırabilir.
    command: "fierce --domain {{domain}} --subdomains {{subdomain_list|admin accounts mail}}"
 
 # === ADVANCED DISCOVERY ===
 
- - title: fierce - wide range enumeration
-   desc: |
-     This option instructs the tool to expand its search to all IP addresses within the /24 subnet of any discovered subdomain. It is an effective way to find hidden services or development servers that share the same network infrastructure as public ones. Note that this increases the number of DNS queries and may take longer to complete.
+ - title:
+     en: fierce - wide range enumeration
+     tr: fierce - geniş kapsamlı numaralandırma
+   desc:
+     en: |
+       This option instructs the tool to expand its search to all IP addresses within the /24 subnet of any discovered subdomain. It is an effective way to find hidden services or development servers that share the same network infrastructure as public ones. Note that this increases the number of DNS queries and may take longer to complete.
+     tr: |
+       Bu seçenek araca, keşfedilen herhangi bir subdomain'in /24 alt ağındaki tüm IP adreslerine aramayı genişletmesini söyler. Genel olanlarla aynı ağ altyapısını paylaşan gizli hizmetleri veya geliştirme sunucularını bulmanın etkili bir yoludur. Bunun DNS sorgu sayısını artırdığını ve tamamlanmasının daha uzun sürebileceğini unutmayın.
    command: "fierce --domain {{domain}} --wide"
 
- - title: fierce - verify subdomains with http connection
-   desc: |
-     This command attempts an HTTP connection to every subdomain that is successfully resolved. It helps the researcher distinguish between dormant DNS records and active web applications. This is a critical step for identifying live web targets for subsequent vulnerability scanning or manual testing.
+ - title:
+     en: fierce - verify subdomains with http connection
+     tr: fierce - HTTP bağlantısıyla subdomain doğrulama
+   desc:
+     en: |
+       This command attempts an HTTP connection to every subdomain that is successfully resolved. It helps the researcher distinguish between dormant DNS records and active web applications. This is a critical step for identifying live web targets for subsequent vulnerability scanning or manual testing.
+     tr: |
+       Bu komut başarıyla çözümlenen her subdomain'e HTTP bağlantısı kurmayı dener. Araştırmacının atıl DNS kayıtları ile aktif web uygulamalarını ayırt etmesine yardımcı olur. Sonraki zafiyet taraması veya elle test için canlı web hedeflerini belirlemede kritik bir adımdır.
    command: "fierce --domain {{domain}} --connect"
 
 # === INFRASTRUCTURE ANALYSIS ===
 
- - title: fierce - scan nearby ip addresses
-   desc: |
-     This command traverses a specified number of IP addresses surrounding the ones discovered during the initial DNS lookup. It is designed to identify contiguous IP blocks that might belong to the same organization but lack public DNS entries. Use this to uncover "shadow IT" or secondary infrastructure that is not explicitly linked to the primary domain.
+ - title:
+     en: fierce - scan nearby ip addresses
+     tr: fierce - yakındaki IP adreslerini tarama
+   desc:
+     en: |
+       This command traverses a specified number of IP addresses surrounding the ones discovered during the initial DNS lookup. It is designed to identify contiguous IP blocks that might belong to the same organization but lack public DNS entries. Use this to uncover "shadow IT" or secondary infrastructure that is not explicitly linked to the primary domain.
+     tr: |
+       Bu komut, ilk DNS sorgusunda keşfedilenlerin çevresindeki belirli sayıda IP adresini tarar. Aynı kuruluşa ait olup genel DNS girdisi olmayan bitişik IP bloklarını tespit etmek için tasarlanmıştır. Birincil alan adına açıkça bağlı olmayan "gölge BT" veya ikincil altyapıyı ortaya çıkarmak için bunu kullanın.
    command: "fierce --domain {{domain}} --traverse {{count|10}}"
 
- - title: fierce - limited traversal search
-   desc: |
-     Use this command to limit the IP traversal search to specific domains or suffixes. This is particularly useful when the target's infrastructure is hosted in a shared environment like AWS or Azure to avoid scanning unrelated third-party assets. It ensures that the reconnaissance remains focused and relevant to the engagement's scope.
+ - title:
+     en: fierce - limited traversal search
+     tr: fierce - sınırlı geçiş araması
+   desc:
+     en: |
+       Use this command to limit the IP traversal search to specific domains or suffixes. This is particularly useful when the target's infrastructure is hosted in a shared environment like AWS or Azure to avoid scanning unrelated third-party assets. It ensures that the reconnaissance remains focused and relevant to the engagement's scope.
+     tr: |
+       IP geçiş aramasını belirli alan adları veya soneklerle sınırlamak için bu komutu kullanın. Hedef altyapı AWS veya Azure gibi paylaşımlı bir ortamda barındırılıyorsa ilgisiz üçüncü taraf varlıkları taramaktan kaçınmak için özellikle kullanışlıdır. Keşfin odaklı kalmasını ve çalışma kapsamıyla ilgili olmasını sağlar.
    command: "fierce --domain {{domain}} --subdomains {{subdomain|admin}} --search {{filter_domain}}"
 
- - title: fierce - scan internal ip range
-   desc: |
-     This command allows the user to scan specific IP ranges using a designated DNS server. It is primarily used during internal network assessments to map out local hostnames and services. You must provide the IP of the internal DNS server to ensure that private records are correctly resolved.
+ - title:
+     en: fierce - scan internal ip range
+     tr: fierce - iç IP aralığını tarama
+   desc:
+     en: |
+       This command allows the user to scan specific IP ranges using a designated DNS server. It is primarily used during internal network assessments to map out local hostnames and services. You must provide the IP of the internal DNS server to ensure that private records are correctly resolved.
+     tr: |
+       Bu komut, kullanıcının atanmış bir DNS sunucusu kullanarak belirli IP aralıklarını taramasına olanak tanır. Öncelikle iç ağ değerlendirmelerinde yerel host adlarını ve hizmetleri haritalamak için kullanılır. Özel kayıtların doğru çözümlenmesi için iç DNS sunucusunun IP'sini vermelisiniz.
    command: "fierce --dns-servers {{dns_server}} --range {{ip_range|10.0.0.0/24}}"
 
 # === OUTPUT AND LOGGING ===
 
- - title: fierce - save output to file
-   desc: |
-     This command redirects the standard output of the tool into a text file for later analysis. It is essential for documenting findings and providing data for reports or further processing by other tools. Ensure you have the necessary write permissions in the directory where the output file is being created.
+ - title:
+     en: fierce - save output to file
+     tr: fierce - çıktıyı dosyaya kaydetme
+   desc:
+     en: |
+       This command redirects the standard output of the tool into a text file for later analysis. It is essential for documenting findings and providing data for reports or further processing by other tools. Ensure you have the necessary write permissions in the directory where the output file is being created.
+     tr: |
+       Bu komut aracın standart çıktısını sonradan analiz için bir metin dosyasına yönlendirir. Bulguları belgelemek ve raporlar veya başka araçlarla ileri işleme için veri sağlamak açısından gereklidir. Çıktı dosyasının oluşturulduğu dizinde gerekli yazma izinlerine sahip olduğunuzdan emin olun.
    command: "fierce --domain {{domain}} > {{output_file|results.txt}}"

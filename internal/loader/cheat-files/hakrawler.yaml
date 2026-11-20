@@ -3,90 +3,174 @@ tags: [web, crawler, recon, reconnaissance, pentest, security, enumeration, gola
 
 actions:
   # === BASIC USAGE ===
-  - title: hakrawler - simple crawl
-    desc: |
-      Perform a basic crawl on a single target URL using default settings.
-      This is the most common entry point for reconnaissance to identify links and JavaScript files.
-      The tool reads the target from standard input, making it easy to pipe from other tools.
+  - title:
+      en: hakrawler - simple crawl
+      tr: hakrawler - basit tarama
+    desc:
+      en: |
+        Perform a basic crawl on a single target URL using default settings.
+        This is the most common entry point for reconnaissance to identify links and JavaScript files.
+        The tool reads the target from standard input, making it easy to pipe from other tools.
+      tr: |
+        Varsayılan ayarlarla tek hedefte temel tarama yapar.
+        Bağlantı ve JavaScript dosyalarını bulmak için keşfe en yaygın giriş noktasıdır.
+        Hedefi standart girdiden okur; diğer araçlardan hattla besleme kolaydır.
     command: "echo {{url}} | hakrawler"
 
-  - title: hakrawler - multiple target crawl
-    desc: |
-      Crawl multiple target URLs provided from a file.
-      This is highly efficient for large-scale reconnaissance across multiple domains or endpoints.
-      Each line in the input file should contain a valid URL starting with http or https.
+  - title:
+      en: hakrawler - multiple target crawl
+      tr: hakrawler - çoklu hedef tarama
+    desc:
+      en: |
+        Crawl multiple target URLs provided from a file.
+        This is highly efficient for large-scale reconnaissance across multiple domains or endpoints.
+        Each line in the input file should contain a valid URL starting with http or https.
+      tr: |
+        Dosyadan verilen birden çok hedef URL'yi tarar.
+        Birçok alan adı veya uç noktada geniş ölçekli keşif için verimlidir.
+        Girdi dosyasındaki her satır http veya https ile başlayan geçerli URL olmalıdır.
     command: "cat {{url_list_file}} | hakrawler"
 
   # === CRAWLER CONFIGURATION ===
-  - title: hakrawler - set crawl depth
-    desc: |
-      Define the maximum depth the crawler should navigate into the site structure.
-      The default depth is 2, but increasing it allows for deeper discovery of nested pages.
-      Be cautious as higher depth values significantly increase the time and resource consumption.
+  - title:
+      en: hakrawler - set crawl depth
+      tr: hakrawler - tarama derinliği ayarla
+    desc:
+      en: |
+        Define the maximum depth the crawler should navigate into the site structure.
+        The default depth is 2, but increasing it allows for deeper discovery of nested pages.
+        Be cautious as higher depth values significantly increase the time and resource consumption.
+      tr: |
+        Tarayıcının site içinde ineceği azami derinliği belirler.
+        Varsayılan derinlik 2'dir; artırmak iç sayfaların daha derin keşfini sağlar.
+        Yüksek değerlerin zaman ve kaynak tüketimini ciddi artırdığını unutmayın.
     command: "echo {{url}} | hakrawler -d {{depth|3}}"
 
-  - title: hakrawler - include subdomains
-    desc: |
-      Allow the crawler to follow and report links that belong to subdomains of the target.
-      By default, hakrawler stays within the scope of the exact domain provided.
-      This flag is essential when the main site redirects to a 'www' or other functional subdomains.
+  - title:
+      en: hakrawler - include subdomains
+      tr: hakrawler - alt alan adlarını dahil et
+    desc:
+      en: |
+        Allow the crawler to follow and report links that belong to subdomains of the target.
+        By default, hakrawler stays within the scope of the exact domain provided.
+        This flag is essential when the main site redirects to a 'www' or other functional subdomains.
+      tr: |
+        Tarayıcının hedefin alt alan adlarındaki bağlantıları takip edip raporlamasını sağlar.
+        Varsayılan olarak yalnızca verilen alan adının kapsamında kalır.
+        Ana sitenin 'www' veya işlevsel alt alan adlarına yönlendiği durumlarda gereklidir.
     command: "echo {{url}} | hakrawler -subs"
 
-  - title: hakrawler - unique urls only
-    desc: |
-      Filter the output to show only unique URLs discovered during the crawl.
-      This reduces noise in the output by removing duplicate links found in different parts of the site.
-      It is particularly useful when generating wordlists or target lists for further scanning.
+  - title:
+      en: hakrawler - unique urls only
+      tr: hakrawler - yalnızca benzersiz URL'ler
+    desc:
+      en: |
+        Filter the output to show only unique URLs discovered during the crawl.
+        This reduces noise in the output by removing duplicate links found in different parts of the site.
+        It is particularly useful when generating wordlists or target lists for further scanning.
+      tr: |
+        Tarama çıktısını bulunan benzersiz URL'lere indirger.
+        Sitenin farklı yerlerinde tekrarlanan bağlantı gürültüsünü temizler.
+        Sonraki taramalar için wordlist veya hedef listesi üretirken özellikle faydalıdır.
     command: "echo {{url}} | hakrawler -u"
 
   # === NETWORK & AUTHENTICATION ===
-  - title: hakrawler - proxy configuration
-    desc: |
-      Route all crawler traffic through a specified HTTP or SOCKS proxy.
-      This is useful for debugging traffic through tools like Burp Suite or for bypassing IP-based restrictions.
-      Ensure the proxy URL is correctly formatted with the protocol and port.
+  - title:
+      en: hakrawler - proxy configuration
+      tr: hakrawler - proxy yapılandırması
+    desc:
+      en: |
+        Route all crawler traffic through a specified HTTP or SOCKS proxy.
+        This is useful for debugging traffic through tools like Burp Suite or for bypassing IP-based restrictions.
+        Ensure the proxy URL is correctly formatted with the protocol and port.
+      tr: |
+        Tüm tarayıcı trafiğini belirtilen HTTP veya SOCKS proxy üzerinden yönlendirir.
+        Trafiği Burp Suite ile incelemek veya IP tabanlı kısıtları aşmak için kullanılır.
+        Proxy URL'sinin protokol ve portuyla doğru formatta olduğundan emin olun.
     command: "echo {{url}} | hakrawler -proxy {{proxy_url|http://127.0.0.1:8080}}"
 
-  - title: hakrawler - custom headers
-    desc: |
-      Send custom HTTP headers with every request initiated by the crawler.
-      This is required for crawling sites that need authentication via Cookies or Authorization tokens.
-      Multiple headers must be separated by two semi-colons (;;).
+  - title:
+      en: hakrawler - custom headers
+      tr: hakrawler - özel başlıklar
+    desc:
+      en: |
+        Send custom HTTP headers with every request initiated by the crawler.
+        This is required for crawling sites that need authentication via Cookies or Authorization tokens.
+        Multiple headers must be separated by two semi-colons (;;).
+      tr: |
+        Her istekle birlikte özel HTTP başlıkları gönderir.
+        Cookie veya Authorization jetonu gerektiren sayfaları taramak için şarttır.
+        Birden fazla başlık iki noktalı virgülle (;;) ayrılmalıdır.
     command: "echo {{url}} | hakrawler -h \"{{headers|Cookie: session=123;;User-Agent: Mozilla/5.0}}\""
 
-  - title: hakrawler - insecure tls
-    desc: |
-      Disable TLS certificate verification for HTTPS targets.
-      Use this when dealing with internal environments or servers using self-signed certificates.
-      Note that this decreases security as it makes the connection vulnerable to MITM attacks.
+  - title:
+      en: hakrawler - insecure tls
+      tr: hakrawler - güvensiz tls
+    desc:
+      en: |
+        Disable TLS certificate verification for HTTPS targets.
+        Use this when dealing with internal environments or servers using self-signed certificates.
+        Note that this decreases security as it makes the connection vulnerable to MITM attacks.
+      tr: |
+        HTTPS hedeflerde TLS sertifika doğrulamasını devre dışı bırakır.
+        Kendinden imzalı sertifikalı iç ortamlarda kullanılır.
+        Bağlantıyı MITM saldırılarına açık hale getirdiği için güvenliği azalttığını unutmayın.
     command: "echo {{url}} | hakrawler -insecure"
 
   # === OUTPUT & PERFORMANCE ===
-  - title: hakrawler - json output
-    desc: |
-      Generate the output in structured JSON format for automated processing.
-      The JSON output contains detailed information including the source type and discovery location.
-      This is the preferred format for integrating hakrawler into automated bug bounty pipelines.
+  - title:
+      en: hakrawler - json output
+      tr: hakrawler - json çıktısı
+    desc:
+      en: |
+        Generate the output in structured JSON format for automated processing.
+        The JSON output contains detailed information including the source type and discovery location.
+        This is the preferred format for integrating hakrawler into automated bug bounty pipelines.
+      tr: |
+        Otomatik işlemeye uygun yapılandırılmış JSON formatında çıktı üretir.
+        JSON çıktısı kaynak türü ve keşif konumu gibi detaylı bilgi içerir.
+        Otomatik hata ödül hattına bütünleşme için tercih edilen formattır.
     command: "echo {{url}} | hakrawler -json"
 
-  - title: hakrawler - show source and link origin
-    desc: |
-      Display where the URL was found (e.g., href, script) and the exact link that contained it.
-      This provides context for each discovered endpoint, which is crucial for manual verification.
-      Using the -s and -w flags together provides the most detailed human-readable output.
+  - title:
+      en: hakrawler - show source and link origin
+      tr: hakrawler - kaynak ve bağlantı kökenini göster
+    desc:
+      en: |
+        Display where the URL was found (e.g., href, script) and the exact link that contained it.
+        This provides context for each discovered endpoint, which is crucial for manual verification.
+        Using the -s and -w flags together provides the most detailed human-readable output.
+      tr: |
+        Bulunan URL'nin nerede (href, script vb.) ve hangi bağlantıda geçtiğini gösterir.
+        Her uç nokta için manuel doğrulamada kritik bağlam sağlar.
+        -s ve -w bayraklarını birlikte kullanmak en detaylı okunabilir çıktıyı verir.
     command: "echo {{url}} | hakrawler -s -w"
 
-  - title: hakrawler - performance tuning
-    desc: |
-      Adjust the number of threads and the timeout to optimize crawling speed.
-      Increasing threads allows for faster crawling but may cause rate limiting or server stress.
-      The timeout ensures that the crawler does not hang indefinitely on slow or unresponsive endpoints.
+  - title:
+      en: hakrawler - performance tuning
+      tr: hakrawler - performans ayarı
+    desc:
+      en: |
+        Adjust the number of threads and the timeout to optimize crawling speed.
+        Increasing threads allows for faster crawling but may cause rate limiting or server stress.
+        The timeout ensures that the crawler does not hang indefinitely on slow or unresponsive endpoints.
+      tr: |
+        Tarama hızını optimize etmek için iş parçacığı ve zaman aşımını ayarlar.
+        İş parçacığını artırmak hızlandırır ancak hız sınırlamaya veya sunucu stresine yol açabilir.
+        Zaman aşımı tarayıcının yavaş uç noktalarda takılı kalmasını engeller.
     command: "echo {{url}} | hakrawler -t {{threads|10}} -timeout {{timeout_seconds|5}}"
 
   # === ADVANCED CHAINING ===
-  - title: hakrawler - combined recon pipeline
-    desc: |
-      Example of chaining hakrawler with other tools like httpx for a complete workflow.
-      This command takes a domain, finds its subdomains, checks for active web services, and then crawls them.
-      It demonstrates the power of hakrawler in a modern Linux-based reconnaissance toolchain.
+  - title:
+      en: hakrawler - combined recon pipeline
+      tr: hakrawler - birleşik keşif hattı
+    desc:
+      en: |
+        Example of chaining hakrawler with other tools like httpx for a complete workflow.
+        This command takes a domain, finds its subdomains, checks for active web services, and then crawls them.
+        It demonstrates the power of hakrawler in a modern Linux-based reconnaissance toolchain.
+      tr: |
+        hakrawler'ı httpx gibi araçlarla zincirleyen örnek iş akışıdır.
+        Alan adından alt alan adlarını bulur, aktif web servislerini denetler ve tarar.
+        Modern Linux keşif araç zincirinde hakrawler'ın gücünü gösterir.
     command: "echo {{domain}} | haktrails subdomains | httpx | hakrawler -subs -u"

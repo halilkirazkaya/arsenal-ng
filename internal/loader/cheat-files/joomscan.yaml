@@ -3,61 +3,117 @@ tags: [joomla, scanner, pentest, vulnerability, cms, enumeration, security, web]
 
 actions:
   # === RECONNAISSANCE & ENUMERATION ===
-  - title: joomscan - basic website scan
-    desc: |
-      Performs a basic scan of a target Joomla website to identify the version and common vulnerabilities. 
-      It checks for known misconfigurations, firewall presence, and exposed sensitive files like configuration.php. 
-      This should be the starting point for any Joomla-specific reconnaissance to map the basic attack surface.
+  - title:
+      en: joomscan - basic website scan
+      tr: joomscan - temel site taraması
+    desc:
+      en: |
+        Performs a basic scan of a target Joomla website to identify the version and common vulnerabilities. 
+        It checks for known misconfigurations, firewall presence, and exposed sensitive files like configuration.php. 
+        This should be the starting point for any Joomla-specific reconnaissance to map the basic attack surface.
+      tr: |
+        Hedef bir Joomla sitesinin sürümünü ve yaygın zafiyetlerini belirlemek için temel bir tarama yapar.
+        Bilinen yanlış yapılandırmaları, güvenlik duvarı varlığını ve configuration.php gibi açığa çıkmış hassas dosyaları denetler.
+        Temel saldırı yüzeyini haritalamak için Joomla'ya özgü her keşfin başlangıç noktası olmalıdır.
     command: "joomscan --url {{url}}"
 
-  - title: joomscan - enumerate components
-    desc: |
-      Attempts to discover installed Joomla components and extensions by checking common paths. 
-      Since many Joomla vulnerabilities reside in third-party extensions rather than the core, this is a critical step. 
-      It helps identify outdated or vulnerable plugins that can be exploited for further access.
+  - title:
+      en: joomscan - enumerate components
+      tr: joomscan - bileşenleri listeleme
+    desc:
+      en: |
+        Attempts to discover installed Joomla components and extensions by checking common paths. 
+        Since many Joomla vulnerabilities reside in third-party extensions rather than the core, this is a critical step. 
+        It helps identify outdated or vulnerable plugins that can be exploited for further access.
+      tr: |
+        Yaygın yolları denetleyerek kurulu Joomla bileşenlerini ve eklentilerini keşfetmeye çalışır.
+        Birçok Joomla zafiyeti çekirdek yerine üçüncü taraf eklentilerde bulunduğundan bu kritik bir adımdır.
+        Daha fazla erişim için istismar edilebilecek güncelliğini yitirmiş veya savunmasız eklentileri belirlemeye yardımcı olur.
     command: "joomscan --url {{url}} --enumerate-components"
 
   # === EVASION & STEALTH ===
-  - title: joomscan - scan with random user-agent
-    desc: |
-      Executes the scan using a randomized User-Agent string for every request to bypass basic signature-based detection. 
-      Security systems like WAFs often block the default JoomScan identifier to prevent automated scanning. 
-      Using a random agent helps simulate traffic from various browsers, increasing the chances of staying undetected.
+  - title:
+      en: joomscan - scan with random user-agent
+      tr: joomscan - rastgele kullanıcı ajanıyla tarama
+    desc:
+      en: |
+        Executes the scan using a randomized User-Agent string for every request to bypass basic signature-based detection. 
+        Security systems like WAFs often block the default JoomScan identifier to prevent automated scanning. 
+        Using a random agent helps simulate traffic from various browsers, increasing the chances of staying undetected.
+      tr: |
+        Temel imza tabanlı tespiti atlatmak için her istekte rastgele bir User-Agent dizgisi kullanarak taramayı çalıştırır.
+        WAF gibi güvenlik sistemleri otomatik taramayı engellemek için varsayılan JoomScan tanımlayıcısını sıkça engeller.
+        Rastgele ajan kullanmak çeşitli tarayıcılardan gelen trafiği taklit etmeye yardımcı olarak tespit edilmeden kalma şansını artırır.
     command: "joomscan --url {{url}} --random-agent"
 
-  - title: joomscan - scan with custom user-agent
-    desc: |
-      Specifies a fixed custom User-Agent string for all requests sent to the target server. 
-      This is useful when the target environment only allows specific browsers or when you need to mimic a legitimate corporate crawler. 
-      Providing a custom string allows for better control over how the scan is perceived by server logs.
+  - title:
+      en: joomscan - scan with custom user-agent
+      tr: joomscan - özel kullanıcı ajanıyla tarama
+    desc:
+      en: |
+        Specifies a fixed custom User-Agent string for all requests sent to the target server. 
+        This is useful when the target environment only allows specific browsers or when you need to mimic a legitimate corporate crawler. 
+        Providing a custom string allows for better control over how the scan is perceived by server logs.
+      tr: |
+        Hedef sunucuya gönderilen tüm istekler için sabit özel bir User-Agent dizgisi belirtir.
+        Hedef ortam yalnızca belirli tarayıcılara izin verdiğinde veya meşru bir kurumsal tarayıcıyı taklit etmeniz gerektiğinde faydalıdır.
+        Özel bir dizgi vermek, taramanın sunucu günlüklerince nasıl algılanacağı üzerinde daha iyi denetim sağlar.
     command: "joomscan --url {{url}} --user-agent \"{{user_agent|Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36}}\""
 
   # === AUTHENTICATION & ADVANCED CONFIGURATION ===
-  - title: joomscan - scan with cookies
-    desc: |
-      Injects a session cookie into the scan requests to perform an authenticated vulnerability assessment. 
-      This allows JoomScan to reach pages and components that are restricted to logged-in users or administrators. 
-      Useful for deep-dive testing where you already have low-level credentials and want to escalate privileges.
+  - title:
+      en: joomscan - scan with cookies
+      tr: joomscan - çerezlerle tarama
+    desc:
+      en: |
+        Injects a session cookie into the scan requests to perform an authenticated vulnerability assessment. 
+        This allows JoomScan to reach pages and components that are restricted to logged-in users or administrators. 
+        Useful for deep-dive testing where you already have low-level credentials and want to escalate privileges.
+      tr: |
+        Kimlik doğrulamalı bir zafiyet değerlendirmesi yapmak için tarama isteklerine bir oturum çerezi enjekte eder.
+        Bu, JoomScan'in oturum açmış kullanıcılara veya yöneticilere kısıtlı sayfa ve bileşenlere ulaşmasına olanak tanır.
+        Düşük düzey kimlik bilgilerine sahip olup ayrıcalık yükseltmek istediğiniz derinlemesine testlerde faydalıdır.
     command: "joomscan --url {{url}} --cookie \"{{cookie_string}}\""
 
-  - title: joomscan - scan via proxy
-    desc: |
-      Routes all scanning traffic through a specified proxy server such as Burp Suite or a SOCKS proxy. 
-      This is essential for analyzing the tool's traffic, bypassing IP-based restrictions, or maintaining anonymity. 
-      Ensure the proxy URL includes the protocol, such as http, https, or socks.
+  - title:
+      en: joomscan - scan via proxy
+      tr: joomscan - proxy üzerinden tarama
+    desc:
+      en: |
+        Routes all scanning traffic through a specified proxy server such as Burp Suite or a SOCKS proxy. 
+        This is essential for analyzing the tool's traffic, bypassing IP-based restrictions, or maintaining anonymity. 
+        Ensure the proxy URL includes the protocol, such as http, https, or socks.
+      tr: |
+        Tüm tarama trafiğini Burp Suite veya SOCKS proxy gibi belirtilen bir proxy sunucu üzerinden yönlendirir.
+        Aracın trafiğini analiz etmek, IP tabanlı kısıtlamaları atlatmak veya anonimliyi korumak için gereklidir.
+        Proxy URL'sinin http, https veya socks gibi protokolü içerdiğinden emin olun.
     command: "joomscan --url {{url}} --proxy {{proxy_url|http://127.0.0.1:8080}}"
 
-  - title: joomscan - set request timeout
-    desc: |
-      Configures a specific timeout value in seconds for the network requests made during the scan. 
-      Increasing the timeout is beneficial when scanning slow-responding servers or targets behind high-latency connections. 
-      Proper timeout management prevents the scanner from dropping valid connections prematurely.
+  - title:
+      en: joomscan - set request timeout
+      tr: joomscan - istek zaman aşımını ayarlama
+    desc:
+      en: |
+        Configures a specific timeout value in seconds for the network requests made during the scan. 
+        Increasing the timeout is beneficial when scanning slow-responding servers or targets behind high-latency connections. 
+        Proper timeout management prevents the scanner from dropping valid connections prematurely.
+      tr: |
+        Tarama sırasında yapılan ağ istekleri için saniye cinsinden belirli bir zaman aşımı değeri yapılandırır.
+        Yavaş yanıt veren sunucuları veya yüksek gecikmeli bağlantıların ardındaki hedefleri tararken zaman aşımını artırmak faydalıdır.
+        Doğru zaman aşımı yönetimi, tarayıcının geçerli bağlantıları erken kesmesini önler.
     command: "joomscan --url {{url}} --timeout {{seconds|10}}"
 
   # === UTILITY ===
-  - title: joomscan - check version and help
-    desc: |
-      Displays the current version of the JoomScan tool and the help menu listing all available flags. 
-      Use this to verify that the tool is correctly installed and to see if new features have been added. 
-      It is a good practice to check the version before starting an engagement to ensure database signatures are up to date.
+  - title:
+      en: joomscan - check version and help
+      tr: joomscan - sürümü ve yardımı görüntüleme
+    desc:
+      en: |
+        Displays the current version of the JoomScan tool and the help menu listing all available flags. 
+        Use this to verify that the tool is correctly installed and to see if new features have been added. 
+        It is a good practice to check the version before starting an engagement to ensure database signatures are up to date.
+      tr: |
+        JoomScan aracının mevcut sürümünü ve tüm kullanılabilir bayrakları listeleyen yardım menüsünü gösterir.
+        Aracın doğru kurulduğunu doğrulamak ve yeni özelliklerin eklenip eklenmediğini görmek için bunu kullanın.
+        Veritabanı imzalarının güncel olduğundan emin olmak için bir teste başlamadan önce sürümü denetlemek iyi bir uygulamadır.
     command: "joomscan --help"

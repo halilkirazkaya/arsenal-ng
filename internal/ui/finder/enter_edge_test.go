@@ -13,7 +13,7 @@ import (
 // TestEnterPicksCheatWithAndWithoutArgs verifies quit flag by args presence.
 func TestEnterPicksCheatWithAndWithoutArgs(t *testing.T) {
 	oc, pick := enterWith(t, "", 0)
-	if oc != Picked || !pick.Quit || pick.Cheat.Title != "Basic scan" {
+	if oc != Picked || !pick.Quit || pick.Cheat.Title.Resolve("en") != "Basic scan" {
 		t.Fatalf("plain: oc=%v quit=%v cheat=%v", oc, pick.Quit, pick.Cheat)
 	}
 	oc, pick = enterWith(t, "", 1)

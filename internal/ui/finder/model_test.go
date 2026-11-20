@@ -29,9 +29,9 @@ func TestMain(m *testing.M) {
 // testCheats returns a small fixed cheat list for tests.
 func testCheats() []*model.Cheat {
 	return []*model.Cheat{
-		{Tool: "nmap", Title: "Basic scan", Desc: "Scan a host", Command: "nmap -sV 10.0.0.1", Tags: []string{"scan"}},
-		{Tool: "ffuf", Title: "Fuzz paths", Desc: "Fuzz web paths", Command: "ffuf -u {{url}}/FUZZ", Tags: []string{"web"}},
-		{Tool: "nmap", Title: "Vuln scan", Desc: "Vulnerability scan", Command: "nmap --script vuln {{ip}}", Tags: []string{"scan"}},
+		{Tool: "nmap", Title: model.NewText("Basic scan"), Desc: model.NewText("Scan a host"), Command: "nmap -sV 10.0.0.1", Tags: []string{"scan"}},
+		{Tool: "ffuf", Title: model.NewText("Fuzz paths"), Desc: model.NewText("Fuzz web paths"), Command: "ffuf -u {{url}}/FUZZ", Tags: []string{"web"}},
+		{Tool: "nmap", Title: model.NewText("Vuln scan"), Desc: model.NewText("Vulnerability scan"), Command: "nmap --script vuln {{ip}}", Tags: []string{"scan"}},
 	}
 }
 

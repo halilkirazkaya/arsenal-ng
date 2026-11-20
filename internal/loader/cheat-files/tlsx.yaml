@@ -3,96 +3,187 @@ tags: [network, security, tls, ssl, recon, enumeration, pentest]
 
 actions:
   # === BASIC SCANNING & INPUT ===
-  - title: tlsx - basic host scan
-    desc: |
-      Perform a basic TLS handshake against a single target to verify connectivity. 
-      This command is useful for a quick check to see if the target service supports TLS on the default port.
-      It returns the host and port if the connection is successful, serving as a baseline connectivity test.
+  - title:
+      en: tlsx - basic host scan
+      tr: tlsx - temel makine taraması
+    desc:
+      en: |
+        Perform a basic TLS handshake against a single target to verify connectivity. 
+        This command is useful for a quick check to see if the target service supports TLS on the default port.
+        It returns the host and port if the connection is successful, serving as a baseline connectivity test.
+      tr: |
+        Tek bir hedefe temel TLS el sıkışması yaparak bağlantıyı doğrular.
+        Hedef servisin varsayılan portta TLS destekleyip desteklemediğini hızlı denetlemek için yararlıdır.
+        Bağlantı başarılıysa makine ve portu döndürerek temel bağlantı testi işlevi görür.
     command: "tlsx -u {{target}}"
 
-  - title: tlsx - scan from list
-    desc: |
-      Process multiple targets from a text file for bulk TLS analysis.
-      This is the standard approach when performing reconnaissance on large IP ranges or domain lists.
-      Ensure the input file contains one target per line to avoid parsing errors during execution.
+  - title:
+      en: tlsx - scan from list
+      tr: tlsx - listeden tarama
+    desc:
+      en: |
+        Process multiple targets from a text file for bulk TLS analysis.
+        This is the standard approach when performing reconnaissance on large IP ranges or domain lists.
+        Ensure the input file contains one target per line to avoid parsing errors during execution.
+      tr: |
+        Toplu TLS analizi için metin dosyasındaki birden çok hedefi işler.
+        Geniş IP aralıkları veya alan adı listelerinde keşif yapmanın standart yaklaşımıdır.
+        Yürütme sırasında ayrıştırma hatalarını önlemek için girdi dosyasının satır başına bir hedef içerdiğinden emin olun.
     command: "tlsx -list {{input_file|hosts.txt}}"
 
-  - title: tlsx - custom port scanning
-    desc: |
-      Scan specific ports for TLS services instead of the default 443.
-      This is useful when looking for management interfaces or alternative web services like 8443 or 9443.
-      You can provide multiple ports separated by commas to increase the scope of your enumeration.
+  - title:
+      en: tlsx - custom port scanning
+      tr: tlsx - özel port taraması
+    desc:
+      en: |
+        Scan specific ports for TLS services instead of the default 443.
+        This is useful when looking for management interfaces or alternative web services like 8443 or 9443.
+        You can provide multiple ports separated by commas to increase the scope of your enumeration.
+      tr: |
+        Varsayılan 443 yerine TLS servisleri için belirli portları tarar.
+        8443 veya 9443 gibi yönetim arayüzlerini veya alternatif web servislerini ararken yararlıdır.
+        Numaralandırma kapsamını genişletmek için virgülle ayrılmış birden çok port verebilirsiniz.
     command: "tlsx -u {{target}} -p {{ports|443,8443,9443}}"
 
   # === ENUMERATION & PROBES ===
-  - title: tlsx - extract SAN and CN names
-    desc: |
-      Extract Subject Alternative Names (SAN) and Common Names (CN) from the certificate.
-      This helps in discovering hidden subdomains or related infrastructure associated with a specific IP.
-      Use the -resp-only flag if you want to pipe just the discovered hostnames into other tools like dnsx or httpx.
+  - title:
+      en: tlsx - extract SAN and CN names
+      tr: tlsx - SAN ve CN adlarını çıkarma
+    desc:
+      en: |
+        Extract Subject Alternative Names (SAN) and Common Names (CN) from the certificate.
+        This helps in discovering hidden subdomains or related infrastructure associated with a specific IP.
+        Use the -resp-only flag if you want to pipe just the discovered hostnames into other tools like dnsx or httpx.
+      tr: |
+        Sertifikadan Konu Alternatif Adlarını (SAN) ve Ortak Adları (CN) çıkarır.
+        Belirli bir IP ile ilişkili gizli alt alan adlarını veya ilgili altyapıyı bulmaya yardımcı olur.
+        Keşfedilen makine adlarını dnsx veya httpx gibi araçlara aktarmak için -resp-only flag'iyle kullanın.
     command: "tlsx -u {{target}} -san -cn -resp-only"
 
-  - title: tlsx - tls version and cipher display
-    desc: |
-      Identify the specific TLS version and cipher suite used by the target server.
-      This information is critical for identifying weak encryption protocols like SSLv3 or TLS 1.0.
-      It allows security auditors to verify if the server complies with modern encryption standards.
+  - title:
+      en: tlsx - tls version and cipher display
+      tr: tlsx - TLS sürümü ve şifre gösterme
+    desc:
+      en: |
+        Identify the specific TLS version and cipher suite used by the target server.
+        This information is critical for identifying weak encryption protocols like SSLv3 or TLS 1.0.
+        It allows security auditors to verify if the server complies with modern encryption standards.
+      tr: |
+        Hedef sunucunun kullandığı TLS sürümü ve şifre paketini belirler.
+        SSLv3 veya TLS 1.0 gibi zayıf şifreleme protokollerini tespit etmek için kritik bilgidir.
+        Güvenlik denetçilerinin sunucunun modern şifreleme standartlarına uyup uymadığını doğrulamasını sağlar.
     command: "tlsx -u {{target}} -tls-version -cipher"
 
-  - title: tlsx - jarm fingerprinting
-    desc: |
-      Generate a JARM fingerprint for the target server's TLS stack.
-      JARM is a tool that allows for active fingerprinting of TLS servers to identify malicious infrastructure or similar setups.
-      Comparing JARM hashes can help link different IP addresses to the same software or organization.
+  - title:
+      en: tlsx - jarm fingerprinting
+      tr: tlsx - JARM parmak izi
+    desc:
+      en: |
+        Generate a JARM fingerprint for the target server's TLS stack.
+        JARM is a tool that allows for active fingerprinting of TLS servers to identify malicious infrastructure or similar setups.
+        Comparing JARM hashes can help link different IP addresses to the same software or organization.
+      tr: |
+        Hedef sunucunun TLS yığını için JARM parmak izi üretir.
+        JARM, TLS sunucularının aktif parmak izini alarak zararlı altyapıyı veya benzer kurulumları belirlemeye yarar.
+        JARM karmalarını karşılaştırmak farklı IP adreslerini aynı yazılıma veya kuruluşa bağlamaya yardımcı olur.
     command: "tlsx -u {{target}} -jarm"
 
-  - title: tlsx - ja3 fingerprinting
-    desc: |
-      Generate a JA3 fingerprint for the connection using the ztls engine.
-      This provides a unique identifier based on the client-server handshake parameters.
-      Note that this requires the scan mode to be compatible with ztls for accurate fingerprinting.
+  - title:
+      en: tlsx - ja3 fingerprinting
+      tr: tlsx - JA3 parmak izi
+    desc:
+      en: |
+        Generate a JA3 fingerprint for the connection using the ztls engine.
+        This provides a unique identifier based on the client-server handshake parameters.
+        Note that this requires the scan mode to be compatible with ztls for accurate fingerprinting.
+      tr: |
+        ztls motoruyla bağlantı için JA3 parmak izi üretir.
+        İstemci-sunucu el sıkışma parametrelerine dayalı benzersiz bir tanımlayıcı sağlar.
+        Doğru parmak izi için tarama kipinin ztls ile uyumlu olması gerektiğini unutmayın.
     command: "tlsx -u {{target}} -ja3"
 
-  - title: tlsx - full cipher enumeration
-    desc: |
-      Enumerate all supported ciphers on the target server to find weak or insecure options.
-      This probe tests various suites to see which ones the server accepts during the handshake.
-      It is an essential step for compliance testing and identifying vulnerabilities like SWEET32 or weak export ciphers.
+  - title:
+      en: tlsx - full cipher enumeration
+      tr: tlsx - tam şifre numaralandırma
+    desc:
+      en: |
+        Enumerate all supported ciphers on the target server to find weak or insecure options.
+        This probe tests various suites to see which ones the server accepts during the handshake.
+        It is an essential step for compliance testing and identifying vulnerabilities like SWEET32 or weak export ciphers.
+      tr: |
+        Hedef sunucuda desteklenen tüm şifreleri numaralandırarak zayıf veya güvensiz seçenekleri bulur.
+        El sıkışma sırasında hangi paketleri kabul ettiğini görmek için çeşitli takımları yoklar.
+        Uyumluluk testleri ile SWEET32 veya zayıf dışa aktarma şifreleri gibi zafiyetleri belirlemede temel bir adımdır.
     command: "tlsx -u {{target}} -cipher-enum -ct {{cipher_type|all}}"
 
   # === SECURITY & MISCONFIGURATION ===
-  - title: tlsx - check for misconfigurations
-    desc: |
-      Detect various certificate issues such as expiration, self-signed status, or revocation.
-      This command is highly effective for finding low-hanging fruit in infrastructure security.
-      Identifying mismatched or untrusted certificates can indicate potential man-in-the-middle risks or neglected assets.
+  - title:
+      en: tlsx - check for misconfigurations
+      tr: tlsx - yanlış yapılandırmaları denetleme
+    desc:
+      en: |
+        Detect various certificate issues such as expiration, self-signed status, or revocation.
+        This command is highly effective for finding low-hanging fruit in infrastructure security.
+        Identifying mismatched or untrusted certificates can indicate potential man-in-the-middle risks or neglected assets.
+      tr: |
+        Süre dolumu, kendinden imzalılık veya iptal gibi çeşitli sertifika sorunlarını tespit eder.
+        Altyapı güvenliğinde kolay yakalanan bulgular için oldukça etkilidir.
+        Eşleşmeyen veya güvenilmeyen sertifikaları belirlemek olası ortadaki adam risklerine veya sahipsiz varlıklara işaret edebilir.
     command: "tlsx -l {{target_list}} -expired -self-signed -mismatched -revoked -untrusted"
 
-  - title: tlsx - verify certificate chain
-    desc: |
-      Enable full verification of the server's certificate chain.
-      This determines if the certificate is signed by a trusted CA and if the chain is complete.
-      It is particularly useful when troubleshooting "untrusted certificate" warnings in browsers or automated scripts.
+  - title:
+      en: tlsx - verify certificate chain
+      tr: tlsx - sertifika zincirini doğrulama
+    desc:
+      en: |
+        Enable full verification of the server's certificate chain.
+        This determines if the certificate is signed by a trusted CA and if the chain is complete.
+        It is particularly useful when troubleshooting "untrusted certificate" warnings in browsers or automated scripts.
+      tr: |
+        Sunucunun sertifika zincirinin tam doğrulamasını etkinleştirir.
+        Sertifikanın güvenilir bir CA tarafından imzalanıp imzalanmadığını ve zincirin eksiksiz olduğunu belirler.
+        Tarayıcılardaki veya otomatik betiklerdeki güvenilmeyen sertifika uyarılarını giderirken özellikle yararlıdır.
     command: "tlsx -u {{target}} -vc -tc"
 
   # === ADVANCED CONFIGURATIONS ===
-  - title: tlsx - custom sni scanning
-    desc: |
-      Specify a custom Server Name Indication (SNI) for the TLS handshake.
-      This is useful when a single IP hosts multiple sites (Virtual Hosting) and you need to reach a specific one.
-      If the SNI doesn't match the host, many servers will return a different certificate or refuse the connection.
+  - title:
+      en: tlsx - custom sni scanning
+      tr: tlsx - özel SNI ile tarama
+    desc:
+      en: |
+        Specify a custom Server Name Indication (SNI) for the TLS handshake.
+        This is useful when a single IP hosts multiple sites (Virtual Hosting) and you need to reach a specific one.
+        If the SNI doesn't match the host, many servers will return a different certificate or refuse the connection.
+      tr: |
+        TLS el sıkışması için özel Sunucu Adı Göstergesi (SNI) belirtir.
+        Tek IP'nin birden çok site barındırdığı (Sanal Barındırma) ve belirli birine ulaşmanız gerektiğinde yararlıdır.
+        SNI hedefle eşleşmezse birçok sunucu farklı sertifika döndürür veya bağlantıyı reddeder.
     command: "tlsx -u {{target_ip}} -sni {{domain_name}}"
 
-  - title: tlsx - json output for automation
-    desc: |
-      Export all gathered TLS data into a structured JSON format.
-      This is the preferred method for integrating tlsx results with other automation scripts or databases.
-      The output includes detailed fields for fingerprints, certificate dates, and all extracted subject names.
+  - title:
+      en: tlsx - json output for automation
+      tr: tlsx - otomasyon için JSON çıktısı
+    desc:
+      en: |
+        Export all gathered TLS data into a structured JSON format.
+        This is the preferred method for integrating tlsx results with other automation scripts or databases.
+        The output includes detailed fields for fingerprints, certificate dates, and all extracted subject names.
+      tr: |
+        Toplanan tüm TLS verisini yapısal JSON biçiminde dışa aktarır.
+        tlsx sonuçlarını otomasyon betikleri veya veritabanlarıyla entegre etmenin tercih edilen yöntemidir.
+        Çıktı parmak izleri, sertifika tarihleri ve çıkarılan tüm konu adları için ayrıntılı alanlar içerir.
     command: "tlsx -u {{target}} -json -o {{output_file|results.json}}"
 
-  - title: tlsx - optimized high-concurrency scan
-    desc: |
-      Run the tool with increased concurrency and specific timeouts for large-scale scanning.
-      Adjusting the -c flag allows for faster processing of large CIDR blocks or long lists of domains.
-      Be careful with high concurrency as it may trigger rate limits or impact the performance of the target network.
+  - title:
+      en: tlsx - optimized high-concurrency scan
+      tr: tlsx - iyileştirilmiş yüksek eşzamanlı tarama
+    desc:
+      en: |
+        Run the tool with increased concurrency and specific timeouts for large-scale scanning.
+        Adjusting the -c flag allows for faster processing of large CIDR blocks or long lists of domains.
+        Be careful with high concurrency as it may trigger rate limits or impact the performance of the target network.
+      tr: |
+        Büyük çaplı taramalarda artan eşzamanlılık ve belirli zaman aşımlarıyla aracı çalıştırır.
+        -c flag'ini ayarlamak büyük CIDR bloklarının veya uzun alan listelerinin daha hızlı işlenmesini sağlar.
+        Yüksek eşzamanlılığın hız sınırlarını tetikleyebileceğine veya hedef ağın performansını etkileyebileceğine dikkat edin.
     command: "tlsx -l {{list}} -c {{concurrency|500}} -timeout {{timeout|10}} -retry {{retries|2}}"

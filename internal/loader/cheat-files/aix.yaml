@@ -4,101 +4,192 @@ tags: [ai, llm, openai, terminal, cli, automation, productivity, pentest]
 # === BASIC USAGE ===
 
 actions:
-  - title: aix - basic prompt
-    desc: |
-      Send a simple text query to the default language model from the command line. 
-      This is the most common way to get quick answers, code snippets, or explanations without leaving the terminal. 
-      By default, this command uses the GPT-3.5 model for processing.
+  - title:
+      en: aix - basic prompt
+      tr: aix - temel istem
+    desc:
+      en: |
+        Send a simple text query to the default language model from the command line. 
+        This is the most common way to get quick answers, code snippets, or explanations without leaving the terminal. 
+        By default, this command uses the GPT-3.5 model for processing.
+      tr: |
+        Komut satırından varsayılan dil modeline basit bir metin sorgusu gönderir.
+        Terminalden ayrılmadan hızlı yanıt, kod parçası veya açıklama almanın en yaygın yoludur.
+        Bu komut işlem için varsayılan olarak GPT-3.5 modelini kullanır.
     command: "aix -p \"{{prompt|What is the capital of France?}}\""
 
-  - title: aix - query via stdin
-    desc: |
-      Pipe the output of another command directly into aix for processing or analysis. 
-      This is extremely useful for summarizing logs, explaining complex terminal outputs, or transforming data using AI. 
-      It allows for seamless integration of LLMs into existing shell pipelines and scripts.
+  - title:
+      en: aix - query via stdin
+      tr: aix - stdin ile sorgulama
+    desc:
+      en: |
+        Pipe the output of another command directly into aix for processing or analysis. 
+        This is extremely useful for summarizing logs, explaining complex terminal outputs, or transforming data using AI. 
+        It allows for seamless integration of LLMs into existing shell pipelines and scripts.
+      tr: |
+        Başka bir komutun çıktısını işleme veya analiz için doğrudan aix'e aktarır.
+        Log özetleme, karmaşık terminal çıktılarını açıklama veya yapay zekâyla veri dönüştürme için son derece yararlıdır.
+        LLM'lerin mevcut kabuk hatlarına ve betiklere sorunsuz entegrasyonunu sağlar.
     command: "echo \"{{input_data|list top 5 linux distros}}\" | aix"
 
-  - title: aix - save output to file
-    desc: |
-      Execute a prompt and save the generated response directly to a local file. 
-      This is useful for generating documentation, scripts, or long-form content that needs to be stored for later use. 
-      Combine this with other flags to ensure the output is formatted exactly as needed for your project.
+  - title:
+      en: aix - save output to file
+      tr: aix - çıktıyı dosyaya kaydetme
+    desc:
+      en: |
+        Execute a prompt and save the generated response directly to a local file. 
+        This is useful for generating documentation, scripts, or long-form content that needs to be stored for later use. 
+        Combine this with other flags to ensure the output is formatted exactly as needed for your project.
+      tr: |
+        Bir istemi çalıştırıp üretilen yanıtı doğrudan yerel dosyaya kaydeder.
+        Daha sonra saklanması gereken belge, betik veya uzun içerik üretmek için yararlıdır.
+        Çıktının projeniz için tam istenen biçimde olmasını sağlamak için diğer bayraklarla birleştirin.
     command: "aix -p \"{{prompt}}\" -o {{output_file|result.txt}}"
 
 # === MODEL SELECTION & CONFIGURATION ===
 
-  - title: aix - query with gpt-4
-    desc: |
-      Force the tool to use the GPT-4.0 model for the provided prompt. 
-      GPT-4 is generally more capable at complex reasoning, coding tasks, and following intricate instructions compared to GPT-3.5. 
-      Ensure your API key has the necessary permissions and credits to access GPT-4 models to avoid errors.
+  - title:
+      en: aix - query with gpt-4
+      tr: aix - gpt-4 ile sorgulama
+    desc:
+      en: |
+        Force the tool to use the GPT-4.0 model for the provided prompt. 
+        GPT-4 is generally more capable at complex reasoning, coding tasks, and following intricate instructions compared to GPT-3.5. 
+        Ensure your API key has the necessary permissions and credits to access GPT-4 models to avoid errors.
+      tr: |
+        Aracı verilen istem için GPT-4.0 modelini kullanmaya zorlar.
+        GPT-4, karmaşık akıl yürütme, kodlama görevleri ve ayrıntılı yönergeleri izlemede GPT-3.5'e göre genellikle daha yeteneklidir.
+        Hata almamak için API anahtarınızın GPT-4 modellerine erişim izni ve kredisi olduğundan emin olun.
     command: "aix -p \"{{prompt|Write a python script to scan for open ports}}\" -g4"
 
-  - title: aix - use specific model
-    desc: |
-      Specify a exact model identifier to use for the request, such as a specific snapshot version. 
-      This ensures consistency in responses if you are building automation that relies on a particular model version's behavior. 
-      Use the list-models flag if you are unsure of the exact strings accepted by the API.
+  - title:
+      en: aix - use specific model
+      tr: aix - belirli model kullanma
+    desc:
+      en: |
+        Specify a exact model identifier to use for the request, such as a specific snapshot version. 
+        This ensures consistency in responses if you are building automation that relies on a particular model version's behavior. 
+        Use the list-models flag if you are unsure of the exact strings accepted by the API.
+      tr: |
+        İstek için belirli bir anlık görüntü sürümü gibi tam model tanımlayıcısı belirtir.
+        Bu, belirli bir model sürümünün davranışına dayanan otomasyon kuruyorsanız yanıtlarda tutarlılık sağlar.
+        API'nin kabul ettiği tam dizelerden emin değilseniz list-models bayrağını kullanın.
     command: "aix -m {{model_name|gpt-4-0314}} -p \"{{prompt}}\""
 
-  - title: aix - list available models
-    desc: |
-      Retrieve a complete list of all AI models available to your current API key. 
-      This is a helpful diagnostic step to verify which engines (GPT-3, GPT-4, etc.) you are authorized to use. 
-      The output will show the model IDs required for the custom model flag.
+  - title:
+      en: aix - list available models
+      tr: aix - kullanılabilir modelleri listeleme
+    desc:
+      en: |
+        Retrieve a complete list of all AI models available to your current API key. 
+        This is a helpful diagnostic step to verify which engines (GPT-3, GPT-4, etc.) you are authorized to use. 
+        The output will show the model IDs required for the custom model flag.
+      tr: |
+        Geçerli API anahtarınızın kullanabildiği tüm yapay zekâ modellerinin tam listesini alır.
+        Hangi motorları (GPT-3, GPT-4 vb.) kullanmaya yetkili olduğunuzu doğrulamak için yararlı bir tanı adımıdır.
+        Çıktı, özel model bayrağı için gereken model kimliklerini gösterir.
     command: "aix -lm -ak {{api_key}}"
 
 # === ADVANCED TUNING ===
 
-  - title: aix - set system context
-    desc: |
-      Provide a system-level message to define the AI's persona, constraints, or background knowledge. 
-      This helps guide the AI to behave in a specific way, such as acting as a senior developer or a security auditor. 
-      Setting a strong system context can significantly improve the quality and relevance of the output for specialized tasks.
+  - title:
+      en: aix - set system context
+      tr: aix - sistem bağlamı ayarlama
+    desc:
+      en: |
+        Provide a system-level message to define the AI's persona, constraints, or background knowledge. 
+        This helps guide the AI to behave in a specific way, such as acting as a senior developer or a security auditor. 
+        Setting a strong system context can significantly improve the quality and relevance of the output for specialized tasks.
+      tr: |
+        Yapay zekânın kişiliğini, kısıtlarını veya arka plan bilgisini tanımlamak için sistem düzeyinde ileti verir.
+        Bu, yapay zekâyı kıdemli geliştirici veya güvenlik araştırmacısı gibi davranmaya yönlendirmeye yardımcı olur.
+        Güçlü bir sistem bağlamı ayarlamak, uzman görevlerde çıktının kalitesini ve ilgisini belirgin şekilde artırır.
     command: "aix -sc \"{{context|You are a professional security researcher specialized in web vulnerabilities.}}\" -p \"{{prompt}}\""
 
-  - title: aix - adjust temperature
-    desc: |
-      Change the temperature parameter to control the randomness and creativity of the response. 
-      A lower value (e.g., 0.2) makes the output more deterministic and focused, while a higher value (e.g., 0.8) makes it more creative. 
-      Use lower values for technical tasks like coding and higher values for creative writing or brainstorming.
+  - title:
+      en: aix - adjust temperature
+      tr: aix - sıcaklık ayarlama
+    desc:
+      en: |
+        Change the temperature parameter to control the randomness and creativity of the response. 
+        A lower value (e.g., 0.2) makes the output more deterministic and focused, while a higher value (e.g., 0.8) makes it more creative. 
+        Use lower values for technical tasks like coding and higher values for creative writing or brainstorming.
+      tr: |
+        Yanıtın rastgeleliğini ve yaratıcılığını denetlemek için sıcaklık parametresini değiştirir.
+        Düşük değer (ör. 0,2) çıktıyı daha belirli ve odaklı yaparken yüksek değer (ör. 0,8) daha yaratıcı yapar.
+        Kodlama gibi teknik görevlerde düşük, yaratıcı yazı veya beyin fırtınasında yüksek değerler kullanın.
     command: "aix -p \"{{prompt}}\" -t {{temperature|0.7}}"
 
-  - title: aix - set top-p sampling
-    desc: |
-      Configure the top-p (nucleus) sampling value to control the diversity of the AI's response. 
-      This is an alternative to temperature that limits the AI's word choices to a subset of the most likely tokens. 
-      It is generally recommended to adjust either temperature or top-p, but not both simultaneously for the same query.
+  - title:
+      en: aix - set top-p sampling
+      tr: aix - top-p örneklemesi ayarlama
+    desc:
+      en: |
+        Configure the top-p (nucleus) sampling value to control the diversity of the AI's response. 
+        This is an alternative to temperature that limits the AI's word choices to a subset of the most likely tokens. 
+        It is generally recommended to adjust either temperature or top-p, but not both simultaneously for the same query.
+      tr: |
+        Yapay zekâ yanıtının çeşitliliğini denetlemek için top-p (çekirdek) örnekleme değerini yapılandırır.
+        Bu, sıcaklığa alternatiftir; yapay zekânın kelime seçimlerini en olası tokenların alt kümesiyle sınırlar.
+        Aynı sorgu için genellikle sıcaklık veya top-p'den yalnızca birini ayarlamanız önerilir.
     command: "aix -p \"{{prompt}}\" -tp {{top_p|0.9}}"
 
 # === OUTPUT & FORMATTING ===
 
-  - title: aix - output in jsonl format
-    desc: |
-      Generate the AI's response in JSON Lines format, which includes metadata like timestamps and model info. 
-      This is the preferred format for programmatic processing, allowing you to easily parse the results using tools like jq. 
-      It is highly effective for building datasets or logging AI interactions for auditing purposes.
+  - title:
+      en: aix - output in jsonl format
+      tr: aix - jsonl biçiminde çıktı
+    desc:
+      en: |
+        Generate the AI's response in JSON Lines format, which includes metadata like timestamps and model info. 
+        This is the preferred format for programmatic processing, allowing you to easily parse the results using tools like jq. 
+        It is highly effective for building datasets or logging AI interactions for auditing purposes.
+      tr: |
+        Yapay zekâ yanıtını, zaman damgası ve model bilgisi gibi üstverileri içeren JSON Lines biçiminde üretir.
+        jq gibi araçlarla sonuçları kolayca ayrıştırmaya olanak tanıdığı için programatik işlemede tercih edilen biçimdir.
+        Veri kümesi oluşturma veya denetim için yapay zekâ etkileşimlerini kaydetmede oldukça etkilidir.
     command: "aix -p \"{{prompt}}\" -j"
 
-  - title: aix - stream output
-    desc: |
-      Enable streaming mode to see the AI's response in the terminal as it is being generated. 
-      This provides immediate visual feedback for long responses, making the tool feel more interactive and responsive. 
-      Note that markdown rendering is typically disabled when streaming to ensure raw text is displayed correctly.
+  - title:
+      en: aix - stream output
+      tr: aix - akışlı çıktı
+    desc:
+      en: |
+        Enable streaming mode to see the AI's response in the terminal as it is being generated. 
+        This provides immediate visual feedback for long responses, making the tool feel more interactive and responsive. 
+        Note that markdown rendering is typically disabled when streaming to ensure raw text is displayed correctly.
+      tr: |
+        Yapay zekâ yanıtını üretilirken terminalde görmek için akış kipini etkinleştirir.
+        Bu, uzun yanıtlar için anında görsel geri bildirim sağlar; aracı daha etkileşimli ve hızlı hissettirir.
+        Ham metnin doğru görüntülenmesi için akışta markdown işlemenin genellikle devre dışı olduğunu unutmayın.
     command: "aix -p \"{{prompt}}\" -s"
 
-  - title: aix - silent mode
-    desc: |
-      Run the tool in silent mode to suppress headers, version info, and informational logs. 
-      This ensures that only the actual AI-generated content is printed to the standard output. 
-      This is essential when using aix inside scripts where extra boilerplate text would break the logic.
+  - title:
+      en: aix - silent mode
+      tr: aix - sessiz kip
+    desc:
+      en: |
+        Run the tool in silent mode to suppress headers, version info, and informational logs. 
+        This ensures that only the actual AI-generated content is printed to the standard output. 
+        This is essential when using aix inside scripts where extra boilerplate text would break the logic.
+      tr: |
+        Aracı başlık, sürüm bilgisi ve bilgi loglarını bastıran sessiz kipte çalıştırır.
+        Bu, standart çıktıya yalnızca gerçek yapay zekâ içeriğinin yazılmasını sağlar.
+        Fazladan şablon metnin mantığı bozacağı betiklerde aix kullanırken gereklidir.
     command: "aix -p \"{{prompt}}\" -silent"
 
 # === MAINTENANCE ===
 
-  - title: aix - update tool
-    desc: |
-      Check for and install the latest version of the aix utility from the official repository. 
-      Keeping the tool updated ensures you have the latest features, bug fixes, and support for new OpenAI models. 
-      This command may require an active internet connection to reach the ProjectDiscovery update servers.
+  - title:
+      en: aix - update tool
+      tr: aix - aracı güncelleme
+    desc:
+      en: |
+        Check for and install the latest version of the aix utility from the official repository. 
+        Keeping the tool updated ensures you have the latest features, bug fixes, and support for new OpenAI models. 
+        This command may require an active internet connection to reach the ProjectDiscovery update servers.
+      tr: |
+        Resmi depodan aix aracının en son sürümünü denetler ve kurar.
+        Aracı güncel tutmak en yeni özelliklere, hata düzeltmelerine ve yeni OpenAI modeli desteğine sahip olmanızı sağlar.
+        Bu komut, ProjectDiscovery güncelleme sunucularına ulaşmak için etkin internet bağlantısı gerektirebilir.
     command: "aix -up"

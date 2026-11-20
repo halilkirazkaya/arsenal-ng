@@ -3,71 +3,136 @@ tags: [subdomain-enumeration, reconnaissance, pentest, osint, security, network-
 
 actions:
   # === BASIC ENUMERATION ===
-  - title: findomain - basic enumeration
-    desc: |
-      Perform a basic subdomain discovery against a single target domain. This command uses public APIs to find subdomains quickly without performing any active resolution by default. It is the primary way to start gathering information about a target's infrastructure. No special privileges or API keys are required for the default operation.
+  - title:
+      en: findomain - basic enumeration
+      tr: findomain - temel numaralandırma
+    desc:
+      en: |
+        Perform a basic subdomain discovery against a single target domain. This command uses public APIs to find subdomains quickly without performing any active resolution by default. It is the primary way to start gathering information about a target's infrastructure. No special privileges or API keys are required for the default operation.
+      tr: |
+        Tek bir hedef alan adına karşı temel subdomain keşfi yapın. Bu komut, varsayılan olarak aktif çözümleme yapmadan subdomain'leri hızlıca bulmak için genel API'leri kullanır. Hedefin altyapısı hakkında bilgi toplamanın birincil yoludur. Varsayılan işlem için özel yetki veya API anahtarı gerekmez.
     command: "findomain -t {{target}}"
 
-  - title: findomain - resolved subdomains only
-    desc: |
-      Filter the discovery results to show only subdomains that successfully resolve to an IP address. This is useful for eliminating stale DNS records and focusing on active infrastructure. It performs DNS lookups on every discovered subdomain to verify its existence. Use this when you want a clean list of targets for further vulnerability scanning.
+  - title:
+      en: findomain - resolved subdomains only
+      tr: findomain - yalnızca çözümlenen subdomain'ler
+    desc:
+      en: |
+        Filter the discovery results to show only subdomains that successfully resolve to an IP address. This is useful for eliminating stale DNS records and focusing on active infrastructure. It performs DNS lookups on every discovered subdomain to verify its existence. Use this when you want a clean list of targets for further vulnerability scanning.
+      tr: |
+        Keşif sonuçlarını yalnızca IP adresine başarıyla çözümlenen subdomain'leri gösterecek şekilde filtreleyin. Eski DNS kayıtlarını eleyip aktif altyapıya odaklanmak için kullanışlıdır. Varlığını doğrulamak için keşfedilen her subdomain'de DNS sorgusu yapar. İleri zafiyet taraması için temiz bir hedef listesi istediğinizde kullanın.
     command: "findomain -t {{target}} -r"
 
-  - title: findomain - show ip addresses
-    desc: |
-      Discover subdomains and display their associated IP addresses in the output. This provides immediate insight into the network mapping and hosting providers used by the target. It combines enumeration with DNS resolution to provide a more detailed overview. Note that this will increase the time taken for the scan compared to a simple API search.
+  - title:
+      en: findomain - show ip addresses
+      tr: findomain - IP adreslerini gösterme
+    desc:
+      en: |
+        Discover subdomains and display their associated IP addresses in the output. This provides immediate insight into the network mapping and hosting providers used by the target. It combines enumeration with DNS resolution to provide a more detailed overview. Note that this will increase the time taken for the scan compared to a simple API search.
+      tr: |
+        Subdomain'leri keşfedip ilişkili IP adreslerini çıktıda gösterin. Hedefin ağ haritalaması ve kullandığı barındırma sağlayıcıları hakkında anında bilgi verir. Daha ayrıntılı bir genel bakış için numaralandırmayı DNS çözümlemeyle birleştirir. Basit bir API aramasına kıyasla tarama süresini artıracağını unutmayın.
     command: "findomain -t {{target}} -i"
 
   # === OUTPUT MANAGEMENT ===
-  - title: findomain - automatic output file
-    desc: |
-      Run a scan and automatically save the results to a text file named after the target. This ensures that you have a persistent record of the discovery for later analysis. The file is created in the current working directory. It is a standard practice during the reconnaissance phase of a penetration test.
+  - title:
+      en: findomain - automatic output file
+      tr: findomain - otomatik çıktı dosyası
+    desc:
+      en: |
+        Run a scan and automatically save the results to a text file named after the target. This ensures that you have a persistent record of the discovery for later analysis. The file is created in the current working directory. It is a standard practice during the reconnaissance phase of a penetration test.
+      tr: |
+        Tarama yapıp sonuçları hedef adını taşıyan bir metin dosyasına otomatik kaydedin. Bu, keşfin sonradan analiz için kalıcı bir kaydına sahip olmanızı sağlar. Dosya çalışma dizininde oluşturulur. Sızma testinin keşif aşamasında standart bir uygulamadır.
     command: "findomain -t {{target}} -o"
 
-  - title: findomain - custom output filename
-    desc: |
-      Save the discovery results to a specific filename of your choice. This is useful when you want to organize your project files or append results to a specific log. It provides more control over output management compared to the automatic naming convention. Ensure you have write permissions in the target directory to avoid errors.
+  - title:
+      en: findomain - custom output filename
+      tr: findomain - özel çıktı dosya adı
+    desc:
+      en: |
+        Save the discovery results to a specific filename of your choice. This is useful when you want to organize your project files or append results to a specific log. It provides more control over output management compared to the automatic naming convention. Ensure you have write permissions in the target directory to avoid errors.
+      tr: |
+        Keşif sonuçlarını seçtiğiniz belirli bir dosya adına kaydedin. Proje dosyalarınızı düzenlemek veya sonuçları belirli bir kayda eklemek istediğinizde kullanışlıdır. Otomatik adlandırma düzenine kıyasla çıktı yönetiminde daha fazla denetim sağlar. Hata almamak için hedef dizinde yazma izniniz olduğundan emin olun.
     command: "findomain -t {{target}} -u {{output_file|results.txt}}"
 
   # === ADVANCED DISCOVERY ===
-  - title: findomain - bruteforce mode
-    desc: |
-      Perform a subdomain bruteforce attack using a provided wordlist. This is used to find "hidden" subdomains that are not indexed by public search engines or certificate transparency logs. Using this option automatically enables active resolution. Be aware that this generates significant DNS traffic and may be logged by the target's DNS infrastructure.
+  - title:
+      en: findomain - bruteforce mode
+      tr: findomain - kaba kuvvet kipi
+    desc:
+      en: |
+        Perform a subdomain bruteforce attack using a provided wordlist. This is used to find "hidden" subdomains that are not indexed by public search engines or certificate transparency logs. Using this option automatically enables active resolution. Be aware that this generates significant DNS traffic and may be logged by the target's DNS infrastructure.
+      tr: |
+        Verilen bir wordlist ile subdomain kaba kuvvet saldırısı yapın. Genel arama motorlarınca veya sertifika şeffaflık kayıtlarınca dizine eklenmeyen "gizli" subdomain'leri bulmak için kullanılır. Bu seçenek aktif çözümlemeyi otomatik etkinleştirir. Ciddi DNS trafiği ürettiğini ve hedef DNS altyapısınca kaydedilebileceğini unutmayın.
     command: "findomain -t {{target}} -w {{wordlist|/usr/share/wordlists/dirb/common.txt}}"
 
-  - title: findomain - external tool integration
-    desc: |
-      Extend the search capabilities by integrating results from Amass and Subfinder. This command requires these tools to be installed and accessible in your system path. By combining multiple tools, you achieve a more comprehensive coverage of the target's attack surface. It is the most thorough way to perform subdomain enumeration using findomain.
+  - title:
+      en: findomain - external tool integration
+      tr: findomain - harici araç entegrasyonu
+    desc:
+      en: |
+        Extend the search capabilities by integrating results from Amass and Subfinder. This command requires these tools to be installed and accessible in your system path. By combining multiple tools, you achieve a more comprehensive coverage of the target's attack surface. It is the most thorough way to perform subdomain enumeration using findomain.
+      tr: |
+        Amass ve Subfinder sonuçlarını bütünleştirerek arama yeteneklerini genişletin. Bu komut, bu araçların kurulu ve sistem yolunuzda erişilebilir olmasını gerektirir. Birden çok aracı birleştirerek hedefin saldırı yüzeyini daha kapsamlı kapsarsınız. Findomain ile subdomain numaralandırma yapmanın en kapsamlı yoludur.
     command: "findomain -t {{target}} --external-subdomains"
 
-  - title: findomain - exclude specific sources
-    desc: |
-      Exclude specific data sources from the search to avoid rate limits or unreliable data. This is helpful if a particular API is slow or if you want to skip sources that you have already queried. It helps in customizing the reconnaissance process to be as efficient as possible. Provide a comma-separated list of sources to exclude.
+  - title:
+      en: findomain - exclude specific sources
+      tr: findomain - belirli kaynakları hariç tutma
+    desc:
+      en: |
+        Exclude specific data sources from the search to avoid rate limits or unreliable data. This is helpful if a particular API is slow or if you want to skip sources that you have already queried. It helps in customizing the reconnaissance process to be as efficient as possible. Provide a comma-separated list of sources to exclude.
+      tr: |
+        Hız limitlerinden veya güvenilmez veriden kaçınmak için belirli veri kaynaklarını aramadan hariç tutun. Belirli bir API yavaşsa veya zaten sorguladığınız kaynakları atlamak istiyorsanız yararlıdır. Keşif işlemini olabildiğince verimli olacak şekilde özelleştirmeye yardımcı olur. Hariç tutulacak kaynakların virgülle ayrılmış listesini verin.
     command: "findomain -t {{target}} --exclude-sources {{sources|facebook,virustotalapikey}}"
 
   # === ANALYSIS & PROBING ===
-  - title: findomain - check http status
-    desc: |
-      Check the HTTP response status code for every discovered subdomain. This helps identify which subdomains are running web servers and what their current state is (e.g., 200 OK, 403 Forbidden). It is essential for prioritizing targets that have active web interfaces. This involves sending active HTTP requests to the target subdomains.
+  - title:
+      en: findomain - check http status
+      tr: findomain - HTTP durumunu denetleme
+    desc:
+      en: |
+        Check the HTTP response status code for every discovered subdomain. This helps identify which subdomains are running web servers and what their current state is (e.g., 200 OK, 403 Forbidden). It is essential for prioritizing targets that have active web interfaces. This involves sending active HTTP requests to the target subdomains.
+      tr: |
+        Keşfedilen her subdomain için HTTP yanıt durum kodunu denetleyin. Hangi subdomain'lerin web sunucusu çalıştırdığını ve o anki durumlarını (örn. 200 OK, 403 Forbidden) belirlemeye yardımcı olur. Aktif web arayüzü olan hedeflere öncelik vermek için gereklidir. Hedef subdomain'lere aktif HTTP istekleri göndermeyi içerir.
     command: "findomain -t {{target}} --http-status"
 
-  - title: findomain - port scanning
-    desc: |
-      Enable the built-in port scanner to identify open ports on discovered subdomains. By default, it scans a range of common ports to find active services. This is a critical step in moving from reconnaissance to service identification. You can define the port range using additional flags like --iport and --lport.
+  - title:
+      en: findomain - port scanning
+      tr: findomain - port taraması
+    desc:
+      en: |
+        Enable the built-in port scanner to identify open ports on discovered subdomains. By default, it scans a range of common ports to find active services. This is a critical step in moving from reconnaissance to service identification. You can define the port range using additional flags like --iport and --lport.
+      tr: |
+        Keşfedilen subdomain'lerdeki açık portları belirlemek için yerleşik port tarayıcıyı etkinleştirin. Varsayılan olarak aktif hizmetleri bulmak için yaygın port aralığını tarar. Keşiften hizmet tespitine geçişte kritik bir adımdır. --iport ve --lport gibi ek bayraklarla port aralığını tanımlayabilirsiniz.
     command: "findomain -t {{target}} --pscan --iport {{start_port|0}} --lport {{end_port|1000}}"
 
-  - title: findomain - capture screenshots
-    desc: |
-      Automatically take screenshots of active web services found during the discovery. This provides a visual representation of the target's web assets, making it easier to identify interesting pages or login panels. It requires Chrome or Chromium to be installed on the system. Results are saved to the specified path for later review.
+  - title:
+      en: findomain - capture screenshots
+      tr: findomain - ekran görüntüsü yakalama
+    desc:
+      en: |
+        Automatically take screenshots of active web services found during the discovery. This provides a visual representation of the target's web assets, making it easier to identify interesting pages or login panels. It requires Chrome or Chromium to be installed on the system. Results are saved to the specified path for later review.
+      tr: |
+        Keşif sırasında bulunan aktif web hizmetlerinin ekran görüntülerini otomatik alın. Hedefin web varlıklarının görsel temsilini sunarak ilginç sayfaları veya giriş panellerini belirlemeyi kolaylaştırır. Sistemde Chrome veya Chromium kurulu olmasını gerektirir. Sonuçlar sonradan inceleme için belirtilen yola kaydedilir.
     command: "findomain -t {{target}} -s {{screenshot_path|./screenshots}}"
 
   # === MASS PROCESSING ===
-  - title: findomain - scan from file
-    desc: |
-      Read a list of target domains from a file and perform enumeration on each one. This is highly efficient for large-scale assessments involving multiple parent domains. The tool will process each domain sequentially or according to configured thread limits. Ensure the file contains one domain per line.
+  - title:
+      en: findomain - scan from file
+      tr: findomain - dosyadan tarama
+    desc:
+      en: |
+        Read a list of target domains from a file and perform enumeration on each one. This is highly efficient for large-scale assessments involving multiple parent domains. The tool will process each domain sequentially or according to configured thread limits. Ensure the file contains one domain per line.
+      tr: |
+        Hedef alan adı listesini bir dosyadan okuyup her biri üzerinde numaralandırma yapın. Birden çok ana alan adı içeren geniş ölçekli değerlendirmeler için oldukça verimlidir. Araç her alan adını sırayla veya yapılandırılmış iş parçacığı limitlerine göre işler. Dosyanın satır başına bir alan adı içerdiğinden emin olun.
     command: "findomain -f {{input_file|domains.txt}}"
 
-  - title: findomain - read from stdin
-    desc: |
-      Accept target domains via standard input (stdin). This allows you to pipe output from other tools directly into findomain for processing. It is perfect for automation scripts and complex reconnaissance pipelines. It enables findomain to act as a modular component in a larger security toolset.
+  - title:
+      en: findomain - read from stdin
+      tr: findomain - stdin'den okuma
+    desc:
+      en: |
+        Accept target domains via standard input (stdin). This allows you to pipe output from other tools directly into findomain for processing. It is perfect for automation scripts and complex reconnaissance pipelines. It enables findomain to act as a modular component in a larger security toolset.
+      tr: |
+        Hedef alan adlarını standart girdi (stdin) ile kabul edin. Diğer araçların çıktısını işlemek üzere doğrudan findomain'e aktarmanızı sağlar. Otomasyon betikleri ve karmaşık keşif hatları için mükemmeldir. Findomain'in daha büyük bir güvenlik araç setinde modüler bir bileşen gibi davranmasını sağlar.
     command: "cat {{input_file}} | findomain --stdin"

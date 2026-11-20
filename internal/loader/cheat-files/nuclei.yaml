@@ -3,134 +3,260 @@ tags: [vulnerability-scanner, security, pentest, automation, network, web, recon
 
 actions:
   # === TARGETING & BASIC SCANS ===
-  - title: nuclei - scan single target
-    desc: |
-      Runs a standard vulnerability scan against a single target URL or host.
-      This command uses the default template directory to identify misconfigurations and vulnerabilities.
-      It is the most common entry point for a quick security assessment of a specific web application.
+  - title:
+      en: nuclei - scan single target
+      tr: nuclei - tek hedef tarama
+    desc:
+      en: |
+        Runs a standard vulnerability scan against a single target URL or host.
+        This command uses the default template directory to identify misconfigurations and vulnerabilities.
+        It is the most common entry point for a quick security assessment of a specific web application.
+      tr: |
+        Tek bir hedef URL veya makineye karşı standart bir zafiyet taraması çalıştırır.
+        Bu komut yanlış yapılandırmaları ve zafiyetleri belirlemek için varsayılan şablon dizinini kullanır.
+        Belirli bir web uygulamasının hızlı güvenlik değerlendirmesi için en yaygın giriş noktasıdır.
     command: "nuclei -u {{target}}"
 
-  - title: nuclei - scan list of targets
-    desc: |
-      Executes templates against multiple targets provided in a line-separated text file.
-      This is ideal for large-scale infrastructure scanning or bug bounty automation.
-      Ensure the file contains valid URLs or IP addresses to avoid resolution errors.
+  - title:
+      en: nuclei - scan list of targets
+      tr: nuclei - hedef listesi tarama
+    desc:
+      en: |
+        Executes templates against multiple targets provided in a line-separated text file.
+        This is ideal for large-scale infrastructure scanning or bug bounty automation.
+        Ensure the file contains valid URLs or IP addresses to avoid resolution errors.
+      tr: |
+        Satırlarla ayrılmış bir metin dosyasında verilen birden fazla hedefe karşı şablonları çalıştırır.
+        Geniş ölçekli altyapı taraması veya hata ödülü otomasyonu için idealdir.
+        Çözümleme hatalarından kaçınmak için dosyanın geçerli URL veya IP adresleri içerdiğinden emin olun.
     command: "nuclei -l {{targets_file|hosts.txt}}"
 
-  - title: nuclei - automatic scan with technology detection
-    desc: |
-      Utilizes Wappalyzer-based technology detection to automatically map relevant templates to the target.
-      This mode reduces scan time by only running templates that match the identified tech stack (e.g., WordPress, Nginx).
-      It is highly recommended for efficient scanning without manually specifying template tags.
+  - title:
+      en: nuclei - automatic scan with technology detection
+      tr: nuclei - teknoloji tespitiyle otomatik tarama
+    desc:
+      en: |
+        Utilizes Wappalyzer-based technology detection to automatically map relevant templates to the target.
+        This mode reduces scan time by only running templates that match the identified tech stack (e.g., WordPress, Nginx).
+        It is highly recommended for efficient scanning without manually specifying template tags.
+      tr: |
+        İlgili şablonları hedefe otomatik eşlemek için Wappalyzer tabanlı teknoloji tespiti kullanır.
+        Bu mod yalnızca belirlenen teknoloji yığınıyla eşleşen şablonları çalıştırarak tarama süresini azaltır (ör. WordPress, Nginx).
+        Şablon etiketlerini manuel belirtmeden verimli tarama için şiddetle önerilir.
     command: "nuclei -u {{target}} -as"
 
   # === TEMPLATE FILTERING & SELECTION ===
-  - title: nuclei - scan by specific tags
-    desc: |
-      Filters and runs only the templates that match specific tags like cve, exposure, or default-login.
-      This allows for surgical scanning when looking for specific classes of vulnerabilities.
-      Multiple tags can be provided as a comma-separated list to broaden the scope.
+  - title:
+      en: nuclei - scan by specific tags
+      tr: nuclei - belirli etiketlerle tarama
+    desc:
+      en: |
+        Filters and runs only the templates that match specific tags like cve, exposure, or default-login.
+        This allows for surgical scanning when looking for specific classes of vulnerabilities.
+        Multiple tags can be provided as a comma-separated list to broaden the scope.
+      tr: |
+        cve, exposure veya default-login gibi belirli etiketlerle eşleşen şablonları filtreler ve yalnızca bunları çalıştırır.
+        Belirli zafiyet sınıfları ararken hedefli taramaya olanak tanır.
+        Kapsamı genişletmek için virgülle ayrılmış liste olarak birden fazla etiket verilebilir.
     command: "nuclei -u {{target}} -tags {{tags|cve,config,exposure}}"
 
-  - title: nuclei - scan by severity level
-    desc: |
-      Runs templates filtered by their severity rating, such as critical, high, or medium.
-      This is extremely useful during time-sensitive engagements to prioritize the most impactful findings first.
-      Use this to ignore informational or low-severity findings that might clutter your report.
+  - title:
+      en: nuclei - scan by severity level
+      tr: nuclei - ciddiyet düzeyine göre tarama
+    desc:
+      en: |
+        Runs templates filtered by their severity rating, such as critical, high, or medium.
+        This is extremely useful during time-sensitive engagements to prioritize the most impactful findings first.
+        Use this to ignore informational or low-severity findings that might clutter your report.
+      tr: |
+        Şablonları critical, high veya medium gibi ciddiyet derecesine göre filtreleyerek çalıştırır.
+        Zaman duyarlı çalışmalarda en etkili bulgulara öncelik vermek için son derece kullanışlıdır.
+        Raporunuzu kalabalıklaştırabilecek bilgilendirici veya düşük ciddiyetli bulguları yoksaymak için bunu kullanın.
     command: "nuclei -u {{target}} -severity {{severity|critical,high}}"
 
-  - title: nuclei - run new templates only
-    desc: |
-      Executes only the templates that were added in the latest release of the nuclei-templates repository.
-      This is a great way to stay updated with the latest 1-day vulnerabilities and zero-day disclosures.
-      It ensures you are checking for the most recent threats without re-scanning old vulnerabilities.
+  - title:
+      en: nuclei - run new templates only
+      tr: nuclei - yalnızca yeni şablonları çalıştırma
+    desc:
+      en: |
+        Executes only the templates that were added in the latest release of the nuclei-templates repository.
+        This is a great way to stay updated with the latest 1-day vulnerabilities and zero-day disclosures.
+        It ensures you are checking for the most recent threats without re-scanning old vulnerabilities.
+      tr: |
+        Yalnızca nuclei-templates deposunun en son sürümünde eklenen şablonları çalıştırır.
+        En son 1-day zafiyetleri ve sıfırıncı gün açıklamalarından haberdar olmanın harika bir yoludur.
+        Eski zafiyetleri yeniden taramadan en güncel tehditleri denetlemenizi sağlar.
     command: "nuclei -u {{target}} -nt"
 
-  - title: nuclei - run specific template directory
-    desc: |
-      Targets a specific category of vulnerabilities by pointing to a specific template folder.
-      For example, you can point to 'http/cves/' to only check for known CVEs.
-      This helps in focusing the scan on a specific protocol or vulnerability type.
+  - title:
+      en: nuclei - run specific template directory
+      tr: nuclei - belirli şablon dizinini çalıştırma
+    desc:
+      en: |
+        Targets a specific category of vulnerabilities by pointing to a specific template folder.
+        For example, you can point to 'http/cves/' to only check for known CVEs.
+        This helps in focusing the scan on a specific protocol or vulnerability type.
+      tr: |
+        Belirli bir şablon klasörünü işaret ederek belirli bir zafiyet kategorisini hedefler.
+        Örneğin yalnızca bilinen CVE'leri denetlemek için 'http/cves/' klasörünü işaret edebilirsiniz.
+        Taramayı belirli bir protokole veya zafiyet türüne odaklamaya yardımcı olur.
     command: "nuclei -u {{target}} -t {{template_path|http/vulnerabilities/}}"
 
   # === ADVANCED SCANNING MODES ===
-  - title: nuclei - headless browser scanning
-    desc: |
-      Enables templates that require a headless browser to render JavaScript-heavy applications.
-      This is necessary for modern Single Page Applications (SPAs) where standard HTTP requests are insufficient.
-      Note that this requires more system resources and may be slower than standard scanning.
+  - title:
+      en: nuclei - headless browser scanning
+      tr: nuclei - headless tarayıcı taraması
+    desc:
+      en: |
+        Enables templates that require a headless browser to render JavaScript-heavy applications.
+        This is necessary for modern Single Page Applications (SPAs) where standard HTTP requests are insufficient.
+        Note that this requires more system resources and may be slower than standard scanning.
+      tr: |
+        JavaScript ağırlıklı uygulamaları işlemek için headless tarayıcı gerektiren şablonları etkinleştirir.
+        Standart HTTP isteklerinin yetersiz kaldığı modern Tek Sayfa Uygulamaları (SPA) için gereklidir.
+        Bunun daha fazla sistem kaynağı gerektirdiğini ve standart taramadan daha yavaş olabileceğini unutmayın.
     command: "nuclei -u {{target}} -headless"
 
-  - title: nuclei - DAST / Fuzzing mode
-    desc: |
-      Enables Dynamic Application Security Testing (DAST) templates focused on parameter fuzzing.
-      This mode attempts to find vulnerabilities like XSS, SQLi, and SSRF by manipulating input fields.
-      Use this with caution as it can be intrusive and might generate a significant amount of traffic.
+  - title:
+      en: nuclei - DAST / Fuzzing mode
+      tr: nuclei - DAST / Bulanıklaştırma modu
+    desc:
+      en: |
+        Enables Dynamic Application Security Testing (DAST) templates focused on parameter fuzzing.
+        This mode attempts to find vulnerabilities like XSS, SQLi, and SSRF by manipulating input fields.
+        Use this with caution as it can be intrusive and might generate a significant amount of traffic.
+      tr: |
+        Parametre bulanıklaştırmaya odaklı Dinamik Uygulama Güvenlik Testi (DAST) şablonlarını etkinleştirir.
+        Bu mod giriş alanlarını manipüle ederek XSS, SQLi ve SSRF gibi zafiyetleri bulmaya çalışır.
+        Müdahaleci olabileceğinden ve önemli miktarda trafik üretebileceğinden dikkatli kullanın.
     command: "nuclei -u {{target}} -dast"
 
-  - title: nuclei - passive scanning
-    desc: |
-      Enables passive HTTP response processing mode, which does not send new requests for every template.
-      It analyzes the responses received from initial requests to identify vulnerabilities or exposures.
-      This is much quieter and less intrusive than active scanning, making it suitable for stealthy reconnaissance.
+  - title:
+      en: nuclei - passive scanning
+      tr: nuclei - pasif tarama
+    desc:
+      en: |
+        Enables passive HTTP response processing mode, which does not send new requests for every template.
+        It analyzes the responses received from initial requests to identify vulnerabilities or exposures.
+        This is much quieter and less intrusive than active scanning, making it suitable for stealthy reconnaissance.
+      tr: |
+        Her şablon için yeni istek göndermeyen pasif HTTP yanıt işleme modunu etkinleştirir.
+        Zafiyetleri veya açıkları belirlemek için ilk isteklerden alınan yanıtları analiz eder.
+        Etkin taramadan çok daha sessiz ve az müdahalecidir; gizli keşif için uygundur.
     command: "nuclei -u {{target}} -passive"
 
   # === PERFORMANCE & EVASION ===
-  - title: nuclei - rate limiting and concurrency
-    desc: |
-      Controls the speed of the scan by setting the maximum number of requests per second.
-      Adjusting rate limits is crucial to avoid triggering WAF blocks or crashing fragile legacy services.
-      'rl' sets requests per second, while 'c' sets the number of templates to run in parallel.
+  - title:
+      en: nuclei - rate limiting and concurrency
+      tr: nuclei - hız sınırlama ve eşzamanlılık
+    desc:
+      en: |
+        Controls the speed of the scan by setting the maximum number of requests per second.
+        Adjusting rate limits is crucial to avoid triggering WAF blocks or crashing fragile legacy services.
+        'rl' sets requests per second, while 'c' sets the number of templates to run in parallel.
+      tr: |
+        Saniyedeki maksimum istek sayısını ayarlayarak tarama hızını denetler.
+        Hız sınırlarını ayarlamak WAF engellerini tetiklemekten veya kırılgan eski hizmetleri çökertmekten kaçınmak için kritik öneme sahiptir.
+        'rl' saniyedeki istekleri, 'c' ise paralel çalıştırılacak şablon sayısını ayarlar.
     command: "nuclei -u {{target}} -rl {{rate|50}} -c {{concurrency|25}}"
 
-  - title: nuclei - custom headers and cookies
-    desc: |
-      Injects custom HTTP headers or authentication cookies into every request sent by Nuclei.
-      This is essential for scanning protected areas of an application that require an active session.
-      Format the header as 'Header-Name: value' and use multiple flags for multiple headers.
+  - title:
+      en: nuclei - custom headers and cookies
+      tr: nuclei - özel başlıklar ve çerezler
+    desc:
+      en: |
+        Injects custom HTTP headers or authentication cookies into every request sent by Nuclei.
+        This is essential for scanning protected areas of an application that require an active session.
+        Format the header as 'Header-Name: value' and use multiple flags for multiple headers.
+      tr: |
+        Nuclei tarafından gönderilen her isteğe özel HTTP başlıkları veya kimlik doğrulama çerezleri enjekte eder.
+        Etkin bir oturum gerektiren uygulamanın korumalı alanlarını taramak için gereklidir.
+        Başlığı 'Header-Name: value' biçiminde yazın ve birden fazla başlık için birden fazla bayrak kullanın.
     command: "nuclei -u {{target}} -H \"{{header|Cookie: session=12345}}\""
 
-  - title: nuclei - proxy integration
-    desc: |
-      Routes all outgoing traffic through a specified HTTP or SOCKS5 proxy.
-      This can be used to tunnel traffic through Burp Suite for deeper analysis or to mask the scanner's IP address.
-      It is also useful for reaching internal targets through a pivot host.
+  - title:
+      en: nuclei - proxy integration
+      tr: nuclei - proxy bütünleşmesi
+    desc:
+      en: |
+        Routes all outgoing traffic through a specified HTTP or SOCKS5 proxy.
+        This can be used to tunnel traffic through Burp Suite for deeper analysis or to mask the scanner's IP address.
+        It is also useful for reaching internal targets through a pivot host.
+      tr: |
+        Tüm giden trafiği belirtilen bir HTTP veya SOCKS5 proxy üzerinden yönlendirir.
+        Daha derin analiz için trafiği Burp Suite üzerinden tünellemek veya tarayıcının IP adresini gizlemek için kullanılabilir.
+        Bir sıçrama makinesi üzerinden dahili hedeflere ulaşmak için de kullanışlıdır.
     command: "nuclei -u {{target}} -proxy {{proxy_url|http://127.0.0.1:8080}}"
 
   # === OSINT & EXTERNAL ENGINES ===
-  - title: nuclei - uncover engine (Shodan/Censys)
-    desc: |
-      Integrates with 'Uncover' to pull targets directly from search engines like Shodan, Censys, or Fofa.
-      This allows you to scan the entire internet for specific patterns or vulnerabilities based on a query.
-      You must have the respective API keys configured in your environment or config file.
+  - title:
+      en: nuclei - uncover engine (Shodan/Censys)
+      tr: nuclei - uncover motoru (Shodan/Censys)
+    desc:
+      en: |
+        Integrates with 'Uncover' to pull targets directly from search engines like Shodan, Censys, or Fofa.
+        This allows you to scan the entire internet for specific patterns or vulnerabilities based on a query.
+        You must have the respective API keys configured in your environment or config file.
+      tr: |
+        Hedefleri Shodan, Censys veya Fofa gibi arama motorlarından doğrudan çekmek için 'Uncover' ile bütünleşir.
+        Bir sorguya dayanarak tüm interneti belirli kalıplar veya zafiyetler için taramanıza olanak tanır.
+        Ortamınızda veya yapılandırma dosyanızda ilgili API anahtarları yapılandırılmış olmalıdır.
     command: "nuclei -uc -uq \"{{query|app:'Apache}}\" -ue {{engine|shodan}}"
 
   # === REPORTING & OUTPUT ===
-  - title: nuclei - export results to JSON
-    desc: |
-      Saves the scan findings into a JSON format for easy integration with other tools or custom scripts.
-      JSON output includes detailed metadata about each finding, including request/response pairs if enabled.
-      This is the preferred format for automated pipelines and data processing.
+  - title:
+      en: nuclei - export results to JSON
+      tr: nuclei - sonuçları JSON olarak dışa aktarma
+    desc:
+      en: |
+        Saves the scan findings into a JSON format for easy integration with other tools or custom scripts.
+        JSON output includes detailed metadata about each finding, including request/response pairs if enabled.
+        This is the preferred format for automated pipelines and data processing.
+      tr: |
+        Tarama bulgularını diğer araçlar veya özel betiklerle kolay bütünleşme için JSON biçiminde kaydeder.
+        JSON çıktısı, etkinse istek/yanıt çiftleri dahil her bulgu hakkında ayrıntılı üstveri içerir.
+        Otomatik hatlar ve veri işleme için tercih edilen biçimdir.
     command: "nuclei -u {{target}} -je {{output_file|results.json}}"
 
-  - title: nuclei - export results to Markdown
-    desc: |
-      Generates a human-readable report in Markdown format, organized by vulnerability type.
-      This is perfect for creating quick documentation or reports for clients and stakeholders.
-      The output directory will contain individual files for different findings.
+  - title:
+      en: nuclei - export results to Markdown
+      tr: nuclei - sonuçları Markdown olarak dışa aktarma
+    desc:
+      en: |
+        Generates a human-readable report in Markdown format, organized by vulnerability type.
+        This is perfect for creating quick documentation or reports for clients and stakeholders.
+        The output directory will contain individual files for different findings.
+      tr: |
+        Zafiyet türüne göre düzenlenmiş, Markdown biçiminde okunabilir bir rapor üretir.
+        Müşteriler ve paydaşlar için hızlı belge veya rapor oluşturmak için idealdir.
+        Çıktı dizini farklı bulgular için ayrı dosyalar içerir.
     command: "nuclei -u {{target}} -me {{output_dir|nuclei_report}}"
 
-  - title: nuclei - silent mode with only findings
-    desc: |
-      Suppresses all banner and progress information, displaying only the actual vulnerabilities found.
-      This is useful when piping Nuclei output into other command-line tools like 'notify' or 'grep'.
-      It keeps the terminal clean and focuses only on actionable data.
+  - title:
+      en: nuclei - silent mode with only findings
+      tr: nuclei - yalnızca bulgulu sessiz mod
+    desc:
+      en: |
+        Suppresses all banner and progress information, displaying only the actual vulnerabilities found.
+        This is useful when piping Nuclei output into other command-line tools like 'notify' or 'grep'.
+        It keeps the terminal clean and focuses only on actionable data.
+      tr: |
+        Tüm açılış ve ilerleme bilgisini gizleyerek yalnızca bulunan gerçek zafiyetleri görüntüler.
+        Nuclei çıktısını 'notify' veya 'grep' gibi diğer komut satırı araçlarına aktarırken kullanışlıdır.
+        Terminali temiz tutar ve yalnızca eyleme geçirilebilir veriye odaklanır.
     command: "nuclei -u {{target}} -silent"
 
   # === MAINTENANCE ===
-  - title: nuclei - update templates and tool
-    desc: |
-      Updates the Nuclei engine and the community-provided templates to the latest version.
-      Regular updates are vital because the community adds dozens of new vulnerability templates every week.
-      Run this frequently to ensure your scanning capabilities remain current.
+  - title:
+      en: nuclei - update templates and tool
+      tr: nuclei - şablon ve araç güncelleme
+    desc:
+      en: |
+        Updates the Nuclei engine and the community-provided templates to the latest version.
+        Regular updates are vital because the community adds dozens of new vulnerability templates every week.
+        Run this frequently to ensure your scanning capabilities remain current.
+      tr: |
+        Nuclei motorunu ve toplulukça sağlanan şablonları en son sürüme günceller.
+        Topluluk her hafta onlarca yeni zafiyet şablonu eklediğinden düzenli güncellemeler hayati öneme sahiptir.
+        Tarama yeteneklerinizin güncel kalması için bunu sık çalıştırın.
     command: "nuclei -ut && nuclei -version"

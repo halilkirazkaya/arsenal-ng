@@ -18,7 +18,7 @@ func manyCheats(n int) []*model.Cheat {
 	for range n {
 		cheats = append(cheats, &model.Cheat{
 			Tool:    "tool",
-			Title:   "cmd",
+			Title:   model.NewText("cmd"),
 			Command: "run it",
 		})
 	}

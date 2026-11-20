@@ -3,69 +3,133 @@ tags: [web, security, pentest, reconnaissance, vulnerability-scanner, cors]
 
 actions:
 # === BASIC SCANNING ===
- - title: corsy - basic url scan
-   desc: |
-     Performs a standard CORS misconfiguration scan on a single target URL. 
-     This command initiates various bypass tests such as Null origin, backtick, and unescaped dot bypasses. 
-     It is the most efficient way to quickly check a specific endpoint for common vulnerabilities. 
-     Ensure the URL includes the protocol (http/https) for accurate results.
+ - title:
+     en: corsy - basic url scan
+     tr: corsy - temel URL taraması
+   desc:
+     en: |
+       Performs a standard CORS misconfiguration scan on a single target URL. 
+       This command initiates various bypass tests such as Null origin, backtick, and unescaped dot bypasses. 
+       It is the most efficient way to quickly check a specific endpoint for common vulnerabilities. 
+       Ensure the URL includes the protocol (http/https) for accurate results.
+     tr: |
+       Tek hedef URL üzerinde standart CORS yanlış yapılandırma taraması yapar.
+       Komut, Null origin, ters tırnak ile kaçışsız nokta atlatmaları gibi çeşitli testler başlatır.
+       Belirli uç noktadaki yaygın zafiyetleri hızla denetlemenin en verimli yoludur.
+       Doğru sonuçlar için URL adresinin protokol (http/https) içermesi gerekir.
    command: "corsy -u {{url}}"
 
- - title: corsy - scan urls from file
-   desc: |
-     Scans multiple targets by reading a list of URLs from a specified text file. 
-     This is useful for bulk scanning subdomains or endpoints discovered during the reconnaissance phase. 
-     The input file should contain one URL per line including the protocol. 
-     Using this feature saves time compared to manual individual testing.
+ - title:
+     en: corsy - scan urls from file
+     tr: corsy - dosyadaki URL adreslerini tarama
+   desc:
+     en: |
+       Scans multiple targets by reading a list of URLs from a specified text file. 
+       This is useful for bulk scanning subdomains or endpoints discovered during the reconnaissance phase. 
+       The input file should contain one URL per line including the protocol. 
+       Using this feature saves time compared to manual individual testing.
+     tr: |
+       Belirtilen metin dosyasından okunan URL listesiyle birden çok hedefi tarar.
+       Keşif aşamasında bulunan alt alan adları ya da uç noktaların toplu taramasında yararlıdır.
+       Girdi dosyasında protokol bilgisini içeren satır başına tek URL bulunmalıdır.
+       Tek tek elle test etmeye göre ciddi zaman kazandırır.
    command: "corsy -i {{input_file}}"
 
- - title: corsy - scan from stdin
-   desc: |
-     Allows for scanning URLs passed through the standard input (stdin). 
-     This is highly effective when piping output from other discovery tools like subfinder or waybackurls. 
-     It enables seamless integration into automated bug bounty or penetration testing pipelines. 
-     Make sure the incoming data is formatted as a clean list of URLs.
+ - title:
+     en: corsy - scan from stdin
+     tr: corsy - standart girdiden tarama
+   desc:
+     en: |
+       Allows for scanning URLs passed through the standard input (stdin). 
+       This is highly effective when piping output from other discovery tools like subfinder or waybackurls. 
+       It enables seamless integration into automated bug bounty or penetration testing pipelines. 
+       Make sure the incoming data is formatted as a clean list of URLs.
+     tr: |
+       Standart girdiden aktarılan URL adreslerini taramayı sağlar.
+       subfinder ya da waybackurls gibi keşif araçlarının çıktısını boru hattıyla bağlarken oldukça etkilidir.
+       Otomatik hata ödülü ya da sızma testi hatlarına kesintisiz bütünleşmeyi sağlar.
+       Gelen verinin temiz URL listesi biçiminde olması gerekir.
    command: "cat {{url_list}} | corsy"
 
 # === OUTPUT AND REPORTING ===
- - title: corsy - export results to json
-   desc: |
-     Saves the results of the CORS scan into a JSON formatted file for later analysis. 
-     JSON output is ideal for documentation or for feeding the data into other custom scripts and databases. 
-     This command is typically used in conjunction with a file input for large-scale assessments. 
-     If the output file already exists, verify if the tool overwrites or appends to it.
+ - title:
+     en: corsy - export results to json
+     tr: corsy - sonuçları JSON dosyasına aktarma
+   desc:
+     en: |
+       Saves the results of the CORS scan into a JSON formatted file for later analysis. 
+       JSON output is ideal for documentation or for feeding the data into other custom scripts and databases. 
+       This command is typically used in conjunction with a file input for large-scale assessments. 
+       If the output file already exists, verify if the tool overwrites or appends to it.
+     tr: |
+       CORS tarama sonuçlarını daha sonra incelenmek üzere JSON biçimli dosyaya kaydeder.
+       JSON çıktısı belgelendirme ya da veriyi özel betikler ile veritabanlarına aktarma için idealdir.
+       Büyük ölçekli değerlendirmelerde çoğunlukla dosya girdisiyle birlikte kullanılır.
+       Çıktı dosyası zaten varsa üzerine yazma davranışını önceden doğrulayın.
    command: "corsy -i {{input_file}} -o {{output_file|results.json}}"
 
- - title: corsy - quiet mode scan
-   desc: |
-     Runs the scan while suppressing non-essential output like descriptions, severity levels, and exploitation tips. 
-     This provides a cleaner output that focuses strictly on the vulnerable findings. 
-     Use this when you are already familiar with the vulnerabilities and want to reduce terminal noise. 
-     It is particularly helpful for automated logging or when the user requires minimal distraction.
+ - title:
+     en: corsy - quiet mode scan
+     tr: corsy - sessiz kip taraması
+   desc:
+     en: |
+       Runs the scan while suppressing non-essential output like descriptions, severity levels, and exploitation tips. 
+       This provides a cleaner output that focuses strictly on the vulnerable findings. 
+       Use this when you are already familiar with the vulnerabilities and want to reduce terminal noise. 
+       It is particularly helpful for automated logging or when the user requires minimal distraction.
+     tr: |
+       Açıklama, önem düzeyi ile sömürü ipuçları gibi zorunlu olmayan çıktıları gizleyerek tarama yapar.
+       Yalnızca zafiyetli bulgulara odaklanan temiz çıktı sunar.
+       Zafiyetlere hâkim olanlar uçbirim kalabalığını azaltmak için kullanır.
+       Otomatik kayıt tutma ya da dikkat dağıtmayan sade çıktı gereken durumlar için özellikle yararlıdır.
    command: "corsy -u {{url}} -q"
 
 # === PERFORMANCE AND EVASION ===
- - title: corsy - multi-threaded scan
-   desc: |
-     Increases the scanning speed by specifying the number of concurrent threads to use. 
-     The default thread count is usually sufficient, but increasing it can drastically reduce scan time for large files. 
-     Be cautious as high thread counts might cause the target server to block your IP or trigger rate limits. 
-     Adjust the value based on the stability and capacity of the target environment.
+ - title:
+     en: corsy - multi-threaded scan
+     tr: corsy - çok iş parçacıklı tarama
+   desc:
+     en: |
+       Increases the scanning speed by specifying the number of concurrent threads to use. 
+       The default thread count is usually sufficient, but increasing it can drastically reduce scan time for large files. 
+       Be cautious as high thread counts might cause the target server to block your IP or trigger rate limits. 
+       Adjust the value based on the stability and capacity of the target environment.
+     tr: |
+       Eşzamanlı iş parçacığı sayısını belirterek tarama hızını artırır.
+       Öntanımlı iş parçacığı sayısı çoğunlukla yeterlidir, ancak artırmak büyük dosyalarda süreyi ciddi ölçüde kısaltır.
+       Aşırı iş parçacığı sayısı hedef sunucunun IP adresini engellemesine ya da hız sınırlamasına takılmasına yol açabilir.
+       Değeri hedef ortamın kararlılığı ile kapasitesine göre ayarlayın.
    command: "corsy -u {{url}} -t {{thread_count|20}}"
 
- - title: corsy - request delay
-   desc: |
-     Introduces a specific delay in seconds between each HTTP request sent by the tool. 
-     This is a critical setting for bypassing rate-limiting mechanisms or Web Application Firewalls (WAFs). 
-     Using a delay makes the scanning behavior appear less aggressive and more like human interaction. 
-     It is recommended for targets that are known to be sensitive or have strict anti-automation policies.
+ - title:
+     en: corsy - request delay
+     tr: corsy - istekler arası gecikme
+   desc:
+     en: |
+       Introduces a specific delay in seconds between each HTTP request sent by the tool. 
+       This is a critical setting for bypassing rate-limiting mechanisms or Web Application Firewalls (WAFs). 
+       Using a delay makes the scanning behavior appear less aggressive and more like human interaction. 
+       It is recommended for targets that are known to be sensitive or have strict anti-automation policies.
+     tr: |
+       Araç tarafından gönderilen her HTTP isteği arasına saniye türünden belirli gecikme koyar.
+       Hız sınırlama düzeneklerini ya da web uygulaması güvenlik duvarlarını aşmak için kritik ayardır.
+       Gecikme, tarama davranışını insan etkileşimine benzeterek daha az saldırgan gösterir.
+       Hassas olduğu bilinen ya da katı otomasyon karşıtı ilkeleri bulunan hedefler için önerilir.
    command: "corsy -u {{url}} -d {{delay_seconds|2}}"
 
 # === ADVANCED CONFIGURATION ===
- - title: corsy - scan with custom headers
-   desc: |
-     Sends custom HTTP headers such as User-Agents or Session Cookies with every request. 
-     This is necessary for testing authenticated endpoints or mimicking specific browser behaviors. 
-     Multiple headers can be provided by using newline characters within the header string. 
-     Properly authenticated scans often reveal CORS issues that are hidden behind login portals.
+ - title:
+     en: corsy - scan with custom headers
+     tr: corsy - özel başlıklarla tarama
+   desc:
+     en: |
+       Sends custom HTTP headers such as User-Agents or Session Cookies with every request. 
+       This is necessary for testing authenticated endpoints or mimicking specific browser behaviors. 
+       Multiple headers can be provided by using newline characters within the header string. 
+       Properly authenticated scans often reveal CORS issues that are hidden behind login portals.
+     tr: |
+       Her istekle birlikte Kullanıcı-Ajanı ya da oturum çerezleri gibi özel HTTP başlıkları gönderir.
+       Kimlik doğrulamalı uçları sınamak ya da belirli tarayıcı davranışlarını taklit etmek için gereklidir.
+       Başlık dizesi içinde satır sonu karakterleri kullanılarak birden çok başlık verilebilir.
+       Oturum açma ekranlarının ardında gizlenen CORS sorunları doğru kimlik doğrulamalı taramalarla ortaya çıkar.
    command: "corsy -u {{url}} --headers \"{{headers|Cookie: session=123}}\""

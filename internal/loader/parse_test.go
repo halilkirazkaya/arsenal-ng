@@ -28,14 +28,41 @@ actions:
 	if len(cheats) != 2 {
 		t.Fatalf("cheats = %d, want 2", len(cheats))
 	}
-	if cheats[0].Tool != "nmap" || cheats[0].Title != "Port scan" {
+	if cheats[0].Tool != "nmap" || cheats[0].Title.Resolve("en") != "Port scan" {
 		t.Fatalf("first = %+v", cheats[0])
 	}
 	if len(cheats[0].Tags) != 2 || cheats[1].Filename != "nmap.yaml" {
 		t.Fatalf("tags/filename = %+v", cheats[0])
 	}
-	if cheats[1].Desc != "" {
-		t.Fatalf("missing desc = %q, want empty", cheats[1].Desc)
+	if got := cheats[1].Desc.Resolve("en"); got != "" {
+		t.Fatalf("missing desc = %q, want empty", got)
+	}
+}
+
+// TestParseCheatDataTranslated verifies per-language maps survive parsing.
+func TestParseCheatDataTranslated(t *testing.T) {
+	data := []byte(`tool: nmap
+actions:
+  - title:
+      en: Port scan
+      tr: Port taraması
+    desc:
+      en: Scan ports
+      tr: Portları tara
+    command: nmap {{ip}}
+`)
+	cheats, err := parseCheatData(data, "nmap.yaml")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(cheats) != 1 {
+		t.Fatalf("cheats = %d, want 1", len(cheats))
+	}
+	if got := cheats[0].Title.Resolve("tr"); got != "Port taraması" {
+		t.Fatalf("title tr = %q", got)
+	}
+	if got := cheats[0].Desc.Resolve("en"); got != "Scan ports" {
+		t.Fatalf("desc en = %q", got)
 	}
 }
 

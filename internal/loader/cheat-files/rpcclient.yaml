@@ -4,99 +4,190 @@ tags: [network, smb, rpc, pentest, enumeration, windows, security]
 actions:
   # === CONNECTION & AUTHENTICATION ===
 
-  - title: rpcclient - anonymous connection
-    desc: |
-      Establish an unauthenticated session to the target RPC service. 
-      This is primarily used to check if null sessions are enabled on a Windows or Samba host. 
-      If successful, it allows for initial information gathering like user enumeration without providing any credentials.
+  - title:
+      en: rpcclient - anonymous connection
+      tr: rpcclient - anonim bağlantı
+    desc:
+      en: |
+        Establish an unauthenticated session to the target RPC service. 
+        This is primarily used to check if null sessions are enabled on a Windows or Samba host. 
+        If successful, it allows for initial information gathering like user enumeration without providing any credentials.
+      tr: |
+        Hedef RPC hizmetine kimlik doğrulamasız bir oturum açar.
+        Bu, Windows veya Samba bir hostta null oturumların etkin olup olmadığını denetlemek için kullanılır.
+        Başarılı olursa kimlik bilgisi vermeden kullanıcı numaralandırma gibi ilk bilgi toplama adımlarına olanak tanır.
     command: "rpcclient -U \"\" -N {{target}}"
 
-  - title: rpcclient - authenticated connection
-    desc: |
-      Connect to the RPC service using a specific username and password. 
-      This is the standard method for interacting with the service when valid domain or local credentials have been obtained. 
-      Use the "DOMAIN/Username%Password" format to ensure the authentication context is correctly interpreted.
+  - title:
+      en: rpcclient - authenticated connection
+      tr: rpcclient - kimlik doğrulamalı bağlantı
+    desc:
+      en: |
+        Connect to the RPC service using a specific username and password. 
+        This is the standard method for interacting with the service when valid domain or local credentials have been obtained. 
+        Use the "DOMAIN/Username%Password" format to ensure the authentication context is correctly interpreted.
+      tr: |
+        Belirli bir kullanıcı adı ve parolayla RPC hizmetine bağlanır.
+        Geçerli etki alanı veya yerel kimlik bilgileri elde edildiğinde hizmetle etkileşimin standart yöntemidir.
+        Kimlik doğrulama bağlamının doğru yorumlanması için "DOMAIN/KullanıcıAdı%Parola" biçimini kullan.
     command: "rpcclient -U \"{{domain|WORKGROUP}}/{{username}}%{{password}}\" {{target}}"
 
-  - title: rpcclient - pass-the-hash connection
-    desc: |
-      Connect to the target using a user's NT hash instead of a cleartext password. 
-      This technique is essential for lateral movement after extracting hashes from memory or the SAM database. 
-      Note that the hash must be provided in the 32-character hexadecimal format.
+  - title:
+      en: rpcclient - pass-the-hash connection
+      tr: rpcclient - pass-the-hash bağlantısı
+    desc:
+      en: |
+        Connect to the target using a user's NT hash instead of a cleartext password. 
+        This technique is essential for lateral movement after extracting hashes from memory or the SAM database. 
+        Note that the hash must be provided in the 32-character hexadecimal format.
+      tr: |
+        Açık metin parola yerine kullanıcının NT hash'iyle hedefe bağlanır.
+        Bu teknik, hash'ler bellekten veya SAM veritabanından alındıktan sonra yatay hareket için gereklidir.
+        Hash'in 32 karakterli onaltılık (hex) biçimde verilmesi gerektiğini unutma.
     command: "rpcclient -U \"{{username}}\" --pw-nt-hash --password=\"{{nt_hash}}\" {{target}}"
 
   # === USER & GROUP ENUMERATION ===
 
-  - title: rpcclient - enumerate domain users
-    desc: |
-      Retrieve a list of all user accounts within the target domain. 
-      This command returns the username and its corresponding Relative Identifier (RID). 
-      It is a fundamental step in mapping the target's attack surface and identifying potential targets for password spraying.
+  - title:
+      en: rpcclient - enumerate domain users
+      tr: rpcclient - etki alanı kullanıcılarını numaralandırma
+    desc:
+      en: |
+        Retrieve a list of all user accounts within the target domain. 
+        This command returns the username and its corresponding Relative Identifier (RID). 
+        It is a fundamental step in mapping the target's attack surface and identifying potential targets for password spraying.
+      tr: |
+        Hedef etki alanındaki tüm kullanıcı hesaplarının listesini alır.
+        Bu komut kullanıcı adını ve karşılığı olan Göreli Tanımlayıcıyı (RID) döndürür.
+        Hedefin saldırı yüzeyini haritalamanın ve parola püskürtme için potansiyel hedefleri belirlemenin temel adımıdır.
     command: "rpcclient -U \"{{username}}%{{password}}\" -c \"enumdomusers\" {{target}}"
 
-  - title: rpcclient - enumerate domain groups
-    desc: |
-      List all security and distribution groups within the domain. 
-      Identifying group names like 'Domain Admins' or 'Schema Admins' helps attackers prioritize specific accounts for exploitation. 
-      The output includes both the group name and its associated RID.
+  - title:
+      en: rpcclient - enumerate domain groups
+      tr: rpcclient - etki alanı gruplarını numaralandırma
+    desc:
+      en: |
+        List all security and distribution groups within the domain. 
+        Identifying group names like 'Domain Admins' or 'Schema Admins' helps attackers prioritize specific accounts for exploitation. 
+        The output includes both the group name and its associated RID.
+      tr: |
+        Etki alanındaki tüm güvenlik ve dağıtım gruplarını listeler.
+        'Domain Admins' veya 'Schema Admins' gibi grup adlarını belirlemek, saldırganların istismar için belirli hesaplara öncelik vermesine yardımcı olur.
+        Çıktı hem grup adını hem de ilişkili RID'yi içerir.
     command: "rpcclient -U \"{{username}}%{{password}}\" -c \"enumdomgroups\" {{target}}"
 
-  - title: rpcclient - query detailed user info
-    desc: |
-      Get comprehensive information about a specific user account using its RID. 
-      This includes details such as password last set time, account expiration, logon count, and home directory path. 
-      It is highly useful for determining if an account is active or if it has interesting configuration flags.
+  - title:
+      en: rpcclient - query detailed user info
+      tr: rpcclient - ayrıntılı kullanıcı bilgisi sorgulama
+    desc:
+      en: |
+        Get comprehensive information about a specific user account using its RID. 
+        This includes details such as password last set time, account expiration, logon count, and home directory path. 
+        It is highly useful for determining if an account is active or if it has interesting configuration flags.
+      tr: |
+        RID'sini kullanarak belirli bir kullanıcı hesabı hakkında kapsamlı bilgi alır.
+        Buna parolanın son ayarlanma zamanı, hesabın bitiş tarihi, oturum açma sayısı ve ev dizini yolu gibi ayrıntılar dahildir.
+        Bir hesabın aktif olup olmadığını veya ilginç yapılandırma bayraklarına sahip olup olmadığını belirlemek için oldukça faydalıdır.
     command: "rpcclient -U \"{{username}}%{{password}}\" -c \"queryuser {{user_rid}}\" {{target}}"
 
-  - title: rpcclient - enumerate group members
-    desc: |
-      List all members of a specific group identified by its RID. 
-      This allows you to see which users belong to high-privilege groups like 'Enterprise Admins'. 
-      You must first find the group RID using the 'enumdomgroups' command.
+  - title:
+      en: rpcclient - enumerate group members
+      tr: rpcclient - grup üyelerini numaralandırma
+    desc:
+      en: |
+        List all members of a specific group identified by its RID. 
+        This allows you to see which users belong to high-privilege groups like 'Enterprise Admins'. 
+        You must first find the group RID using the 'enumdomgroups' command.
+      tr: |
+        RID'siyle belirtilen belirli bir grubun tüm üyelerini listeler.
+        Bu, 'Enterprise Admins' gibi yüksek yetkili gruplara hangi kullanıcıların ait olduğunu görmeni sağlar.
+        Önce 'enumdomgroups' komutuyla grubun RID'sini bulmalısın.
     command: "rpcclient -U \"{{username}}%{{password}}\" -c \"querygroupmem {{group_rid}}\" {{target}}"
 
   # === SID & NAME LOOKUPS ===
 
-  - title: rpcclient - lookup sid by name
-    desc: |
-      Resolve a human-readable username or group name to its unique Security Identifier (SID). 
-      This is helpful when you need the exact SID for advanced exploitation techniques or access control analysis. 
-      The command will return the full SID string and the type of account found.
+  - title:
+      en: rpcclient - lookup sid by name
+      tr: rpcclient - ada göre SID sorgulama
+    desc:
+      en: |
+        Resolve a human-readable username or group name to its unique Security Identifier (SID). 
+        This is helpful when you need the exact SID for advanced exploitation techniques or access control analysis. 
+        The command will return the full SID string and the type of account found.
+      tr: |
+        Okunabilir bir kullanıcı veya grup adını benzersiz Güvenlik Tanımlayıcısına (SID) çözer.
+        Gelişmiş istismar teknikleri veya erişim denetimi analizi için tam SID gerektiğinde faydalıdır.
+        Komut tam SID dizesini ve bulunan hesabın türünü döndürür.
     command: "rpcclient -U \"{{username}}%{{password}}\" -c \"lookupnames {{target_account_name}}\" {{target}}"
 
-  - title: rpcclient - lookup name by sid
-    desc: |
-      Perform a reverse lookup to find the account name associated with a specific SID. 
-      This is often used during 'SID cycling' where an attacker iterates through RIDs to find hidden or unlisted accounts. 
-      It helps in mapping out local or domain accounts that do not appear in standard lists.
+  - title:
+      en: rpcclient - lookup name by sid
+      tr: rpcclient - SID'ye göre ad sorgulama
+    desc:
+      en: |
+        Perform a reverse lookup to find the account name associated with a specific SID. 
+        This is often used during 'SID cycling' where an attacker iterates through RIDs to find hidden or unlisted accounts. 
+        It helps in mapping out local or domain accounts that do not appear in standard lists.
+      tr: |
+        Belirli bir SID ile ilişkili hesap adını bulmak için ters sorgu gerçekleştirir.
+        Bu, saldırganın gizli veya listelenmemiş hesapları bulmak için RID'ler arasında döndüğü 'SID cycling' sırasında sıkça kullanılır.
+        Standart listelerde görünmeyen yerel veya etki alanı hesaplarını haritalamaya yardımcı olur.
     command: "rpcclient -U \"{{username}}%{{password}}\" -c \"lookupsids {{sid}}\" {{target}}"
 
   # === SYSTEM & SHARE INFORMATION ===
 
-  - title: rpcclient - enumerate network shares
-    desc: |
-      List all shared folders available on the target system using the SRVSVC pipe. 
-      This can reveal administrative shares like C$, ADMIN$, and IPC$, as well as custom organizational shares. 
-      It provides a clear view of where sensitive data might be stored across the network.
+  - title:
+      en: rpcclient - enumerate network shares
+      tr: rpcclient - ağ paylaşımlarını numaralandırma
+    desc:
+      en: |
+        List all shared folders available on the target system using the SRVSVC pipe. 
+        This can reveal administrative shares like C$, ADMIN$, and IPC$, as well as custom organizational shares. 
+        It provides a clear view of where sensitive data might be stored across the network.
+      tr: |
+        SRVSVC kanalını kullanarak hedef sistemdeki tüm paylaşılan klasörleri listeler.
+        Bu, C$, ADMIN$ ve IPC$ gibi yönetimsel paylaşımların yanı sıra kuruma özel paylaşımları ortaya çıkarabilir.
+        Hassas verilerin ağ genelinde nerede saklanabileceğine dair net bir görünüm sağlar.
     command: "rpcclient -U \"{{username}}%{{password}}\" -c \"netshareenumall\" {{target}}"
 
-  - title: rpcclient - enumerate system privileges
-    desc: |
-      List all privileges defined on the target system's Local Security Authority (LSA). 
-      This command shows the various rights that can be assigned to users, such as the right to back up files or debug programs. 
-      It is a key step in identifying potential privilege escalation paths.
+  - title:
+      en: rpcclient - enumerate system privileges
+      tr: rpcclient - sistem ayrıcalıklarını numaralandırma
+    desc:
+      en: |
+        List all privileges defined on the target system's Local Security Authority (LSA). 
+        This command shows the various rights that can be assigned to users, such as the right to back up files or debug programs. 
+        It is a key step in identifying potential privilege escalation paths.
+      tr: |
+        Hedef sistemin Yerel Güvenlik Yetkilisinde (LSA) tanımlı tüm ayrıcalıkları listeler.
+        Bu komut, dosya yedekleme veya program hata ayıklama hakkı gibi kullanıcılara atanabilen çeşitli hakları gösterir.
+        Yetki yükseltme yollarını belirlemenin kilit adımıdır.
     command: "rpcclient -U \"{{username}}%{{password}}\" -c \"enumprivs\" {{target}}"
 
-  - title: rpcclient - query domain information
-    desc: |
-      Retrieve basic information about the domain the target belongs to. 
-      This includes the domain name, the domain SID, and the sequence number. 
-      Knowing the domain SID is crucial for crafting manual RPC requests or performing silver/golden ticket attacks.
+  - title:
+      en: rpcclient - query domain information
+      tr: rpcclient - etki alanı bilgisi sorgulama
+    desc:
+      en: |
+        Retrieve basic information about the domain the target belongs to. 
+        This includes the domain name, the domain SID, and the sequence number. 
+        Knowing the domain SID is crucial for crafting manual RPC requests or performing silver/golden ticket attacks.
+      tr: |
+        Hedefin üyesi olduğu etki alanı hakkında temel bilgileri alır.
+        Buna etki alanı adı, etki alanı SID'si ve sıra numarası dahildir.
+        Etki alanı SID'sini bilmek, manuel RPC istekleri hazırlamak veya silver/golden ticket saldırıları gerçekleştirmek için kritiktir.
     command: "rpcclient -U \"{{username}}%{{password}}\" -c \"querydominfo\" {{target}}"
 
-  - title: rpcclient - enumerate printer information
-    desc: |
-      List information about printers and print drivers configured on the target. 
-      While seemingly benign, printer services have historically been sources of critical vulnerabilities like PrintNightmare. 
-      This enumeration helps identify potential print-related exploitation vectors.
+  - title:
+      en: rpcclient - enumerate printer information
+      tr: rpcclient - yazıcı bilgilerini numaralandırma
+    desc:
+      en: |
+        List information about printers and print drivers configured on the target. 
+        While seemingly benign, printer services have historically been sources of critical vulnerabilities like PrintNightmare. 
+        This enumeration helps identify potential print-related exploitation vectors.
+      tr: |
+        Hedefte yapılandırılmış yazıcılar ve yazıcı sürücüleri hakkında bilgi listeler.
+        Masum görünse de yazdırma hizmetleri geçmişte PrintNightmare gibi kritik zafiyetlerin kaynağı olmuştur.
+        Bu numaralandırma, yazdırmayla ilgili potansiyel istismar vektörlerini belirlemeye yardımcı olur.
     command: "rpcclient -U \"{{username}}%{{password}}\" -c \"enumprinters\" {{target}}"

@@ -3,82 +3,159 @@ tags: [network, enumeration, ip-manipulation, cidr, recon, pentest, infrastructu
 
 actions:
 # === EXPANSION AND AGGREGATION ===
- - title: mapcidr - expand cidr to ip list
-   desc: |
-     Expands a given CIDR range or file containing multiple ranges into a full list of individual IP addresses.
-     This is the most common use case for generating target lists for other security tools like nmap or httpx.
-     It effectively translates network notation into a line-by-line format that is easy to pipe into other utilities.
+ - title:
+     en: mapcidr - expand cidr to ip list
+     tr: mapcidr - cidr'yi ip listesine genişletme
+   desc:
+     en: |
+       Expands a given CIDR range or file containing multiple ranges into a full list of individual IP addresses.
+       This is the most common use case for generating target lists for other security tools like nmap or httpx.
+       It effectively translates network notation into a line-by-line format that is easy to pipe into other utilities.
+     tr: |
+       Verilen bir CIDR aralığını veya birden fazla aralık içeren dosyayı tekil IP adreslerinin tam listesine genişletir.
+       Nmap veya httpx gibi diğer güvenlik araçları için hedef listeleri üretmenin en yaygın kullanım durumudur.
+       Ağ gösterimini diğer araçlara aktarılması kolay satır satır bir biçime etkili şekilde çevirir.
    command: "mapcidr -cidr {{cidr_range|192.168.1.0/24}}"
 
- - title: mapcidr - aggregate ips to cidr
-   desc: |
-     Aggregates a list of individual IP addresses or sparse subnets into the smallest possible set of CIDR blocks.
-     This is extremely useful for simplifying firewall rules or identifying the overall network footprint of a target.
-     It takes fragmented IP lists and finds the mathematical boundaries that encompass them efficiently.
+ - title:
+     en: mapcidr - aggregate ips to cidr
+     tr: mapcidr - ip'leri cidr'ye toplama
+   desc:
+     en: |
+       Aggregates a list of individual IP addresses or sparse subnets into the smallest possible set of CIDR blocks.
+       This is extremely useful for simplifying firewall rules or identifying the overall network footprint of a target.
+       It takes fragmented IP lists and finds the mathematical boundaries that encompass them efficiently.
+     tr: |
+       Tekil IP adresleri veya seyrek alt ağların listesini mümkün olan en küçük CIDR blok kümesinde toplar.
+       Güvenlik duvarı kurallarını basitleştirmek veya bir hedefin genel ağ izini belirlemek için son derece kullanışlıdır.
+       Parçalı IP listelerini alır ve bunları verimli şekilde kapsayan matematiksel sınırları bulur.
    command: "mapcidr -cidr {{ip_list_file|ips.txt}} -aggregate"
 
- - title: mapcidr - approximate aggregation
-   desc: |
-     Aggregates sparse IP addresses into an approximated minimum subnet even if the range isn't perfectly full.
-     Use this when you want a broader network view of a target's infrastructure based on a few discovered IPs.
-     Be aware that this might include IP addresses that were not in your original input list to fill the subnet gap.
+ - title:
+     en: mapcidr - approximate aggregation
+     tr: mapcidr - yaklaşık toplama
+   desc:
+     en: |
+       Aggregates sparse IP addresses into an approximated minimum subnet even if the range isn't perfectly full.
+       Use this when you want a broader network view of a target's infrastructure based on a few discovered IPs.
+       Be aware that this might include IP addresses that were not in your original input list to fill the subnet gap.
+     tr: |
+       Seyrek IP adreslerini aralık tam dolu olmasa bile yaklaşık en küçük alt ağda toplar.
+       Keşfedilen birkaç IP'ye dayanarak hedefin altyapısına daha geniş bir ağ bakışı istediğinizde bunu kullanın.
+       Alt ağ boşluğunu doldurmak için özgün giriş listenizde olmayan IP adreslerini içerebileceğini unutmayın.
    command: "mapcidr -cidr {{ip_list_file|ips.txt}} -aggregate-approx"
 
 # === NETWORK SLICING ===
- - title: mapcidr - slice cidr by host count
-   desc: |
-     Divides a large CIDR block into multiple smaller subnets based on a specific maximum number of hosts per block.
-     This is ideal for parallelizing scanning tasks across multiple VPS instances or different time windows.
-     It ensures that each resulting chunk is manageable and fits within the scale of the intended operation.
+ - title:
+     en: mapcidr - slice cidr by host count
+     tr: mapcidr - cidr'yi makine sayısına göre dilimleme
+   desc:
+     en: |
+       Divides a large CIDR block into multiple smaller subnets based on a specific maximum number of hosts per block.
+       This is ideal for parallelizing scanning tasks across multiple VPS instances or different time windows.
+       It ensures that each resulting chunk is manageable and fits within the scale of the intended operation.
+     tr: |
+       Büyük bir CIDR bloğunu blok başına belirli maksimum makine sayısına göre birden fazla küçük alt ağa böler.
+       Tarama görevlerini birden fazla VPS örneği veya farklı zaman dilimlerine paralel dağıtmak için idealdir.
+       Ortaya çıkan her parçanın yönetilebilir olmasını ve amaçlanan operasyonun ölçeğine uymasını sağlar.
    command: "mapcidr -cidr {{cidr_range|10.0.0.0/16}} -sbh {{host_count|256}}"
 
- - title: mapcidr - slice into fixed number of subnets
-   desc: |
-     Splits a large CIDR range into a specific number of equal-sized subnets.
-     Use this when you have a fixed number of worker threads or scanners and want to distribute the IP space evenly among them.
-     The tool calculates the appropriate bitmask automatically to satisfy the requested number of slices.
+ - title:
+     en: mapcidr - slice into fixed number of subnets
+     tr: mapcidr - sabit sayıda alt ağa dilimleme
+   desc:
+     en: |
+       Splits a large CIDR range into a specific number of equal-sized subnets.
+       Use this when you have a fixed number of worker threads or scanners and want to distribute the IP space evenly among them.
+       The tool calculates the appropriate bitmask automatically to satisfy the requested number of slices.
+     tr: |
+       Büyük bir CIDR aralığını belirli sayıda eşit boyutlu alt ağa böler.
+       Sabit sayıda işçi iş parçacığınız veya tarayıcınız olduğunda ve IP alanını aralarında eşit dağıtmak istediğinizde bunu kullanın.
+       Araç istenen dilim sayısını karşılamak için uygun bit maskesini otomatik hesaplar.
    command: "mapcidr -cidr {{cidr_range|172.16.0.0/12}} -sbc {{slice_count|10}}"
 
 # === FILTERING AND FORMATTING ===
- - title: mapcidr - filter out special ips
-   desc: |
-     Expands a CIDR range while automatically skipping the base network address (.0) and the broadcast address (.255).
-     This prevents sending unnecessary packets to addresses that generally do not host standard services.
-     It is a clean way to generate a list of "usable" host IPs within a specific network segment.
+ - title:
+     en: mapcidr - filter out special ips
+     tr: mapcidr - özel ip'leri filtreleme
+   desc:
+     en: |
+       Expands a CIDR range while automatically skipping the base network address (.0) and the broadcast address (.255).
+       This prevents sending unnecessary packets to addresses that generally do not host standard services.
+       It is a clean way to generate a list of "usable" host IPs within a specific network segment.
+     tr: |
+       Temel ağ adresini (.0) ve yayın adresini (.255) otomatik atlayarak bir CIDR aralığını genişletir.
+       Bu, genellikle standart hizmet barındırmayan adreslere gereksiz paket gönderilmesini engeller.
+       Belirli bir ağ kesimindeki "kullanılabilir" makine IP'lerinin listesini üretmenin temiz bir yoludur.
    command: "mapcidr -cidr {{cidr_range|192.168.50.0/24}} -skip-base -skip-broadcast"
 
- - title: mapcidr - filter ips using an exclusion list
-   desc: |
-     Filters out specific IPs or CIDR ranges from your input based on a provided exclusion list or file.
-     This is crucial during engagements to ensure you do not scan out-of-scope assets or sensitive infrastructure like medical equipment.
-     The tool matches the input against the filter list and removes any overlapping addresses before outputting.
+ - title:
+     en: mapcidr - filter ips using an exclusion list
+     tr: mapcidr - hariç tutma listesiyle ip filtreleme
+   desc:
+     en: |
+       Filters out specific IPs or CIDR ranges from your input based on a provided exclusion list or file.
+       This is crucial during engagements to ensure you do not scan out-of-scope assets or sensitive infrastructure like medical equipment.
+       The tool matches the input against the filter list and removes any overlapping addresses before outputting.
+     tr: |
+       Sağlanan bir hariç tutma listesi veya dosyasına göre girdinizden belirli IP veya CIDR aralıklarını filtreler.
+       Kapsam dışı varlıkları veya tıbbi cihazlar gibi hassas altyapıyı taramamanızı sağlamak için çalışmalar sırasında kritik öneme sahiptir.
+       Araç girdiyi filtre listesiyle eşleştirir ve çıktıdan önce çakışan adresleri kaldırır.
    command: "mapcidr -cidr {{input_list|targets.txt}} -filter-ip {{exclude_list|out_of_scope.txt}}"
 
- - title: mapcidr - convert ip formats for bypass
-   desc: |
-     Converts standard dotted IP addresses into various alternative formats such as decimal, hex, or octal (0-11).
-     This is a powerful technique for testing SSRF vulnerabilities or bypassing poorly configured WAF filters.
-     Experimenting with different numeric representations can often evade simple string-matching security rules.
+ - title:
+     en: mapcidr - convert ip formats for bypass
+     tr: mapcidr - atlatma için ip biçimi dönüştürme
+   desc:
+     en: |
+       Converts standard dotted IP addresses into various alternative formats such as decimal, hex, or octal (0-11).
+       This is a powerful technique for testing SSRF vulnerabilities or bypassing poorly configured WAF filters.
+       Experimenting with different numeric representations can often evade simple string-matching security rules.
+     tr: |
+       Standart noktalı IP adreslerini ondalık, onaltılık veya sekizlik (0-11) gibi çeşitli alternatif biçimlere dönüştürür.
+       SSRF zafiyetlerini test etmek veya kötü yapılandırılmış WAF filtrelerini aşmak için güçlü bir tekniktir.
+       Farklı sayısal temsilleri denemek genellikle basit dizgi eşleşmeli güvenlik kurallarından kaçabilir.
    command: "mapcidr -cidr {{ip_address|127.0.0.1}} -ip-format {{format_index|1}}"
 
 # === UTILITIES AND RECON ===
- - title: mapcidr - count ips in range
-   desc: |
-     Provides a quick count of the total number of IP addresses contained within the specified CIDR or range.
-     This is a passive reconnaissance step that helps in estimating the scale of an assessment without interacting with the target.
-     It is much faster than expanding the list and using "wc -l" on the resulting output.
+ - title:
+     en: mapcidr - count ips in range
+     tr: mapcidr - aralıktaki ip'leri sayma
+   desc:
+     en: |
+       Provides a quick count of the total number of IP addresses contained within the specified CIDR or range.
+       This is a passive reconnaissance step that helps in estimating the scale of an assessment without interacting with the target.
+       It is much faster than expanding the list and using "wc -l" on the resulting output.
+     tr: |
+       Belirtilen CIDR veya aralıkta bulunan toplam IP adresi sayısını hızlıca verir.
+       Hedefle etkileşime girmeden bir değerlendirmenin ölçeğini tahmin etmeye yardımcı olan pasif bir keşif adımıdır.
+       Listeyi genişletip sonuç çıktısında "wc -l" kullanmaktan çok daha hızlıdır.
    command: "mapcidr -cidr {{cidr_range|10.0.0.0/8}} -count"
 
- - title: mapcidr - shuffle ips for stealth
-   desc: |
-     Randomizes the order of the IP addresses in the output list.
-     Shuffling is a critical security best practice to avoid triggering threshold-based Intrusion Detection Systems (IDS).
-     By not scanning IPs in sequential order, you reduce the likelihood of being detected as a network-wide scan.
+ - title:
+     en: mapcidr - shuffle ips for stealth
+     tr: mapcidr - gizlilik için ip'leri karıştırma
+   desc:
+     en: |
+       Randomizes the order of the IP addresses in the output list.
+       Shuffling is a critical security best practice to avoid triggering threshold-based Intrusion Detection Systems (IDS).
+       By not scanning IPs in sequential order, you reduce the likelihood of being detected as a network-wide scan.
+     tr: |
+       Çıktı listesindeki IP adreslerinin sırasını rastgele karıştırır.
+       Karıştırma, eşik tabanlı Saldırı Tespit Sistemlerini (IDS) tetiklemekten kaçınmak için kritik bir güvenlik en iyi uygulamasıdır.
+       IP'leri sıralı taramadığınız için ağ genelinde tarama olarak tespit edilme olasılığını azaltırsınız.
    command: "mapcidr -cidr {{input_file|ips.txt}} -shuffle-ip"
 
- - title: mapcidr - sort ip list
-   desc: |
-     Sorts the input IPs or CIDRs in ascending order to create a clean, organized list.
-     This is helpful for reporting purposes or when you need to deduplicate and compare different sets of discovery results.
-     Standardizing the output makes it easier to track progress through a defined network range.
+ - title:
+     en: mapcidr - sort ip list
+     tr: mapcidr - ip listesini sıralama
+   desc:
+     en: |
+       Sorts the input IPs or CIDRs in ascending order to create a clean, organized list.
+       This is helpful for reporting purposes or when you need to deduplicate and compare different sets of discovery results.
+       Standardizing the output makes it easier to track progress through a defined network range.
+     tr: |
+       Temiz, düzenli bir liste oluşturmak için girdi IP veya CIDR'leri artan sırada sıralar.
+       Raporlama amaçları için veya farklı keşif sonuç kümelerini tekilleştirip karşılaştırmanız gerektiğinde yardımcıdır.
+       Çıktıyı standartlaştırmak, tanımlı bir ağ aralığındaki ilerlemeyi izlemeyi kolaylaştırır.
    command: "mapcidr -cidr {{input_file|unsorted_ips.txt}} -sort"

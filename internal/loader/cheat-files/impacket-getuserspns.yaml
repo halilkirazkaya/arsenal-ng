@@ -3,74 +3,144 @@ tags: [pentest, security, active-directory, kerberos, kerberoasting, enumeration
 
 actions:
   # === ENUMERATION ===
-  - title: impacket-GetUserSPNs - list available SPNs
-    desc: |
-      Performs basic enumeration of Service Principal Names (SPNs) associated with normal user accounts in the domain.
-      This is the primary reconnaissance step of a Kerberoasting attack to identify which accounts can be targeted for ticket requests.
-      It requires valid domain credentials and queries the Domain Controller via LDAP to find accounts where the 'servicePrincipalName' attribute is set.
+  - title:
+      en: impacket-GetUserSPNs - list available SPNs
+      tr: impacket-GetUserSPNs - kullanılabilir SPN'leri listeleme
+    desc:
+      en: |
+        Performs basic enumeration of Service Principal Names (SPNs) associated with normal user accounts in the domain.
+        This is the primary reconnaissance step of a Kerberoasting attack to identify which accounts can be targeted for ticket requests.
+        It requires valid domain credentials and queries the Domain Controller via LDAP to find accounts where the 'servicePrincipalName' attribute is set.
+      tr: |
+        Etki alanındaki normal kullanıcı hesaplarıyla ilişkili Hizmet Asıl Adlarını (SPN) temel düzeyde numaralandırır.
+        Bilet isteğinde bulunulabilecek hesapları belirlemek için Kerberoasting saldırısının birincil keşif adımıdır.
+        Etki alanı denetleyicisini 'servicePrincipalName' özniteliği ayarlı hesaplar için LDAP ile sorgulamak üzere geçerli etki alanı kimlik bilgileri gerektirir.
     command: "impacket-GetUserSPNs {{domain}}/{{username}}:{{password}} -dc-ip {{dc_ip}}"
 
-  - title: impacket-GetUserSPNs - stealthy enumeration
-    desc: |
-      Modifies the LDAP query by removing the explicit (servicePrincipalName=*) filter to avoid detection by certain security monitoring tools.
-      While this method is stealthier, it can result in significant memory consumption or errors in very large Active Directory environments because it retrieves more objects.
-      Use this when you suspect the environment has active monitoring for standard Kerberoasting enumeration patterns.
+  - title:
+      en: impacket-GetUserSPNs - stealthy enumeration
+      tr: impacket-GetUserSPNs - gizli numaralandırma
+    desc:
+      en: |
+        Modifies the LDAP query by removing the explicit (servicePrincipalName=*) filter to avoid detection by certain security monitoring tools.
+        While this method is stealthier, it can result in significant memory consumption or errors in very large Active Directory environments because it retrieves more objects.
+        Use this when you suspect the environment has active monitoring for standard Kerberoasting enumeration patterns.
+      tr: |
+        Açık (servicePrincipalName=*) filtresini kaldırarak LDAP sorgusunu değiştirir; böylece bazı güvenlik izleme araçlarınca tespitten kaçınır.
+        Bu yöntem daha gizli olsa da daha fazla nesne çektiği için çok büyük Active Directory ortamlarında ciddi bellek tüketimine veya hatalara yol açabilir.
+        Ortamda standart Kerberoasting numaralandırma kalıplarına yönelik aktif izleme olduğundan şüpheleniyorsanız kullanın.
     command: "impacket-GetUserSPNs {{domain}}/{{username}}:{{password}} -dc-ip {{dc_ip}} -stealth"
 
-  - title: impacket-GetUserSPNs - list machine accounts only
-    desc: |
-      Adjusts the LDAP query to search for machine accounts instead of user accounts by changing the object category to 'computer'.
-      Machine accounts often have complex, randomly generated passwords that are difficult to crack, but they may still be useful in specific lateral movement scenarios.
-      Note that Active Directory may limit LDAP results to 1,000 objects by default, requiring paging for larger environments.
+  - title:
+      en: impacket-GetUserSPNs - list machine accounts only
+      tr: impacket-GetUserSPNs - yalnızca makine hesaplarını listeleme
+    desc:
+      en: |
+        Adjusts the LDAP query to search for machine accounts instead of user accounts by changing the object category to 'computer'.
+        Machine accounts often have complex, randomly generated passwords that are difficult to crack, but they may still be useful in specific lateral movement scenarios.
+        Note that Active Directory may limit LDAP results to 1,000 objects by default, requiring paging for larger environments.
+      tr: |
+        Nesne kategorisini 'computer' olarak değiştirerek LDAP sorgusunu kullanıcı hesapları yerine makine hesaplarına ayarlar.
+        Makine hesapları genellikle kırılması zor, karmaşık rastgele parolalara sahiptir ama belirli yanal hareket senaryolarında yine de yararlı olabilir.
+        Active Directory'nin LDAP sonuçlarını varsayılan olarak 1.000 nesneyle sınırlayabileceğini, büyük ortamlarda sayfalama gerekebileceğini unutmayın.
     command: "impacket-GetUserSPNs {{domain}}/{{username}}:{{password}} -dc-ip {{dc_ip}} -machine-only"
 
   # === EXPLOITATION (KERBEROASTING) ===
-  - title: impacket-GetUserSPNs - request TGS for Kerberoasting
-    desc: |
-      Requests Ticket Granting Service (TGS) tickets for all discovered service accounts and outputs them in a format compatible with cracking tools.
-      The output is displayed in the terminal in a format that can be directly used by Hashcat (mode 13100) or John the Ripper.
-      Be cautious as requesting a large number of tickets in a short time is a high-signal event that often triggers "Honeytoken" alerts or SIEM detections.
+  - title:
+      en: impacket-GetUserSPNs - request TGS for Kerberoasting
+      tr: impacket-GetUserSPNs - Kerberoasting için TGS isteme
+    desc:
+      en: |
+        Requests Ticket Granting Service (TGS) tickets for all discovered service accounts and outputs them in a format compatible with cracking tools.
+        The output is displayed in the terminal in a format that can be directly used by Hashcat (mode 13100) or John the Ripper.
+        Be cautious as requesting a large number of tickets in a short time is a high-signal event that often triggers "Honeytoken" alerts or SIEM detections.
+      tr: |
+        Bulunan tüm hizmet hesapları için Bilet Veren Hizmet (TGS) biletlerini ister ve kırma araçlarıyla uyumlu biçimde çıktılar.
+        Çıktı terminalde doğrudan Hashcat (mod 13100) veya John the Ripper ile kullanılabilecek biçimde görüntülenir.
+        Kısa sürede çok sayıda bilet istemenin yüksek sinyalli bir olay olup sıkça Honeytoken uyarılarını veya SIEM tespitlerini tetiklediğine dikkat edin.
     command: "impacket-GetUserSPNs {{domain}}/{{username}}:{{password}} -dc-ip {{dc_ip}} -request"
 
-  - title: impacket-GetUserSPNs - request and save tickets to file
-    desc: |
-      Requests TGS tickets for all eligible accounts and automatically saves the resulting hashes into a specified local file.
-      This is the most efficient way to capture hashes for offline cracking without having to manually copy-paste from the terminal output.
-      The generated file will contain the hashes in the standard Kerberoasting format ($krb5tgs$...).
+  - title:
+      en: impacket-GetUserSPNs - request and save tickets to file
+      tr: impacket-GetUserSPNs - biletleri isteyip dosyaya kaydetme
+    desc:
+      en: |
+        Requests TGS tickets for all eligible accounts and automatically saves the resulting hashes into a specified local file.
+        This is the most efficient way to capture hashes for offline cracking without having to manually copy-paste from the terminal output.
+        The generated file will contain the hashes in the standard Kerberoasting format ($krb5tgs$...).
+      tr: |
+        Uygun tüm hesaplar için TGS biletlerini ister ve oluşan hash'leri belirtilen yerel dosyaya otomatik kaydeder.
+        Terminal çıktısından elle kopyala-yapıştır yapmadan çevrimdışı kırma için hash yakalamanın en verimli yoludur.
+        Oluşan dosya standart Kerberoasting biçiminde ($krb5tgs$...) hash'ler içerir.
     command: "impacket-GetUserSPNs {{domain}}/{{username}}:{{password}} -dc-ip {{dc_ip}} -outputfile {{output_file|hashes.txt}}"
 
-  - title: impacket-GetUserSPNs - target specific user for ticket request
-    desc: |
-      Requests a TGS ticket for a single, specific service account identified by its username.
-      This targeted approach is much quieter than requesting tickets for every account in the domain and helps avoid detection.
-      It is highly recommended if you have already identified a high-value or likely-vulnerable service account during the enumeration phase.
+  - title:
+      en: impacket-GetUserSPNs - target specific user for ticket request
+      tr: impacket-GetUserSPNs - bilet isteği için belirli kullanıcıyı hedefleme
+    desc:
+      en: |
+        Requests a TGS ticket for a single, specific service account identified by its username.
+        This targeted approach is much quieter than requesting tickets for every account in the domain and helps avoid detection.
+        It is highly recommended if you have already identified a high-value or likely-vulnerable service account during the enumeration phase.
+      tr: |
+        Kullanıcı adıyla belirlenen tek bir hizmet hesabı için TGS bileti ister.
+        Etki alanındaki her hesap için bilet istemekten çok daha sessizdir ve tespitten kaçınmaya yardımcı olur.
+        Numaralandırma aşamasında yüksek değerli veya muhtemelen savunmasız bir hizmet hesabı belirlediyseniz şiddetle önerilir.
     command: "impacket-GetUserSPNs {{domain}}/{{username}}:{{password}} -dc-ip {{dc_ip}} -request-user {{target_service_user}}"
 
   # === AUTHENTICATION VARIATIONS ===
-  - title: impacket-GetUserSPNs - authenticate using NTLM hashes
-    desc: |
-      Uses NTLM hashes for authentication to the Domain Controller instead of a cleartext password (Pass-the-Hash).
-      The hash format should be LMHASH:NTHASH; if you only have the NT hash, provide the LM part as 32 zeros or leave it blank as shown.
-      This is essential when you have recovered a user's hash from memory or a SAM database but cannot decrypt it to a plaintext password.
+  - title:
+      en: impacket-GetUserSPNs - authenticate using NTLM hashes
+      tr: impacket-GetUserSPNs - NTLM hash'leriyle kimlik doğrulama
+    desc:
+      en: |
+        Uses NTLM hashes for authentication to the Domain Controller instead of a cleartext password (Pass-the-Hash).
+        The hash format should be LMHASH:NTHASH; if you only have the NT hash, provide the LM part as 32 zeros or leave it blank as shown.
+        This is essential when you have recovered a user's hash from memory or a SAM database but cannot decrypt it to a plaintext password.
+      tr: |
+        Etki Alanı Denetleyicisine açık parola yerine NTLM hash'leriyle kimlik doğrulaması yapar (Pass-the-Hash).
+        Hash biçimi LMHASH:NTHASH olmalı; yalnızca NT hash'i varsa LM kısmını 32 sıfır verin veya gösterildiği gibi boş bırakın.
+        Kullanıcının hash'ini bellekten veya SAM veritabanından kurtarıp düz metin parolayı çözemediğinizde esastır.
     command: "impacket-GetUserSPNs {{domain}}/{{username}} -hashes {{hash}} -dc-ip {{dc_ip}} -request"
 
-  - title: impacket-GetUserSPNs - authenticate using Kerberos ticket (ccache)
-    desc: |
-      Performs the SPN query and ticket requests using an existing Kerberos ticket-granting ticket (TGT) stored in a ccache file.
-      You must set the environment variable KRB5CCNAME to the path of your .ccache file before running this command.
-      This method is useful for "Pass-the-Ticket" scenarios or when you want to avoid putting any passwords/hashes in the process command line.
+  - title:
+      en: impacket-GetUserSPNs - authenticate using Kerberos ticket (ccache)
+      tr: impacket-GetUserSPNs - Kerberos biletiyle (ccache) kimlik doğrulama
+    desc:
+      en: |
+        Performs the SPN query and ticket requests using an existing Kerberos ticket-granting ticket (TGT) stored in a ccache file.
+        You must set the environment variable KRB5CCNAME to the path of your .ccache file before running this command.
+        This method is useful for "Pass-the-Ticket" scenarios or when you want to avoid putting any passwords/hashes in the process command line.
+      tr: |
+        SPN sorgusu ve bilet isteklerini ccache dosyasındaki mevcut Kerberos biletini (TGT) kullanarak yapar.
+        Bu komutu çalıştırmadan önce KRB5CCNAME ortam değişkenini .ccache dosyanızın yoluna ayarlamalısınız.
+        Pass-the-Ticket senaryolarında veya işlem komut satırına parola/hash koymak istemediğinizde kullanışlıdır.
     command: "impacket-GetUserSPNs -k -no-pass {{domain}}/{{username}} -dc-ip {{dc_ip}} -request"
 
-  - title: impacket-GetUserSPNs - cross-domain Kerberoasting
-    desc: |
-      Attempts to query and request SPNs from a different domain than the one the user belongs to, leveraging domain trusts.
-      The -target-domain flag specifies the domain you want to attack, while the initial target parameter contains your current valid credentials.
-      This is a key technique for lateral movement and privilege escalation across a multi-domain forest.
+  - title:
+      en: impacket-GetUserSPNs - cross-domain Kerberoasting
+      tr: impacket-GetUserSPNs - etki alanları arası Kerberoasting
+    desc:
+      en: |
+        Attempts to query and request SPNs from a different domain than the one the user belongs to, leveraging domain trusts.
+        The -target-domain flag specifies the domain you want to attack, while the initial target parameter contains your current valid credentials.
+        This is a key technique for lateral movement and privilege escalation across a multi-domain forest.
+      tr: |
+        Etki alanı güvenlerinden yararlanarak kullanıcının ait olduğundan farklı bir etki alandan SPN sorgulamaya ve istemeye çalışır.
+        -target-domain bayrağı saldırmak istediğiniz etki alanını belirtir; başlangıç hedef parametresi mevcut geçerli kimlik bilgilerinizi içerir.
+        Çok etki alanlı ormanda yanal hareket ve yetki yükseltme için kilit bir tekniktir.
     command: "impacket-GetUserSPNs {{current_domain}}/{{username}}:{{password}} -target-domain {{target_domain}} -dc-ip {{target_dc_ip}} -request"
 
-  - title: impacket-GetUserSPNs - authenticate with AES Key
-    desc: |
-      Uses a raw AES-128 or AES-256 hex key for Kerberos authentication instead of a password or NTLM hash.
-      This provides a more modern and sometimes necessary way to authenticate in environments where NTLM is disabled or restricted.
-      The AES key is typically extracted from the LSASS process or a local secrets database on a compromised host.
+  - title:
+      en: impacket-GetUserSPNs - authenticate with AES Key
+      tr: impacket-GetUserSPNs - AES anahtarıyla kimlik doğrulama
+    desc:
+      en: |
+        Uses a raw AES-128 or AES-256 hex key for Kerberos authentication instead of a password or NTLM hash.
+        This provides a more modern and sometimes necessary way to authenticate in environments where NTLM is disabled or restricted.
+        The AES key is typically extracted from the LSASS process or a local secrets database on a compromised host.
+      tr: |
+        Parola veya NTLM hash'i yerine Kerberos kimlik doğrulaması için ham AES-128 veya AES-256 onaltılık anahtar kullanır.
+        NTLM'nin devre dışı veya kısıtlı olduğu ortamlarda kimlik doğrulamanın daha modern ve bazen gerekli bir yolunu sağlar.
+        AES anahtarı genellikle ele geçirilmiş makinedeki LSASS sürecinden veya yerel gizli veritabanından çıkarılır.
     command: "impacket-GetUserSPNs {{domain}}/{{username}} -aesKey {{hex_key}} -dc-ip {{dc_ip}} -request"

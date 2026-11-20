@@ -3,98 +3,189 @@ tags: [web, security, pentest, xss, exploitation, scanner, automation]
 
 actions:
   # === BASIC AUDIT & RECONNAISSANCE ===
-  - title: xsser - basic url scan
-    desc: |
-      Performs a simple audit on a specific target URL. 
-      This command is the standard starting point to check if a single page is vulnerable to common XSS vectors. 
-      It uses default settings to probe the target without complex configurations.
+  - title:
+      en: xsser - basic url scan
+      tr: xsser - temel url taraması
+    desc:
+      en: |
+        Performs a simple audit on a specific target URL. 
+        This command is the standard starting point to check if a single page is vulnerable to common XSS vectors. 
+        It uses default settings to probe the target without complex configurations.
+      tr: |
+        Belirli bir hedef URL üzerinde basit bir denetim gerçekleştirir.
+        Bu komut, tek bir sayfanın yaygın XSS vektörlerine açık olup olmadığını denetlemenin standart başlangıç noktasıdır.
+        Hedefi karmaşık yapılandırmalar olmadan sondalamak için varsayılan ayarları kullanır.
     command: "xsser -u \"{{url}}\""
 
-  - title: xsser - scan with crawling
-    desc: |
-      Crawls the target website to discover and audit multiple links. 
-      The depth of the crawl can be controlled to limit the scope of the security test. 
-      This is highly effective for mapping the attack surface of an entire web application automatically.
+  - title:
+      en: xsser - scan with crawling
+      tr: xsser - taramalı tarama
+    desc:
+      en: |
+        Crawls the target website to discover and audit multiple links. 
+        The depth of the crawl can be controlled to limit the scope of the security test. 
+        This is highly effective for mapping the attack surface of an entire web application automatically.
+      tr: |
+        Hedef web sitesini tarayarak birden fazla bağlantıyı keşfeder ve denetler.
+        Taramanın derinliği güvenlik testinin kapsamını sınırlamak için kontrol edilebilir.
+        Bu, tüm bir web uygulamasının saldırı yüzeyini otomatik haritalamada oldukça etkilidir.
     command: "xsser -u \"{{url}}\" -c {{depth|5}}"
 
-  - title: xsser - dorking for targets
-    desc: |
-      Uses search engine dorks to find potential targets based on a specific query. 
-      By default, it uses DuckDuckGo but can be configured to use others. 
-      This is often used by researchers to find vulnerable instances of specific software across the internet.
+  - title:
+      en: xsser - dorking for targets
+      tr: xsser - dork ile hedef bulma
+    desc:
+      en: |
+        Uses search engine dorks to find potential targets based on a specific query. 
+        By default, it uses DuckDuckGo but can be configured to use others. 
+        This is often used by researchers to find vulnerable instances of specific software across the internet.
+      tr: |
+        Belirli bir sorguya göre potansiyel hedefler bulmak için arama motoru dorkları kullanır.
+        Varsayılan olarak DuckDuckGo kullanır ancak başkalarını kullanacak şekilde yapılandırılabilir.
+        Bu, araştırmacılar tarafından internette belirli yazılımların zafiyetli örneklerini bulmak için sıkça kullanılır.
     command: "xsser -d \"{{dork|index.php?id=}}\" --De {{engine|google}}"
 
   # === INJECTION METHODS ===
-  - title: xsser - GET parameter injection
-    desc: |
-      Targets a specific GET parameter for XSS injection using the 'XSS' keyword as a placeholder. 
-      The tool replaces 'XSS' with its internal payloads to test for reflections. 
-      Use this when you have identified a specific input field in a URL query string.
+  - title:
+      en: xsser - GET parameter injection
+      tr: xsser - GET parametre enjeksiyonu
+    desc:
+      en: |
+        Targets a specific GET parameter for XSS injection using the 'XSS' keyword as a placeholder. 
+        The tool replaces 'XSS' with its internal payloads to test for reflections. 
+        Use this when you have identified a specific input field in a URL query string.
+      tr: |
+        Yer tutucu olarak 'XSS' anahtar kelimesini kullanarak belirli bir GET parametresini XSS enjeksiyonu için hedefler.
+        Araç, yansımaları test etmek için 'XSS' ifadesini kendi iç yükleriyle değiştirir.
+        URL sorgu dizesinde belirli bir giriş alanı tespit ettiğinizde kullanın.
     command: "xsser -u \"{{url}}\" -g \"{{path}}?{{param}}=XSS\""
 
-  - title: xsser - POST data injection
-    desc: |
-      Sends XSS payloads through POST data instead of the URL. 
-      This is necessary for testing forms, login fields, and other data submission points that do not use GET. 
-      Ensure the data string matches the expected application/x-www-form-urlencoded format.
+  - title:
+      en: xsser - POST data injection
+      tr: xsser - POST verisi enjeksiyonu
+    desc:
+      en: |
+        Sends XSS payloads through POST data instead of the URL. 
+        This is necessary for testing forms, login fields, and other data submission points that do not use GET. 
+        Ensure the data string matches the expected application/x-www-form-urlencoded format.
+      tr: |
+        XSS yüklerini URL yerine POST verisiyle gönderir.
+        Bu, GET kullanmayan formları, giriş alanlarını ve diğer veri gönderim noktalarını test etmek için gereklidir.
+        Veri dizesinin beklenen application/x-www-form-urlencoded biçimine uyduğundan emin olun.
     command: "xsser -u \"{{url}}\" -p \"{{param1}}=value&{{param2}}=XSS\""
 
   # === ADVANCED TECHNIQUES ===
-  - title: xsser - cookie and header injection
-    desc: |
-      Tests for XSS vulnerabilities within HTTP headers such as Cookies, User-Agent, and Referer. 
-      These are often overlooked injection points that can lead to stored or reflected XSS in administrative dashboards. 
-      The command enables multiple special techniques simultaneously for a broad header audit.
+  - title:
+      en: xsser - cookie and header injection
+      tr: xsser - çerez ve başlık enjeksiyonu
+    desc:
+      en: |
+        Tests for XSS vulnerabilities within HTTP headers such as Cookies, User-Agent, and Referer. 
+        These are often overlooked injection points that can lead to stored or reflected XSS in administrative dashboards. 
+        The command enables multiple special techniques simultaneously for a broad header audit.
+      tr: |
+        Çerezler, User-Agent ve Referer gibi HTTP başlıklarındaki XSS zafiyetlerini test eder.
+        Bunlar, yönetim panolarında depolanmış veya yansıtılmış XSS'e yol açabilen sıkça gözden kaçan enjeksiyon noktalarıdır.
+        Komut, geniş bir başlık denetimi için birden fazla özel tekniği aynı anda etkinleştirir.
     command: "xsser -u \"{{url}}\" --Coo --Xsa --Xsr"
 
-  - title: xsser - DOM based XSS testing
-    desc: |
-      Focuses on discovering Document Object Model (DOM) based XSS vulnerabilities. 
-      It analyzes how the client-side scripts handle input from the URL fragment or other sources. 
-      DOM XSS is critical because the payload never reaches the server-side logs in many cases.
+  - title:
+      en: xsser - DOM based XSS testing
+      tr: xsser - DOM tabanlı XSS testi
+    desc:
+      en: |
+        Focuses on discovering Document Object Model (DOM) based XSS vulnerabilities. 
+        It analyzes how the client-side scripts handle input from the URL fragment or other sources. 
+        DOM XSS is critical because the payload never reaches the server-side logs in many cases.
+      tr: |
+        Belge Nesne Modeli (DOM) tabanlı XSS zafiyetlerini bulmaya odaklanır.
+        İstemci tarafı betiklerin URL parçası veya diğer kaynaklardan gelen girdiyi nasıl işlediğini analiz eder.
+        DOM XSS kritiktir çünkü yük çoğu durumda sunucu tarafı günlüklerine hiç ulaşmaz.
     command: "xsser -u \"{{url}}\" --Dom"
 
   # === EVASION & BYPASSING ===
-  - title: xsser - bypass WAF with specific rules
-    desc: |
-      Attempts to bypass specific Web Application Firewalls (WAF) using pre-defined rulesets. 
-      Available options include Modsec, Imperva, Barracuda, and more. 
-      Use this when a target is protected by a known security solution that blocks standard XSS payloads.
+  - title:
+      en: xsser - bypass WAF with specific rules
+      tr: xsser - belirli kurallarla WAF atlatma
+    desc:
+      en: |
+        Attempts to bypass specific Web Application Firewalls (WAF) using pre-defined rulesets. 
+        Available options include Modsec, Imperva, Barracuda, and more. 
+        Use this when a target is protected by a known security solution that blocks standard XSS payloads.
+      tr: |
+        Önceden tanımlı kural kümeleriyle belirli Web Uygulama Güvenlik Duvarlarını (WAF) atlatmaya çalışır.
+        Kullanılabilir seçenekler arasında Modsec, Imperva, Barracuda ve daha fazlası bulunur.
+        Hedef standart XSS yüklerini engelleyen bilinen bir güvenlik çözümüyle korunuyorsa kullanın.
     command: "xsser -u \"{{url}}\" --auto --{{waf_type|Modsec}}"
 
-  - title: xsser - encoding and obfuscation bypass
-    desc: |
-      Applies various encoding techniques like Hexadecimal, Decimal, or String.FromCharCode() to the payloads. 
-      Obfuscation helps in evading simple signature-based detection systems and input filters. 
-      Combining multiple encodings can increase the success rate against complex filters.
+  - title:
+      en: xsser - encoding and obfuscation bypass
+      tr: xsser - kodlama ve gizleme ile atlatma
+    desc:
+      en: |
+        Applies various encoding techniques like Hexadecimal, Decimal, or String.FromCharCode() to the payloads. 
+        Obfuscation helps in evading simple signature-based detection systems and input filters. 
+        Combining multiple encodings can increase the success rate against complex filters.
+      tr: |
+        Yüklere Onaltılık, Ondalık veya String.FromCharCode() gibi çeşitli kodlama teknikleri uygular.
+        Gizleme, basit imza tabanlı tespit sistemlerini ve girdi filtrelerini aşmaya yardımcı olur.
+        Birden fazla kodlamayı birleştirmek karmaşık filtrelere karşı başarı oranını artırabilir.
     command: "xsser -u \"{{url}}\" --auto --Str --Hex --Une"
 
   # === SPECIAL FEATURES ===
-  - title: xsser - generate malicious image (IMX)
-    desc: |
-      Creates an image file embedded with XSS code to test for vulnerabilities in image processing libraries. 
-      This technique is used to exploit "Image XSS" where a site renders metadata or malicious byte sequences as code. 
-      The resulting file should be uploaded to the target for testing.
+  - title:
+      en: xsser - generate malicious image (IMX)
+      tr: xsser - zararlı resim üretme (IMX)
+    desc:
+      en: |
+        Creates an image file embedded with XSS code to test for vulnerabilities in image processing libraries. 
+        This technique is used to exploit "Image XSS" where a site renders metadata or malicious byte sequences as code. 
+        The resulting file should be uploaded to the target for testing.
+      tr: |
+        XSS kodu gömülü bir resim dosyası oluşturarak resim işleme kütüphanelerindeki zafiyetleri test eder.
+        Bu teknik, sitenin meta verileri veya zararlı bayt dizilerini kod olarak yürüttüğü "Resim XSS"i sömürmek için kullanılır.
+        Ortaya çıkan dosya test için hedefe yüklenmelidir.
     command: "xsser --imx {{output_file|path/to/image.png}}"
 
-  - title: xsser - Denial of Service (DoS) attack
-    desc: |
-      Attempts to perform a client-side or server-side Denial of Service via XSS. 
-      This typically involves injecting scripts that consume excessive resources on the victim's browser or the server. 
-      Use with extreme caution as it can impact the availability of the target service.
+  - title:
+      en: xsser - Denial of Service (DoS) attack
+      tr: xsser - Hizmet Dışı Bırakma (DoS) saldırısı
+    desc:
+      en: |
+        Attempts to perform a client-side or server-side Denial of Service via XSS. 
+        This typically involves injecting scripts that consume excessive resources on the victim's browser or the server. 
+        Use with extreme caution as it can impact the availability of the target service.
+      tr: |
+        XSS yoluyla istemci taraflı veya sunucu taraflı Hizmet Dışı Bırakma girişiminde bulunur.
+        Bu genellikle kurbanın tarayıcısında veya sunucuda aşırı kaynak tüketen betikler enjekte etmeyi içerir.
+        Hedef servisin kullanılabilirliğini etkileyebileceği için son derece dikkatli kullanın.
     command: "xsser -u \"{{url}}\" --Dos"
 
   # === REPORTING & OUTPUT ===
-  - title: xsser - export results to XML
-    desc: |
-      Saves the findings of the audit into a structured XML file for further analysis or integration. 
-      This is useful for professional reporting or for feeding data into other security tools. 
-      The report includes details about the injected payloads and the vulnerable parameters.
+  - title:
+      en: xsser - export results to XML
+      tr: xsser - sonuçları XML olarak dışa aktarma
+    desc:
+      en: |
+        Saves the findings of the audit into a structured XML file for further analysis or integration. 
+        This is useful for professional reporting or for feeding data into other security tools. 
+        The report includes details about the injected payloads and the vulnerable parameters.
+      tr: |
+        Denetim bulgularını ileri analiz veya bütünleşme için yapılandırılmış bir XML dosyasına kaydeder.
+        Bu, profesyonel raporlama veya veriyi diğer güvenlik araçlarına beslemek için kullanışlıdır.
+        Rapor, enjekte edilen yükler ve zafiyetli parametreler hakkında ayrıntılar içerir.
     command: "xsser -u \"{{url}}\" --auto --xml {{filename|report.xml}}"
 
-  - title: xsser - launch GUI mode
-    desc: |
-      Launches the graphical user interface for XSSer. 
-      This is helpful for users who prefer a visual representation of the attack configuration and results. 
-      It requires a desktop environment and the necessary GTK libraries installed.
+  - title:
+      en: xsser - launch GUI mode
+      tr: xsser - GUI modunu başlatma
+    desc:
+      en: |
+        Launches the graphical user interface for XSSer. 
+        This is helpful for users who prefer a visual representation of the attack configuration and results. 
+        It requires a desktop environment and the necessary GTK libraries installed.
+      tr: |
+        XSSer için grafik kullanıcı arayüzünü başlatır.
+        Bu, saldırı yapılandırması ve sonuçlarının görsel temsilini tercih eden kullanıcılar için yardımcıdır.
+        Masaüstü ortamı ve gerekli GTK kütüphanelerinin kurulu olmasını gerektirir.
     command: "xsser --gtk"

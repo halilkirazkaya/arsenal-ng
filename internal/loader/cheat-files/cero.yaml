@@ -3,68 +3,131 @@ tags: [network, reconnaissance, scanning, security, pentest, enumeration, ssl-tl
 
 actions:
 # === BASIC USAGE ===
- - title: cero - basic domain certificate scraping
-   desc: |
-     Scrape TLS certificate information from a single domain to discover associated hostnames.
-     This command retrieves Subject Alternative Names (SANs) and Common Names (CN) from the target's certificate.
-     It is a highly efficient way to find subdomains that might not be listed in public DNS records.
+ - title:
+     en: cero - basic domain certificate scraping
+     tr: cero - temel alan adı sertifika toplama
+   desc:
+     en: |
+       Scrape TLS certificate information from a single domain to discover associated hostnames.
+       This command retrieves Subject Alternative Names (SANs) and Common Names (CN) from the target's certificate.
+       It is a highly efficient way to find subdomains that might not be listed in public DNS records.
+     tr: |
+       Tekil alan adının TLS sertifika bilgilerini toplayarak ilişkili makine adlarını ortaya çıkarır.
+       Hedef sertifikadaki Konu Alternatif Adları (SAN) ile Ortak Ad (CN) alanlarını çeker.
+       Herkese açık DNS kayıtlarında görünmeyen alt alan adlarını bulmak için oldukça verimli yöntemdir.
    command: "cero {{target}}"
 
- - title: cero - output valid domain names only
-   desc: |
-     Filter the output to display only valid domain names, stripping out IPs and wildcards.
-     This is particularly useful when you want to pipe the output directly into other tools like httpx or subfinder.
-     Using the -d flag ensures your reconnaissance pipeline remains clean of non-routable or junk strings.
+ - title:
+     en: cero - output valid domain names only
+     tr: cero - yalnızca geçerli alan adlarını yazdırma
+   desc:
+     en: |
+       Filter the output to display only valid domain names, stripping out IPs and wildcards.
+       This is particularly useful when you want to pipe the output directly into other tools like httpx or subfinder.
+       Using the -d flag ensures your reconnaissance pipeline remains clean of non-routable or junk strings.
+     tr: |
+       Çıktıyı süzerek IP ve joker kayıtları eleyip yalnızca geçerli alan adlarını gösterir.
+       Çıktıyı doğrudan httpx veya subfinder benzeri araçlara aktarmak isteyenler için özellikle uygundur.
+       -d seçeneği keşif hattını yönlendirilemez veya gereksiz dizgelerden arındırır.
    command: "cero -d {{target}}"
 
- - title: cero - verbose output with detailed results
-   desc: |
-     Enable verbose mode to see which address produced which set of domain results.
-     In this mode, cero outputs results in the format 'addr -- [result list]' and sends errors to stderr.
-     This is helpful for debugging connection issues or verifying exactly which IP provided a specific certificate.
+ - title:
+     en: cero - verbose output with detailed results
+     tr: cero - ayrıntılı sonuçlarla sözel çıktı
+   desc:
+     en: |
+       Enable verbose mode to see which address produced which set of domain results.
+       In this mode, cero outputs results in the format 'addr -- [result list]' and sends errors to stderr.
+       This is helpful for debugging connection issues or verifying exactly which IP provided a specific certificate.
+     tr: |
+       Hangi adresin hangi alan adı kümesini ürettiğini görmek için sözel kipi açar.
+       Bu kipte cero sonuçları 'addr -- [result list]' biçiminde yazar, hataları stderr kanalına gönderir.
+       Bağlantı sorunlarını ayıklamak veya belirli sertifikanın hangi IP adresinden geldiğini doğrulamak için yararlıdır.
    command: "cero -v {{target}}"
 
 # === NETWORK & RANGE SCANNING ===
- - title: cero - scan network CIDR range
-   desc: |
-     Perform certificate scraping across an entire IPv4 or IPv6 CIDR block.
-     Cero will attempt to connect to every IP in the range and extract hostname information from any TLS services found.
-     This is an excellent technique for mapping out the infrastructure of an organization based on their IP space.
+ - title:
+     en: cero - scan network CIDR range
+     tr: cero - ağ CIDR aralığını tarama
+   desc:
+     en: |
+       Perform certificate scraping across an entire IPv4 or IPv6 CIDR block.
+       Cero will attempt to connect to every IP in the range and extract hostname information from any TLS services found.
+       This is an excellent technique for mapping out the infrastructure of an organization based on their IP space.
+     tr: |
+       Tüm IPv4 veya IPv6 CIDR bloğunda sertifika toplama yapar.
+       Cero aralıktaki her IP adresine bağlanmayı dener, bulduğu TLS servislerinden makine adı bilgisi çıkarır.
+       Kurum altyapısını IP alanına bakarak haritalamak için mükemmel tekniktir.
    command: "cero {{cidr_range}}"
 
- - title: cero - scan with custom TLS ports
-   desc: |
-     Specify a custom list of ports to check for TLS certificates beyond the default port 443.
-     You can provide a comma-separated list of ports to scan multiple common SSL/TLS services like 8443, 9443, or 10443.
-     This is essential for finding administrative panels or hidden web services running on non-standard ports.
+ - title:
+     en: cero - scan with custom TLS ports
+     tr: cero - özel TLS bağlantı noktalarıyla tarama
+   desc:
+     en: |
+       Specify a custom list of ports to check for TLS certificates beyond the default port 443.
+       You can provide a comma-separated list of ports to scan multiple common SSL/TLS services like 8443, 9443, or 10443.
+       This is essential for finding administrative panels or hidden web services running on non-standard ports.
+     tr: |
+       Varsayılan 443 bağlantı noktasının ötesinde TLS sertifikası denetlenecek özel bağlantı noktası listesi belirtir.
+       8443, 9443 veya 10443 benzeri yaygın SSL/TLS servislerini taramak için virgülle ayrılmış liste verilebilir.
+       Standart dışı bağlantı noktalarında çalışan yönetim panelleri veya gizli web servislerini bulmak için vazgeçilmezdir.
    command: "cero -p {{ports|443,8443,10443}} {{target}}"
 
- - title: cero - scan IPv6 target with specific port
-   desc: |
-     Target a specific IPv6 address and port for certificate information.
-     While cero can often handle bare IPv6 addresses, using square brackets is the safest way to prevent ambiguity when adding a port.
-     This command is useful for targeted reconnaissance on modern network stacks.
+ - title:
+     en: cero - scan IPv6 target with specific port
+     tr: cero - belirli bağlantı noktasıyla IPv6 hedefi tarama
+   desc:
+     en: |
+       Target a specific IPv6 address and port for certificate information.
+       While cero can often handle bare IPv6 addresses, using square brackets is the safest way to prevent ambiguity when adding a port.
+       This command is useful for targeted reconnaissance on modern network stacks.
+     tr: |
+       Sertifika bilgisi için belirli IPv6 adresi ile bağlantı noktasını hedefler.
+       cero yalın IPv6 adreslerini çoğunlukla işleyebilse de bağlantı noktası eklerken köşeli ayraç kullanmak
+       belirsizliği önlemenin en güvenli yoludur. Modern ağ yığınlarında hedef odaklı keşif için uygundur.
    command: "cero [{{ipv6_address}}]:{{port|443}}"
 
 # === PERFORMANCE & BULK OPERATIONS ===
- - title: cero - bulk scanning with high concurrency
-   desc: |
-     Process a large list of targets from a file or another tool's output using multiple threads.
-     The concurrency level determines how many TLS connections are attempted simultaneously, with a default of 100.
-     Increasing this value can significantly speed up mass scanning but may require more system resources and bandwidth.
+ - title:
+     en: cero - bulk scanning with high concurrency
+     tr: cero - yüksek eşzamanlılıkla toplu tarama
+   desc:
+     en: |
+       Process a large list of targets from a file or another tool's output using multiple threads.
+       The concurrency level determines how many TLS connections are attempted simultaneously, with a default of 100.
+       Increasing this value can significantly speed up mass scanning but may require more system resources and bandwidth.
+     tr: |
+       Dosyadan veya başka araç çıktısından alınan geniş hedef listesini çok iş parçacığıyla işler.
+       Eşzamanlılık düzeyi aynı anda kaç TLS bağlantısı deneneceğini belirler; varsayılan değer 100 dür.
+       Değeri yükseltmek toplu taramayı ciddi ölçüde hızlandırır, ancak daha fazla sistem kaynağı ve bant genişliği gerektirebilir.
    command: "cat {{input_file}} | cero -c {{concurrency|1000}}"
 
- - title: cero - adjust TLS connection timeout
-   desc: |
-     Set a custom timeout for TLS handshake attempts in seconds.
-     The default timeout is 4 seconds; increasing it may help capture results from slow or high-latency servers.
-     Decreasing the timeout can make mass scans faster but might result in missing certificates from slower endpoints.
+ - title:
+     en: cero - adjust TLS connection timeout
+     tr: cero - TLS bağlantı zaman aşımını ayarlama
+   desc:
+     en: |
+       Set a custom timeout for TLS handshake attempts in seconds.
+       The default timeout is 4 seconds; increasing it may help capture results from slow or high-latency servers.
+       Decreasing the timeout can make mass scans faster but might result in missing certificates from slower endpoints.
+     tr: |
+       TLS el sıkışma denemeleri için saniye cinsinden özel zaman aşımı belirler.
+       Varsayılan zaman aşımı 4 saniyedir; değeri yükseltmek yavaş veya gecikmesi yüksek sunuculardan sonuç almaya yardımcı olur.
+       Değeri düşürmek toplu taramaları hızlandırır, ancak yavaş uç noktalardaki sertifikaların kaçırılmasına yol açabilir.
    command: "cero -t {{timeout_seconds|10}} {{target}}"
 
 # === PIPELINE INTEGRATION ===
- - title: cero - full mass-scraping pipeline
-   desc: |
-     Execute a comprehensive scan across a range of ports and a network block with high concurrency.
-     This example demonstrates how to combine multiple flags for an intensive reconnaissance phase.
-     Results can be redirected to a file, while errors are suppressed by redirecting stderr to /dev/null.
+ - title:
+     en: cero - full mass-scraping pipeline
+     tr: cero - eksiksiz toplu sertifika toplama hattı
+   desc:
+     en: |
+       Execute a comprehensive scan across a range of ports and a network block with high concurrency.
+       This example demonstrates how to combine multiple flags for an intensive reconnaissance phase.
+       Results can be redirected to a file, while errors are suppressed by redirecting stderr to /dev/null.
+     tr: |
+       Bağlantı noktası aralığı ile ağ bloğunda yüksek eşzamanlılıkla kapsamlı tarama yürütür.
+       Yoğun keşif aşaması için birden fazla seçeneğin nasıl birleştirileceğini gösterir.
+       Sonuçlar dosyaya yönlendirilebilir, hatalar stderr kanalını /dev/null konumuna göndererek gizlenebilir.
    command: "cero -p {{ports|443,8443}} -c {{concurrency|500}} -d {{target_range}} 2>/dev/null > {{output_file|results.txt}}"

@@ -46,7 +46,7 @@ func testStore(t *testing.T, kvs map[string]string) *variables.Store {
 
 // plainCheat returns a cheat with one required and one defaulted arg.
 func plainCheat() *model.Cheat {
-	return &model.Cheat{Tool: "nmap", Title: "Scan", Command: "nmap -sV {{ip}} {{port|80}}"}
+	return &model.Cheat{Tool: "nmap", Title: model.NewText("Scan"), Command: "nmap -sV {{ip}} {{port|80}}"}
 }
 
 // =============================================================================

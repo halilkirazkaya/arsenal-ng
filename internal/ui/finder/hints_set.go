@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/halilkirazkaya/arsenal-ng/internal/config"
+	"github.com/halilkirazkaya/arsenal-ng/internal/keys"
 	"github.com/halilkirazkaya/arsenal-ng/internal/theme"
 )
 
@@ -34,6 +36,9 @@ func setHints() string {
 
 // setSuggestions lists variables matching the partial "set" input.
 func setSuggestions(partial string) string {
+	if partial == keys.Language {
+		return languageSuggestions()
+	}
 	var b strings.Builder
 
 	b.WriteString(theme.Title.Render("💡 Suggestions:"))
@@ -56,6 +61,25 @@ func setSuggestions(partial string) string {
 
 	b.WriteString("\n")
 	b.WriteString(theme.Help.Render("  Add '=' and value, then press Enter"))
+
+	return b.String()
+}
+
+// languageSuggestions lists the supported UI language codes.
+func languageSuggestions() string {
+	var b strings.Builder
+
+	b.WriteString(theme.Title.Render("💡 Available languages:"))
+	b.WriteString("\n\n")
+
+	for _, code := range config.SupportedLanguages {
+		varName := theme.ArgName.Render(fmt.Sprintf("  set %s=%s", keys.Language, code))
+		desc := theme.Help.Render(config.LanguageName(code))
+		b.WriteString(fmt.Sprintf("%s %s\n", varName, desc))
+	}
+
+	b.WriteString("\n")
+	b.WriteString(theme.Help.Render("  Pick a language and press Enter"))
 
 	return b.String()
 }

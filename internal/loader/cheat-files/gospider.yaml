@@ -3,94 +3,182 @@ tags: [web, scanner, security, pentest, enumeration, crawler, reconnaissance]
 
 actions:
   # === BASIC USAGE ===
-  - title: gospider - basic crawl
-    desc: |
-      Performs a basic recursive crawl on a single target website. 
-      This is the primary command used to discover endpoints, files, and directories on a web application. 
-      By default, it will crawl the provided URL and look for links within the same domain. 
-      It is an essential starting point for mapping the attack surface of a target.
+  - title:
+      en: gospider - basic crawl
+      tr: gospider - temel tarama
+    desc:
+      en: |
+        Performs a basic recursive crawl on a single target website. 
+        This is the primary command used to discover endpoints, files, and directories on a web application. 
+        By default, it will crawl the provided URL and look for links within the same domain. 
+        It is an essential starting point for mapping the attack surface of a target.
+      tr: |
+        Tek bir hedef web sitesinde temel özyineli tarama yapar.
+        Bir web uygulamasındaki uç noktaları, dosyaları ve dizinleri keşfetmek için kullanılan birincil komuttur.
+        Varsayılan olarak verilen URL'yi tarar ve aynı etki alanı içindeki bağlantıları arar.
+        Bir hedefin saldırı yüzeyini haritalamak için gerekli bir başlangıç noktasıdır.
     command: "gospider -s {{url}}"
 
-  - title: gospider - crawl multiple sites
-    desc: |
-      Crawls multiple websites provided in a text file. 
-      This is highly efficient for large-scale reconnaissance when dealing with multiple domains or subdomains. 
-      The threads flag can be adjusted to run site crawls in parallel, significantly speeding up the process. 
-      Ensure the input file contains one URL per line for correct parsing.
+  - title:
+      en: gospider - crawl multiple sites
+      tr: gospider - birden çok siteyi tarama
+    desc:
+      en: |
+        Crawls multiple websites provided in a text file. 
+        This is highly efficient for large-scale reconnaissance when dealing with multiple domains or subdomains. 
+        The threads flag can be adjusted to run site crawls in parallel, significantly speeding up the process. 
+        Ensure the input file contains one URL per line for correct parsing.
+      tr: |
+        Bir metin dosyasında verilen birden çok web sitesini tarar.
+        Birden çok alan adı veya subdomain ile uğraşırken geniş ölçekli keşif için oldukça verimlidir.
+        Site taramalarını paralel çalıştırmak için iş parçacığı bayrağı ayarlanabilir; bu işlemi ciddi ölçüde hızlandırır.
+        Doğru ayrıştırma için girdi dosyasının satır başına bir URL içerdiğinden emin olun.
     command: "gospider -S {{list_file}} -t {{threads|1}}"
 
   # === ADVANCED RECONNAISSANCE ===
-  - title: gospider - passive source integration
-    desc: |
-      Enhances the crawl by fetching URLs from third-party sources like Archive.org, CommonCrawl, and VirusTotal. 
-      Including subdomains with the -w flag allows for a much broader discovery of the organizational infrastructure. 
-      The -r flag ensures that the tool not only finds these URLs but also actively visits them for further crawling. 
-      This is crucial for finding forgotten endpoints or legacy versions of the web application.
+  - title:
+      en: gospider - passive source integration
+      tr: gospider - pasif kaynak entegrasyonu
+    desc:
+      en: |
+        Enhances the crawl by fetching URLs from third-party sources like Archive.org, CommonCrawl, and VirusTotal. 
+        Including subdomains with the -w flag allows for a much broader discovery of the organizational infrastructure. 
+        The -r flag ensures that the tool not only finds these URLs but also actively visits them for further crawling. 
+        This is crucial for finding forgotten endpoints or legacy versions of the web application.
+      tr: |
+        Archive.org, CommonCrawl ve VirusTotal gibi üçüncü taraf kaynaklardan URL çekerek taramayı zenginleştirir.
+        -w bayrağıyla subdomain'leri dahil etmek, kurumsal altyapının çok daha geniş keşfedilmesini sağlar.
+        -r bayrağı, aracın bu URL'leri yalnızca bulmayıp ileri tarama için aktif olarak ziyaret etmesini sağlar.
+        Unutulmuş uç noktaları veya web uygulamasının eski sürümlerini bulmak için kritiktir.
     command: "gospider -s {{url}} -a -w -r"
 
-  - title: gospider - sitemap and robots discovery
-    desc: |
-      Specifically instructs the tool to look for and parse the sitemap.xml and robots.txt files. 
-      Robots.txt often contains "Disallow" entries which point to sensitive or hidden directories intended to be kept away from search engines. 
-      Sitemaps provide a structured map of the website, helping to ensure no pages are missed during discovery. 
-      This command combines these checks with a standard site crawl for comprehensive coverage.
+  - title:
+      en: gospider - sitemap and robots discovery
+      tr: gospider - site haritası ve robots keşfi
+    desc:
+      en: |
+        Specifically instructs the tool to look for and parse the sitemap.xml and robots.txt files. 
+        Robots.txt often contains "Disallow" entries which point to sensitive or hidden directories intended to be kept away from search engines. 
+        Sitemaps provide a structured map of the website, helping to ensure no pages are missed during discovery. 
+        This command combines these checks with a standard site crawl for comprehensive coverage.
+      tr: |
+        Araca özellikle sitemap.xml ve robots.txt dosyalarını arayıp ayrıştırmasını söyler.
+        Robots.txt genellikle arama motorlarından uzak tutulması amaçlanan hassas veya gizli dizinlere işaret eden "Disallow" girdileri içerir.
+        Site haritaları web sitesinin yapısal bir haritasını sunarak keşif sırasında sayfa kaçırılmamasına yardımcı olur.
+        Bu komut, kapsamlı kapsama için bu denetimleri standart site taramasıyla birleştirir.
     command: "gospider -s {{url}} --sitemap --robots"
 
   # === AUTHENTICATION & HEADERS ===
-  - title: gospider - authenticated crawl with cookies
-    desc: |
-      Executes a crawl while maintaining a session using the provided cookie string. 
-      This is necessary for crawling pages that are behind a login wall or require specific session state. 
-      Be careful with high concurrency during authenticated crawls to avoid triggering account lockout policies. 
-      The cookie format should follow the standard header format: "name1=value1; name2=value2".
+  - title:
+      en: gospider - authenticated crawl with cookies
+      tr: gospider - çerezlerle kimlik doğrulamalı tarama
+    desc:
+      en: |
+        Executes a crawl while maintaining a session using the provided cookie string. 
+        This is necessary for crawling pages that are behind a login wall or require specific session state. 
+        Be careful with high concurrency during authenticated crawls to avoid triggering account lockout policies. 
+        The cookie format should follow the standard header format: "name1=value1; name2=value2".
+      tr: |
+        Verilen çerez dizesiyle oturumu sürdürerek tarama yapar.
+        Giriş duvarı arkasındaki veya belirli oturum durumu gerektiren sayfaları taramak için gereklidir.
+        Hesap kilitleme ilkelerini tetiklememek için kimliği doğrulanmış taramalarda yüksek eşzamanlılıkta dikkatli olun.
+        Çerez biçimi standart başlık biçimini izlemelidir: "ad1=değer1; ad2=değer2".
     command: "gospider -s {{url}} --cookie {{cookie_string}}"
 
-  - title: gospider - custom headers
-    desc: |
-      Sends custom HTTP headers with every request during the crawling process. 
-      This can be used to bypass simple WAF rules, set a specific Authorization header, or simulate different client types. 
-      Multiple headers can be added by repeating the flag if necessary (though the base command shows one). 
-      It helps in testing how the server responds to different header configurations or specific API keys.
+  - title:
+      en: gospider - custom headers
+      tr: gospider - özel başlıklar
+    desc:
+      en: |
+        Sends custom HTTP headers with every request during the crawling process. 
+        This can be used to bypass simple WAF rules, set a specific Authorization header, or simulate different client types. 
+        Multiple headers can be added by repeating the flag if necessary (though the base command shows one). 
+        It helps in testing how the server responds to different header configurations or specific API keys.
+      tr: |
+        Tarama işlemi sırasında her istekle özel HTTP başlıkları gönderir.
+        Bu, basit WAF kurallarını aşmak, belirli bir Authorization başlığı ayarlamak veya farklı istemci türlerini taklit etmek için kullanılabilir.
+        Gerekirse bayrak yinelenerek birden çok başlık eklenebilir (temel komut bir tane gösterse de).
+        Sunucunun farklı başlık yapılandırmalarına veya belirli API anahtarlarına nasıl yanıt verdiğini test etmeye yardımcı olur.
     command: "gospider -s {{url}} -H {{header_string|Content-Type: application/json}}"
 
-  - title: gospider - load from burp request
-    desc: |
-      Loads headers and cookies directly from a raw HTTP request file exported from Burp Suite. 
-      This is a massive time-saver for complex authentication flows where many headers are required. 
-      It ensures that the spidering activity perfectly mimics the request environment you have already established in your intercepting proxy. 
-      Simply right-click a request in Burp, save it to a file, and point Gospider to it.
+  - title:
+      en: gospider - load from burp request
+      tr: gospider - Burp isteğinden yükleme
+    desc:
+      en: |
+        Loads headers and cookies directly from a raw HTTP request file exported from Burp Suite. 
+        This is a massive time-saver for complex authentication flows where many headers are required. 
+        It ensures that the spidering activity perfectly mimics the request environment you have already established in your intercepting proxy. 
+        Simply right-click a request in Burp, save it to a file, and point Gospider to it.
+      tr: |
+        Başlık ve çerezleri Burp Suite'ten dışa aktarılmış ham bir HTTP istek dosyasından doğrudan yükler.
+        Çok sayıda başlığın gerektiği karmaşık kimlik doğrulama akışlarında büyük zaman kazandırır.
+        Örümcekleme etkinliğinin, araya giren vekilinizde zaten kurduğunuz istek ortamını birebir taklit etmesini sağlar.
+        Burp'ta bir isteğe sağ tıklayıp dosyaya kaydedin ve Gospider'ı ona yöneltmeniz yeterlidir.
     command: "gospider -s {{url}} --burp {{burp_raw_file}}"
 
   # === PERFORMANCE & STEALTH ===
-  - title: gospider - rate limited crawl
-    desc: |
-      Limits the speed of the crawl to avoid overwhelming the target server or triggering rate-limiting protections. 
-      The concurrency flag controls how many simultaneous requests are made to the same domain. 
-      The delay and random-delay flags add a pause between requests, making the traffic pattern look more human-like. 
-      Use these settings when stealth is required or when testing fragile development environments.
+  - title:
+      en: gospider - rate limited crawl
+      tr: gospider - hız sınırlı tarama
+    desc:
+      en: |
+        Limits the speed of the crawl to avoid overwhelming the target server or triggering rate-limiting protections. 
+        The concurrency flag controls how many simultaneous requests are made to the same domain. 
+        The delay and random-delay flags add a pause between requests, making the traffic pattern look more human-like. 
+        Use these settings when stealth is required or when testing fragile development environments.
+      tr: |
+        Hedef sunucuyu yormamak veya hız sınırlama korumalarını tetiklememek için tarama hızını sınırlar.
+        Eşzamanlılık bayrağı aynı alan adına kaç eşzamanlı istek yapıldığını denetler.
+        Gecikme ve rastgele gecikme bayrakları istekler arasına duraklama ekleyerek trafik kalıbını daha insansı gösterir.
+        Gizlilik gerektiğinde veya kırılgan geliştirme ortamlarını test ederken bu ayarları kullanın.
     command: "gospider -s {{url}} -c {{concurrency|5}} -k {{delay|2}} -K {{random_delay|1}}"
 
-  - title: gospider - depth control
-    desc: |
-      Limits the recursion depth of the crawler to prevent it from getting stuck in infinite loops or crawling too far from the target. 
-      A depth of 0 allows for infinite recursion, which should be used with caution. 
-      Setting a specific depth (e.g., 2 or 3) is usually sufficient for most web applications. 
-      This helps in focusing the reconnaissance on the most relevant parts of the site structure.
+  - title:
+      en: gospider - depth control
+      tr: gospider - derinlik denetimi
+    desc:
+      en: |
+        Limits the recursion depth of the crawler to prevent it from getting stuck in infinite loops or crawling too far from the target. 
+        A depth of 0 allows for infinite recursion, which should be used with caution. 
+        Setting a specific depth (e.g., 2 or 3) is usually sufficient for most web applications. 
+        This helps in focusing the reconnaissance on the most relevant parts of the site structure.
+      tr: |
+        Tarayıcının sonsuz döngülere takılmasını veya hedeften çok uzaklaşmasını önlemek için özyineleme derinliğini sınırlar.
+        0 derinliği sonsuz özyinelemeye izin verir; dikkatli kullanılmalıdır.
+        Belirli bir derinlik ayarlamak (örn. 2 veya 3) çoğu web uygulaması için genellikle yeterlidir.
+        Bu, keşfin site yapısının en ilgili bölümlerine odaklanmasına yardımcı olur.
     command: "gospider -s {{url}} -d {{depth|2}}"
 
   # === PROXY & OUTPUT ===
-  - title: gospider - proxy configuration
-    desc: |
-      Routes all crawling traffic through a specified proxy server. 
-      This is commonly used to pipe Gospider traffic through Burp Suite (http://127.0.0.1:8080) for manual analysis of discovered endpoints. 
-      It can also be used with SOCKS proxies or VPN-like gateways to hide the true source IP of the scan. 
-      Ensure the proxy is active and reachable before starting the command.
+  - title:
+      en: gospider - proxy configuration
+      tr: gospider - vekil yapılandırması
+    desc:
+      en: |
+        Routes all crawling traffic through a specified proxy server. 
+        This is commonly used to pipe Gospider traffic through Burp Suite (http://127.0.0.1:8080) for manual analysis of discovered endpoints. 
+        It can also be used with SOCKS proxies or VPN-like gateways to hide the true source IP of the scan. 
+        Ensure the proxy is active and reachable before starting the command.
+      tr: |
+        Tüm tarama trafiğini belirtilen bir vekil sunucudan geçirir.
+        Keşfedilen uç noktaların elle analizi için Gospider trafiğini Burp Suite (http://127.0.0.1:8080) üzerinden aktarmakta yaygın kullanılır.
+        Taramanın gerçek kaynak IP'sini gizlemek için SOCKS vekilleri veya VPN benzeri ağ geçitleriyle de kullanılabilir.
+        Komutu başlatmadan önce vekilin aktif ve erişilebilir olduğundan emin olun.
     command: "gospider -s {{url}} -p {{proxy_url|http://127.0.0.1:8080}}"
 
-  - title: gospider - output to folder
-    desc: |
-      Saves all discovered URLs and findings into a specified output directory. 
-      Gospider creates organized text files within this folder, typically separated by domain name. 
-      This is critical for documenting findings and for passing results to other tools in a pipeline. 
-      The output includes subdomains, links, scripts, and other identified assets.
+  - title:
+      en: gospider - output to folder
+      tr: gospider - klasöre çıktı
+    desc:
+      en: |
+        Saves all discovered URLs and findings into a specified output directory. 
+        Gospider creates organized text files within this folder, typically separated by domain name. 
+        This is critical for documenting findings and for passing results to other tools in a pipeline. 
+        The output includes subdomains, links, scripts, and other identified assets.
+      tr: |
+        Keşfedilen tüm URL'leri ve bulguları belirtilen bir çıktı dizinine kaydeder.
+        Gospider bu klasörde, genellikle alan adına göre ayrılmış düzenli metin dosyaları oluşturur.
+        Bulguları belgelemek ve sonuçları bir hattaki başka araçlara aktarmak için kritiktir.
+        Çıktı; subdomain'leri, bağlantıları, betikleri ve belirlenen diğer varlıkları içerir.
     command: "gospider -s {{url}} -o {{output_folder}}"

@@ -3,74 +3,144 @@ tags: [network, scanner, pentest, reconnaissance, enumeration, security]
 
 actions:
   # === RECONNAISSANCE & PORT SCANNING ===
-  - title: nmapAutomator.sh - Quick Port Scan
-    desc: |
-      Performs a fast scan to identify open TCP ports on the target host. 
-      This is the most common starting point for reconnaissance and usually completes within 15 seconds. 
-      It is designed to give a quick overview of the attack surface before deeper enumeration.
+  - title:
+      en: nmapAutomator.sh - Quick Port Scan
+      tr: nmapAutomator.sh - Hızlı Port Taraması
+    desc:
+      en: |
+        Performs a fast scan to identify open TCP ports on the target host. 
+        This is the most common starting point for reconnaissance and usually completes within 15 seconds. 
+        It is designed to give a quick overview of the attack surface before deeper enumeration.
+      tr: |
+        Hedef makinedeki açık TCP portlarını belirlemek için hızlı bir tarama gerçekleştirir.
+        Keşif için en yaygın başlangıç noktasıdır ve genellikle 15 saniye içinde tamamlanır.
+        Daha derin numaralandırmadan önce saldırı yüzeyine hızlı genel bakış sağlamak üzere tasarlanmıştır.
     command: "nmapAutomator.sh --host {{target}} --type Port"
 
-  - title: nmapAutomator.sh - Network Discovery
-    desc: |
-      Scans the local network segment to identify all live hosts. 
-      This is useful when you are on a local network and need to map out available targets for further testing. 
-      It uses standard host discovery techniques and typically finishes in about 15 seconds.
+  - title:
+      en: nmapAutomator.sh - Network Discovery
+      tr: nmapAutomator.sh - Ağ Keşfi
+    desc:
+      en: |
+        Scans the local network segment to identify all live hosts. 
+        This is useful when you are on a local network and need to map out available targets for further testing. 
+        It uses standard host discovery techniques and typically finishes in about 15 seconds.
+      tr: |
+        Tüm canlı makineleri belirlemek için yerel ağ kesimini tarar.
+        Yerel bir ağdayken ileri testler için kullanılabilir hedefleri haritalamanız gerektiğinde kullanışlıdır.
+        Standart makine keşif teknikleri kullanır ve genellikle yaklaşık 15 saniyede biter.
     command: "nmapAutomator.sh --host {{target_ip_range}} --type Network"
 
-  - title: nmapAutomator.sh - Full 65k Port Scan
-    desc: |
-      Runs a comprehensive scan across the entire TCP port range from 1 to 65535. 
-      After discovering open ports, it automatically performs a more thorough service detection scan on those specific ports. 
-      This is highly effective for finding services running on non-standard or "hidden" ports that quick scans might miss.
+  - title:
+      en: nmapAutomator.sh - Full 65k Port Scan
+      tr: nmapAutomator.sh - Tam 65k Port Taraması
+    desc:
+      en: |
+        Runs a comprehensive scan across the entire TCP port range from 1 to 65535. 
+        After discovering open ports, it automatically performs a more thorough service detection scan on those specific ports. 
+        This is highly effective for finding services running on non-standard or "hidden" ports that quick scans might miss.
+      tr: |
+        1'den 65535'e tüm TCP port aralığında kapsamlı bir tarama çalıştırır.
+        Açık portları keşfettikten sonra o portlarda otomatik olarak daha kapsamlı bir hizmet tespit taraması yapar.
+        Hızlı taramaların kaçırabileceği standart dışı veya "gizli" portlarda çalışan hizmetleri bulmak için oldukça etkilidir.
     command: "nmapAutomator.sh --host {{target}} --type Full"
 
   # === ENUMERATION & VULNERABILITY ANALYSIS ===
-  - title: nmapAutomator.sh - Service Script Scan
-    desc: |
-      Executes Nmap's default scripts against all identified open ports to gather service information. 
-      It helps in identifying software versions and potential misconfigurations in the services found. 
-      This scan provides more depth than a simple port check and usually takes around 5 minutes.
+  - title:
+      en: nmapAutomator.sh - Service Script Scan
+      tr: nmapAutomator.sh - Hizmet Betik Taraması
+    desc:
+      en: |
+        Executes Nmap's default scripts against all identified open ports to gather service information. 
+        It helps in identifying software versions and potential misconfigurations in the services found. 
+        This scan provides more depth than a simple port check and usually takes around 5 minutes.
+      tr: |
+        Hizmet bilgisi toplamak için belirlenen tüm açık portlara karşı Nmap'in varsayılan betiklerini çalıştırır.
+        Bulunan hizmetlerdeki yazılım sürümlerini ve olası yanlış yapılandırmaları belirlemeye yardımcı olur.
+        Bu tarama basit bir port denetiminden daha derindir ve genellikle yaklaşık 5 dakika sürer.
     command: "nmapAutomator.sh --host {{target}} --type Script"
 
-  - title: nmapAutomator.sh - UDP Port Scan
-    desc: |
-      Performs a scan for open UDP services on the target machine. 
-      Note that this action requires sudo or root privileges to craft the necessary raw packets. 
-      UDP scans are essential for finding services like DNS, SNMP, or TFTP that do not use TCP.
+  - title:
+      en: nmapAutomator.sh - UDP Port Scan
+      tr: nmapAutomator.sh - UDP Port Taraması
+    desc:
+      en: |
+        Performs a scan for open UDP services on the target machine. 
+        Note that this action requires sudo or root privileges to craft the necessary raw packets. 
+        UDP scans are essential for finding services like DNS, SNMP, or TFTP that do not use TCP.
+      tr: |
+        Hedef makinedeki açık UDP hizmetleri için tarama gerçekleştirir.
+        Bu eylemin gerekli ham paketleri oluşturmak için sudo veya root yetkileri gerektirdiğini unutmayın.
+        TCP kullanmayan DNS, SNMP veya TFTP gibi hizmetleri bulmak için UDP taramaları gereklidir.
     command: "sudo nmapAutomator.sh --host {{target}} --type UDP"
 
-  - title: nmapAutomator.sh - Vulnerability Scan
-    desc: |
-      Runs specialized Nmap vulnerability scripts and checks for known CVEs against discovered services. 
-      This is a vital step for identifying exploitable weaknesses automatically without manual searching. 
-      The scan duration varies between 5 to 15 minutes depending on the complexity of the services.
+  - title:
+      en: nmapAutomator.sh - Vulnerability Scan
+      tr: nmapAutomator.sh - Zafiyet Taraması
+    desc:
+      en: |
+        Runs specialized Nmap vulnerability scripts and checks for known CVEs against discovered services. 
+        This is a vital step for identifying exploitable weaknesses automatically without manual searching. 
+        The scan duration varies between 5 to 15 minutes depending on the complexity of the services.
+      tr: |
+        Özelleşmiş Nmap zafiyet betiklerini çalıştırır ve keşfedilen hizmetlere karşı bilinen CVE'leri denetler.
+        Manuel arama olmadan sömürülebilir zayıflıkları otomatik belirlemek için hayati bir adımdır.
+        Tarama süresi hizmetlerin karmaşıklığına göre 5 ila 15 dakika arasında değişir.
     command: "nmapAutomator.sh --host {{target}} --type Vulns"
 
-  - title: nmapAutomator.sh - Suggestive Reconnaissance
-    desc: |
-      Analyzes the target's open ports and suggests specific manual reconnaissance commands. 
-      After the analysis, the script will prompt the user to automatically execute these suggested tools for further enumeration. 
-      This is an excellent way to streamline the workflow by using the right tool for the right service (e.g., gobuster for web).
+  - title:
+      en: nmapAutomator.sh - Suggestive Reconnaissance
+      tr: nmapAutomator.sh - Önerisel Keşif
+    desc:
+      en: |
+        Analyzes the target's open ports and suggests specific manual reconnaissance commands. 
+        After the analysis, the script will prompt the user to automatically execute these suggested tools for further enumeration. 
+        This is an excellent way to streamline the workflow by using the right tool for the right service (e.g., gobuster for web).
+      tr: |
+        Hedefin açık portlarını analiz eder ve belirli manuel keşif komutları önerir.
+        Analizden sonra betik, ileri numaralandırma için önerilen bu araçları otomatik çalıştırmayı kullanıcıya sorar.
+        Her hizmet için doğru aracı kullanarak (ör. web için gobuster) iş akışını kolaylaştırmanın mükemmel bir yoludur.
     command: "nmapAutomator.sh --host {{target}} --type Recon"
 
   # === ADVANCED USAGE & AUTOMATION ===
-  - title: nmapAutomator.sh - Comprehensive All-in-One Scan
-    desc: |
-      Executes every available scan type sequentially for a complete profile of the target. 
-      This includes network, port, script, full, UDP, and vulnerability scans in one go. 
-      While it is the most thorough option, it can take up to 30 minutes to complete.
+  - title:
+      en: nmapAutomator.sh - Comprehensive All-in-One Scan
+      tr: nmapAutomator.sh - Kapsamlı Hepsi-Bir-Arada Tarama
+    desc:
+      en: |
+        Executes every available scan type sequentially for a complete profile of the target. 
+        This includes network, port, script, full, UDP, and vulnerability scans in one go. 
+        While it is the most thorough option, it can take up to 30 minutes to complete.
+      tr: |
+        Hedefin eksiksiz profili için mevcut her tarama türünü sırayla çalıştırır.
+        Tek seferde ağ, port, betik, tam, UDP ve zafiyet taramalarını içerir.
+        En kapsamlı seçenek olsa da tamamlanması 30 dakikaya kadar sürebilir.
     command: "nmapAutomator.sh --host {{target}} --type All"
 
-  - title: nmapAutomator.sh - Scan with Custom DNS and Output
-    desc: |
-      Runs a specific scan type while defining a custom DNS server and a dedicated output directory. 
-      This is useful when the target is in a segmented network or when you need to organize results for a specific project. 
-      Defining an output directory ensures that all logs and Nmap files are saved systematically.
+  - title:
+      en: nmapAutomator.sh - Scan with Custom DNS and Output
+      tr: nmapAutomator.sh - Özel DNS ve Çıktıyla Tarama
+    desc:
+      en: |
+        Runs a specific scan type while defining a custom DNS server and a dedicated output directory. 
+        This is useful when the target is in a segmented network or when you need to organize results for a specific project. 
+        Defining an output directory ensures that all logs and Nmap files are saved systematically.
+      tr: |
+        Özel bir DNS sunucusu ve ayrılmış bir çıktı dizini tanımlarken belirli bir tarama türü çalıştırır.
+        Hedef bölümlenmiş bir ağdayken veya sonuçları belirli bir proje için düzenlemeniz gerektiğinde kullanışlıdır.
+        Çıktı dizini tanımlamak tüm günlüklerin ve Nmap dosyalarının sistemli kaydedilmesini sağlar.
     command: "nmapAutomator.sh --host {{target}} --type {{scan_type|Recon}} --dns {{dns_server|1.1.1.1}} --output {{output_dir|./results}}"
 
-  - title: nmapAutomator.sh - Remote Mode Scan
-    desc: |
-      Executes the tool in remote mode, which is optimized for scans performed across different network segments. 
-      This can help bypass certain local network limitations or timing issues. 
-      Ensure you have a stable connection to the remote host or gateway before initiating this scan.
+  - title:
+      en: nmapAutomator.sh - Remote Mode Scan
+      tr: nmapAutomator.sh - Uzak Mod Taraması
+    desc:
+      en: |
+        Executes the tool in remote mode, which is optimized for scans performed across different network segments. 
+        This can help bypass certain local network limitations or timing issues. 
+        Ensure you have a stable connection to the remote host or gateway before initiating this scan.
+      tr: |
+        Aracı farklı ağ kesimlerinde yapılan taramalar için optimize edilmiş uzak modda çalıştırır.
+        Bu, belirli yerel ağ sınırlamalarını veya zamanlama sorunlarını aşmaya yardımcı olabilir.
+        Bu taramayı başlatmadan önce uzak makine veya ağ geçidine kararlı bir bağlantınız olduğundan emin olun.
     command: "nmapAutomator.sh --host {{target}} --type {{scan_type|Basic}} --remote {{remote_mode|yes}}"

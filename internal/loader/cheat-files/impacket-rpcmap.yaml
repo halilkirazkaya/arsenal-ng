@@ -3,74 +3,144 @@ tags: [network, security, pentest, enumeration, msrpc, active-directory, impacke
 
 actions:
   # === BASIC ENUMERATION ===
-  - title: impacket-rpcmap - basic tcp enumeration
-    desc: |
-      Identify MSRPC interfaces listening on a remote host via TCP. 
-      This is the most common starting point, usually targeting port 135 to list available services through the Endpoint Mapper (EPM). 
-      It helps in mapping the attack surface of a Windows machine by identifying which RPC services are reachable.
+  - title:
+      en: impacket-rpcmap - basic tcp enumeration
+      tr: impacket-rpcmap - temel TCP listeleme
+    desc:
+      en: |
+        Identify MSRPC interfaces listening on a remote host via TCP. 
+        This is the most common starting point, usually targeting port 135 to list available services through the Endpoint Mapper (EPM). 
+        It helps in mapping the attack surface of a Windows machine by identifying which RPC services are reachable.
+      tr: |
+        TCP üzerinden uzak bir makinede dinleyen MSRPC arayüzlerini tespit eder.
+        Genellikle 135 numaralı portu hedefleyip Endpoint Mapper (EPM) aracılığıyla kullanılabilir hizmetleri listeleyen en yaygın başlangıç noktasıdır.
+        Hangi RPC hizmetlerine erişilebildiğini belirleyerek bir Windows makinesinin saldırı yüzeyini haritalamaya yardımcı olur.
     command: "impacket-rpcmap ncacn_ip_tcp:{{target}}"
 
-  - title: impacket-rpcmap - rpc over http enumeration
-    desc: |
-      Scan for interfaces using the RPC over HTTP protocol, typically on port 593. 
-      This method is useful when standard RPC ports (like 135) are blocked by firewalls but port 593 is left open for legacy support or specific web services. 
-      It attempts to map interfaces via the HTTP transport layer instead of direct TCP.
+  - title:
+      en: impacket-rpcmap - rpc over http enumeration
+      tr: impacket-rpcmap - HTTP üzerinden RPC listeleme
+    desc:
+      en: |
+        Scan for interfaces using the RPC over HTTP protocol, typically on port 593. 
+        This method is useful when standard RPC ports (like 135) are blocked by firewalls but port 593 is left open for legacy support or specific web services. 
+        It attempts to map interfaces via the HTTP transport layer instead of direct TCP.
+      tr: |
+        Genellikle 593 numaralı portta HTTP üzerinden RPC protokolünü kullanan arayüzleri tarar.
+        Standart RPC portları (örn. 135) güvenlik duvarlarınca engellenip 593 eski destek veya belirli web hizmetleri için açık bırakıldığında faydalıdır.
+        Doğrudan TCP yerine HTTP taşıma katmanı üzerinden arayüzleri haritalamaya çalışır.
     command: "impacket-rpcmap ncacn_http:{{target}}[593]"
 
-  - title: impacket-rpcmap - named pipe enumeration
-    desc: |
-      Enumerate MSRPC interfaces over a specific SMB named pipe. 
-      This action requires SMB access to the target and is effective for discovering services bound to pipes like spoolss, lsass, or samr. 
-      It is a vital step in lateral movement and internal reconnaissance to see which RPC endpoints are exposed via SMB.
+  - title:
+      en: impacket-rpcmap - named pipe enumeration
+      tr: impacket-rpcmap - adlandırılmış boru (named pipe) listeleme
+    desc:
+      en: |
+        Enumerate MSRPC interfaces over a specific SMB named pipe. 
+        This action requires SMB access to the target and is effective for discovering services bound to pipes like spoolss, lsass, or samr. 
+        It is a vital step in lateral movement and internal reconnaissance to see which RPC endpoints are exposed via SMB.
+      tr: |
+        Belirli bir SMB adlandırılmış borusu üzerinden MSRPC arayüzlerini listeler.
+        Bu işlem hedefe SMB erişimi gerektirir ve spoolss, lsass veya samr gibi borulara bağlı hizmetleri keşfetmede etkilidir.
+        Hangi RPC uç noktalarının SMB üzerinden açığa çıktığını görmek için yatay hareket ve iç keşifte hayati bir adımdır.
     command: "impacket-rpcmap ncacn_np:{{target}}[\\pipe\\{{pipe_name|spoolss}}]"
 
   # === BRUTEFORCE OPERATIONS ===
-  - title: impacket-rpcmap - brute-force uuids
-    desc: |
-      Forcefully attempt to find MSRPC interfaces by bruteforcing UUIDs. 
-      This technique is used when the Management (MGMT) interface is disabled or restricted, preventing a standard listing of services. 
-      It can reveal hidden or undocumented endpoints that do not register themselves with the Endpoint Mapper.
+  - title:
+      en: impacket-rpcmap - brute-force uuids
+      tr: impacket-rpcmap - UUID kaba kuvvet denemesi
+    desc:
+      en: |
+        Forcefully attempt to find MSRPC interfaces by bruteforcing UUIDs. 
+        This technique is used when the Management (MGMT) interface is disabled or restricted, preventing a standard listing of services. 
+        It can reveal hidden or undocumented endpoints that do not register themselves with the Endpoint Mapper.
+      tr: |
+        UUID'lere kaba kuvvet uygulayarak MSRPC arayüzlerini zorla bulmaya çalışır.
+        Management (MGMT) arayüzü devre dışı veya kısıtlı olup standart hizmet listelemeyi engellediğinde kullanılır.
+        Endpoint Mapper'a kendini kaydetmeyen gizli veya belgelenmemiş uç noktaları ortaya çıkarabilir.
     command: "impacket-rpcmap -brute-uuids ncacn_ip_tcp:{{target}}"
 
-  - title: impacket-rpcmap - brute-force opnums for specific uuid
-    desc: |
-      Identify available operations (opnums) for a specific MSRPC interface. 
-      By bruteforcing opnums, you can determine the range of functions a specific service supports, which is essential for developing or using exploits. 
-      The tool will iterate through operation numbers to see which ones return a valid response rather than an "opnum out of range" error.
+  - title:
+      en: impacket-rpcmap - brute-force opnums for specific uuid
+      tr: impacket-rpcmap - belirli UUID için opnum kaba kuvvet denemesi
+    desc:
+      en: |
+        Identify available operations (opnums) for a specific MSRPC interface. 
+        By bruteforcing opnums, you can determine the range of functions a specific service supports, which is essential for developing or using exploits. 
+        The tool will iterate through operation numbers to see which ones return a valid response rather than an "opnum out of range" error.
+      tr: |
+        Belirli bir MSRPC arayüzü için kullanılabilir işlemleri (opnum) tespit eder.
+        Opnum'lara kaba kuvvet uygulayarak belirli bir hizmetin desteklediği işlev aralığını belirleyebilirsiniz; bu, istismar geliştirmek veya kullanmak için gereklidir.
+        Araç, "opnum out of range" hatası yerine geçerli yanıt döndürenleri bulmak için işlem numaralarını tek tek dener.
     command: "impacket-rpcmap -brute-opnums -uuid {{uuid}} ncacn_ip_tcp:{{target}}"
 
-  - title: impacket-rpcmap - brute-force interface versions
-    desc: |
-      Attempt to identify the major versions of found UUIDs on the target. 
-      Different versions of an RPC interface might have different vulnerabilities or functional capabilities. 
-      You can specify the maximum version to check using the version-max flag to limit the scan range.
+  - title:
+      en: impacket-rpcmap - brute-force interface versions
+      tr: impacket-rpcmap - arayüz sürümü kaba kuvvet denemesi
+    desc:
+      en: |
+        Attempt to identify the major versions of found UUIDs on the target. 
+        Different versions of an RPC interface might have different vulnerabilities or functional capabilities. 
+        You can specify the maximum version to check using the version-max flag to limit the scan range.
+      tr: |
+        Hedefte bulunan UUID'lerin ana sürümlerini tespit etmeye çalışır.
+        Bir RPC arayüzünün farklı sürümleri farklı güvenlik açıklarına veya işlevsel yeteneklere sahip olabilir.
+        Tarama aralığını sınırlamak için version-max bayrağıyla denetlenecek en yüksek sürümü belirtebilirsiniz.
     command: "impacket-rpcmap -brute-versions -version-max {{max_version|64}} ncacn_ip_tcp:{{target}}"
 
   # === AUTHENTICATION & ADVANCED TARGETING ===
-  - title: impacket-rpcmap - authenticated enumeration
-    desc: |
-      Perform MSRPC enumeration using valid domain or local credentials. 
-      Many sensitive RPC interfaces are protected and will not disclose information to unauthenticated users. 
-      Providing credentials allows the tool to bind to more restricted interfaces and retrieve detailed information.
+  - title:
+      en: impacket-rpcmap - authenticated enumeration
+      tr: impacket-rpcmap - kimlik doğrulamalı listeleme
+    desc:
+      en: |
+        Perform MSRPC enumeration using valid domain or local credentials. 
+        Many sensitive RPC interfaces are protected and will not disclose information to unauthenticated users. 
+        Providing credentials allows the tool to bind to more restricted interfaces and retrieve detailed information.
+      tr: |
+        Geçerli etki alanı veya yerel kimlik bilgileriyle MSRPC listelemesi yapar.
+        Birçok hassas RPC arayüzü korumalıdır ve kimliği doğrulanmamış kullanıcılara bilgi vermez.
+        Kimlik bilgisi vermek, aracın daha kısıtlı arayüzlere bağlanıp ayrıntılı bilgi almasına olanak tanır.
     command: "impacket-rpcmap -auth-rpc {{domain}}/{{username}}:{{password}} ncacn_ip_tcp:{{target}}"
 
-  - title: impacket-rpcmap - authentication with ntlm hashes
-    desc: |
-      Use NTLM hashes for authentication instead of a cleartext password, facilitating Pass-the-Hash (PtH). 
-      This is particularly useful in post-exploitation scenarios where you have extracted hashes but do not have the plaintext password. 
-      Ensure the hash is provided in the format LMHASH:NTHASH.
+  - title:
+      en: impacket-rpcmap - authentication with ntlm hashes
+      tr: impacket-rpcmap - NTLM hash'leri ile kimlik doğrulaması
+    desc:
+      en: |
+        Use NTLM hashes for authentication instead of a cleartext password, facilitating Pass-the-Hash (PtH). 
+        This is particularly useful in post-exploitation scenarios where you have extracted hashes but do not have the plaintext password. 
+        Ensure the hash is provided in the format LMHASH:NTHASH.
+      tr: |
+        Açık parola yerine kimlik doğrulamada NTLM hash'leri kullanarak Pass-the-Hash (PtH) imkânı sağlar.
+        Hash'leri çıkarıp açık parolaya sahip olmadığınız sömürü sonrası senaryolarda özellikle faydalıdır.
+        Hash'in LMHASH:NTHASH biçiminde verildiğinden emin olun.
     command: "impacket-rpcmap -hashes-rpc {{hash}} ncacn_ip_tcp:{{target}}"
 
-  - title: impacket-rpcmap - targeted ip with hostname binding
-    desc: |
-      Specify a target IP address manually while using a hostname in the string binding. 
-      This is helpful when the target host's NetBIOS name or DNS name cannot be resolved by your local system. 
-      The tool will connect to the IP provided in the target-ip flag while using the name in the binding string for the RPC request.
+  - title:
+      en: impacket-rpcmap - targeted ip with hostname binding
+      tr: impacket-rpcmap - ana makine adı bağlamasıyla hedef IP
+    desc:
+      en: |
+        Specify a target IP address manually while using a hostname in the string binding. 
+        This is helpful when the target host's NetBIOS name or DNS name cannot be resolved by your local system. 
+        The tool will connect to the IP provided in the target-ip flag while using the name in the binding string for the RPC request.
+      tr: |
+        Dizgi bağlamasında bir ana makine adı kullanırken hedef IP adresini elle belirtir.
+        Hedef makinenin NetBIOS veya DNS adının yerel sisteminizce çözülemediği durumlarda faydalıdır.
+        Araç, RPC isteği için bağlama dizgisindeki adı kullanırken target-ip bayrağında verilen IP'ye bağlanır.
     command: "impacket-rpcmap -target-ip {{ip_address}} ncacn_ip_tcp:{{hostname}}"
 
-  - title: impacket-rpcmap - scan through rpc proxy
-    desc: |
-      Enumerate interfaces through an RPC Proxy, often used in Exchange or RDS environments. 
-      This allows you to test RPC connectivity through web-based proxies that expose internal RPC services to the internet. 
-      It is a specialized command for auditing the security of Outlook AnyWhere or Remote Desktop Gateway configurations.
+  - title:
+      en: impacket-rpcmap - scan through rpc proxy
+      tr: impacket-rpcmap - RPC proxy üzerinden tarama
+    desc:
+      en: |
+        Enumerate interfaces through an RPC Proxy, often used in Exchange or RDS environments. 
+        This allows you to test RPC connectivity through web-based proxies that expose internal RPC services to the internet. 
+        It is a specialized command for auditing the security of Outlook AnyWhere or Remote Desktop Gateway configurations.
+      tr: |
+        Genellikle Exchange veya RDS ortamlarında kullanılan bir RPC Proxy üzerinden arayüzleri listeler.
+        İç RPC hizmetlerini internete açan web tabanlı proxy'ler üzerinden RPC bağlantısını test etmenize olanak tanır.
+        Outlook AnyWhere veya Uzak Masaüstü Ağ Geçidi yapılandırmalarının güvenliğini denetlemek için özel bir komuttur.
     command: "impacket-rpcmap ncacn_http:{{target}}[{{port|6001}},RpcProxy={{proxy_host}}:443]"

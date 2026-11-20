@@ -3,68 +3,131 @@ tags: [wordpress, scanner, security, pentest, enumeration, reconnaissance, vulne
 
 actions:
   # === MAINTENANCE ACTIONS ===
-  - title: wpprobe - update tool
-    desc: |
-      Update WPProbe to the latest available version from the source.
-      This ensures that you have the newest features, performance improvements, and bug fixes.
-      It is highly recommended to run this command before starting any new security assessment.
+  - title:
+      en: wpprobe - update tool
+      tr: wpprobe - aracı güncelleme
+    desc:
+      en: |
+        Update WPProbe to the latest available version from the source.
+        This ensures that you have the newest features, performance improvements, and bug fixes.
+        It is highly recommended to run this command before starting any new security assessment.
+      tr: |
+        WPProbe'u kaynaktan en son sürüme günceller.
+        Bu, en yeni özelliklere, performans iyileştirmelerine ve hata düzeltmelerine sahip olmanızı sağlar.
+        Her yeni güvenlik değerlendirmesine başlamadan önce bu komutu çalıştırmanız önemle önerilir.
     command: "wpprobe update"
 
-  - title: wpprobe - update vulnerability database
-    desc: |
-      Update the local Wordfence vulnerability database used for matching.
-      This database contains information about known vulnerabilities in WordPress plugins and themes.
-      Regularly updating this database is crucial for the tool's accuracy in identifying security risks.
+  - title:
+      en: wpprobe - update vulnerability database
+      tr: wpprobe - zafiyet veritabanını güncelleme
+    desc:
+      en: |
+        Update the local Wordfence vulnerability database used for matching.
+        This database contains information about known vulnerabilities in WordPress plugins and themes.
+        Regularly updating this database is crucial for the tool's accuracy in identifying security risks.
+      tr: |
+        Eşleştirmede kullanılan yerel Wordfence zafiyet veritabanını günceller.
+        Bu veritabanı, WordPress eklenti ve temalarındaki bilinen zafiyetler hakkında bilgi içerir.
+        Bu veritabanını düzenli güncellemek aracın riskleri doğru tespit etmesi için kritiktir.
     command: "wpprobe update-db"
 
   # === SCANNING MODES ===
-  - title: wpprobe - basic stealth scan
-    desc: |
-      Perform a basic scan on a single WordPress target using the default stealthy mode.
-      This mode attempts to identify plugins and themes without triggering aggressive security alerts.
-      It is the ideal starting point for initial reconnaissance when noise reduction is a priority.
+  - title:
+      en: wpprobe - basic stealth scan
+      tr: wpprobe - temel gizli tarama
+    desc:
+      en: |
+        Perform a basic scan on a single WordPress target using the default stealthy mode.
+        This mode attempts to identify plugins and themes without triggering aggressive security alerts.
+        It is the ideal starting point for initial reconnaissance when noise reduction is a priority.
+      tr: |
+        Varsayılan gizli modla tek bir WordPress hedefinde temel tarama gerçekleştirir.
+        Bu mod agresif güvenlik uyarılarını tetiklemeden eklenti ve temaları tespit etmeye çalışır.
+        Gürültü azaltmanın öncelikli olduğu ilk keşif için ideal başlangıç noktasıdır.
     command: "wpprobe scan -u {{target_url}}"
 
-  - title: wpprobe - brute-force detection scan
-    desc: |
-      Execute a comprehensive scan using brute-force detection techniques.
-      This mode actively probes for a wide range of common plugins and themes to ensure maximum coverage.
-      Note that this method is noisier and more likely to be logged by the target server's web application firewall.
+  - title:
+      en: wpprobe - brute-force detection scan
+      tr: wpprobe - kaba kuvvet tespit taraması
+    desc:
+      en: |
+        Execute a comprehensive scan using brute-force detection techniques.
+        This mode actively probes for a wide range of common plugins and themes to ensure maximum coverage.
+        Note that this method is noisier and more likely to be logged by the target server's web application firewall.
+      tr: |
+        Kaba kuvvet tespit teknikleriyle kapsamlı bir tarama yürütür.
+        Bu mod, maksimum kapsamı sağlamak için çok çeşitli yaygın eklenti ve temaları aktif olarak sondalar.
+        Bu yöntemin daha gürültülü olduğunu ve hedef sunucunun web uygulama güvenlik duvarınca günlüğe düşme olasılığının yüksek olduğunu unutmayın.
     command: "wpprobe scan -u {{target_url}} --mode bruteforce"
 
-  - title: wpprobe - hybrid mode scan
-    desc: |
-      Scan a WordPress site using the hybrid mode for an optimal balance of speed and stealth.
-      The tool first attempts stealthy detection and then uses brute-force for the remaining unidentified components.
-      This is often the most effective way to get thorough results while minimizing unnecessary requests.
+  - title:
+      en: wpprobe - hybrid mode scan
+      tr: wpprobe - hibrit mod tarama
+    desc:
+      en: |
+        Scan a WordPress site using the hybrid mode for an optimal balance of speed and stealth.
+        The tool first attempts stealthy detection and then uses brute-force for the remaining unidentified components.
+        This is often the most effective way to get thorough results while minimizing unnecessary requests.
+      tr: |
+        Hız ve gizlilik arasında en uygun denge için hibrit modla bir WordPress sitesi tarar.
+        Araç önce gizli tespiti dener, ardından kalan belirlenememiş bileşenler için kaba kuvvet kullanır.
+        Bu genellikle gereksiz istekleri en aza indirerek kapsamlı sonuç almanın en etkili yoludur.
     command: "wpprobe scan -u {{target_url}} --mode hybrid"
 
   # === ADVANCED SCANNING & OUTPUT ===
-  - title: wpprobe - scan with custom plugin list
-    desc: |
-      Utilize a custom text file containing a list of plugins for brute-force or hybrid scanning.
-      This is useful when you want to target specific plugins or use a proprietary wordlist tailored for a specific environment.
-      The file should contain one plugin slug per line for the scanner to process correctly.
+  - title:
+      en: wpprobe - scan with custom plugin list
+      tr: wpprobe - özel eklenti listesiyle tarama
+    desc:
+      en: |
+        Utilize a custom text file containing a list of plugins for brute-force or hybrid scanning.
+        This is useful when you want to target specific plugins or use a proprietary wordlist tailored for a specific environment.
+        The file should contain one plugin slug per line for the scanner to process correctly.
+      tr: |
+        Kaba kuvvet veya hibrit tarama için özel bir metin dosyasındaki eklenti listesini kullanır.
+        Bu, belirli eklentileri hedeflemek veya belirli bir ortama özel bir kelime listesi kullanmak istediğinizde kullanışlıdır.
+        Dosya, tarayıcının doğru işlemesi için satır başına bir eklenti kısaltması içermelidir.
     command: "wpprobe scan -u {{target_url}} --mode {{mode|bruteforce}} --plugin-list {{plugin_list_path|plugins.txt}}"
 
-  - title: wpprobe - bulk scan from file
-    desc: |
-      Scan multiple targets simultaneously by providing a text file containing target URLs.
-      The tool can process these targets in parallel using multiple threads to significantly increase speed.
-      This is the preferred method for large-scale infrastructure audits or bug bounty hunting.
+  - title:
+      en: wpprobe - bulk scan from file
+      tr: wpprobe - dosyadan toplu tarama
+    desc:
+      en: |
+        Scan multiple targets simultaneously by providing a text file containing target URLs.
+        The tool can process these targets in parallel using multiple threads to significantly increase speed.
+        This is the preferred method for large-scale infrastructure audits or bug bounty hunting.
+      tr: |
+        Hedef URL'leri içeren bir metin dosyası vererek birden fazla hedefi aynı anda tarar.
+        Araç bu hedefleri çok iş parçacığıyla paralel işleyerek hızı önemli ölçüde artırabilir.
+        Bu, büyük ölçekli altyapı denetimleri veya hata ödül avcılığı için tercih edilen yöntemdir.
     command: "wpprobe scan -f {{targets_file|targets.txt}} -t {{threads|20}}"
 
-  - title: wpprobe - save results to file
-    desc: |
-      Export the discovery results to a structured file format such as JSON or CSV.
-      Saving results is essential for reporting purposes and for integrating findings into other security tools.
-      The tool automatically detects the desired format based on the file extension provided in the output path.
+  - title:
+      en: wpprobe - save results to file
+      tr: wpprobe - sonuçları dosyaya kaydetme
+    desc:
+      en: |
+        Export the discovery results to a structured file format such as JSON or CSV.
+        Saving results is essential for reporting purposes and for integrating findings into other security tools.
+        The tool automatically detects the desired format based on the file extension provided in the output path.
+      tr: |
+        Keşif sonuçlarını JSON veya CSV gibi yapılandırılmış bir dosya biçimine aktarır.
+        Sonuçları kaydetmek raporlama ve bulguları diğer güvenlik araçlarına bütünleştirmek için gereklidir.
+        Araç, çıktı yolunda verilen dosya uzantısına göre istenen biçimi otomatik tespit eder.
     command: "wpprobe scan -u {{target_url}} -o {{output_file|results.json}}"
 
   # === CONNECTIVITY ===
-  - title: wpprobe - scan through proxy
-    desc: |
-      Route all outgoing scan traffic through a specified HTTP or HTTPS proxy server.
-      This is useful for bypassing IP-based rate limiting or for monitoring the scanner's traffic through tools like Burp Suite.
-      If not specified, the tool will automatically check for standard environment proxy variables.
+  - title:
+      en: wpprobe - scan through proxy
+      tr: wpprobe - proxy ile tarama
+    desc:
+      en: |
+        Route all outgoing scan traffic through a specified HTTP or HTTPS proxy server.
+        This is useful for bypassing IP-based rate limiting or for monitoring the scanner's traffic through tools like Burp Suite.
+        If not specified, the tool will automatically check for standard environment proxy variables.
+      tr: |
+        Tüm giden tarama trafiğini belirtilen bir HTTP veya HTTPS proxy sunucusu üzerinden yönlendirir.
+        Bu, IP tabanlı hız sınırlamasını aşmak veya tarayıcı trafiğini Burp Suite gibi araçlarla izlemek için kullanışlıdır.
+        Belirtilmezse araç standart ortam proxy değişkenlerini otomatik denetler.
     command: "wpprobe scan -u {{target_url}} --proxy {{proxy_url|http://127.0.0.1:8080}}"

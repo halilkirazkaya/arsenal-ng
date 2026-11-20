@@ -65,7 +65,7 @@ func TestLoad(t *testing.T) {
 	}
 	seen := map[string]bool{}
 	for _, c := range cheats {
-		if c.Tool == "" || c.Command == "" || c.Title == "" {
+		if c.Tool == "" || c.Command == "" || c.Title.Resolve("en") == "" {
 			t.Fatalf("incomplete cheat: %+v", c)
 		}
 		seen[c.Tool] = true

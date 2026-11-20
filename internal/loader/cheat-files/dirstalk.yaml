@@ -3,77 +3,149 @@ tags: [web, scanner, security, pentest, enumeration, discovery, brute-force]
 
 actions:
   # === BASIC SCANNING ===
-  - title: dirstalk - basic directory scan
-    desc: |
-      Performs a standard directory discovery scan on a target URL using a wordlist.
-      This is the most common entry point for web reconnaissance to find hidden files or folders.
-      A dictionary file is required, which can be a local path or a remote URL.
-      Ensure the target URL includes the protocol (http/https).
+  - title:
+      en: dirstalk - basic directory scan
+      tr: dirstalk - temel dizin taraması
+    desc:
+      en: |
+        Performs a standard directory discovery scan on a target URL using a wordlist.
+        This is the most common entry point for web reconnaissance to find hidden files or folders.
+        A dictionary file is required, which can be a local path or a remote URL.
+        Ensure the target URL includes the protocol (http/https).
+      tr: |
+        Hedef adreste kelime listesi kullanarak standart dizin keşif taraması yapar.
+        Gizli dosya ya da klasörleri bulmaya yönelik web keşfinin en yaygın giriş noktasıdır.
+        Sözlük dosyası zorunludur; yerel yol ya da uzak adres olabilir.
+        Hedef adresin iletişim kuralını (http/https) barındırdığından emin olun.
     command: "dirstalk scan {{url}} --dictionary {{dictionary_path}}"
 
-  - title: dirstalk - scan with custom depth and threads
-    desc: |
-      Adjusts the recursion depth and the number of concurrent threads to control scan behavior.
-      A higher scan depth allows the tool to automatically crawl into discovered subdirectories.
-      Increasing the thread count will speed up the scan but may increase the load on the target server.
-      Be cautious with high thread counts as they might trigger rate-limiting or Web Application Firewalls (WAF).
+  - title:
+      en: dirstalk - scan with custom depth and threads
+      tr: dirstalk - özel derinlik ve iş parçacığıyla tarama
+    desc:
+      en: |
+        Adjusts the recursion depth and the number of concurrent threads to control scan behavior.
+        A higher scan depth allows the tool to automatically crawl into discovered subdirectories.
+        Increasing the thread count will speed up the scan but may increase the load on the target server.
+        Be cautious with high thread counts as they might trigger rate-limiting or Web Application Firewalls (WAF).
+      tr: |
+        Özyineleme derinliği ile eşzamanlı iş parçacığı sayısını ayarlayarak tarama davranışını denetler.
+        Yüksek tarama derinliği aracın bulunan alt dizinlerin içine kendiliğinden ilerlemesini sağlar.
+        İş parçacığı sayısını artırmak taramayı hızlandırır ancak hedef sunucudaki yükü büyütebilir.
+        Yüksek iş parçacığı sayıları hız sınırlamayı ya da web uygulaması güvenlik duvarlarını (WAF) tetikleyebileceğinden dikkatli olun.
     command: "dirstalk scan {{url}} --dictionary {{dictionary_path}} --scan-depth {{depth|3}} --threads {{threads|10}}"
 
   # === REQUEST CUSTOMIZATION ===
-  - title: dirstalk - scan with custom HTTP methods
-    desc: |
-      Configures the scanner to use specific HTTP methods during the discovery process.
-      While GET is the default, some directories might only respond to POST, PUT, or OPTIONS methods.
-      This is particularly useful when testing REST APIs or modern web applications.
-      Multiple methods can be provided as a comma-separated list.
+  - title:
+      en: dirstalk - scan with custom HTTP methods
+      tr: dirstalk - özel HTTP yöntemleriyle tarama
+    desc:
+      en: |
+        Configures the scanner to use specific HTTP methods during the discovery process.
+        While GET is the default, some directories might only respond to POST, PUT, or OPTIONS methods.
+        This is particularly useful when testing REST APIs or modern web applications.
+        Multiple methods can be provided as a comma-separated list.
+      tr: |
+        Keşif sürecinde tarayıcının kullanacağı belirli HTTP yöntemlerini yapılandırır.
+        GET öntanımlı olsa da bazı dizinler yalnız POST, PUT, OPTIONS yöntemlerine yanıt verebilir.
+        REST arayüzlerini ya da güncel web uygulamalarını sınarken özellikle yararlıdır.
+        Çoklu yöntem virgülle ayrılmış liste biçiminde verilebilir.
     command: "dirstalk scan {{url}} --dictionary {{dictionary_path}} --http-methods {{methods|GET,POST}}"
 
-  - title: dirstalk - authenticated scan using cookies and headers
-    desc: |
-      Injects custom cookies and headers into every request sent by the scanner.
-      This is essential for scanning areas of a website that are protected by authentication or specific session requirements.
-      The --use-cookie-jar flag can be added to handle session cookies returned by the server automatically.
-      Use this to discover administrative panels or user-specific directories that are not publicly accessible.
+  - title:
+      en: dirstalk - authenticated scan using cookies and headers
+      tr: dirstalk - çerez ve başlıklarla kimlik doğrulamalı tarama
+    desc:
+      en: |
+        Injects custom cookies and headers into every request sent by the scanner.
+        This is essential for scanning areas of a website that are protected by authentication or specific session requirements.
+        The --use-cookie-jar flag can be added to handle session cookies returned by the server automatically.
+        Use this to discover administrative panels or user-specific directories that are not publicly accessible.
+      tr: |
+        Tarayıcının gönderdiği her isteğe özel çerez ile başlık ekler.
+        Kimlik doğrulamasıyla ya da belirli oturum gerekleriyle korunan site bölümlerini taramakta vazgeçilmezdir.
+        Sunucudan dönen oturum çerezlerini kendiliğinden işlemek adına --use-cookie-jar bayrağı eklenebilir.
+        Herkese açık olmayan yönetim panolarını ya da kullanıcıya özgü dizinleri keşfetmek adına kullanın.
     command: "dirstalk scan {{url}} --dictionary {{dictionary_path}} --cookie \"{{cookie_name}}={{value}}\ --header \"{{header_name}}: {{header_value}}\""
 
-  - title: dirstalk - customize user agent and timeout
-    desc: |
-      Sets a custom User-Agent string and defines the timeout for HTTP requests.
-      Changing the User-Agent can help bypass basic security filters that block known scanner signatures.
-      The timeout value is defined in milliseconds; increasing it is helpful for slow-responding servers or high-latency connections.
-      Default timeout is usually 5000ms if not specified.
+  - title:
+      en: dirstalk - customize user agent and timeout
+      tr: dirstalk - kullanıcı aracısını ve zaman aşımını özelleştirme
+    desc:
+      en: |
+        Sets a custom User-Agent string and defines the timeout for HTTP requests.
+        Changing the User-Agent can help bypass basic security filters that block known scanner signatures.
+        The timeout value is defined in milliseconds; increasing it is helpful for slow-responding servers or high-latency connections.
+        Default timeout is usually 5000ms if not specified.
+      tr: |
+        Özel kullanıcı aracısı dizesini belirler ve HTTP istekleri adına zaman aşımı tanımlar.
+        Kullanıcı aracısını değiştirmek bilinen tarayıcı imzalarını engelleyen yalın güvenlik süzgeçlerini atlatmaya yardımcı olabilir.
+        Zaman aşımı değeri milisaniye cinsinden tanımlanır; yavaş yanıt veren sunucular ya da yüksek gecikmeli bağlantılar adına artırmak yararlıdır.
+        Belirtilmedikçe öntanımlı zaman aşımı genellikle 5000 milisaniyedir.
     command: "dirstalk scan {{url}} --dictionary {{dictionary_path}} --user-agent \"{{user_agent|Mozilla/5.0}}\" --http-timeout {{timeout_ms|10000}}"
 
   # === EVASION AND CONNECTIVITY ===
-  - title: dirstalk - scan through SOCKS5 proxy
-    desc: |
-      Routes all outgoing scan traffic through a specified SOCKS5 proxy server.
-      This is a common technique used to mask the source IP of the scanner or to route traffic through Tor.
-      It is highly recommended when performing authorized penetration tests where anonymity or source-IP rotation is required.
-      The proxy address should be provided in the host:port format.
+  - title:
+      en: dirstalk - scan through SOCKS5 proxy
+      tr: dirstalk - SOCKS5 vekili üzerinden tarama
+    desc:
+      en: |
+        Routes all outgoing scan traffic through a specified SOCKS5 proxy server.
+        This is a common technique used to mask the source IP of the scanner or to route traffic through Tor.
+        It is highly recommended when performing authorized penetration tests where anonymity or source-IP rotation is required.
+        The proxy address should be provided in the host:port format.
+      tr: |
+        Giden tarama trafiğinin tamamını belirtilen SOCKS5 vekil sunucudan geçirir.
+        Tarayıcının kaynak IP adresini gizlemek ya da trafiği Tor üzerinden yönlendirmek adına yaygın kullanılan tekniktir.
+        Kaynak IP gizliliği ya da dönüşümü gereken yetkili sızma sınamalarında şiddetle önerilir.
+        Vekil adresi makine:kapı biçiminde verilmelidir.
     command: "dirstalk scan {{url}} --dictionary {{dictionary_path}} --socks5 {{proxy_address|127.0.0.1:9150}}"
 
   # === FILTERING AND OUTPUT ===
-  - title: dirstalk - ignore specific HTTP status codes
-    desc: |
-      Filters out specific HTTP response status codes from the results and processing.
-      By default, dirstalk ignores 404 errors, but you can add 403, 301, or others to reduce noise.
-      This helps focus on successful hits (200 OK) or specific interesting responses like 500 Internal Server Error.
-      Provide the codes as a comma-separated list of integers.
+  - title:
+      en: dirstalk - ignore specific HTTP status codes
+      tr: dirstalk - belirli HTTP durum kodlarını yoksayma
+    desc:
+      en: |
+        Filters out specific HTTP response status codes from the results and processing.
+        By default, dirstalk ignores 404 errors, but you can add 403, 301, or others to reduce noise.
+        This helps focus on successful hits (200 OK) or specific interesting responses like 500 Internal Server Error.
+        Provide the codes as a comma-separated list of integers.
+      tr: |
+        Belirli HTTP yanıt durum kodlarını sonuçlardan ve işlemeden dışlar.
+        dirstalk öntanımlı olarak 404 hatalarını yok sayar; gürültüyü azaltmak adına 403, 301 ya da başkalarını ekleyebilirsiniz.
+        Başarılı isabetlere (200 OK) ya da 500 dahili sunucu hatası gibi ilginç yanıtlara odaklanmaya yardımcı olur.
+        Kodları virgülle ayrılmış tam sayı listesi biçiminde verin.
     command: "dirstalk scan {{url}} --dictionary {{dictionary_path}} --http-statuses-to-ignore {{status_codes|404,403}}"
 
-  - title: dirstalk - save scan results to file
-    desc: |
-      Directs the scan results to be saved into a local file for later analysis.
-      This is crucial for documentation and for piping findings into other tools in a pentest pipeline.
-      The output file will contain the discovered paths along with their metadata.
-      Ensure you have write permissions in the directory where the output file is created.
+  - title:
+      en: dirstalk - save scan results to file
+      tr: dirstalk - tarama sonuçlarını dosyaya kaydetme
+    desc:
+      en: |
+        Directs the scan results to be saved into a local file for later analysis.
+        This is crucial for documentation and for piping findings into other tools in a pentest pipeline.
+        The output file will contain the discovered paths along with their metadata.
+        Ensure you have write permissions in the directory where the output file is created.
+      tr: |
+        Tarama sonuçlarını ileri çözümleme adına yerel dosyaya kaydetmeyi sağlar.
+        Sızma sınaması hattındaki öteki araçlara bulguları aktarmak ile belgelendirme bakımından kritiktir.
+        Çıktı dosyası bulunan yolları üstverileriyle birlikte barındırır.
+        Çıktı dosyasının oluştuğu dizinde yazma izniniz olduğundan emin olun.
     command: "dirstalk scan {{url}} --dictionary {{dictionary_path}} --out {{output_file|results.txt}}"
 
-  - title: dirstalk - enable HTTP request caching
-    desc: |
-      Enables or disables the internal HTTP cache to avoid redundant requests to the same URL.
-      This is particularly useful if the server issues multiple redirects to the same location during a recursive scan.
-      Caching is enabled by default (true), but can be toggled to ensure every request is fresh.
-      Using the cache can significantly reduce the total number of requests sent to the target.
+  - title:
+      en: dirstalk - enable HTTP request caching
+      tr: dirstalk - HTTP istek önbelleğini etkinleştirme
+    desc:
+      en: |
+        Enables or disables the internal HTTP cache to avoid redundant requests to the same URL.
+        This is particularly useful if the server issues multiple redirects to the same location during a recursive scan.
+        Caching is enabled by default (true), but can be toggled to ensure every request is fresh.
+        Using the cache can significantly reduce the total number of requests sent to the target.
+      tr: |
+        Aynı adrese yinelenen istekleri önlemek adına dahili HTTP önbelleğini açar ya da kapatır.
+        Özyinelemeli tarama sırasında sunucu aynı konuma çoklu yönlendirme veriyorsa özellikle yararlıdır.
+        Önbellek öntanımlı olarak etkindir (true); her isteğin taze olmasını sağlamak adına değiştirilebilir.
+        Önbellek hedefe gönderilen toplam istek sayısını belirgin ölçüde azaltabilir.
     command: "dirstalk scan {{url}} --dictionary {{dictionary_path}} --http-cache-requests={{boolean|true}}"

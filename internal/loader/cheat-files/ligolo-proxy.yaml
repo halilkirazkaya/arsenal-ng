@@ -4,78 +4,148 @@ tags: [pivoting, network, tunneling, proxy, pentest, security]
 # === LISTENER CONFIGURATION ===
 
 actions:
-  - title: ligolo-proxy - basic listener
-    desc: |
-      Starts a basic proxy listener on all available interfaces using the default port. 
-      This is the standard starting point for the Ligolo-ng server to accept incoming connections from remote agents. 
-      By default, it looks for certificate files in the certs directory to establish a TLS connection.
+  - title:
+      en: ligolo-proxy - basic listener
+      tr: ligolo-proxy - temel dinleyici
+    desc:
+      en: |
+        Starts a basic proxy listener on all available interfaces using the default port. 
+        This is the standard starting point for the Ligolo-ng server to accept incoming connections from remote agents. 
+        By default, it looks for certificate files in the certs directory to establish a TLS connection.
+      tr: |
+        Varsayılan portu kullanarak tüm kullanılabilir arayüzlerde temel bir proxy dinleyicisi başlatır.
+        Bu, Ligolo-ng sunucusunun uzak ajanlardan gelen bağlantıları kabul etmesi için standart başlangıç noktasıdır.
+        Varsayılan olarak TLS bağlantısı kurmak için certs dizininde sertifika dosyaları arar.
     command: "ligolo-proxy -laddr {{listening_address|0.0.0.0:11601}}"
 
-  - title: ligolo-proxy - self-signed certificate mode
-    desc: |
-      Automatically generates and uses self-signed TLS certificates for the session. 
-      This is useful for rapid deployment when you do not have pre-existing certificates or a public domain. 
-      It ensures that the communication between the agent and the proxy remains encrypted despite the lack of a trusted CA.
+  - title:
+      en: ligolo-proxy - self-signed certificate mode
+      tr: ligolo-proxy - öz imzalı sertifika modu
+    desc:
+      en: |
+        Automatically generates and uses self-signed TLS certificates for the session. 
+        This is useful for rapid deployment when you do not have pre-existing certificates or a public domain. 
+        It ensures that the communication between the agent and the proxy remains encrypted despite the lack of a trusted CA.
+      tr: |
+        Oturum için öz imzalı TLS sertifikalarını otomatik üretir ve kullanır.
+        Önceden sertifikanız veya genel bir alan adınız yokken hızlı dağıtım için kullanışlıdır.
+        Güvenilir bir CA olmamasına rağmen ajan ile proxy arasındaki iletişimin şifreli kalmasını sağlar.
     command: "ligolo-proxy -selfcert -selfcert-domain {{domain|ligolo}}"
 
-  - title: ligolo-proxy - custom certificate files
-    desc: |
-      Starts the proxy using specific paths for the TLS certificate and private key files. 
-      Use this when you have purchased a certificate or generated one using an internal Certificate Authority. 
-      Ensure that the user running the proxy has read permissions for the specified file paths.
+  - title:
+      en: ligolo-proxy - custom certificate files
+      tr: ligolo-proxy - özel sertifika dosyaları
+    desc:
+      en: |
+        Starts the proxy using specific paths for the TLS certificate and private key files. 
+        Use this when you have purchased a certificate or generated one using an internal Certificate Authority. 
+        Ensure that the user running the proxy has read permissions for the specified file paths.
+      tr: |
+        TLS sertifikası ve özel anahtar dosyaları için belirli yollar kullanarak proxy'yi başlatır.
+        Satın alınmış bir sertifikanız olduğunda veya dahili bir Sertifika Yetkilisi ile ürettiğinizde bunu kullanın.
+        Proxy'yi çalıştıran kullanıcının belirtilen dosya yolları için okuma izinlerine sahip olduğundan emin olun.
     command: "ligolo-proxy -certfile {{cert_path|certs/cert.pem}} -keyfile {{key_path|certs/key.pem}}"
 
 # === ADVANCED MODES ===
 
-  - title: ligolo-proxy - automated Let's Encrypt (autocert)
-    desc: |
-      Requests and manages TLS certificates automatically via Let's Encrypt. 
-      This mode requires port 80 to be accessible from the internet to complete the ACME challenge. 
-      It is ideal for long-term setups on public-facing servers where valid certificates are preferred for stealth or compatibility.
+  - title:
+      en: ligolo-proxy - automated Let's Encrypt (autocert)
+      tr: ligolo-proxy - otomatik Let's Encrypt (autocert)
+    desc:
+      en: |
+        Requests and manages TLS certificates automatically via Let's Encrypt. 
+        This mode requires port 80 to be accessible from the internet to complete the ACME challenge. 
+        It is ideal for long-term setups on public-facing servers where valid certificates are preferred for stealth or compatibility.
+      tr: |
+        Let's Encrypt aracılığıyla TLS sertifikalarını otomatik ister ve yönetir.
+        Bu mod ACME doğrulamasını tamamlamak için 80 numaralı portun internetten erişilebilir olmasını gerektirir.
+        Gizlilik veya uyumluluk için geçerli sertifikaların tercih edildiği, internete açık sunuculardaki uzun süreli kurulumlar için idealdir.
     command: "ligolo-proxy -autocert -allow-domains {{domains|example.com}}"
 
-  - title: ligolo-proxy - websocket listener
-    desc: |
-      Configures the proxy to listen using a websocket transport layer. 
-      Prefixing the address with https:// enables encrypted websocket communication, which can help bypass certain restrictive firewalls or load balancers. 
-      This is a powerful feature for tunneling traffic through environments that only allow web-based protocols.
+  - title:
+      en: ligolo-proxy - websocket listener
+      tr: ligolo-proxy - websocket dinleyicisi
+    desc:
+      en: |
+        Configures the proxy to listen using a websocket transport layer. 
+        Prefixing the address with https:// enables encrypted websocket communication, which can help bypass certain restrictive firewalls or load balancers. 
+        This is a powerful feature for tunneling traffic through environments that only allow web-based protocols.
+      tr: |
+        Proxy'yi bir websocket aktarım katmanı kullanarak dinleyecek şekilde yapılandırır.
+        Adrese https:// öneki eklemek şifreli websocket iletişimini etkinleştirir; bu, belirli kısıtlayıcı güvenlik duvarlarını veya yük dengeleyicileri aşmaya yardımcı olabilir.
+        Yalnızca web tabanlı protokollere izin veren ortamlarda trafik tünellemek için güçlü bir özelliktir.
     command: "ligolo-proxy -laddr {{websocket_address|https://0.0.0.0:443}}"
 
 # === OPERATIONAL MODES ===
 
-  - title: ligolo-proxy - daemon mode
-    desc: |
-      Runs the proxy server in the background as a daemon without an interactive command-line interface. 
-      This is suitable for persistent installations on a jump box where you don't need to interact with the proxy shell. 
-      Note that you will need to manage the process via standard OS tools (like kill or systemctl) once started.
+  - title:
+      en: ligolo-proxy - daemon mode
+      tr: ligolo-proxy - arka plan (daemon) modu
+    desc:
+      en: |
+        Runs the proxy server in the background as a daemon without an interactive command-line interface. 
+        This is suitable for persistent installations on a jump box where you don't need to interact with the proxy shell. 
+        Note that you will need to manage the process via standard OS tools (like kill or systemctl) once started.
+      tr: |
+        Proxy sunucusunu etkileşimli komut satırı arayüzü olmadan arka planda bir daemon olarak çalıştırır.
+        Proxy kabuğuyla etkileşime girmeniz gerekmeyen sıçrama makinesindeki kalıcı kurulumlar için uygundur.
+        Başlatıldıktan sonra süreci standart işletim sistemi araçlarıyla (kill veya systemctl gibi) yönetmeniz gerekeceğini unutmayın.
     command: "ligolo-proxy -daemon -laddr {{listening_address|0.0.0.0:11601}}"
 
-  - title: ligolo-proxy - verbose logging
-    desc: |
-      Starts the proxy with verbose output enabled to provide more detailed information about connections and errors. 
-      This is highly recommended for troubleshooting initial connectivity issues between the agent and the proxy. 
-      It displays metadata about incoming agent registrations and potential TLS handshake failures.
+  - title:
+      en: ligolo-proxy - verbose logging
+      tr: ligolo-proxy - ayrıntılı günlükleme
+    desc:
+      en: |
+        Starts the proxy with verbose output enabled to provide more detailed information about connections and errors. 
+        This is highly recommended for troubleshooting initial connectivity issues between the agent and the proxy. 
+        It displays metadata about incoming agent registrations and potential TLS handshake failures.
+      tr: |
+        Bağlantılar ve hatalar hakkında daha ayrıntılı bilgi sağlamak için proxy'yi ayrıntılı çıktı etkin şekilde başlatır.
+        Ajan ile proxy arasındaki ilk bağlantı sorunlarını gidermek için şiddetle önerilir.
+        Gelen ajan kayıtları ve olası TLS el sıkışma hataları hakkında üstveri görüntüler.
     command: "ligolo-proxy -v"
 
-  - title: ligolo-proxy - skip banner
-    desc: |
-      Launches the proxy server without displaying the ASCII art banner at startup. 
-      This is useful when logging the output to a file or when running the tool in a clean terminal environment. 
-      It does not affect the functionality of the proxy itself, only the visual feedback upon launch.
+  - title:
+      en: ligolo-proxy - skip banner
+      tr: ligolo-proxy - açılış yazısını atlama
+    desc:
+      en: |
+        Launches the proxy server without displaying the ASCII art banner at startup. 
+        This is useful when logging the output to a file or when running the tool in a clean terminal environment. 
+        It does not affect the functionality of the proxy itself, only the visual feedback upon launch.
+      tr: |
+        Proxy sunucusunu başlangıçta ASCII art açılış yazısı göstermeden başlatır.
+        Çıktıyı bir dosyaya kaydederken veya aracı temiz bir terminal ortamında çalıştırırken kullanışlıdır.
+        Proxy'nin işlevselliğini etkilemez, yalnızca başlatmadaki görsel geri bildirimi değiştirir.
     command: "ligolo-proxy -nobanner"
 
 # === PROFILING AND CONFIG ===
 
-  - title: ligolo-proxy - custom configuration file
-    desc: |
-      Specifies a configuration file to load settings from rather than passing them via command line arguments. 
-      This allows for more complex or reusable configurations that can be version controlled or easily shared. 
-      The format of the config file must match the expected structure required by the tool.
+  - title:
+      en: ligolo-proxy - custom configuration file
+      tr: ligolo-proxy - özel yapılandırma dosyası
+    desc:
+      en: |
+        Specifies a configuration file to load settings from rather than passing them via command line arguments. 
+        This allows for more complex or reusable configurations that can be version controlled or easily shared. 
+        The format of the config file must match the expected structure required by the tool.
+      tr: |
+        Ayarları komut satırı bağımsız değişkenleriyle aktarmak yerine yüklenecek bir yapılandırma dosyası belirtir.
+        Bu, sürüm denetlenebilen veya kolayca paylaşılabilen daha karmaşık veya yeniden kullanılabilir yapılandırmalara olanak tanır.
+        Yapılandırma dosyasının biçimi aracın beklediği yapıyla eşleşmelidir.
     command: "ligolo-proxy -config {{config_file|config.yaml}}"
 
-  - title: ligolo-proxy - performance profiling
-    desc: |
-      Writes a CPU profile to a specified file for performance analysis. 
-      This is generally used by developers or advanced users to diagnose high CPU usage or bottlenecks in the proxy. 
-      The resulting file can be analyzed using standard Go profiling tools like pprof.
+  - title:
+      en: ligolo-proxy - performance profiling
+      tr: ligolo-proxy - performans profillemesi
+    desc:
+      en: |
+        Writes a CPU profile to a specified file for performance analysis. 
+        This is generally used by developers or advanced users to diagnose high CPU usage or bottlenecks in the proxy. 
+        The resulting file can be analyzed using standard Go profiling tools like pprof.
+      tr: |
+        Performans analizi için belirtilen bir dosyaya CPU profili yazar.
+        Bu genellikle geliştiriciler veya ileri düzey kullanıcılar tarafından proxy'deki yüksek CPU kullanımını veya darboğazları teşhis etmek için kullanılır.
+        Ortaya çıkan dosya pprof gibi standart Go profilleme araçlarıyla analiz edilebilir.
     command: "ligolo-proxy -cpuprofile {{profile_name|cpu.prof}}"
