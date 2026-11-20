@@ -39,6 +39,15 @@ func Variables() (string, error) {
 	return filepath.Join(configDir, "variables.json"), nil
 }
 
+// Language returns the path to the UI language preference file.
+func Language() (string, error) {
+	configDir, err := ConfigDir()
+	if err != nil {
+		return "", err
+	}
+	return filepath.Join(configDir, "language.json"), nil
+}
+
 // Log returns the path to the debug log beside the variable store.
 func Log() (string, error) {
 	configDir, err := ConfigDir()

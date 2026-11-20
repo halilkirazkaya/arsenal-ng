@@ -3,136 +3,262 @@ tags: [vcs, version-control, development, collaboration, devops, workflow]
 
 actions:
   # === CONFIGURATION ===
-  - title: git - set global user identity
-    desc: |
-      Sets the global username and email address for all git repositories on the local system. 
-      This identity is used to sign your commits and is crucial for tracking who made specific changes. 
-      Ensure this matches your GitHub/GitLab profile to correctly attribute contributions.
+  - title:
+      en: git - set global user identity
+      tr: git - genel kullanıcı kimliğini ayarlama
+    desc:
+      en: |
+        Sets the global username and email address for all git repositories on the local system. 
+        This identity is used to sign your commits and is crucial for tracking who made specific changes. 
+        Ensure this matches your GitHub/GitLab profile to correctly attribute contributions.
+      tr: |
+        Yerel sistemdeki tüm git depoları için genel kullanıcı adı ve e-posta adresini ayarlar.
+        Bu kimlik commit'lerinizi imzalamak için kullanılır ve belirli değişiklikleri kimin yaptığını izlemek için kritiktir.
+        Katkıların doğru ilişkilendirilmesi için bunun GitHub/GitLab profilinizle eşleştiğinden emin olun.
     command: "git config --global user.name {{name|Your Name}} && git config --global user.email {{email|user@example.com}}"
 
   # === INITIALIZATION & CLONING ===
-  - title: git - initialize a new repository
-    desc: |
-      Initializes a brand new Git repository in the current working directory. 
-      This creates a hidden .git directory where all project history and metadata are stored. 
-      Use this command once at the start of a new project to enable version control.
+  - title:
+      en: git - initialize a new repository
+      tr: git - yeni bir depo başlatma
+    desc:
+      en: |
+        Initializes a brand new Git repository in the current working directory. 
+        This creates a hidden .git directory where all project history and metadata are stored. 
+        Use this command once at the start of a new project to enable version control.
+      tr: |
+        Çalışma dizininde yepyeni bir Git deposu başlatır.
+        Bu, tüm proje geçmişi ve üst verinin saklandığı gizli bir .git dizini oluşturur.
+        Sürüm denetimini etkinleştirmek için yeni bir projenin başında bu komutu bir kez kullanın.
     command: "git init"
 
-  - title: git - clone a repository
-    desc: |
-      Creates a local copy of a remote repository from a URL. 
-      It automatically sets up a remote connection called 'origin' pointing back to the source. 
-      You can optionally specify a target directory name or a specific branch to clone.
+  - title:
+      en: git - clone a repository
+      tr: git - depo klonlama
+    desc:
+      en: |
+        Creates a local copy of a remote repository from a URL. 
+        It automatically sets up a remote connection called 'origin' pointing back to the source. 
+        You can optionally specify a target directory name or a specific branch to clone.
+      tr: |
+        Bir URL'den uzak bir deponun yerel kopyasını oluşturur.
+        Kaynağa işaret eden 'origin' adlı uzak bağlantıyı otomatik kurar.
+        İsteğe bağlı olarak hedef dizin adı veya klonlanacak belirli bir dal belirtebilirsiniz.
     command: "git clone -b {{branch_name|main}} {{repository_url}} {{clone_directory|repo-dir}}"
 
   # === BASIC WORKFLOW ===
-  - title: git - check repository status
-    desc: |
-      Displays the state of the working directory and the staging area. 
-      It lets you see which changes have been staged, which haven't, and which files aren't being tracked by Git. 
-      This is the most common command used to verify what will be included in the next commit.
+  - title:
+      en: git - check repository status
+      tr: git - depo durumunu denetleme
+    desc:
+      en: |
+        Displays the state of the working directory and the staging area. 
+        It lets you see which changes have been staged, which haven't, and which files aren't being tracked by Git. 
+        This is the most common command used to verify what will be included in the next commit.
+      tr: |
+        Çalışma dizini ve hazırlama alanının durumunu gösterir.
+        Hangi değişikliklerin hazırlandığını, hangilerinin hazırlanmadığını ve hangi dosyaların Git tarafından izlenmediğini görmenizi sağlar.
+        Sonraki commit'e nelerin dahil olacağını doğrulamak için kullanılan en yaygın komuttur.
     command: "git status"
 
-  - title: git - stage changes
-    desc: |
-      Adds file contents to the staging area (index) to prepare them for the next commit. 
-      You can add specific files or use a period to add all modified and new files in the current directory. 
-      Staging allows you to craft precise commits by selecting only relevant changes.
+  - title:
+      en: git - stage changes
+      tr: git - değişiklikleri hazırlama
+    desc:
+      en: |
+        Adds file contents to the staging area (index) to prepare them for the next commit. 
+        You can add specific files or use a period to add all modified and new files in the current directory. 
+        Staging allows you to craft precise commits by selecting only relevant changes.
+      tr: |
+        Dosya içeriklerini sonraki commit için hazırlamak üzere hazırlama alanına (index) ekler.
+        Belirli dosyaları ekleyebilir veya mevcut dizindeki tüm değişmiş ve yeni dosyaları eklemek için nokta kullanabilirsiniz.
+        Hazırlama, yalnızca ilgili değişiklikleri seçerek hassas commit'ler oluşturmanızı sağlar.
     command: "git add {{changed_files|.}}"
 
-  - title: git - commit staged changes
-    desc: |
-      Saves the staged snapshot to the project history with a descriptive message. 
-      Commits should ideally be small and focused on a single logical change. 
-      Use the --no-verify flag if you need to bypass pre-commit hooks, though this is generally discouraged.
+  - title:
+      en: git - commit staged changes
+      tr: git - hazırlanan değişiklikleri commit'leme
+    desc:
+      en: |
+        Saves the staged snapshot to the project history with a descriptive message. 
+        Commits should ideally be small and focused on a single logical change. 
+        Use the --no-verify flag if you need to bypass pre-commit hooks, though this is generally discouraged.
+      tr: |
+        Hazırlanan anlık görüntüyü açıklayıcı bir iletiyle proje geçmişine kaydeder.
+        Commit'ler ideal olarak küçük ve tek bir mantıksal değişikliğe odaklı olmalıdır.
+        Commit öncesi kancaları atlamanız gerekirse --no-verify bayrağını kullanın, ancak bu genellikle önerilmez.
     command: "git commit -m {{message|Commit description}}"
 
   # === REMOTE MANAGEMENT ===
-  - title: git - manage remote repositories
-    desc: |
-      Lists, adds, or removes connections to remote repositories. 
-      The 'verbose' flag shows the URLs associated with each remote nickname (like origin). 
-      This is essential when collaborating with others or deploying code to different servers.
+  - title:
+      en: git - manage remote repositories
+      tr: git - uzak depoları yönetme
+    desc:
+      en: |
+        Lists, adds, or removes connections to remote repositories. 
+        The 'verbose' flag shows the URLs associated with each remote nickname (like origin). 
+        This is essential when collaborating with others or deploying code to different servers.
+      tr: |
+        Uzak depolarla bağlantıları listeler, ekler veya kaldırır.
+        'verbose' bayrağı her uzak takma adla (origin gibi) ilişkili URL'leri gösterir.
+        Başkalarıyla iş birliği yaparken veya kodu farklı sunuculara dağıtırken gereklidir.
     command: "git remote {{action|--verbose}}"
 
-  - title: git - add a new remote
-    desc: |
-      Registers a new remote repository URL under a specific shortname. 
-      Standard practice is to name the primary remote 'origin'. 
-      This allows you to push and pull code to and from hosted services like GitHub or Bitbucket.
+  - title:
+      en: git - add a new remote
+      tr: git - yeni bir uzak depo ekleme
+    desc:
+      en: |
+        Registers a new remote repository URL under a specific shortname. 
+        Standard practice is to name the primary remote 'origin'. 
+        This allows you to push and pull code to and from hosted services like GitHub or Bitbucket.
+      tr: |
+        Belirli bir kısa ad altında yeni bir uzak depo URL'si kaydeder.
+        Standart uygulama, birincil uzağı 'origin' olarak adlandırmaktır.
+        Bu, GitHub veya Bitbucket gibi barındırılan hizmetlere kod gönderip çekmenizi sağlar.
     command: "git remote add {{remote_name|origin}} {{remote_url}}"
 
   # === PUSH & PULL ===
-  - title: git - push changes to remote
-    desc: |
-      Uploads local repository content to a remote repository. 
-      The -u flag sets the upstream tracking, making future pushes and pulls simpler for that branch. 
-      Be cautious with the -f (force) flag, as it can overwrite history on the remote server and disrupt teammates.
+  - title:
+      en: git - push changes to remote
+      tr: git - değişiklikleri uzağa gönderme
+    desc:
+      en: |
+        Uploads local repository content to a remote repository. 
+        The -u flag sets the upstream tracking, making future pushes and pulls simpler for that branch. 
+        Be cautious with the -f (force) flag, as it can overwrite history on the remote server and disrupt teammates.
+      tr: |
+        Yerel depo içeriğini uzak bir depoya yükler.
+        -u bayrağı üst akış takibini ayarlayarak o dal için sonraki gönderme ve çekmeleri kolaylaştırır.
+        Uzak sunucudaki geçmişin üzerine yazıp ekip arkadaşlarını aksatabileceğinden -f (zorla) bayrağıyla dikkatli olun.
     command: "git push -u {{remote_name|origin}} {{branch_name|main}}"
 
-  - title: git - pull latest changes
-    desc: |
-      Fetches changes from a remote server and immediately merges them into the current local branch. 
-      The --ff-only flag ensures that the pull only succeeds if it can be resolved as a fast-forward. 
-      This prevents the creation of unnecessary merge commits and keeps the history linear.
+  - title:
+      en: git - pull latest changes
+      tr: git - en son değişiklikleri çekme
+    desc:
+      en: |
+        Fetches changes from a remote server and immediately merges them into the current local branch. 
+        The --ff-only flag ensures that the pull only succeeds if it can be resolved as a fast-forward. 
+        This prevents the creation of unnecessary merge commits and keeps the history linear.
+      tr: |
+        Uzak sunucudan değişiklikleri alıp hemen mevcut yerel dala birleştirir.
+        --ff-only bayrağı, çekmenin yalnızca hızlı ileri (fast-forward) olarak çözülebiliyorsa başarılı olmasını sağlar.
+        Bu, gereksiz birleştirme commit'lerinin oluşmasını engeller ve geçmişi doğrusal tutar.
     command: "git pull --ff-only {{remote_name|origin}} {{branch_name|main}}"
 
   # === BRANCHING & MERGING ===
-  - title: git - create and switch branch
-    desc: |
-      Creates a new branch and immediately switches the working directory to it. 
-      Branching is used to develop features or fix bugs in isolation from the main codebase. 
-      The new branch will start from the current HEAD position.
+  - title:
+      en: git - create and switch branch
+      tr: git - dal oluşturma ve dallar arası geçiş
+    desc:
+      en: |
+        Creates a new branch and immediately switches the working directory to it. 
+        Branching is used to develop features or fix bugs in isolation from the main codebase. 
+        The new branch will start from the current HEAD position.
+      tr: |
+        Yeni bir dal oluşturup çalışma dizinini hemen ona geçirir.
+        Dallanma, özellikleri geliştirmek veya hataları ana kod tabanından izole düzeltmek için kullanılır.
+        Yeni dal mevcut HEAD konumundan başlar.
     command: "git checkout -b {{new_branch_name|feature-task}}"
 
-  - title: git - merge branches
-    desc: |
-      Integrates changes from a specified branch into the current active branch. 
-      Git will attempt to automatically combine changes, but manual conflict resolution may be required. 
-      Use 'git merge --abort' if the process becomes too complex and you need to return to the pre-merge state.
+  - title:
+      en: git - merge branches
+      tr: git - dalları birleştirme
+    desc:
+      en: |
+        Integrates changes from a specified branch into the current active branch. 
+        Git will attempt to automatically combine changes, but manual conflict resolution may be required. 
+        Use 'git merge --abort' if the process becomes too complex and you need to return to the pre-merge state.
+      tr: |
+        Belirtilen daldaki değişiklikleri mevcut etkin dala bütünleştirir.
+        Git değişiklikleri otomatik birleştirmeye çalışır ancak elle çakışma çözümü gerekebilir.
+        İşlem çok karmaşıklaşır ve birleştirme öncesi duruma dönmeniz gerekirse 'git merge --abort' kullanın.
     command: "git merge {{source_branch|feature-branch}}"
 
   # === LOGGING & HISTORY ===
-  - title: git - view commit history
-    desc: |
-      Displays a list of commits in the current branch's history. 
-      The formatted version provides a visual graph, showing how branches have diverged and merged over time. 
-      This is vital for auditing changes and understanding the project's evolution.
+  - title:
+      en: git - view commit history
+      tr: git - commit geçmişini görüntüleme
+    desc:
+      en: |
+        Displays a list of commits in the current branch's history. 
+        The formatted version provides a visual graph, showing how branches have diverged and merged over time. 
+        This is vital for auditing changes and understanding the project's evolution.
+      tr: |
+        Mevcut dalın geçmişindeki commit'lerin listesini gösterir.
+        Biçimlendirilmiş sürüm, dalların zaman içinde nasıl ayrılıp birleştiğini gösteren görsel bir grafik sunar.
+        Değişiklikleri denetlemek ve projenin evrimini anlamak için hayati önem taşır.
     command: "git log --all --decorate --oneline --graph"
 
-  - title: git - show unstaged differences
-    desc: |
-      Shows the line-by-line differences between the working directory and the staging area. 
-      It helps you review exactly what code was modified before you decide to 'git add' it. 
-      If a filename is provided, it only shows changes for that specific file.
+  - title:
+      en: git - show unstaged differences
+      tr: git - hazırlanmamış farkları gösterme
+    desc:
+      en: |
+        Shows the line-by-line differences between the working directory and the staging area. 
+        It helps you review exactly what code was modified before you decide to 'git add' it. 
+        If a filename is provided, it only shows changes for that specific file.
+      tr: |
+        Çalışma dizini ile hazırlama alanı arasındaki satır satır farkları gösterir.
+        'git add' kararı vermeden önce kodun tam olarak ne kadar değiştiğini gözden geçirmenize yardımcı olur.
+        Bir dosya adı verilirse yalnızca o dosyaya ait değişiklikleri gösterir.
     command: "git diff {{file_path}}"
 
   # === CLEANUP & MAINTENANCE ===
-  - title: git - clean untracked files
-    desc: |
-      Removes untracked files and directories from the working tree. 
-      The -d flag removes directories, and -f forces the deletion (required by default for safety). 
-      This is useful for clearing out build artifacts or temporary files not ignored by .gitignore.
+  - title:
+      en: git - clean untracked files
+      tr: git - izlenmeyen dosyaları temizleme
+    desc:
+      en: |
+        Removes untracked files and directories from the working tree. 
+        The -d flag removes directories, and -f forces the deletion (required by default for safety). 
+        This is useful for clearing out build artifacts or temporary files not ignored by .gitignore.
+      tr: |
+        Çalışma ağacından izlenmeyen dosya ve dizinleri kaldırır.
+        -d bayrağı dizinleri kaldırır, -f silmeyi zorlar (güvenlik için varsayılan olarak gereklidir).
+        .gitignore tarafından yoksayılmayan derleme çıktılarını veya geçici dosyaları temizlemek için kullanışlıdır.
     command: "git clean -dxf"
 
-  - title: git - update submodules
-    desc: |
-      Initializes and updates nested git repositories (submodules). 
-      The --recursive flag ensures that if submodules have their own submodules, they are also updated. 
-      This is necessary when cloning projects that rely on other repositories as dependencies.
+  - title:
+      en: git - update submodules
+      tr: git - alt modülleri güncelleme
+    desc:
+      en: |
+        Initializes and updates nested git repositories (submodules). 
+        The --recursive flag ensures that if submodules have their own submodules, they are also updated. 
+        This is necessary when cloning projects that rely on other repositories as dependencies.
+      tr: |
+        İç içe git depolarını (alt modüller) başlatır ve günceller.
+        --recursive bayrağı, alt modüllerin kendi alt modülleri varsa onların da güncellenmesini sağlar.
+        Bağımlılık olarak başka depolara dayanan projeleri klonlarken gereklidir.
     command: "git submodule update --init --recursive"
 
   # === ADVANCED OPERATIONS ===
-  - title: git - interactive rebase
-    desc: |
-      Rewrites commit history by reapplying commits on top of another base. 
-      It is commonly used to "squash" multiple small commits into a single clean commit before merging. 
-      Note that rebasing shared public history is dangerous and should generally be avoided.
+  - title:
+      en: git - interactive rebase
+      tr: git - etkileşimli yeniden temelleme
+    desc:
+      en: |
+        Rewrites commit history by reapplying commits on top of another base. 
+        It is commonly used to "squash" multiple small commits into a single clean commit before merging. 
+        Note that rebasing shared public history is dangerous and should generally be avoided.
+      tr: |
+        Commit'leri başka bir temel üzerine yeniden uygulayarak commit geçmişini yeniden yazar.
+        Birleştirmeden önce birden çok küçük commit'i tek bir temiz commit'te "ezmek" (squash) için yaygın kullanılır.
+        Paylaşılan genel geçmişi yeniden temellendirmenin tehlikeli olduğunu ve genellikle kaçınılması gerektiğini unutmayın.
     command: "git rebase {{base_branch|main}} -i"
 
-  - title: git - checkout PR from remote
-    desc: |
-      Fetches a specific Pull Request (PR) from a remote (usually origin) and creates a local branch for it. 
-      This allows you to test and review code from contributors locally. 
-      Replace the PR number with the ID found on the hosting platform (GitHub/GitLab).
+  - title:
+      en: git - checkout PR from remote
+      tr: git - uzaktan PR alma
+    desc:
+      en: |
+        Fetches a specific Pull Request (PR) from a remote (usually origin) and creates a local branch for it. 
+        This allows you to test and review code from contributors locally. 
+        Replace the PR number with the ID found on the hosting platform (GitHub/GitLab).
+      tr: |
+        Uzaktan (genellikle origin) belirli bir Çekme İsteğini (PR) alıp onun için yerel bir dal oluşturur.
+        Bu, katkıcıların kodunu yerel olarak test edip incelemenizi sağlar.
+        PR numarasını barındırma platformundaki (GitHub/GitLab) kimlikle değiştirin.
     command: "git fetch origin pull/{{pr_number}}/head:pr/{{pr_number}} && git checkout pr/{{pr_number}}"

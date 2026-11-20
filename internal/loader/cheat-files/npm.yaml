@@ -3,133 +3,259 @@ tags: [javascript, nodejs, package-manager, development, security, build-tool]
 
 actions:
 # === INITIALIZATION AND INSTALLATION ===
- - title: npm - initialize project
-   desc: |
-     Create a package.json file for a new project to track metadata and dependencies. 
-     This command initiates an interactive walkthrough to set up project details. 
-     Using the --yes flag skips the questionnaire and uses default values for all fields.
+ - title:
+     en: npm - initialize project
+     tr: npm - proje başlatma
+   desc:
+     en: |
+       Create a package.json file for a new project to track metadata and dependencies. 
+       This command initiates an interactive walkthrough to set up project details. 
+       Using the --yes flag skips the questionnaire and uses default values for all fields.
+     tr: |
+       Üstveri ve bağımlılıkları izlemek için yeni bir proje için package.json dosyası oluşturun.
+       Bu komut proje ayrıntılarını ayarlamak için etkileşimli bir kurulum başlatır.
+       --yes bayrağını kullanmak soru listesini atlar ve tüm alanlar için varsayılan değerleri kullanır.
    command: "npm init {{flag|--yes}}"
 
- - title: npm - install dependencies
-   desc: |
-     Install all dependencies listed in the package.json file located in the current directory. 
-     This is typically the first command run after cloning a project repository. 
-     It creates the node_modules folder and ensures the environment matches the package-lock.json.
+ - title:
+     en: npm - install dependencies
+     tr: npm - bağımlılıkları kurma
+   desc:
+     en: |
+       Install all dependencies listed in the package.json file located in the current directory. 
+       This is typically the first command run after cloning a project repository. 
+       It creates the node_modules folder and ensures the environment matches the package-lock.json.
+     tr: |
+       Geçerli dizindeki package.json dosyasında listelenen tüm bağımlılıkları kurun.
+       Bu genellikle bir proje deposu klonlandıktan sonra çalıştırılan ilk komuttur.
+       node_modules klasörünü oluşturur ve ortamın package-lock.json ile eşleşmesini sağlar.
    command: "npm install"
 
- - title: npm - add specific package
-   desc: |
-     Add a specific package to the project's production dependencies list. 
-     This command downloads the package and updates both package.json and package-lock.json. 
-     You can specify a version number or a tag if the latest version is not desired.
+ - title:
+     en: npm - add specific package
+     tr: npm - belirli paket ekleme
+   desc:
+     en: |
+       Add a specific package to the project's production dependencies list. 
+       This command downloads the package and updates both package.json and package-lock.json. 
+       You can specify a version number or a tag if the latest version is not desired.
+     tr: |
+       Projenin üretim bağımlılıkları listesine belirli bir paket ekleyin.
+       Bu komut paketi indirir ve package.json ile package-lock.json dosyalarını günceller.
+       En son sürüm istenmiyorsa bir sürüm numarası veya etiket belirtebilirsiniz.
    command: "npm install {{package_name}}"
 
- - title: npm - add development package
-   desc: |
-     Install a package specifically for development purposes, such as testing frameworks or linters. 
-     These dependencies are stored in the devDependencies section of your package.json. 
-     They are not included when the application is installed in a production environment.
+ - title:
+     en: npm - add development package
+     tr: npm - geliştirme paketi ekleme
+   desc:
+     en: |
+       Install a package specifically for development purposes, such as testing frameworks or linters. 
+       These dependencies are stored in the devDependencies section of your package.json. 
+       They are not included when the application is installed in a production environment.
+     tr: |
+       Test çatıları veya linterlar gibi özellikle geliştirme amaçlı bir paket kurun.
+       Bu bağımlılıklar package.json dosyanızın devDependencies bölümünde saklanır.
+       Uygulama üretim ortamına kurulduğunda dahil edilmezler.
    command: "npm install {{package_name}} --save-dev"
 
- - title: npm - global installation
-   desc: |
-     Install a package globally on your system rather than in the local project folder. 
-     This is commonly used for command-line tools that you want to access from any directory. 
-     Depending on your system configuration, this may require administrator or sudo privileges.
+ - title:
+     en: npm - global installation
+     tr: npm - genel kurulum
+   desc:
+     en: |
+       Install a package globally on your system rather than in the local project folder. 
+       This is commonly used for command-line tools that you want to access from any directory. 
+       Depending on your system configuration, this may require administrator or sudo privileges.
+     tr: |
+       Bir paketi yerel proje klasörü yerine sistem genelinde kurun.
+       Herhangi bir dizinden erişmek istediğiniz komut satırı araçları için yaygın kullanılır.
+       Sistem yapılandırmanıza göre bu, yönetici veya sudo yetkileri gerektirebilir.
    command: "npm install -g {{package_name}}"
 
 # === MAINTENANCE AND UPDATES ===
- - title: npm - list installed packages
-   desc: |
-     Display a tree structure of all installed packages and their current versions. 
-     The depth flag allows you to limit the output to top-level packages or nested dependencies. 
-     This is a helpful tool for troubleshooting version mismatches or dependency hell.
+ - title:
+     en: npm - list installed packages
+     tr: npm - kurulu paketleri listeleme
+   desc:
+     en: |
+       Display a tree structure of all installed packages and their current versions. 
+       The depth flag allows you to limit the output to top-level packages or nested dependencies. 
+       This is a helpful tool for troubleshooting version mismatches or dependency hell.
+     tr: |
+       Kurulan tüm paketlerin ve güncel sürümlerinin ağaç yapısını görüntüleyin.
+       Derinlik bayrağı çıktıyı üst düzey paketler veya iç içe bağımlılıklarla sınırlamanıza olanak tanır.
+       Sürüm uyumsuzluklarında veya bağımlılık karmaşasında sorun gidermek için yardımcı bir araçtır.
    command: "npm list --depth={{depth|0}}"
 
- - title: npm - check outdated packages
-   desc: |
-     Compare the versions of installed packages against the latest versions available in the registry. 
-     The output highlights which packages have newer patches, minor updates, or major releases. 
-     It provides a clear view of what needs updating to keep the project current.
+ - title:
+     en: npm - check outdated packages
+     tr: npm - güncel olmayan paketleri denetleme
+   desc:
+     en: |
+       Compare the versions of installed packages against the latest versions available in the registry. 
+       The output highlights which packages have newer patches, minor updates, or major releases. 
+       It provides a clear view of what needs updating to keep the project current.
+     tr: |
+       Kurulu paketlerin sürümlerini kayıttaki en son sürümlerle karşılaştırın.
+       Çıktı hangi paketlerin daha yeni yamaları, küçük güncellemeleri veya ana sürümleri olduğunu vurgular.
+       Projeyi güncel tutmak için nelerin güncellenmesi gerektiğine dair net bir görünüm sağlar.
    command: "npm outdated"
 
- - title: npm - update packages
-   desc: |
-     Update all or specific packages to the latest version allowed by the semver range in package.json. 
-     This command will respect the carets and tildes defined in your configuration. 
-     It is recommended to run tests after updating to ensure no breaking changes were introduced.
+ - title:
+     en: npm - update packages
+     tr: npm - paketleri güncelleme
+   desc:
+     en: |
+       Update all or specific packages to the latest version allowed by the semver range in package.json. 
+       This command will respect the carets and tildes defined in your configuration. 
+       It is recommended to run tests after updating to ensure no breaking changes were introduced.
+     tr: |
+       Tüm veya belirli paketleri package.json dosyasındaki semver aralığının izin verdiği en son sürüme güncelleyin.
+       Bu komut yapılandırmanızda tanımlı şapka ve tilda işaretlerine uyar.
+       Bozucu değişiklik girmediğinden emin olmak için güncellemeden sonra testleri çalıştırmanız önerilir.
    command: "npm update {{package_name|}}"
 
- - title: npm - uninstall package
-   desc: |
-     Remove a package from the node_modules folder and delete its entry from package.json. 
-     This helps keep the project clean by removing unused code and dependencies. 
-     You can also use the -g flag to uninstall globally installed packages.
+ - title:
+     en: npm - uninstall package
+     tr: npm - paket kaldırma
+   desc:
+     en: |
+       Remove a package from the node_modules folder and delete its entry from package.json. 
+       This helps keep the project clean by removing unused code and dependencies. 
+       You can also use the -g flag to uninstall globally installed packages.
+     tr: |
+       Paketi node_modules klasöründen kaldırın ve package.json dosyasındaki girdisini silin.
+       Kullanılmayan kod ve bağımlılıkları kaldırarak projenin temiz kalmasına yardımcı olur.
+       Genel kurulu paketleri kaldırmak için -g bayrağını da kullanabilirsiniz.
    command: "npm uninstall {{package_name}}"
 
 # === SECURITY AND AUDITING ===
- - title: npm - security audit
-   desc: |
-     Scan your project's dependency tree for known security vulnerabilities. 
-     It generates a detailed report of vulnerable packages, the severity of the risk, and available fixes. 
-     Regular auditing is essential for maintaining a secure production environment.
+ - title:
+     en: npm - security audit
+     tr: npm - güvenlik denetimi
+   desc:
+     en: |
+       Scan your project's dependency tree for known security vulnerabilities. 
+       It generates a detailed report of vulnerable packages, the severity of the risk, and available fixes. 
+       Regular auditing is essential for maintaining a secure production environment.
+     tr: |
+       Projenizin bağımlılık ağacını bilinen güvenlik zafiyetlerine karşı tarayın.
+       Zafiyetli paketlerin, riskin ciddiyetinin ve kullanılabilir düzeltmelerin ayrıntılı bir raporunu üretir.
+       Güvenli bir üretim ortamını sürdürmek için düzenli denetim gereklidir.
    command: "npm audit"
 
- - title: npm - fix security vulnerabilities
-   desc: |
-     Automatically apply suggested fixes for vulnerabilities identified during an audit. 
-     This command will update package versions to the nearest secure release within semver constraints. 
-     Use the --force flag if you need to install updates that might involve breaking changes.
+ - title:
+     en: npm - fix security vulnerabilities
+     tr: npm - güvenlik zafiyetlerini düzeltme
+   desc:
+     en: |
+       Automatically apply suggested fixes for vulnerabilities identified during an audit. 
+       This command will update package versions to the nearest secure release within semver constraints. 
+       Use the --force flag if you need to install updates that might involve breaking changes.
+     tr: |
+       Denetim sırasında belirlenen zafiyetler için önerilen düzeltmeleri otomatik uygulayın.
+       Bu komut paket sürümlerini semver kısıtları içinde en yakın güvenli sürüme günceller.
+       Bozucu değişiklikler içerebilecek güncellemeleri kurmanız gerekiyorsa --force bayrağını kullanın.
    command: "npm audit fix {{force_flag|}}"
 
 # === EXECUTION AND SCRIPTS ===
- - title: npm - run custom script
-   desc: |
-     Execute a command defined in the "scripts" object of the package.json file. 
-     Common script names include "start", "test", and "build", but custom names are supported. 
-     This provides a consistent interface for developers to interact with the project's build pipeline.
+ - title:
+     en: npm - run custom script
+     tr: npm - özel betik çalıştırma
+   desc:
+     en: |
+       Execute a command defined in the "scripts" object of the package.json file. 
+       Common script names include "start", "test", and "build", but custom names are supported. 
+       This provides a consistent interface for developers to interact with the project's build pipeline.
+     tr: |
+       package.json dosyasının "scripts" nesnesinde tanımlı bir komut çalıştırın.
+       Yaygın betik adları "start", "test" ve "build" içerir ancak özel adlar desteklenir.
+       Geliştiricilerin projenin derleme hattıyla etkileşimi için tutarlı bir arayüz sağlar.
    command: "npm run {{script_name|start}}"
 
- - title: npm - execute package without install
-   desc: |
-     Run a command from a local or remote npm package without permanently installing it. 
-     This is powered by npx (shipped with npm) and is ideal for one-off tasks like scaffolding. 
-     It ensures you are always using the latest version of the tool without cluttering global space.
+ - title:
+     en: npm - execute package without install
+     tr: npm - kurulum olmadan paket çalıştırma
+   desc:
+     en: |
+       Run a command from a local or remote npm package without permanently installing it. 
+       This is powered by npx (shipped with npm) and is ideal for one-off tasks like scaffolding. 
+       It ensures you are always using the latest version of the tool without cluttering global space.
+     tr: |
+       Yerel veya uzak bir npm paketinden kalıcı kurulum yapmadan bir komut çalıştırın.
+       Bu, npx (npm ile birlikte gelir) tarafından desteklenir ve iskelet oluşturma gibi tek seferlik görevler için idealdir.
+       Genel alanı kalabalıklaştırmadan aracın her zaman en son sürümünü kullanmanızı sağlar.
    command: "npm exec {{binary_name}}"
 
 # === REGISTRY AND PUBLISHING ===
- - title: npm - registry login
-   desc: |
-     Authenticate your local environment with the npm registry or a private equivalent. 
-     This command opens a browser or prompts for credentials to store a local access token. 
-     Authentication is required before you can publish packages or access private scoped content.
+ - title:
+     en: npm - registry login
+     tr: npm - kayıt girişi
+   desc:
+     en: |
+       Authenticate your local environment with the npm registry or a private equivalent. 
+       This command opens a browser or prompts for credentials to store a local access token. 
+       Authentication is required before you can publish packages or access private scoped content.
+     tr: |
+       Yerel ortamınızın kimliğini npm kaydı veya özel bir eşdeğeriyle doğrulayın.
+       Bu komut yerel bir erişim jetonu saklamak için bir tarayıcı açar veya kimlik bilgisi ister.
+       Paket yayımlamadan veya özel kapsamlı içeriğe erişmeden önce kimlik doğrulama gerekir.
    command: "npm login"
 
- - title: npm - publish package
-   desc: |
-     Upload the current package to the npm registry for others to install and use. 
-     Ensure the version number in package.json is updated before running this, as registries do not allow overwrites. 
-     For scoped packages, you may need to specify the access level as public or restricted.
+ - title:
+     en: npm - publish package
+     tr: npm - paket yayımlama
+   desc:
+     en: |
+       Upload the current package to the npm registry for others to install and use. 
+       Ensure the version number in package.json is updated before running this, as registries do not allow overwrites. 
+       For scoped packages, you may need to specify the access level as public or restricted.
+     tr: |
+       Başkalarının kurup kullanması için geçerli paketi npm kaydına yükleyin.
+       Kayıtlar üzerine yazmaya izin vermediğinden bunu çalıştırmadan önce package.json dosyasındaki sürüm numarasının güncellendiğinden emin olun.
+       Kapsamlı paketler için erişim düzeyini public veya restricted olarak belirtmeniz gerekebilir.
    command: "npm publish --access {{access_level|public}}"
 
- - title: npm - view package info
-   desc: |
-     Retrieve metadata about a package from the registry without downloading it. 
-     This can show available versions, maintainers, dependencies, and README content. 
-     It is useful for verifying package details before deciding to add it to your project.
+ - title:
+     en: npm - view package info
+     tr: npm - paket bilgisini görüntüleme
+   desc:
+     en: |
+       Retrieve metadata about a package from the registry without downloading it. 
+       This can show available versions, maintainers, dependencies, and README content. 
+       It is useful for verifying package details before deciding to add it to your project.
+     tr: |
+       Bir paket hakkındaki üstveriyi indirmeden kayıttan getirin.
+       Kullanılabilir sürümleri, bakımcıları, bağımlılıkları ve README içeriğini gösterebilir.
+       Projenize eklemeye karar vermeden önce paket ayrıntılarını doğrulamak için kullanışlıdır.
    command: "npm view {{package_name}}"
 
 # === CONFIGURATION AND UTILITIES ===
- - title: npm - set configuration
-   desc: |
-     Modify settings in the npm configuration files (e.g., .npmrc). 
-     This is often used to set a custom registry URL, proxy settings, or default author information. 
-     Changes made here persist across different projects for the current user.
+ - title:
+     en: npm - set configuration
+     tr: npm - yapılandırma ayarlama
+   desc:
+     en: |
+       Modify settings in the npm configuration files (e.g., .npmrc). 
+       This is often used to set a custom registry URL, proxy settings, or default author information. 
+       Changes made here persist across different projects for the current user.
+     tr: |
+       npm yapılandırma dosyalarındaki (.npmrc gibi) ayarları değiştirin.
+       Bu genellikle özel kayıt URL'si, proxy ayarları veya varsayılan yazar bilgisi ayarlamak için kullanılır.
+       Burada yapılan değişiklikler geçerli kullanıcı için farklı projelerde kalıcı olur.
    command: "npm config set {{key}} {{value}}"
 
- - title: npm - clean package cache
-   desc: |
-     Clear the local cache where npm stores downloaded package data. 
-     This is a troubleshooting step used when package installations are failing or corrupted. 
-     In modern npm versions, the --force flag is required to execute this command.
+ - title:
+     en: npm - clean package cache
+     tr: npm - paket önbelleğini temizleme
+   desc:
+     en: |
+       Clear the local cache where npm stores downloaded package data. 
+       This is a troubleshooting step used when package installations are failing or corrupted. 
+       In modern npm versions, the --force flag is required to execute this command.
+     tr: |
+       npm'in indirilen paket verilerini sakladığı yerel önbelleği temizleyin.
+       Paket kurulumları başarısız veya bozuk olduğunda kullanılan bir sorun giderme adımıdır.
+       Modern npm sürümlerinde bu komutu çalıştırmak için --force bayrağı gerekir.
    command: "npm cache clean --force"

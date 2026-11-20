@@ -3,60 +3,115 @@ tags: [text-processing, linux, scripting, data-extraction, report-generation, pe
 
 actions:
 # === BASIC EXTRACTION ===
- - title: awk - print specific columns
-   desc: |
-     This command is used to extract specific fields or columns from a text file or command output. By default, awk treats whitespace as the field separator, making it ideal for parsing the output of commands like ls or ps. It is a fundamental tool for narrowing down large datasets to just the relevant pieces of information.
+ - title:
+     en: awk - print specific columns
+     tr: awk - belirli sütunları yazdırma
+   desc:
+     en: |
+       This command is used to extract specific fields or columns from a text file or command output. By default, awk treats whitespace as the field separator, making it ideal for parsing the output of commands like ls or ps. It is a fundamental tool for narrowing down large datasets to just the relevant pieces of information.
+     tr: |
+       Bu komut, bir metin dosyasından veya komut çıktısından belirli alan ya da sütunları çıkarmak için kullanılır. awk varsayılan olarak boşluğu alan ayracı kabul eder; bu da onu ls veya ps gibi komutların çıktısını ayrıştırmak için ideal yapar. Büyük veri kümelerini yalnızca ilgili bilgi parçalarına indirmek için temel araçtır.
    command: "awk '{print ${{column_number|1}}}' {{input_file}}"
 
- - title: awk - print multiple columns with custom text
-   desc: |
-     Use this command to combine multiple fields and add descriptive text labels to the output. This is particularly helpful for generating readable reports or preparing data for other scripts. You can include as many columns as needed by separating them with commas in the print statement.
+ - title:
+     en: awk - print multiple columns with custom text
+     tr: awk - özel metinle birden çok sütun yazdırma
+   desc:
+     en: |
+       Use this command to combine multiple fields and add descriptive text labels to the output. This is particularly helpful for generating readable reports or preparing data for other scripts. You can include as many columns as needed by separating them with commas in the print statement.
+     tr: |
+       Birden çok alanı birleştirip çıktıya açıklayıcı metin etiketleri eklemek için bu komutu kullanın. Bu, okunabilir raporlar üretmek veya veriyi diğer betikler için hazırlamakta özellikle yardımcıdır. print ifadesinde virgülle ayırarak gerektiği kadar sütun ekleyebilirsiniz.
    command: "awk '{print \"User: \" $1 \" - ID: \" ${{id_column|3}}}' {{input_file}}"
 
- - title: awk - custom field separator
-   desc: |
-     The field separator option allows awk to process files that do not use standard whitespace, such as CSV or colon-delimited files. By defining the separator with the -F flag, awk correctly identifies each field based on the provided character. This is essential for parsing system configuration files like /etc/passwd or application logs.
+ - title:
+     en: awk - custom field separator
+     tr: awk - özel alan ayracı
+   desc:
+     en: |
+       The field separator option allows awk to process files that do not use standard whitespace, such as CSV or colon-delimited files. By defining the separator with the -F flag, awk correctly identifies each field based on the provided character. This is essential for parsing system configuration files like /etc/passwd or application logs.
+     tr: |
+       Alan ayracı seçeneği, awk'in CSV veya iki nokta üst üste ayrılmış dosyalar gibi standart boşluk kullanmayan dosyaları işlemesine olanak tanır. Ayracı -F bayrağıyla tanımlayarak awk her alanı verilen karaktere göre doğru belirler. Bu, /etc/passwd gibi sistem yapılandırma dosyalarını veya uygulama loglarını ayrıştırmak için gereklidir.
    command: "awk -F '{{separator|:}}' '{print $1, ${{column_index|3}}}' {{input_file}}"
 
 # === FILTERING AND SEARCHING ===
- - title: awk - filter by numeric condition
-   desc: |
-     This command filters lines based on a logical or mathematical comparison of a specific column's value. It only outputs lines where the condition evaluates to true, such as a process ID being higher than a certain limit. This is a powerful way to perform conditional data analysis directly from the terminal.
+ - title:
+     en: awk - filter by numeric condition
+     tr: awk - sayısal koşulla filtreleme
+   desc:
+     en: |
+       This command filters lines based on a logical or mathematical comparison of a specific column's value. It only outputs lines where the condition evaluates to true, such as a process ID being higher than a certain limit. This is a powerful way to perform conditional data analysis directly from the terminal.
+     tr: |
+       Bu komut, belirli bir sütunun değerinin mantıksal veya matematiksel karşılaştırmasına göre satırları filtreler. Yalnızca koşulun doğru olduğu satırları (ör. işlem kimliğinin belirli bir sınırdan yüksek olması) çıktılar. Bu, doğrudan terminalden koşullu veri analizi yapmanın güçlü yoludur.
    command: "awk '${{column_index|3}} {{operator|>}} {{threshold|100}}' {{input_file}}"
 
- - title: awk - pattern matching with regex
-   desc: |
-     Awk can act as a sophisticated filter by searching for specific regular expression patterns within the input. Unlike grep, awk allows you to perform additional actions or print specific columns only when a match is found. Use this to isolate specific error codes or keywords within complex log files.
+ - title:
+     en: awk - pattern matching with regex
+     tr: awk - regex ile kalıp eşleştirme
+   desc:
+     en: |
+       Awk can act as a sophisticated filter by searching for specific regular expression patterns within the input. Unlike grep, awk allows you to perform additional actions or print specific columns only when a match is found. Use this to isolate specific error codes or keywords within complex log files.
+     tr: |
+       Awk, girdi içinde belirli düzenli ifade kalıplarını arayarak gelişmiş bir filtre gibi davranabilir. grep'ten farklı olarak awk, yalnızca eşleşme bulunduğunda ek eylemler yapmanıza veya belirli sütunları yazdırmanıza olanak tanır. Karmaşık log dosyalarındaki belirli hata kodlarını veya anahtar kelimeleri yalıtmak için kullanın.
    command: "awk '/{{pattern|ERROR}}/' {{input_file}}"
 
- - title: awk - filter by specific field match
-   desc: |
-     This action targets a specific column for pattern matching rather than searching the entire line. This prevents "false positives" that might occur if the pattern exists in a different, irrelevant field. It is highly effective when you know exactly which column contains the data you are searching for.
+ - title:
+     en: awk - filter by specific field match
+     tr: awk - belirli alan eşleşmesiyle filtreleme
+   desc:
+     en: |
+       This action targets a specific column for pattern matching rather than searching the entire line. This prevents "false positives" that might occur if the pattern exists in a different, irrelevant field. It is highly effective when you know exactly which column contains the data you are searching for.
+     tr: |
+       Bu eylem, tüm satırı aramak yerine kalıp eşleştirme için belirli bir sütunu hedefler. Bu, kalıp farklı ve ilgisiz bir alanda geçtiğinde oluşabilecek "yanlış pozitif"leri engeller. Aradığınız verinin tam olarak hangi sütunda olduğunu bildiğinizde oldukça etkilidir.
    command: "awk '${{column_index|1}} ~ /{{pattern|admin}}/' {{input_file}}"
 
 # === BUILT-IN VARIABLES AND LOGIC ===
- - title: awk - print row numbers and field counts
-   desc: |
-     The built-in variables NR (Number of Record) and NF (Number of Fields) provide metadata about the file structure. NR tracks the current line number, while NF tracks how many columns are present on the current line. Use this to validate data integrity or to add line numbering to your output for easier reference.
+ - title:
+     en: awk - print row numbers and field counts
+     tr: awk - satır numarası ve alan sayısı yazdırma
+   desc:
+     en: |
+       The built-in variables NR (Number of Record) and NF (Number of Fields) provide metadata about the file structure. NR tracks the current line number, while NF tracks how many columns are present on the current line. Use this to validate data integrity or to add line numbering to your output for easier reference.
+     tr: |
+       Yerleşik NR (Kayıt Numarası) ve NF (Alan Sayısı) değişkenleri dosya yapısı hakkında üstveri sağlar. NR geçerli satır numarasını, NF geçerli satırdaki sütun sayısını izler. Bunu veri bütünlüğünü doğrulamak veya kolay başvuru için çıktınıza satır numaralandırması eklemekte kullanın.
    command: "awk '{print \"Line: \" NR, \"Fields: \" NF, \"Content: \" $0}' {{input_file}}"
 
- - title: awk - pass external shell variables
-   desc: |
-     The -v flag allows you to inject external shell variables into the awk environment safely. This makes your awk commands dynamic and suitable for use within larger automation scripts or loops. It is the preferred way to pass parameters into an awk command without complex string escaping.
+ - title:
+     en: awk - pass external shell variables
+     tr: awk - dış kabuk değişkenlerini aktarma
+   desc:
+     en: |
+       The -v flag allows you to inject external shell variables into the awk environment safely. This makes your awk commands dynamic and suitable for use within larger automation scripts or loops. It is the preferred way to pass parameters into an awk command without complex string escaping.
+     tr: |
+       -v bayrağı, dış kabuk değişkenlerini awk ortamına güvenle enjekte etmenize olanak tanır. Bu, awk komutlarınızı dinamik yapar ve daha büyük otomasyon betikleri veya döngülerinde kullanıma uygun kılar. Karmaşık dize kaçışları olmadan awk komutuna parametre geçirmenin tercih edilen yoludur.
    command: "awk -v my_var=\"{{value|search_term}}\" '$0 ~ my_var' {{input_file}}"
 
 # === DATA PROCESSING AND STATISTICS ===
- - title: awk - calculate sum of a column
-   desc: |
-     Awk can perform arithmetic operations across multiple rows and store the results in variables. The END block is used to print the final result after the entire file has been processed. This is a quick and efficient way to calculate totals, such as summing file sizes or total network traffic from a log.
+ - title:
+     en: awk - calculate sum of a column
+     tr: awk - sütun toplamı hesaplama
+   desc:
+     en: |
+       Awk can perform arithmetic operations across multiple rows and store the results in variables. The END block is used to print the final result after the entire file has been processed. This is a quick and efficient way to calculate totals, such as summing file sizes or total network traffic from a log.
+     tr: |
+       Awk birden çok satırda aritmetik işlemler yapıp sonuçları değişkenlerde saklayabilir. END bloğu, dosyanın tamamı işlendikten sonra nihai sonucu yazdırmak için kullanılır. Log'dan dosya boyutları veya toplam ağ trafiği toplamak gibi toplamları hesaplamanın hızlı ve verimli yoludur.
    command: "awk '{sum+=${{column_index|1}}} END {print \"Total Sum: \", sum}' {{input_file}}"
 
- - title: awk - global string substitution
-   desc: |
-     The gsub function performs a global find-and-replace operation on the input text. This allows you to sanitize data or reformat strings before they are printed or passed to the next command. It is more flexible than sed when you need to perform replacements based on column-specific logic.
+ - title:
+     en: awk - global string substitution
+     tr: awk - genel dize değiştirme
+   desc:
+     en: |
+       The gsub function performs a global find-and-replace operation on the input text. This allows you to sanitize data or reformat strings before they are printed or passed to the next command. It is more flexible than sed when you need to perform replacements based on column-specific logic.
+     tr: |
+       gsub işlevi girdi metninde genel bul-değiştir işlemi yapar. Bu, veriyi yazdırmadan veya sonraki komuta aktarmadan önce temizlemenize ya da dizeleri yeniden biçimlendirmenize olanak tanır. Sütuna özgü mantıkla değiştirme yapmanız gerektiğinde sed'den daha esnektir.
    command: "awk '{gsub(/{{search_pattern|old_text}}/, \"{{replacement|new_text}}\"); print}' {{input_file}}"
 
- - title: awk - range selection between patterns
-   desc: |
-     This command extracts all lines that fall between two specific patterns, including the lines containing the patterns themselves. This is extremely useful for extracting specific sections of a configuration file or a block of logs between two timestamps. It effectively isolates relevant chunks of data from a larger file.
+ - title:
+     en: awk - range selection between patterns
+     tr: awk - kalıplar arası aralık seçimi
+   desc:
+     en: |
+       This command extracts all lines that fall between two specific patterns, including the lines containing the patterns themselves. This is extremely useful for extracting specific sections of a configuration file or a block of logs between two timestamps. It effectively isolates relevant chunks of data from a larger file.
+     tr: |
+       Bu komut, kalıpları içeren satırlar dahil iki belirli kalıp arasında kalan tüm satırları çıkarır. Yapılandırma dosyasının belirli bölümlerini veya iki zaman damgası arası log bloğunu çıkarmada son derece yararlıdır. Büyük bir dosyadan ilgili veri parçalarını etkili şekilde yalıtır.
    command: "awk '/{{start_pattern|BEGIN}}/, /{{end_pattern|END}}/' {{input_file}}"

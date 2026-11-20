@@ -17,7 +17,7 @@ import (
 // Filter updates the filtered list based on the search query.
 func (m Model) Filter(cheats []*model.Cheat) Model {
 	if !IsSpecialCommand(m.Input.Value()) {
-		m.Filtered = search.Query(cheats, m.Input.Value())
+		m.Filtered = search.Query(cheats, m.Input.Value(), m.lang)
 		// Filtering invalidates the old cursor position.
 		m.Cursor = -1
 		m.Offset = 0

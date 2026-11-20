@@ -3,54 +3,103 @@ tags: [active-directory, pentest, privilege-escalation, impacket, security, kerb
 
 actions:
   # === BASIC ESCALATION ===
-  - title: impacket-raiseChild - basic child to forest escalation
-    desc: |
-      This command initiates the privilege escalation process from a child domain to the forest root domain. 
-      It works by identifying the trust relationship and automating the creation of a Golden Ticket with the SID of the Enterprise Admins group. 
-      This is primarily used when you have compromised a Domain Admin account in a child domain and wish to gain full control over the entire forest.
+  - title:
+      en: impacket-raiseChild - basic child to forest escalation
+      tr: impacket-raiseChild - temel alt etki alanından ormana yükseltme
+    desc:
+      en: |
+        This command initiates the privilege escalation process from a child domain to the forest root domain. 
+        It works by identifying the trust relationship and automating the creation of a Golden Ticket with the SID of the Enterprise Admins group. 
+        This is primarily used when you have compromised a Domain Admin account in a child domain and wish to gain full control over the entire forest.
+      tr: |
+        Bu komut, alt etki alanından orman kök etki alanına ayrıcalık yükseltme sürecini başlatır.
+        Güven ilişkisini tespit edip Enterprise Admins grubunun SID'ini içeren bir Golden Ticket oluşturmayı otomatikleştirerek çalışır.
+        Bu yöntem genellikle bir alt etki alanındaki Domain Admin hesabı ele geçirildiğinde tüm orman üzerinde tam kontrol sağlamak için kullanılır.
     command: "impacket-raiseChild {{domain}}/{{username}}:{{password}}@{{target_ip}}"
 
-  - title: impacket-raiseChild - escalation using NTLM hashes
-    desc: |
-      Performs the privilege escalation attack using NTLM hashes instead of a plaintext password. 
-      This is an essential technique in Pass-the-Hash scenarios where the cleartext password of the child domain admin is not available. 
-      The hash must be provided in the format LMHASH:NTHASH (e.g., aad3b435b51404eeaad3b435b51404ee:31d6cfe0d16ae931b73c59d7e0c089c0).
+  - title:
+      en: impacket-raiseChild - escalation using NTLM hashes
+      tr: impacket-raiseChild - NTLM hash'leri ile yükseltme
+    desc:
+      en: |
+        Performs the privilege escalation attack using NTLM hashes instead of a plaintext password. 
+        This is an essential technique in Pass-the-Hash scenarios where the cleartext password of the child domain admin is not available. 
+        The hash must be provided in the format LMHASH:NTHASH (e.g., aad3b435b51404eeaad3b435b51404ee:31d6cfe0d16ae931b73c59d7e0c089c0).
+      tr: |
+        Ayrıcalık yükseltme saldırısını açık parolası yerine NTLM hash'leri kullanarak gerçekleştirir.
+        Alt etki alanı yöneticisinin açık parolasının bulunmadığı Pass-the-Hash senaryolarında temel bir tekniktir.
+        Hash, LMHASH:NTHASH biçiminde verilmelidir (örn. aad3b435b51404eeaad3b435b51404ee:31d6cfe0d16ae931b73c59d7e0c089c0).
     command: "impacket-raiseChild -hashes {{lmhash:nthash}} {{domain}}/{{username}}@{{target_ip}}"
 
   # === ADVANCED AUTHENTICATION & PERSISTENCE ===
-  - title: impacket-raiseChild - escalation using Kerberos authentication
-    desc: |
-      Uses Kerberos tickets for authentication instead of NTLM. 
-      This requires a valid Kerberos cache (ccache) file and the environment variable KRB5CCNAME to be set correctly. 
-      Using Kerberos can help bypass environments where NTLM is disabled or heavily monitored for anomalies.
+  - title:
+      en: impacket-raiseChild - escalation using Kerberos authentication
+      tr: impacket-raiseChild - Kerberos kimlik doğrulaması ile yükseltme
+    desc:
+      en: |
+        Uses Kerberos tickets for authentication instead of NTLM. 
+        This requires a valid Kerberos cache (ccache) file and the environment variable KRB5CCNAME to be set correctly. 
+        Using Kerberos can help bypass environments where NTLM is disabled or heavily monitored for anomalies.
+      tr: |
+        Kimlik doğrulama için NTLM yerine Kerberos biletlerini kullanır.
+        Geçerli bir Kerberos önbellek (ccache) dosyası ve KRB5CCNAME ortam değişkeninin doğru ayarlanmasını gerektirir.
+        Kerberos kullanmak, NTLM'in devre dışı olduğu veya sıkı izlendiği ortamlarda engelleri aşmaya yardımcı olur.
     command: "impacket-raiseChild -k -no-pass {{domain}}/{{username}}@{{target_ip}}"
 
-  - title: impacket-raiseChild - export golden ticket to file
-    desc: |
-      Generates the escalated Golden Ticket for the forest root and saves it to a specified file path. 
-      This allows for later use with other Impacket tools like secretsdump or psexec by setting the KRB5CCNAME variable to the saved file. 
-      It is a highly effective method for maintaining persistent access to the forest root without needing to run the exploit again.
+  - title:
+      en: impacket-raiseChild - export golden ticket to file
+      tr: impacket-raiseChild - golden ticket'ı dosyaya aktarma
+    desc:
+      en: |
+        Generates the escalated Golden Ticket for the forest root and saves it to a specified file path. 
+        This allows for later use with other Impacket tools like secretsdump or psexec by setting the KRB5CCNAME variable to the saved file. 
+        It is a highly effective method for maintaining persistent access to the forest root without needing to run the exploit again.
+      tr: |
+        Yükseltilmiş orman kökü Golden Ticket'ını üretip belirtilen dosya yoluna kaydeder.
+        Kaydedilen dosyayı KRB5CCNAME değişkenine tanımlayarak secretsdump veya psexec gibi diğer Impacket araçlarıyla daha sonra kullanmaya olanak tanır.
+        Saldırıyı tekrar çalıştırmaya gerek kalmadan orman köküne kalıcı erişimi sürdürmek için oldukça etkili bir yöntemdir.
     command: "impacket-raiseChild -w {{output_path|forest_admin.ccache}} {{domain}}/{{username}}:{{password}}@{{target_ip}}"
 
   # === TARGETING & EXECUTION ===
-  - title: impacket-raiseChild - target specific user RID
-    desc: |
-      Specifies a target User RID to impersonate in the parent domain during the escalation process. 
-      By default, the tool targets the Administrator account with RID 500, which is the most common path to full control. 
-      Changing the RID can be useful if the default Administrator account is renamed, disabled, or if you need to impersonate a different high-privileged user.
+  - title:
+      en: impacket-raiseChild - target specific user RID
+      tr: impacket-raiseChild - belirli bir kullanıcı RID'ini hedefleme
+    desc:
+      en: |
+        Specifies a target User RID to impersonate in the parent domain during the escalation process. 
+        By default, the tool targets the Administrator account with RID 500, which is the most common path to full control. 
+        Changing the RID can be useful if the default Administrator account is renamed, disabled, or if you need to impersonate a different high-privileged user.
+      tr: |
+        Yükseltme süreci sırasında üst etki alanında taklit edilecek hedef Kullanıcı RID'ini belirtir.
+        Varsayılan olarak araç, tam kontrole giden en yaygın yol olan RID 500'lü Administrator hesabını hedefler.
+        Varsayılan Administrator hesabı yeniden adlandırılmış, devre dışı bırakılmış veya farklı bir yüksek yetkili kullanıcı taklit edilecekse RID'i değiştirmek faydalı olur.
     command: "impacket-raiseChild -targetRID {{rid|500}} {{domain}}/{{username}}:{{password}}@{{target_ip}}"
 
-  - title: impacket-raiseChild - automatic execution on forest root
-    desc: |
-      Automatically executes a semi-interactive shell on the target forest root domain controller after successful escalation. 
-      It functions similarly to psexec, using the newly generated high-privileged credentials to gain immediate command execution. 
-      Use the IP address or hostname of the Parent Domain Controller for the target-exec argument.
+  - title:
+      en: impacket-raiseChild - automatic execution on forest root
+      tr: impacket-raiseChild - orman kökünde otomatik komut çalıştırma
+    desc:
+      en: |
+        Automatically executes a semi-interactive shell on the target forest root domain controller after successful escalation. 
+        It functions similarly to psexec, using the newly generated high-privileged credentials to gain immediate command execution. 
+        Use the IP address or hostname of the Parent Domain Controller for the target-exec argument.
+      tr: |
+        Başarılı yükseltmeden sonra hedef orman kökü etki alanı denetleyicisinde yarı etkileşimli bir kabuk otomatik olarak çalıştırır.
+        Yeni üretilen yüksek yetkili kimlik bilgileriyle anında komut çalıştırmak için psexec'e benzer şekilde çalışır.
+        target-exec argümanı için Üst Etki Alanı Denetleyicisinin IP adresini veya ana makine adını kullanın.
     command: "impacket-raiseChild -target-exec {{parent_dc_ip}} {{domain}}/{{username}}:{{password}}@{{target_ip}}"
 
   # === TROUBLESHOOTING ===
-  - title: impacket-raiseChild - enable debug logging
-    desc: |
-      Runs the escalation tool with verbose debug output enabled. 
-      This is critical for troubleshooting connection issues, RPC errors, or understanding why the SID history injection might be failing. 
-      It provides detailed information about the underlying protocols and steps being performed by the script.
+  - title:
+      en: impacket-raiseChild - enable debug logging
+      tr: impacket-raiseChild - hata ayıklama günlüğünü etkinleştirme
+    desc:
+      en: |
+        Runs the escalation tool with verbose debug output enabled. 
+        This is critical for troubleshooting connection issues, RPC errors, or understanding why the SID history injection might be failing. 
+        It provides detailed information about the underlying protocols and steps being performed by the script.
+      tr: |
+        Yükseltme aracını ayrıntılı hata ayıklama çıktısı etkin şekilde çalıştırır.
+        Bağlantı sorunlarını, RPC hatalarını gidermek veya SID geçmişi enjeksiyonunun neden başarısız olduğunu anlamak için kritik öneme sahiptir.
+        Altta yatan protokoller ve betiğin gerçekleştirdiği adımlar hakkında ayrıntılı bilgi sağlar.
     command: "impacket-raiseChild -debug {{domain}}/{{username}}:{{password}}@{{target_ip}}"

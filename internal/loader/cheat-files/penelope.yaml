@@ -3,66 +3,126 @@ tags: [network, shell-handler, security, pentest, exploitation, enumeration, rev
 
 actions:
 # === BASIC LISTENING & PAYLOADS ===
- - title: penelope - start default listener
-   desc: |
-     Start a listener on all interfaces using the default port 4444. This is the most common way to catch a reverse shell with automatic PTY upgrade and session logging. It simplifies the process by handling terminal resizing and shell stability automatically.
+ - title:
+     en: penelope - start default listener
+     tr: penelope - varsayılan dinleyiciyi başlatma
+   desc:
+     en: |
+       Start a listener on all interfaces using the default port 4444. This is the most common way to catch a reverse shell with automatic PTY upgrade and session logging. It simplifies the process by handling terminal resizing and shell stability automatically.
+     tr: |
+       Tüm arayüzlerde varsayılan 4444 portunu kullanarak bir dinleyici başlatır. Bu, otomatik PTY yükseltme ve oturum kaydıyla ters kabuk (reverse shell) yakalamanın en yaygın yoludur. Terminal yeniden boyutlandırma ve kabuk kararlılığını otomatik yöneterek işlemi basitleştirir.
    command: "penelope"
 
- - title: penelope - listen on specific interface and port
-   desc: |
-     Listen for incoming connections on a specific network interface and custom port. Use this when you need to bind the listener to a specific IP address to ensure the target can reach your machine. Multiple ports can be specified by separating them with commas.
+ - title:
+     en: penelope - listen on specific interface and port
+     tr: penelope - belirli arayüz ve portu dinleme
+   desc:
+     en: |
+       Listen for incoming connections on a specific network interface and custom port. Use this when you need to bind the listener to a specific IP address to ensure the target can reach your machine. Multiple ports can be specified by separating them with commas.
+     tr: |
+       Belirli bir ağ arayüzünde ve özel portta gelen bağlantıları dinler. Hedefin makinenize ulaşabildiğinden emin olmak için dinleyiciyi belirli bir IP adresine bağlamanız gerektiğinde kullanın. Virgülle ayırarak birden fazla port belirtilebilir.
    command: "penelope -i {{interface|0.0.0.0}} -p {{port|5555}}"
 
- - title: penelope - show shell payloads
-   desc: |
-     Start the listener and display sample reverse shell payloads for the active listeners. This feature provides ready-to-use one-liners for various environments like Bash, Python, or Perl. It is highly useful during the exploitation phase to quickly generate a payload compatible with the target.
+ - title:
+     en: penelope - show shell payloads
+     tr: penelope - kabuk yüklerini gösterme
+   desc:
+     en: |
+       Start the listener and display sample reverse shell payloads for the active listeners. This feature provides ready-to-use one-liners for various environments like Bash, Python, or Perl. It is highly useful during the exploitation phase to quickly generate a payload compatible with the target.
+     tr: |
+       Dinleyiciyi başlatır ve etkin dinleyiciler için örnek ters kabuk (reverse shell) yüklerini görüntüler. Bu özellik Bash, Python veya Perl gibi çeşitli ortamlar için hazır tek satırlık komutlar sunar. Sömürü aşamasında hedefle uyumlu bir yükü hızla üretmek için oldukça kullanışlıdır.
    command: "penelope -a"
 
 # === CONNECTION MODES ===
- - title: penelope - connect to bind shell
-   desc: |
-     Connect to a target host that is already listening for an incoming connection on a specific port. This mode is used when the target has a bind shell running and you need to initiate the connection. Ensure the target's firewall allows inbound traffic on the specified port.
+ - title:
+     en: penelope - connect to bind shell
+     tr: penelope - bind kabuğa bağlanma
+   desc:
+     en: |
+       Connect to a target host that is already listening for an incoming connection on a specific port. This mode is used when the target has a bind shell running and you need to initiate the connection. Ensure the target's firewall allows inbound traffic on the specified port.
+     tr: |
+       Belirli bir portta gelen bağlantıyı zaten dinleyen bir hedef makineye bağlanır. Bu mod, hedefte çalışan bir bind kabuk varken bağlantıyı sizin başlatmanız gerektiğinde kullanılır. Hedefin güvenlik duvarının belirtilen portta gelen trafiğe izin verdiğinden emin olun.
    command: "penelope -c {{target_ip}} -p {{port|3333}}"
 
- - title: penelope - get shell via SSH
-   desc: |
-     Establish a managed Penelope shell session by connecting to the target via SSH. This command uses existing credentials to log in and then automatically upgrades the session to a managed handler. It is an efficient way to gain a stable, loggable environment on a system where SSH is already accessible.
+ - title:
+     en: penelope - get shell via SSH
+     tr: penelope - SSH ile kabuk alma
+   desc:
+     en: |
+       Establish a managed Penelope shell session by connecting to the target via SSH. This command uses existing credentials to log in and then automatically upgrades the session to a managed handler. It is an efficient way to gain a stable, loggable environment on a system where SSH is already accessible.
+     tr: |
+       Mevcut kimlik bilgileriyle hedefe SSH üzerinden bağlanarak yönetilen bir Penelope kabuk oturumu kurar. Bu komut, oturum açtıktan sonra oturumu otomatik olarak yönetilen işleyiciye yükseltir. SSH erişimi zaten olan bir sistemde kararlı, kaydı tutulan bir ortam elde etmenin verimli bir yoludur.
    command: "penelope ssh {{user}}@{{target_ip}}"
 
- - title: penelope - get shell via SSH with custom options
-   desc: |
-     Establish an SSH-based reverse shell while passing specific arguments to the SSH command. Use the double-dash separator to specify SSH-specific options like custom ports or private keys. This provides flexibility when dealing with non-standard SSH configurations on the target.
+ - title:
+     en: penelope - get shell via SSH with custom options
+     tr: penelope - özel seçeneklerle SSH ile kabuk alma
+   desc:
+     en: |
+       Establish an SSH-based reverse shell while passing specific arguments to the SSH command. Use the double-dash separator to specify SSH-specific options like custom ports or private keys. This provides flexibility when dealing with non-standard SSH configurations on the target.
+     tr: |
+       SSH komutuna belirli argümanlar aktararak SSH tabanlı bir ters kabuk kurar. Özel port veya özel anahtar gibi SSH'ye özgü seçenekleri belirtmek için çift tire ayırıcısını kullanın. Hedefte standart dışı SSH yapılandırmalarıyla uğraşırken esneklik sağlar.
    command: "penelope -i {{interface|eth0}} -p {{local_port|5555}} -- ssh -l {{user}} -p {{remote_ssh_port|2222}} {{target_ip}}"
 
 # === FILE OPERATIONS ===
- - title: penelope - serve files via HTTP
-   desc: |
-     Start a built-in HTTP server to share a local file or folder with the target. This allows you to easily transfer enumeration scripts, exploits, or other tools to the remote machine. By default, it uses port 8000 but can be combined with the -p flag to change the port.
+ - title:
+     en: penelope - serve files via HTTP
+     tr: penelope - HTTP ile dosya paylaşma
+   desc:
+     en: |
+       Start a built-in HTTP server to share a local file or folder with the target. This allows you to easily transfer enumeration scripts, exploits, or other tools to the remote machine. By default, it uses port 8000 but can be combined with the -p flag to change the port.
+     tr: |
+       Yerel bir dosya veya klasörü hedefle paylaşmak için yerleşik bir HTTP sunucusu başlatır. Numaralandırma betiklerini, exploitleri veya diğer araçları uzak makineye kolayca aktarmanıza olanak tanır. Varsayılan olarak 8000 portunu kullanır, ancak portu değiştirmek için -p bayrağıyla birleştirilebilir.
    command: "penelope -s {{path|/opt/tools}} -p {{web_port|8000}}"
 
 # === SESSION MANAGEMENT ===
- - title: penelope - maintain active sessions
-   desc: |
-     Automatically attempt to maintain a specific number of active sessions per target host. This feature is vital for persistence, as Penelope will try to keep the specified number of shells open even if one dies. It helps ensure continuous access during unstable network conditions or intensive exploitation.
+ - title:
+     en: penelope - maintain active sessions
+     tr: penelope - etkin oturumları sürdürme
+   desc:
+     en: |
+       Automatically attempt to maintain a specific number of active sessions per target host. This feature is vital for persistence, as Penelope will try to keep the specified number of shells open even if one dies. It helps ensure continuous access during unstable network conditions or intensive exploitation.
+     tr: |
+       Hedef makine başına belirli sayıda etkin oturumu otomatik olarak açık tutmaya çalışır. Biri kapansa bile Penelope belirtilen sayıda kabuğu açık tutmaya çalışacağından bu özellik kalıcılık için hayati önem taşır. Kararsız ağ koşullarında veya yoğun sömürü sırasında sürekli erişim sağlamaya yardımcı olur.
    command: "penelope -m {{session_count|2}}"
 
- - title: penelope - start in main menu
-   desc: |
-     Launch Penelope directly into the main menu instead of immediately starting a listener. This is useful for managing existing sessions, configuring global settings, or preparing multiple listeners before receiving shells. You can navigate through active sessions and various utility modules from here.
+ - title:
+     en: penelope - start in main menu
+     tr: penelope - ana menüde başlatma
+   desc:
+     en: |
+       Launch Penelope directly into the main menu instead of immediately starting a listener. This is useful for managing existing sessions, configuring global settings, or preparing multiple listeners before receiving shells. You can navigate through active sessions and various utility modules from here.
+     tr: |
+       Dinleyiciyi hemen başlatmak yerine Penelope'yi doğrudan ana menüde açar. Mevcut oturumları yönetmek, genel ayarları yapılandırmak veya kabukları karşılamadan önce birden fazla dinleyici hazırlamak için kullanışlıdır. Buradan etkin oturumlar ve çeşitli yardımcı modüller arasında gezinebilirsiniz.
    command: "penelope -M"
 
 # === ADVANCED & COMPLIANCE ===
- - title: penelope - enable OSCP-safe mode
-   desc: |
-     Run the shell handler in a restricted mode designed to comply with OSCP exam regulations. This mode disables automated exploitation modules like Meterpreter or Traitor that might violate certification rules. It provides peace of mind for students while still offering advanced PTY handling and logging.
+ - title:
+     en: penelope - enable OSCP-safe mode
+     tr: penelope - OSCP-güvenli modu etkinleştirme
+   desc:
+     en: |
+       Run the shell handler in a restricted mode designed to comply with OSCP exam regulations. This mode disables automated exploitation modules like Meterpreter or Traitor that might violate certification rules. It provides peace of mind for students while still offering advanced PTY handling and logging.
+     tr: |
+       Kabuk işleyiciyi, OSCP sınav kurallarına uyum için tasarlanmış kısıtlı modda çalıştırır. Bu mod, sertifika kurallarını ihlal edebilecek Meterpreter veya Traitor gibi otomatik sömürü modüllerini devre dışı bırakır. Gelişmiş PTY yönetimi ve kayıt tutmayı sunmaya devam ederken öğrencilere gönül rahatlığı sağlar.
    command: "penelope -O"
 
- - title: penelope - disable session logging
-   desc: |
-     Start the listener with session logging completely disabled. While Penelope logs interactions by default for documentation and auditing, this switch is useful when disk space is limited or logs are not required. Note that this prevents the review of historical commands and outputs from that session.
+ - title:
+     en: penelope - disable session logging
+     tr: penelope - oturum kaydını devre dışı bırakma
+   desc:
+     en: |
+       Start the listener with session logging completely disabled. While Penelope logs interactions by default for documentation and auditing, this switch is useful when disk space is limited or logs are not required. Note that this prevents the review of historical commands and outputs from that session.
+     tr: |
+       Dinleyiciyi oturum kaydı tamamen kapalı şekilde başlatır. Penelope belgeleme ve denetim için etkileşimleri varsayılan olarak kaydeder, ancak disk alanı kısıtlıysa veya kayıt gerekmiyorsa bu anahtar kullanışlıdır. Bunun, ilgili oturumdaki geçmiş komut ve çıktıların incelenmesini engelleyeceğini unutmayın.
    command: "penelope -L"
 
- - title: penelope - single session mode
-   desc: |
-     Configure Penelope to only accommodate the first created session and ignore subsequent incoming shells. This is useful for focused tasks where you do not want your terminal interrupted by multiple incoming connections. It ensures that the handler terminates or remains dedicated to the first successful exploit.
+ - title:
+     en: penelope - single session mode
+     tr: penelope - tek oturum modu
+   desc:
+     en: |
+       Configure Penelope to only accommodate the first created session and ignore subsequent incoming shells. This is useful for focused tasks where you do not want your terminal interrupted by multiple incoming connections. It ensures that the handler terminates or remains dedicated to the first successful exploit.
+     tr: |
+       Penelope'yi yalnızca ilk oluşturulan oturumu kabul edip sonraki gelen kabukları yoksayacak şekilde yapılandırır. Terminalinizin birden fazla gelen bağlantıyla bölünmesini istemediğiniz odaklı görevler için kullanışlıdır. İşleyicinin ilk başarılı sömürüye ayrılmasını veya sonlanmasını garanti eder.
    command: "penelope -S"

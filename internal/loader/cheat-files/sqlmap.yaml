@@ -3,119 +3,231 @@ tags: [security, pentest, exploitation, vulnerability-scanner, database, sql-inj
 
 actions:
   # === TARGET SPECIFICATION ===
-  - title: sqlmap - basic GET request scan
-    desc: |
-      Performs a standard automated scan against a specific URL with GET parameters. 
-      It is the most common entry point for testing a suspected SQL injection vulnerability. 
-      The tool will automatically test all parameters in the query string to find injectable points.
+  - title:
+      en: sqlmap - basic GET request scan
+      tr: sqlmap - temel GET isteği taraması
+    desc:
+      en: |
+        Performs a standard automated scan against a specific URL with GET parameters. 
+        It is the most common entry point for testing a suspected SQL injection vulnerability. 
+        The tool will automatically test all parameters in the query string to find injectable points.
+      tr: |
+        GET parametreli belirli bir URL'ye karşı standart otomatik tarama yapar.
+        Olası bir SQL enjeksiyon zafiyetini test etmenin en yaygın giriş noktasıdır.
+        Araç, sorgu dizesindeki tüm parametreleri enjekte edilebilirlik açısından otomatik test eder.
     command: "sqlmap -u \"{{url}}\""
 
-  - title: sqlmap - scan POST request
-    desc: |
-      Tests a target using POST data instead of URL parameters. 
-      This is essential for testing login forms, search boxes, or any data submission that doesn't appear in the URL. 
-      The data string should be formatted exactly as it is sent in the HTTP body (e.g., "id=1&user=admin").
+  - title:
+      en: sqlmap - scan POST request
+      tr: sqlmap - POST isteği taraması
+    desc:
+      en: |
+        Tests a target using POST data instead of URL parameters. 
+        This is essential for testing login forms, search boxes, or any data submission that doesn't appear in the URL. 
+        The data string should be formatted exactly as it is sent in the HTTP body (e.g., "id=1&user=admin").
+      tr: |
+        URL parametreleri yerine POST verisiyle hedefi test eder.
+        URL'de görünmeyen giriş formları, arama kutuları veya veri gönderimlerini test etmek için gereklidir.
+        Veri dizesi, HTTP gövdesinde gönderildiği biçimde olmalıdır (örn. "id=1&user=admin").
     command: "sqlmap -u \"{{url}}\" --data=\"{{post_data}}\""
 
-  - title: sqlmap - scan from HTTP request file
-    desc: |
-      Loads a full HTTP request from a text file for comprehensive testing. 
-      This is the most professional way to use sqlmap as it preserves all headers, cookies, and complex structures captured from tools like Burp Suite. 
-      Simply copy the raw request into a file and point sqlmap to it using the -r flag.
+  - title:
+      en: sqlmap - scan from HTTP request file
+      tr: sqlmap - HTTP istek dosyasından tarama
+    desc:
+      en: |
+        Loads a full HTTP request from a text file for comprehensive testing. 
+        This is the most professional way to use sqlmap as it preserves all headers, cookies, and complex structures captured from tools like Burp Suite. 
+        Simply copy the raw request into a file and point sqlmap to it using the -r flag.
+      tr: |
+        Kapsamlı test için tam bir HTTP isteğini metin dosyasından yükler.
+        Burp Suite gibi araçlardan yakalanan ham isteği dosyaya kopyalayıp -r flag'iyle göstermek en profesyonel kullanım biçimidir.
+        Tüm başlıkları, çerezleri ve karmaşık yapıları korur.
     command: "sqlmap -r {{request_file|request.txt}}"
 
   # === REQUEST CONFIGURATION ===
-  - title: sqlmap - scan with authenticated session
-    desc: |
-      Specifies a session cookie to access pages that require authentication. 
-      Without this, sqlmap might be redirected to a login page, preventing it from reaching the vulnerable code. 
-      Ensure the cookie is valid and hasn't expired before starting the scan.
+  - title:
+      en: sqlmap - scan with authenticated session
+      tr: sqlmap - kimlik doğrulamalı oturumla tarama
+    desc:
+      en: |
+        Specifies a session cookie to access pages that require authentication. 
+        Without this, sqlmap might be redirected to a login page, preventing it from reaching the vulnerable code. 
+        Ensure the cookie is valid and hasn't expired before starting the scan.
+      tr: |
+        Kimlik doğrulama gerektiren sayfalara erişmek için oturum çerezi belirtir.
+        Bu olmadan araç giriş sayfasına yönlendirilip zafiyetli koda ulaşamayabilir.
+        Taramaya başlamadan önce çerezin geçerli ve süresiz olmadığından emin olun.
     command: "sqlmap -u \"{{url}}\" --cookie=\"{{cookie_string}}\""
 
-  - title: sqlmap - use random user-agent
-    desc: |
-      Sends a randomly selected User-Agent header with every request. 
-      This helps in bypassing basic security filters that block the default 'sqlmap' user-agent string. 
-      It makes the automated traffic look more like a variety of legitimate web browsers.
+  - title:
+      en: sqlmap - use random user-agent
+      tr: sqlmap - rastgele kullanıcı aracısı kullanma
+    desc:
+      en: |
+        Sends a randomly selected User-Agent header with every request. 
+        This helps in bypassing basic security filters that block the default 'sqlmap' user-agent string. 
+        It makes the automated traffic look more like a variety of legitimate web browsers.
+      tr: |
+        Her istekle rastgele seçilmiş bir Kullanıcı-Aracısı (User-Agent) başlığı gönderir.
+        Varsayılan 'sqlmap' dizesini engelleyen temel güvenlik filtrelerini aşmaya yardımcı olur.
+        Otomatik trafiğin çeşitli meşru tarayıcılar gibi görünmesini sağlar.
     command: "sqlmap -u \"{{url}}\" --random-agent"
 
-  - title: sqlmap - route through Tor
-    desc: |
-      Routes all scanning traffic through the Tor anonymity network. 
-      This hides the attacker's real IP address but significantly slows down the testing process due to network latency. 
-      Requires the Tor service to be running locally on the default port.
+  - title:
+      en: sqlmap - route through Tor
+      tr: sqlmap - Tor üzerinden yönlendirme
+    desc:
+      en: |
+        Routes all scanning traffic through the Tor anonymity network. 
+        This hides the attacker's real IP address but significantly slows down the testing process due to network latency. 
+        Requires the Tor service to be running locally on the default port.
+      tr: |
+        Tüm tarama trafiğini Tor anonimlik ağı üzerinden yönlendirir.
+        Saldırganın gerçek IP'sini gizler ama ağ gecikmesi nedeniyle test sürecini ciddi ölçüde yavaşlatır.
+        Tor servisinin yerel makinede varsayılan portta çalışıyor olması gerekir.
     command: "sqlmap -u \"{{url}}\" --tor"
 
   # === DETECTION AND TUNING ===
-  - title: sqlmap - increase detection level and risk
-    desc: |
-      Increases the depth and aggressiveness of the tests. 
-      Level 3 adds testing for HTTP headers like Referer and User-Agent, while risk 3 adds heavy OR-based tests which can potentially modify database content. 
-      Use higher values only if the default settings fail to find a confirmed vulnerability.
+  - title:
+      en: sqlmap - increase detection level and risk
+      tr: sqlmap - tespit düzeyi ve riski artırma
+    desc:
+      en: |
+        Increases the depth and aggressiveness of the tests. 
+        Level 3 adds testing for HTTP headers like Referer and User-Agent, while risk 3 adds heavy OR-based tests which can potentially modify database content. 
+        Use higher values only if the default settings fail to find a confirmed vulnerability.
+      tr: |
+        Testlerin derinliğini ve agresifliğini artırır.
+        3. düzey Referer ve User-Agent gibi HTTP başlıklarını da testlere katar; 3. risk veritabanı içeriğini değiştirebilen ağır OR tabanlı testler ekler.
+        Varsayılan ayarlar doğrulanmış zafiyet bulamazsa daha yüksek değerler kullanın.
     command: "sqlmap -u \"{{url}}\" --level={{level|3}} --risk={{risk|2}}"
 
-  - title: sqlmap - bypass WAF with tamper scripts
-    desc: |
-      Uses obfuscation scripts to bypass Web Application Firewalls (WAF) and Intrusion Prevention Systems (IPS). 
-      Tamper scripts like 'space2comment' or 'randomcase' modify the payloads to evade signature-based detection. 
-      Multiple scripts can be combined with commas if necessary.
+  - title:
+      en: sqlmap - bypass WAF with tamper scripts
+      tr: sqlmap - tamper betikleriyle WAF atlatma
+    desc:
+      en: |
+        Uses obfuscation scripts to bypass Web Application Firewalls (WAF) and Intrusion Prevention Systems (IPS). 
+        Tamper scripts like 'space2comment' or 'randomcase' modify the payloads to evade signature-based detection. 
+        Multiple scripts can be combined with commas if necessary.
+      tr: |
+        Web Uygulaması Güvenlik Duvarlarını (WAF) ve IPS'leri atlatmak için gizleme betikleri kullanır.
+        'space2comment' veya 'randomcase' gibi tamper betikleri yükleri imza tabanlı tespitten kaçırır.
+        Gerekirse birden çok betik virgülle birleştirilebilir.
     command: "sqlmap -u \"{{url}}\" --tamper=\"{{script_name|space2comment}}\""
 
   # === ENUMERATION ===
-  - title: sqlmap - list all databases
-    desc: |
-      Retrieves a list of all databases available on the backend Database Management System (DBMS). 
-      This is typically the first step of enumeration after a vulnerability is successfully exploited. 
-      It allows the pentester to identify the primary application database versus system databases.
+  - title:
+      en: sqlmap - list all databases
+      tr: sqlmap - tüm veritabanlarını listeleme
+    desc:
+      en: |
+        Retrieves a list of all databases available on the backend Database Management System (DBMS). 
+        This is typically the first step of enumeration after a vulnerability is successfully exploited. 
+        It allows the pentester to identify the primary application database versus system databases.
+      tr: |
+        Arka uç Veritabanı Yönetim Sistemindeki tüm veritabanlarının listesini alır.
+        Zafiyet başarıyla sömürüldükten sonra numaralandırmanın genelde ilk adımıdır.
+        Birincil uygulama veritabanını sistem veritabanlarından ayırt etmenizi sağlar.
     command: "sqlmap -u \"{{url}}\" --dbs"
 
-  - title: sqlmap - list tables in a database
-    desc: |
-      Enumerates all tables within a specific database. 
-      The database name must be specified using the -D flag to narrow down the scope. 
-      Identifying table names helps in locating sensitive data like 'users', 'passwords', or 'configurations'.
+  - title:
+      en: sqlmap - list tables in a database
+      tr: sqlmap - veritabanındaki tabloları listeleme
+    desc:
+      en: |
+        Enumerates all tables within a specific database. 
+        The database name must be specified using the -D flag to narrow down the scope. 
+        Identifying table names helps in locating sensitive data like 'users', 'passwords', or 'configurations'.
+      tr: |
+        Belirli bir veritabanındaki tüm tabloları numaralandırır.
+        Kapsamı daraltmak için veritabanı adı -D flag'iyle belirtilmelidir.
+        Tablo adlarını belirlemek 'users', 'passwords' veya 'configurations' gibi hassas verilerin yerini bulmaya yardımcı olur.
     command: "sqlmap -u \"{{url}}\" -D {{database_name}} --tables"
 
-  - title: sqlmap - dump table content
-    desc: |
-      Downloads and saves all records from a specific table. 
-      This command effectively exfiltrates the data from the remote database to a local CSV or SQLite file. 
-      Be cautious when dumping large tables as it can be very slow and generate a massive amount of logs on the target server.
+  - title:
+      en: sqlmap - dump table content
+      tr: sqlmap - tablo içeriğini boşaltma
+    desc:
+      en: |
+        Downloads and saves all records from a specific table. 
+        This command effectively exfiltrates the data from the remote database to a local CSV or SQLite file. 
+        Be cautious when dumping large tables as it can be very slow and generate a massive amount of logs on the target server.
+      tr: |
+        Belirli bir tablodaki tüm kayıtları indirip kaydeder.
+        Verileri uzak veritabanından yerel CSV veya SQLite dosyasına etkili biçimde sızdırır.
+        Büyük tabloları boşaltırken çok yavaş olabileceğine ve hedefte ciddi günlük üreteceğine dikkat edin.
     command: "sqlmap -u \"{{url}}\" -D {{database_name}} -T {{table_name}} --dump"
 
-  - title: sqlmap - retrieve database user passwords
-    desc: |
-      Attempts to extract the password hashes for the database users. 
-      If successful, sqlmap will often offer to perform a dictionary attack to crack the hashes. 
-      This can lead to full administrative control over the database server if the DBA account is compromised.
+  - title:
+      en: sqlmap - retrieve database user passwords
+      tr: sqlmap - veritabanı kullanıcı parolalarını alma
+    desc:
+      en: |
+        Attempts to extract the password hashes for the database users. 
+        If successful, sqlmap will often offer to perform a dictionary attack to crack the hashes. 
+        This can lead to full administrative control over the database server if the DBA account is compromised.
+      tr: |
+        Veritabanı kullanıcılarının parola karmalarını çıkarmaya çalışır.
+        Başarılı olursa sqlmap genelde karmaları kırmak için sözlük saldırısı önerir.
+        DBA hesabı ele geçirilirse veritabanı sunucusunda tam yönetimsel kontrol sağlayabilir.
     command: "sqlmap -u \"{{url}}\" --passwords"
 
   # === OPERATING SYSTEM ACCESS ===
-  - title: sqlmap - interactive OS shell
-    desc: |
-      Attempts to gain a command-line shell on the underlying operating system. 
-      This requires high database privileges (like FILE or administrative rights) and specific DBMS configurations. 
-      If successful, it allows the attacker to execute OS commands directly on the server.
+  - title:
+      en: sqlmap - interactive OS shell
+      tr: sqlmap - etkileşimli işletim sistemi kabuğu
+    desc:
+      en: |
+        Attempts to gain a command-line shell on the underlying operating system. 
+        This requires high database privileges (like FILE or administrative rights) and specific DBMS configurations. 
+        If successful, it allows the attacker to execute OS commands directly on the server.
+      tr: |
+        Altta yatan işletim sisteminde komut satırı kabuğu elde etmeye çalışır.
+        Yüksek veritabanı yetkileri (FILE gibi) ve belirli VTYS yapılandırmaları gerektirir.
+        Başarılı olursa saldırganın sunucuda doğrudan işletim sistemi komutları çalıştırmasına olanak tanır.
     command: "sqlmap -u \"{{url}}\" --os-shell"
 
-  - title: sqlmap - read local file
-    desc: |
-      Reads a specific file from the server's local file system via the database. 
-      This is useful for retrieving sensitive configuration files like /etc/passwd or web.config. 
-      The database user must have the necessary 'FILE' read permissions for this action to succeed.
+  - title:
+      en: sqlmap - read local file
+      tr: sqlmap - yerel dosya okuma
+    desc:
+      en: |
+        Reads a specific file from the server's local file system via the database. 
+        This is useful for retrieving sensitive configuration files like /etc/passwd or web.config. 
+        The database user must have the necessary 'FILE' read permissions for this action to succeed.
+      tr: |
+        Veritabanı üzerinden sunucunun yerel dosya sistemindeki belirli bir dosyayı okur.
+        /etc/passwd veya web.config gibi hassas yapılandırma dosyalarını almak için yararlıdır.
+        Veritabanı kullanıcısının gerekli 'FILE' okuma izinlerine sahip olması gerekir.
     command: "sqlmap -u \"{{url}}\" --file-read=\"{{remote_file|/etc/passwd}}\""
 
   # === MISCELLANEOUS ===
-  - title: sqlmap - automated batch mode
-    desc: |
-      Runs the tool without prompting for any user input. 
-      It automatically chooses the default behavior for every question asked during the process. 
-      This is ideal for automated scripts or CI/CD pipelines where manual intervention is not possible.
+  - title:
+      en: sqlmap - automated batch mode
+      tr: sqlmap - otomatik toplu kip
+    desc:
+      en: |
+        Runs the tool without prompting for any user input. 
+        It automatically chooses the default behavior for every question asked during the process. 
+        This is ideal for automated scripts or CI/CD pipelines where manual intervention is not possible.
+      tr: |
+        Aracı hiçbir kullanıcı girdisi istemeden çalıştırır.
+        Süreçteki her soruya otomatik olarak varsayılan yanıtı seçer.
+        Manuel müdahalenin mümkün olmadığı otomatik betikler veya CI/CD hatları için idealdir.
     command: "sqlmap -u \"{{url}}\" --batch"
 
-  - title: sqlmap - flush session/cache
-    desc: |
-      Clears the session files and cache for the current target. 
-      Use this if you want to start a fresh scan from scratch, ignoring results from previous runs. 
-      This is helpful if the target environment has changed or if previous results were corrupted.
+  - title:
+      en: sqlmap - flush session/cache
+      tr: sqlmap - oturum/önbellek temizleme
+    desc:
+      en: |
+        Clears the session files and cache for the current target. 
+        Use this if you want to start a fresh scan from scratch, ignoring results from previous runs. 
+        This is helpful if the target environment has changed or if previous results were corrupted.
+      tr: |
+        Geçerli hedefe ait oturum dosyalarını ve önbelleği temizler.
+        Önceki çalıştırmaların sonuçlarını yok sayıp yeni bir taramaya başlamak için kullanın.
+        Hedef ortam değiştiyse veya önceki sonuçlar bozulduysa yararlıdır.
     command: "sqlmap -u \"{{url}}\" --flush-session"

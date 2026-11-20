@@ -6,6 +6,7 @@ package ui
 
 import (
 	"github.com/halilkirazkaya/arsenal-ng/internal/frame"
+	"github.com/halilkirazkaya/arsenal-ng/internal/language"
 	"github.com/halilkirazkaya/arsenal-ng/internal/model"
 	"github.com/halilkirazkaya/arsenal-ng/internal/ui/args"
 	"github.com/halilkirazkaya/arsenal-ng/internal/ui/finder"
@@ -46,6 +47,10 @@ type App struct {
 	cheats []*model.Cheat
 	// globals stores the session-scoped global variables.
 	globals *variables.Store
+	// langs stores the UI language preference.
+	langs *language.Store
+	// lang selects the cheat title/description translations.
+	lang string
 	// width tracks the terminal width in cells.
 	width int
 	// height tracks the terminal height in cells.

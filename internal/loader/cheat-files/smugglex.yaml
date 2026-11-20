@@ -3,93 +3,170 @@ tags: [web, security, pentest, vulnerability-scanner, request-smuggling, http2]
 
 actions:
   # === BASIC SCANS ===
-  - title: smugglex - basic scan
-    desc: |
-      Performs a standard HTTP request smuggling scan against a target URL.
-      This command executes all built-in checks including CL.TE, TE.CL, and HTTP/2 variants.
-      It is the recommended starting point for identifying potential smuggling vulnerabilities on a single target.
-      The tool will report vulnerabilities along with timing comparisons to confirm findings.
+  - title:
+      en: smugglex - basic scan
+      tr: smugglex - temel tarama
+    desc:
+      en: |
+        Performs a standard HTTP request smuggling scan against a target URL.
+        This command executes all built-in checks including CL.TE, TE.CL, and HTTP/2 variants.
+        It is the recommended starting point for identifying potential smuggling vulnerabilities on a single target.
+        The tool will report vulnerabilities along with timing comparisons to confirm findings.
+      tr: |
+        Hedef URL'ye karşı standart bir HTTP istek kaçakçılığı taraması yapar.
+        CL.TE, TE.CL ve HTTP/2 varyantları dahil tüm yerleşik kontrolleri çalıştırır.
+        Tek bir hedefte olası kaçakçılık zafiyetlerini belirlemek için önerilen başlangıç noktasıdır.
     command: "smugglex {{url}}"
 
-  - title: smugglex - verbose scan with output
-    desc: |
-      Executes a detailed scan while displaying verbose information about requests and responses.
-      The results are saved into a JSON file which contains vulnerability details, payloads, and timing data.
-      Verbose mode is helpful for debugging timing issues or understanding why a specific payload failed.
-      Use this when you need to document findings for a technical report.
+  - title:
+      en: smugglex - verbose scan with output
+      tr: smugglex - çıktılı ayrıntılı tarama
+    desc:
+      en: |
+        Executes a detailed scan while displaying verbose information about requests and responses.
+        The results are saved into a JSON file which contains vulnerability details, payloads, and timing data.
+        Verbose mode is helpful for debugging timing issues or understanding why a specific payload failed.
+        Use this when you need to document findings for a technical report.
+      tr: |
+        İstek ve yanıtlara dair ayrıntılı bilgi göstererek tarama yapar.
+        Sonuçlar; zafiyet ayrıntıları, yükler ve zamanlama verilerini içeren bir JSON dosyasına kaydedilir.
+        Teknik rapor için bulguları belgelemeniz gerektiğinde kullanın.
     command: "smugglex {{url}} -v -o {{output_file|results.json}}"
 
   # === SCAN CONFIGURATION ===
-  - title: smugglex - run specific vulnerability checks
-    desc: |
-      Limits the scan to specific types of smuggling attacks like CL.TE or TE.CL.
-      This is useful when you suspect a specific vulnerability or want to save time during a large engagement.
-      You can provide a comma-separated list of checks to run multiple specific tests simultaneously.
-      Available checks include cl-te, te-cl, te-te, h2c, and h2.
+  - title:
+      en: smugglex - run specific vulnerability checks
+      tr: smugglex - belirli zafiyet kontrollerini çalıştırma
+    desc:
+      en: |
+        Limits the scan to specific types of smuggling attacks like CL.TE or TE.CL.
+        This is useful when you suspect a specific vulnerability or want to save time during a large engagement.
+        You can provide a comma-separated list of checks to run multiple specific tests simultaneously.
+        Available checks include cl-te, te-cl, te-te, h2c, and h2.
+      tr: |
+        Taramayı CL.TE veya TE.CL gibi belirli kaçakçılık saldırısı türleriyle sınırlar.
+        Belirli bir zafiyetten şüphelenildiğinde veya geniş kapsamlı işlerde zaman kazanmak için yararlıdır.
+        Kullanılabilir kontroller: cl-te, te-cl, te-te, h2c ve h2.
     command: "smugglex {{url}} -c {{check_types|cl-te,te-cl}}"
 
-  - title: smugglex - scan for http/2 vulnerabilities
-    desc: |
-      Targets vulnerabilities specifically related to the HTTP/2 protocol.
-      It includes checks for h2c (cleartext) and h2 (protocol) smuggling with numerous combined payloads.
-      This is essential for modern web applications that utilize HTTP/2 front-ends for performance.
-      Many modern load balancers are susceptible to these specific protocol translation attacks.
+  - title:
+      en: smugglex - scan for http/2 vulnerabilities
+      tr: smugglex - http/2 zafiyetleri için tarama
+    desc:
+      en: |
+        Targets vulnerabilities specifically related to the HTTP/2 protocol.
+        It includes checks for h2c (cleartext) and h2 (protocol) smuggling with numerous combined payloads.
+        This is essential for modern web applications that utilize HTTP/2 front-ends for performance.
+        Many modern load balancers are susceptible to these specific protocol translation attacks.
+      tr: |
+        HTTP/2 protokolüne özgü zafiyetleri hedefler.
+        h2c ve h2 kaçakçılığına dair çok sayıda birleşik yük içerir.
+        HTTP/2 ön yüz kullanan modern web uygulamaları için gereklidir.
     command: "smugglex {{url}} -c h2c,h2"
 
-  - title: smugglex - authenticated scan with custom headers
-    desc: |
-      Includes custom HTTP headers in every request sent by the tool to the target.
-      This is particularly useful for authenticated scanning using Bearer tokens, API keys, or Session cookies.
-      Multiple headers can be added by repeating the flag to match the target's authentication requirements.
-      Ensure that the token used has enough privileges to reach the desired backend functionality.
+  - title:
+      en: smugglex - authenticated scan with custom headers
+      tr: smugglex - özel başlıklarla kimlik doğrulamalı tarama
+    desc:
+      en: |
+        Includes custom HTTP headers in every request sent by the tool to the target.
+        This is particularly useful for authenticated scanning using Bearer tokens, API keys, or Session cookies.
+        Multiple headers can be added by repeating the flag to match the target's authentication requirements.
+        Ensure that the token used has enough privileges to reach the desired backend functionality.
+      tr: |
+        Hedefe gönderilen her isteğe özel HTTP başlıkları ekler.
+        Bearer token, API anahtarı veya oturum çerezleriyle kimlik doğrulamalı tarama için özellikle yararlıdır.
+        Flag tekrarlanarak birden çok başlık eklenebilir.
     command: "smugglex {{url}} -H \"{{header_name|Authorization}}: {{header_value}}\""
 
-  - title: smugglex - scan with custom timeout and method
-    desc: |
-      Sets a specific request timeout and changes the default HTTP method used for testing.
-      Increasing the timeout is often necessary for slow networks or when the server is under heavy load.
-      While POST is the default, some servers might only process smuggling payloads on GET or other methods.
-      Adjusting these settings helps reduce false negatives in non-standard environments.
+  - title:
+      en: smugglex - scan with custom timeout and method
+      tr: smugglex - özel zaman aşımı ve yöntemle tarama
+    desc:
+      en: |
+        Sets a specific request timeout and changes the default HTTP method used for testing.
+        Increasing the timeout is often necessary for slow networks or when the server is under heavy load.
+        While POST is the default, some servers might only process smuggling payloads on GET or other methods.
+        Adjusting these settings helps reduce false negatives in non-standard environments.
+      tr: |
+        Test için belirli bir istek zaman aşımı ayarlar ve varsayılan HTTP yöntemini değiştirir.
+        Sunucu yavaş veya ağır yük altındayken zaman aşımını artırmak genelde gerekir.
+        Bu ayarları düzenlemek standart dışı ortamlarda yanlış negatifleri azaltır.
     command: "smugglex {{url}} -m {{method|POST}} -t {{timeout_seconds|30}}"
 
   # === ADVANCED TARGETING ===
-  - title: smugglex - virtual host testing
-    desc: |
-      Tests for request smuggling on a specific IP address while setting a custom Host header.
-      This is valuable when the target is behind a load balancer or CDN that routes traffic based on the Host header.
-      It allows you to target internal virtual hosts that are not directly accessible via public DNS.
-      Crucial for internal infrastructure testing where multiple services share the same gateway IP.
+  - title:
+      en: smugglex - virtual host testing
+      tr: smugglex - sanal makine (vhost) testi
+    desc:
+      en: |
+        Tests for request smuggling on a specific IP address while setting a custom Host header.
+        This is valuable when the target is behind a load balancer or CDN that routes traffic based on the Host header.
+        It allows you to target internal virtual hosts that are not directly accessible via public DNS.
+        Crucial for internal infrastructure testing where multiple services share the same gateway IP.
+      tr: |
+        Özel bir Host başlığı ayarlayarak belirli bir IP adresinde istek kaçakçılığı testi yapar.
+        Hedef, Host başlığına göre trafik yönlendiren bir yük dengeleyici arkasındayken değerlidir.
+        Herkese açık DNS üzerinden erişilemeyen iç sanal makineleri hedeflemenizi sağlar.
     command: "smugglex {{ip_address}} --vhost {{domain_name}}"
 
-  - title: smugglex - mass scan from pipeline
-    desc: |
-      Processes a list of URLs provided through standard input for large-scale automated scanning.
-      This allows seamless integration with other tools like subfinder or httpx for automated reconnaissance workflows.
-      Using the exit-first flag (-1) during mass scans can speed up the process by stopping at the first find.
-      It is highly efficient for scanning entire domains or large IP ranges discovered during recon.
+  - title:
+      en: smugglex - mass scan from pipeline
+      tr: smugglex - hattan beslemeli toplu tarama
+    desc:
+      en: |
+        Processes a list of URLs provided through standard input for large-scale automated scanning.
+        This allows seamless integration with other tools like subfinder or httpx for automated reconnaissance workflows.
+        Using the exit-first flag (-1) during mass scans can speed up the process by stopping at the first find.
+        It is highly efficient for scanning entire domains or large IP ranges discovered during recon.
+      tr: |
+        Büyük ölçekli otomatik tarama için standart girdiden verilen URL listesini işler.
+        subfinder veya httpx gibi araçlarla kusursuz entegrasyon sağlar.
+        İlk bulguda durduran exit-first (-1) flag'i süreci hızlandırabilir.
     command: "cat {{url_list|urls.txt}} | smugglex -v -o {{output_file|results.json}}"
 
   # === EXPLOITATION & VERIFICATION ===
-  - title: smugglex - exploit for localhost access
-    desc: |
-      Attempts to exploit a detected smuggling vulnerability to access services running on the server's localhost.
-      This simulates an SSRF-like attack that can bypass firewalls to reach internal-only management interfaces.
-      It should be used after a vulnerability is confirmed to demonstrate the actual business impact.
-      Be cautious as exploitation might disrupt the stability of the backend service.
+  - title:
+      en: smugglex - exploit for localhost access
+      tr: smugglex - localhost erişimi için sömürü
+    desc:
+      en: |
+        Attempts to exploit a detected smuggling vulnerability to access services running on the server's localhost.
+        This simulates an SSRF-like attack that can bypass firewalls to reach internal-only management interfaces.
+        It should be used after a vulnerability is confirmed to demonstrate the actual business impact.
+        Be cautious as exploitation might disrupt the stability of the backend service.
+      tr: |
+        Tespit edilen kaçakçılık zafiyetini kullanarak sunucunun localhost'unda çalışan servislere erişmeye çalışır.
+        Güvenlik duvarlarını aşan SSRF benzeri bir saldırı simüle eder.
+        Zafiyet doğrulandıktan sonra gerçek iş etkisini göstermek için kullanılmalıdır.
     command: "smugglex {{url}} --exploit localhost-access"
 
-  - title: smugglex - exploit with custom internal ports
-    desc: |
-      Extends the localhost access exploit by targeting a specific list of internal ports on the remote host.
-      This is useful for probing for common internal services like SSH (22), databases (3306), or Redis (6379).
-      Use this to identify exactly what internal infrastructure is reachable through the smuggling tunnel.
-      Providing a custom list of ports allows for more targeted and stealthy internal reconnaissance.
+  - title:
+      en: smugglex - exploit with custom internal ports
+      tr: smugglex - özel iç portlarla sömürü
+    desc:
+      en: |
+        Extends the localhost access exploit by targeting a specific list of internal ports on the remote host.
+        This is useful for probing for common internal services like SSH (22), databases (3306), or Redis (6379).
+        Use this to identify exactly what internal infrastructure is reachable through the smuggling tunnel.
+        Providing a custom list of ports allows for more targeted and stealthy internal reconnaissance.
+      tr: |
+        Uzak makinedeki belirli iç port listesini hedefleyerek localhost erişimi sömürüsünü genişletir.
+        SSH (22), veritabanları (3306) veya Redis (6379) gibi yaygın iç servisleri yoklamak için yararlıdır.
+        Özel port listesi vermek daha hedefli ve gizli iç keşfe olanak tanır.
     command: "smugglex {{url}} --exploit localhost-access --exploit-ports {{ports|22,80,443,8080}}"
 
-  - title: smugglex - export vulnerable payloads for manual testing
-    desc: |
-      Saves the exact raw HTTP requests that triggered a confirmed vulnerability into a specified directory.
-      This is a crucial step for manual verification in tools like Burp Suite Repeater or custom scripts.
-      Having the raw payload allows security researchers to fine-tune the attack for specific bypasses.
-      The exported files can be used as evidence in penetration testing reports.
+  - title:
+      en: smugglex - export vulnerable payloads for manual testing
+      tr: smugglex - zafiyetli yükleri manuel test için dışa aktarma
+    desc:
+      en: |
+        Saves the exact raw HTTP requests that triggered a confirmed vulnerability into a specified directory.
+        This is a crucial step for manual verification in tools like Burp Suite Repeater or custom scripts.
+        Having the raw payload allows security researchers to fine-tune the attack for specific bypasses.
+        The exported files can be used as evidence in penetration testing reports.
+      tr: |
+        Doğrulanmış bir zafiyeti tetikleyen ham HTTP isteklerini belirtilen dizine kaydeder.
+        Burp Suite Repeater veya özel betiklerle manuel doğrulama için kritik bir adımdır.
+        Dışa aktarılan dosyalar sızma testi raporlarında kanıt olarak kullanılabilir.
     command: "smugglex {{url}} --export-payloads {{directory_path|./payloads}}"

@@ -3,110 +3,214 @@ tags: [web, scanner, pentest, enumeration, reconnaissance, security, brute-force
 
 actions:
   # === BASIC SCANNING ===
-  - title: dirb - default scan
-    desc: |
-      Performs a standard recursive scan on the target URL using the default wordlist provided by DIRB.
-      This is the most common starting point for web directory enumeration to identify hidden paths.
-      The tool will automatically crawl into any directories it discovers during the process.
-      Note that this can generate significant traffic depending on the size of the target and depth.
+  - title:
+      en: dirb - default scan
+      tr: dirb - varsayılan tarama
+    desc:
+      en: |
+        Performs a standard recursive scan on the target URL using the default wordlist provided by DIRB.
+        This is the most common starting point for web directory enumeration to identify hidden paths.
+        The tool will automatically crawl into any directories it discovers during the process.
+        Note that this can generate significant traffic depending on the size of the target and depth.
+      tr: |
+        DIRB bünyesindeki varsayılan kelime listesiyle hedef adreste standart özyinelemeli tarama yapar.
+        Gizli yolları belirlemeye yönelik web dizin yoklamanın en yaygın başlangıç noktasıdır.
+        İşlem sırasında bulduğu dizinlerin içine kendiliğinden ilerler.
+        Hedefin büyüklüğü ile derinliğine bağlı olarak ciddi trafik üretebileceğini unutmayın.
     command: "dirb {{url}}"
 
-  - title: dirb - scan with custom wordlist
-    desc: |
-      Uses a specific wordlist file provided by the user to perform the discovery process.
-      This is highly effective when targeting specific technologies or when using comprehensive lists like those in SecLists.
-      Ensure the path to the wordlist is accessible and correctly formatted on your local system.
-      Custom wordlists often yield better results than generic ones for specific CMS or application frameworks.
+  - title:
+      en: dirb - scan with custom wordlist
+      tr: dirb - özel kelime listesiyle tarama
+    desc:
+      en: |
+        Uses a specific wordlist file provided by the user to perform the discovery process.
+        This is highly effective when targeting specific technologies or when using comprehensive lists like those in SecLists.
+        Ensure the path to the wordlist is accessible and correctly formatted on your local system.
+        Custom wordlists often yield better results than generic ones for specific CMS or application frameworks.
+      tr: |
+        Keşif sürecinde sizin verdiğiniz belirli kelime listesi dosyasını kullanır.
+        Belirli teknolojileri hedeflerken ya da SecLists gibi kapsamlı listeleri kullanırken oldukça etkilidir.
+        Kelime listesi yolunun yerel sistemde erişilebilir ve doğru biçimli olduğundan emin olun.
+        Özel kelime listeleri belirli içerik yönetim sistemi ya da uygulama çatılarına yönelik genel listelerden çoğunlukla daha iyi sonuç verir.
     command: "dirb {{url}} {{wordlist|/usr/share/wordlists/dirb/common.txt}}"
 
-  - title: dirb - search with specific extensions
-    desc: |
-      Appends specific file extensions to every word in the dictionary during the scanning process.
-      This is critical for finding backend scripts like .php, configuration files like .conf, or backup files like .bak.
-      Multiple extensions should be provided as a comma-separated list without spaces.
-      This action significantly increases the number of requests sent to the server.
+  - title:
+      en: dirb - search with specific extensions
+      tr: dirb - belirli uzantılarla arama
+    desc:
+      en: |
+        Appends specific file extensions to every word in the dictionary during the scanning process.
+        This is critical for finding backend scripts like .php, configuration files like .conf, or backup files like .bak.
+        Multiple extensions should be provided as a comma-separated list without spaces.
+        This action significantly increases the number of requests sent to the server.
+      tr: |
+        Tarama sırasında sözlükteki her sözcüğe belirli dosya uzantıları ekler.
+        .php türü art uç betikleri, .conf türü yapılandırma dosyaları, .bak türü yedek dosyaları bulmakta kritik önem taşır.
+        Çoklu uzantı boşluksuz virgüllü liste biçiminde verilmelidir.
+        Sunucuya gönderilen istek sayısını belirgin ölçüde artırır.
     command: "dirb {{url}} -X {{extensions|.php,.txt,.config}}"
 
   # === SCAN CONTROL & OPTIMIZATION ===
-  - title: dirb - disable recursive scanning
-    desc: |
-      Prevents the tool from automatically entering and scanning subdirectories it finds.
-      Use this when you only want to audit the root level of a web application to save time and resources.
-      It is particularly useful for a quick initial reconnaissance phase before performing deeper dives.
-      This option helps in keeping the scope of the scan strictly limited to the base URL provided.
+  - title:
+      en: dirb - disable recursive scanning
+      tr: dirb - özyinelemeli taramayı kapatma
+    desc:
+      en: |
+        Prevents the tool from automatically entering and scanning subdirectories it finds.
+        Use this when you only want to audit the root level of a web application to save time and resources.
+        It is particularly useful for a quick initial reconnaissance phase before performing deeper dives.
+        This option helps in keeping the scope of the scan strictly limited to the base URL provided.
+      tr: |
+        Aracın bulduğu alt dizinlere kendiliğinden girip taramasını engeller.
+        Zaman ile kaynak kazanmak adına yalnız web uygulamasının kök düzeyini denetlemek istediğinizde kullanın.
+        Daha derin dalışlardan önce hızlı ilk keşif aşamasında özellikle yararlıdır.
+        Tarama kapsamını verilen taban adresle sıkı biçimde sınırlı tutmaya yardımcı olur.
     command: "dirb {{url}} -r"
 
-  - title: dirb - ignore specific HTTP response codes
-    desc: |
-      Configures the scanner to ignore responses that return a specific HTTP status code.
-      This is useful for filtering out false positives or uninteresting results like 403 Forbidden or 302 Redirects.
-      By ignoring certain codes, you can focus purely on successful hits or specific error types.
-      Use this flag followed by the numeric HTTP code you wish to exclude from the output.
+  - title:
+      en: dirb - ignore specific HTTP response codes
+      tr: dirb - belirli HTTP yanıt kodlarını yoksayma
+    desc:
+      en: |
+        Configures the scanner to ignore responses that return a specific HTTP status code.
+        This is useful for filtering out false positives or uninteresting results like 403 Forbidden or 302 Redirects.
+        By ignoring certain codes, you can focus purely on successful hits or specific error types.
+        Use this flag followed by the numeric HTTP code you wish to exclude from the output.
+      tr: |
+        Belirli HTTP durum kodu döndüren yanıtları tarayıcının yok saymasını sağlar.
+        403 Forbidden ya da 302 Redirects gibi yanlış alarm veya ilgisiz sonuçları elemekte yararlıdır.
+        Belirli kodları dışlayarak yalnız başarılı isabetlere ya da belirli hata türlerine odaklanabilirsiniz.
+        Çıktı dışında tutmak istediğiniz sayısal HTTP kodunu bu bayrağın ardından belirtin.
     command: "dirb {{url}} -N {{status_code|403}}"
 
-  - title: dirb - set scan delay
-    desc: |
-      Introduces a delay in milliseconds between each request sent to the target web server.
-      This is a vital feature for evading rate-limiting mechanisms or simple Intrusion Detection Systems (IDS).
-      It also helps in reducing the load on the target server to prevent accidental Denial of Service (DoS).
-      Higher values make the scan much slower but significantly stealthier and safer for fragile environments.
+  - title:
+      en: dirb - set scan delay
+      tr: dirb - tarama gecikmesi ayarlama
+    desc:
+      en: |
+        Introduces a delay in milliseconds between each request sent to the target web server.
+        This is a vital feature for evading rate-limiting mechanisms or simple Intrusion Detection Systems (IDS).
+        It also helps in reducing the load on the target server to prevent accidental Denial of Service (DoS).
+        Higher values make the scan much slower but significantly stealthier and safer for fragile environments.
+      tr: |
+        Hedef web sunucusuna gönderilen her istek arasına milisaniye cinsinden gecikme koyar.
+        Hız sınırlama düzeneklerinden ya da yalın saldırı tespit sistemlerinden (IDS) saklanmak adına hayati özelliktir.
+        Hedef sunucudaki yükü azaltarak yanlışlıkla hizmet dışı bırakma (DoS) oluşmasını önlemeye yardımcı olur.
+        Yüksek değer taramayı çok yavaşlatır ancak kırılgan ortamlarda belirgin ölçüde gizli ve güvenli kılar.
     command: "dirb {{url}} -z {{delay_ms|100}}"
 
   # === AUTHENTICATION & HEADERS ===
-  - title: dirb - scan with basic authentication
-    desc: |
-      Provides credentials to access areas of a website protected by HTTP Basic Authentication.
-      This allows the tool to enumerate files and directories that are hidden behind a login prompt.
-      The credentials must be provided in the 'username:password' format.
-      Be cautious as multiple failed attempts might trigger account lockout policies on some systems.
+  - title:
+      en: dirb - scan with basic authentication
+      tr: dirb - temel kimlik doğrulamayla tarama
+    desc:
+      en: |
+        Provides credentials to access areas of a website protected by HTTP Basic Authentication.
+        This allows the tool to enumerate files and directories that are hidden behind a login prompt.
+        The credentials must be provided in the 'username:password' format.
+        Be cautious as multiple failed attempts might trigger account lockout policies on some systems.
+      tr: |
+        HTTP temel kimlik doğrulamasıyla korunan site bölümlerine kimlik bilgileriyle erişim sağlar.
+        Oturum açma istemi ardında gizli dosya ile dizinleri yoklamayı mümkün kılar.
+        Kimlik bilgileri kullanıcıadı:parola biçiminde verilmelidir.
+        Çoklu başarısız deneme bazı sistemlerde hesap kilitleme ilkelerini tetikleyebileceğinden dikkatli olun.
     command: "dirb {{url}} -u {{credentials|admin:password123}}"
 
-  - title: dirb - scan with custom cookie
-    desc: |
-      Injects a custom cookie into every HTTP request made by the DIRB scanner.
-      This is essential for scanning areas of a web application that require an active session or specific state.
-      It can be used to bypass cookie-based security filters or to scan as a specific authenticated user.
-      Ensure the cookie string is correctly formatted according to HTTP standards.
+  - title:
+      en: dirb - scan with custom cookie
+      tr: dirb - özel çerezle tarama
+    desc:
+      en: |
+        Injects a custom cookie into every HTTP request made by the DIRB scanner.
+        This is essential for scanning areas of a web application that require an active session or specific state.
+        It can be used to bypass cookie-based security filters or to scan as a specific authenticated user.
+        Ensure the cookie string is correctly formatted according to HTTP standards.
+      tr: |
+        DIRB tarayıcısının yaptığı her HTTP isteğine özel çerez ekler.
+        Etkin oturum ya da belirli durum gerektiren web uygulaması bölümlerini taramakta vazgeçilmezdir.
+        Çerez tabanlı güvenlik süzgeçlerini atlatmak ya da belirli kimliklenebilir kullanıcı olarak taramak adına kullanılabilir.
+        Çerez dizesinin HTTP standartlarına uygun biçimlendiğinden emin olun.
     command: "dirb {{url}} -c {{cookie_string|'session_id=123456'}}"
 
-  - title: dirb - scan with custom user-agent
-    desc: |
-      Overrides the default DIRB user-agent string with a custom one provided by the user.
-      Many web application firewalls (WAFs) block the default DIRB user-agent to prevent automated scanning.
-      Using a realistic browser string can help bypass these basic signature-based security blocks.
-      It is a recommended practice for more professional and less conspicuous penetration testing.
+  - title:
+      en: dirb - scan with custom user-agent
+      tr: dirb - özel kullanıcı aracılığıyla tarama
+    desc:
+      en: |
+        Overrides the default DIRB user-agent string with a custom one provided by the user.
+        Many web application firewalls (WAFs) block the default DIRB user-agent to prevent automated scanning.
+        Using a realistic browser string can help bypass these basic signature-based security blocks.
+        It is a recommended practice for more professional and less conspicuous penetration testing.
+      tr: |
+        Varsayılan DIRB kullanıcı aracısı dizesini sizin verdiğiniz özel dizeyle değiştirir.
+        Pek çok web uygulaması güvenlik duvarı (WAF) otomatik taramayı önlemek adına varsayılan DIRB kullanıcı aracısını engeller.
+        Gerçekçi tarayıcı dizesi bu tür imza tabanlı yalın engelleri atlatmaya yardımcı olabilir.
+        Daha profesyonel ve az göze batan sızma sınaması adına önerilen uygulamadır.
     command: "dirb {{url}} -a {{user_agent|'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'}}"
 
   # === PROXY & OUTPUT ===
-  - title: dirb - scan through proxy
-    desc: |
-      Routes all traffic through a specified HTTP proxy server before it reaches the target.
-      This is commonly used to route traffic through Burp Suite for manual inspection or through SOCKS proxies for anonymity.
-      The proxy should be specified in the 'host:port' format.
-      This is also useful for bypassing IP-based restrictions if the proxy is in a trusted network.
+  - title:
+      en: dirb - scan through proxy
+      tr: dirb - vekil üzerinden tarama
+    desc:
+      en: |
+        Routes all traffic through a specified HTTP proxy server before it reaches the target.
+        This is commonly used to route traffic through Burp Suite for manual inspection or through SOCKS proxies for anonymity.
+        The proxy should be specified in the 'host:port' format.
+        This is also useful for bypassing IP-based restrictions if the proxy is in a trusted network.
+      tr: |
+        Hedefe ulaşmadan önce bütün trafiği belirtilen HTTP vekil sunucudan geçirir.
+        Elle inceleme adına Burp Suite üzerinden ya da gizlilik adına SOCKS vekilleri üzerinden trafik yönlendirmekte yaygın kullanılır.
+        Vekil adresi makine:kapı biçiminde belirtilmelidir.
+        Vekil güvenilen ağdaysa IP tabanlı kısıtları atlatmakta yararlıdır.
     command: "dirb {{url}} -p {{proxy_address|127.0.0.1:8080}}"
 
-  - title: dirb - save output to file
-    desc: |
-      Writes the entire output of the scan session to a specified file on the local file system.
-      This is critical for documentation, reporting, and further analysis using grep or other parsing tools.
-      The file will contain all the discovered URLs, their status codes, and size information.
-      It ensures that no data is lost when the terminal buffer is cleared or the session ends.
+  - title:
+      en: dirb - save output to file
+      tr: dirb - çıktıyı dosyaya kaydetme
+    desc:
+      en: |
+        Writes the entire output of the scan session to a specified file on the local file system.
+        This is critical for documentation, reporting, and further analysis using grep or other parsing tools.
+        The file will contain all the discovered URLs, their status codes, and size information.
+        It ensures that no data is lost when the terminal buffer is cleared or the session ends.
+      tr: |
+        Tarama oturumunun bütün çıktısını yerel dosya sistemindeki belirtilen dosyaya yazar.
+        Belgelendirme, raporlama ile grep ya da öteki ayrıştırma araçlarıyla ileri çözümleme bakımından kritiktir.
+        Dosya bulunan bütün adresleri, durum kodlarını ve boyut bilgisini barındırır.
+        Uçbirim arabelleği temizlendiğinde ya da oturum kapandığında veri kaybını önler.
     command: "dirb {{url}} -o {{output_file|scan_results.txt}}"
 
   # === RELATED UTILITIES ===
-  - title: dirb - generate custom dictionary (dirb-gendict)
-    desc: |
-      Uses the dirb-gendict utility to create a wordlist based on a specific incremental pattern.
-      This is useful for brute-forcing URL structures that follow a predictable naming convention, such as 'user_1', 'user_2'.
-      The 'X' character in the pattern is replaced by the incremental value during generation.
-      You can choose between numeric, character, or alphanumeric types for the replacement.
+  - title:
+      en: dirb - generate custom dictionary (dirb-gendict)
+      tr: dirb - özel sözlük oluşturma (dirb-gendict)
+    desc:
+      en: |
+        Uses the dirb-gendict utility to create a wordlist based on a specific incremental pattern.
+        This is useful for brute-forcing URL structures that follow a predictable naming convention, such as 'user_1', 'user_2'.
+        The 'X' character in the pattern is replaced by the incremental value during generation.
+        You can choose between numeric, character, or alphanumeric types for the replacement.
+      tr: |
+        Belirli artımlı desene dayalı kelime listesi üretmek adına dirb-gendict yardımcısını kullanır.
+        kullanıcı_1, kullanıcı_2 örneğindeki gibi öngörülebilir adlandırma izleyen adres yapılarını kaba zorlamakta yararlıdır.
+        Desendeki X karakteri üretim sırasında artımlı değerle değişir.
+        Değiştirme türü olarak sayısal, karakter ya da harfsayısal seçenekler arasından tercih yapabilirsiniz.
     command: "dirb-gendict -{{type|n}} {{pattern|vulnerary_X}}"
 
-  - title: dirb - extract words from HTML (html2dic)
-    desc: |
-      Extracts all unique words from an HTML file to generate a specialized dictionary.
-      This is an excellent way to build a context-specific wordlist based on the target website's own content.
-      The output is sent to stdout, which can be redirected into a file for use with DIRB later.
-      It helps in finding hidden files that might share names with existing site terminology.
+  - title:
+      en: dirb - extract words from HTML (html2dic)
+      tr: dirb - HTML dosyasından sözcük çıkarma (html2dic)
+    desc:
+      en: |
+        Extracts all unique words from an HTML file to generate a specialized dictionary.
+        This is an excellent way to build a context-specific wordlist based on the target website's own content.
+        The output is sent to stdout, which can be redirected into a file for use with DIRB later.
+        It helps in finding hidden files that might share names with existing site terminology.
+      tr: |
+        Özelleşmiş sözlük üretmek adına HTML dosyasındaki bütün benzersiz sözcükleri çıkarır.
+        Hedef sitenin kendi içeriğine dayalı bağlama özgü kelime listesi derlemenin mükemmel yoludur.
+        Çıktı standart çıktıya gider; DIRB ile sonra kullanmak üzere dosyaya yönlendirilebilir.
+        Sitedeki mevcut kavramlarla aynı adı taşıyan gizli dosyaları bulmaya yardımcı olur.
     command: "html2dic {{html_file}} > {{output_wordlist|custom_dic.txt}}"

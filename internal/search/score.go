@@ -37,11 +37,11 @@ const (
 
 // scoreCheat sums per-term scores, reporting false when any term matches
 // nowhere. The false case preserves the "all terms must match" result set.
-func scoreCheat(cheat *model.Cheat, terms []string) (score int, ok bool) {
+func scoreCheat(cheat *model.Cheat, terms []string, lang string) (score int, ok bool) {
 	tool := strings.ToLower(cheat.Tool)
-	title := strings.ToLower(cheat.Title)
+	title := strings.ToLower(cheat.Title.Resolve(lang))
 	command := strings.ToLower(cheat.Command)
-	desc := strings.ToLower(cheat.Desc)
+	desc := strings.ToLower(cheat.Desc.Resolve(lang))
 	tags := make([]string, len(cheat.Tags))
 	for i, tag := range cheat.Tags {
 		tags[i] = strings.ToLower(tag)

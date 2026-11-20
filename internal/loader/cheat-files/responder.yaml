@@ -3,94 +3,182 @@ tags: [network, security, pentest, poisoning, ntlm, enumeration, exploitation]
 
 actions:
   # === RECONNAISSANCE & ANALYSIS ===
-  - title: responder - analyze mode
-    desc: |
-      Analyze mode allows you to see NBT-NS, BROWSER, and LLMNR requests without actively responding to them. 
-      This is a passive reconnaissance step used to identify if there is any vulnerable traffic on the network.
-      It is highly recommended to run this first to avoid detection and understand the network dynamics.
-      No hashes will be captured in this mode as it does not poison the requests.
+  - title:
+      en: responder - analyze mode
+      tr: responder - analiz modu
+    desc:
+      en: |
+        Analyze mode allows you to see NBT-NS, BROWSER, and LLMNR requests without actively responding to them. 
+        This is a passive reconnaissance step used to identify if there is any vulnerable traffic on the network.
+        It is highly recommended to run this first to avoid detection and understand the network dynamics.
+        No hashes will be captured in this mode as it does not poison the requests.
+      tr: |
+        Analiz modu, NBT-NS, BROWSER ve LLMNR isteklerini yanıtlamadan pasif şekilde görmeni sağlar.
+        Ağda zafiyetli trafik olup olmadığını tespit etmek için kullanılan pasif bir keşif adımıdır.
+        Tespit edilmemek ve ağın dinamiklerini anlamak için önce bunu çalıştırman önemle önerilir.
+        Bu mod isteklere yanıt vermediği için hash yakalanmaz.
     command: "responder -I {{interface|eth0}} -A"
 
   # === CORE POISONING ACTIONS ===
-  - title: responder - basic poisoning
-    desc: |
-      Starts the default poisoning process for LLMNR, NBT-NS, and MDNS protocols. 
-      This is the most common usage of the tool to capture NTLMv1/v2 hashes from network clients.
-      The tool will automatically start various servers like SMB, HTTP, and SQL to collect credentials.
-      Ensure you are running this in an environment where you have permission, as it can be disruptive.
+  - title:
+      en: responder - basic poisoning
+      tr: responder - temel zehirleme
+    desc:
+      en: |
+        Starts the default poisoning process for LLMNR, NBT-NS, and MDNS protocols. 
+        This is the most common usage of the tool to capture NTLMv1/v2 hashes from network clients.
+        The tool will automatically start various servers like SMB, HTTP, and SQL to collect credentials.
+        Ensure you are running this in an environment where you have permission, as it can be disruptive.
+      tr: |
+        LLMNR, NBT-NS ve MDNS protokolleri için varsayılan zehirleme işlemini başlatır.
+        Ağ istemcilerinden NTLMv1/v2 hash'leri yakalamak için aracın en yaygın kullanımıdır.
+        Araç, kimlik bilgisi toplamak amacıyla SMB, HTTP ve SQL gibi çeşitli sunucuları otomatik olarak başlatır.
+        Yıkıcı olabileceği için izinli olduğun bir ortamda çalıştırdığından emin ol.
     command: "responder -I {{interface|eth0}}"
 
-  - title: responder - basic poisoning with verbosity
-    desc: |
-      Runs the standard poisoning modules with increased verbosity to see more detailed output.
-      This is helpful for troubleshooting connection issues or seeing specific request details from targets.
-      It helps in identifying which specific protocol (e.g., SMB vs HTTP) a target is using to communicate.
-      The verbose mode provides real-time feedback on every packet intercepted and processed.
+  - title:
+      en: responder - basic poisoning with verbosity
+      tr: responder - ayrıntılı çıktılı temel zehirleme
+    desc:
+      en: |
+        Runs the standard poisoning modules with increased verbosity to see more detailed output.
+        This is helpful for troubleshooting connection issues or seeing specific request details from targets.
+        It helps in identifying which specific protocol (e.g., SMB vs HTTP) a target is using to communicate.
+        The verbose mode provides real-time feedback on every packet intercepted and processed.
+      tr: |
+        Standart zehirleme modüllerini daha ayrıntılı çıktı görmek için yüksek ayrıntı düzeyiyle çalıştırır.
+        Bağlantı sorunlarını giderirken veya hedeflerden gelen istek ayrıntılarını incelerken faydalıdır.
+        Hedefin hangi protokolü (ör. SMB ya da HTTP) kullanarak iletişim kurduğunu belirlemeye yardımcı olur.
+        Ayrıntılı mod, yakalanan ve işlenen her paket hakkında gerçek zamanlı geri bildirim verir.
     command: "responder -I {{interface|eth0}} -v"
 
   # === WPAD & PROXY EXPLOITATION ===
-  - title: responder - wpad exploitation
-    desc: |
-      Starts a rogue WPAD (Web Proxy Auto-Discovery) server to intercept web traffic.
-      When clients attempt to discover proxy settings, Responder will provide a malicious wpad.dat file.
-      This directs the client's web traffic through the attacker's machine for credential harvesting.
-      This is one of the most effective ways to capture credentials from modern Windows environments.
+  - title:
+      en: responder - wpad exploitation
+      tr: responder - WPAD istismarı
+    desc:
+      en: |
+        Starts a rogue WPAD (Web Proxy Auto-Discovery) server to intercept web traffic.
+        When clients attempt to discover proxy settings, Responder will provide a malicious wpad.dat file.
+        This directs the client's web traffic through the attacker's machine for credential harvesting.
+        This is one of the most effective ways to capture credentials from modern Windows environments.
+      tr: |
+        Web trafiğini yakalamak için sahte bir WPAD (Web Proxy Auto-Discovery) sunucusu başlatır.
+        İstemciler vekil sunucu (proxy) ayarlarını keşfetmeye çalıştığında Responder onlara zararlı bir wpad.dat dosyası sunar.
+        Bu, kimlik bilgisi toplamak için istemcinin web trafiğini saldırganın makinesi üzerinden geçirir.
+        Modern Windows ortamlarından kimlik bilgisi yakalamanın en etkili yollarından biridir.
     command: "responder -I {{interface|eth0}} -w"
 
-  - title: responder - force wpad authentication
-    desc: |
-      Forces NTLM or Basic authentication when a target attempts to retrieve the wpad.dat file.
-      While this may cause a login prompt to appear on the victim's machine, it significantly increases the chance of hash capture.
-      Use this when standard WPAD poisoning is not yielding results.
-      Be aware that a login prompt might alert more technically savvy users to the attack.
+  - title:
+      en: responder - force wpad authentication
+      tr: responder - zorunlu WPAD kimlik doğrulaması
+    desc:
+      en: |
+        Forces NTLM or Basic authentication when a target attempts to retrieve the wpad.dat file.
+        While this may cause a login prompt to appear on the victim's machine, it significantly increases the chance of hash capture.
+        Use this when standard WPAD poisoning is not yielding results.
+        Be aware that a login prompt might alert more technically savvy users to the attack.
+      tr: |
+        Hedef wpad.dat dosyasını almaya çalıştığında NTLM veya Basic kimlik doğrulamasını zorlar.
+        Kurbanın makinesinde bir oturum açma istemi belirebilir; ancak bu, hash yakalama şansını önemli ölçüde artırır.
+        Standart WPAD zehirlemesi sonuç vermediğinde bunu kullan.
+        Oturum açma isteminin teknik bilgisi yüksek kullanıcıları saldırıya karşı uyarabileceğini unutma.
     command: "responder -I {{interface|eth0}} -wF"
 
-  - title: responder - force proxy authentication
-    desc: |
-      Forces NTLM (transparently) or Basic (via prompt) authentication for the rogue proxy.
-      This option is highly effective because it doesn't strictly require the WPAD server to be active.
-      It intercepts proxy-aware applications and forces them to authenticate against the attacker.
-      Note that this can be very intrusive and might break internet connectivity for the victim if handled improperly.
+  - title:
+      en: responder - force proxy authentication
+      tr: responder - zorunlu vekil sunucu kimlik doğrulaması
+    desc:
+      en: |
+        Forces NTLM (transparently) or Basic (via prompt) authentication for the rogue proxy.
+        This option is highly effective because it doesn't strictly require the WPAD server to be active.
+        It intercepts proxy-aware applications and forces them to authenticate against the attacker.
+        Note that this can be very intrusive and might break internet connectivity for the victim if handled improperly.
+      tr: |
+        Sahte vekil sunucu için NTLM (şeffaf şekilde) veya Basic (istem ile) kimlik doğrulamasını zorlar.
+        Bu seçenek, WPAD sunucusunun aktif olmasını kesinlikle gerektirmediği için oldukça etkilidir.
+        Vekil sunucu kullanan uygulamaları yakalar ve saldırgana karşı kimlik doğrulamaya zorlar.
+        Yanlış yapılandırılırsa kurbanın internet bağlantısını bozabileceğini ve oldukça müdahaleci olabileceğini unutma.
     command: "responder -I {{interface|eth0}} -P"
 
   # === DHCP EXPLOITATION ===
-  - title: responder - dhcp poisoning
-    desc: |
-      Enables answers for DHCP broadcast requests to inject a rogue WPAD server in the DHCP response.
-      This is a powerful technique that works even if LLMNR or NBT-NS are disabled on the network.
-      By becoming the "DHCP server" for a moment, you can tell the client exactly where to look for proxy settings.
-      Requires the attacker to be on the same broadcast domain as the victim requesting an IP.
+  - title:
+      en: responder - dhcp poisoning
+      tr: responder - DHCP zehirlemesi
+    desc:
+      en: |
+        Enables answers for DHCP broadcast requests to inject a rogue WPAD server in the DHCP response.
+        This is a powerful technique that works even if LLMNR or NBT-NS are disabled on the network.
+        By becoming the "DHCP server" for a moment, you can tell the client exactly where to look for proxy settings.
+        Requires the attacker to be on the same broadcast domain as the victim requesting an IP.
+      tr: |
+        DHCP yanıtına sahte bir WPAD sunucusu enjekte etmek için DHCP yayın isteklerine yanıt verilmesini etkinleştirir.
+        Ağda LLMNR veya NBT-NS devre dışıyken bile çalışan güçlü bir tekniktir.
+        Bir anlığına "DHCP sunucusu" haline gelerek istemciye vekil sunucu ayarlarını nerede arayacağını söyleyebilirsin.
+        Saldırganın, IP isteyen kurbanla aynı yayın etki alanında olması gerekir.
     command: "responder -I {{interface|eth0}} -d"
 
-  - title: responder - dhcp dns poisoning
-    desc: |
-      Injects a rogue DNS server address into the DHCP response instead of a WPAD server.
-      This can allow for further DNS spoofing attacks against the target machine.
-      It is an alternative to the standard DHCP WPAD injection method.
-      Use this when you want to redirect all DNS queries from the target to a controlled DNS server.
+  - title:
+      en: responder - dhcp dns poisoning
+      tr: responder - DHCP DNS zehirlemesi
+    desc:
+      en: |
+        Injects a rogue DNS server address into the DHCP response instead of a WPAD server.
+        This can allow for further DNS spoofing attacks against the target machine.
+        It is an alternative to the standard DHCP WPAD injection method.
+        Use this when you want to redirect all DNS queries from the target to a controlled DNS server.
+      tr: |
+        DHCP yanıtına WPAD sunucusu yerine sahte bir DNS sunucu adresi enjekte eder.
+        Bu, hedef makineye karşı başka DNS sahteciliği (spoofing) saldırılarına olanak tanıyabilir.
+        Standart DHCP WPAD enjeksiyon yöntemine bir alternatiftir.
+        Hedeften gelen tüm DNS sorgularını kontrol ettiğin bir DNS sunucusuna yönlendirmek istediğinde bunu kullan.
     command: "responder -I {{interface|eth0}} -D"
 
   # === ADVANCED CONFIGURATIONS ===
-  - title: responder - use external ip redirection
-    desc: |
-      Tells Responder to poison requests with a specific external IP address rather than its own interface IP.
-      This is useful when the attacker's machine is behind a NAT or when traffic needs to be redirected to a different server.
-      Ensure the external IP provided is reachable by the victims on the network.
-      It is commonly used in complex pivoting scenarios during internal engagements.
+  - title:
+      en: responder - use external ip redirection
+      tr: responder - harici IP yönlendirmesi kullanma
+    desc:
+      en: |
+        Tells Responder to poison requests with a specific external IP address rather than its own interface IP.
+        This is useful when the attacker's machine is behind a NAT or when traffic needs to be redirected to a different server.
+        Ensure the external IP provided is reachable by the victims on the network.
+        It is commonly used in complex pivoting scenarios during internal engagements.
+      tr: |
+        Responder'a, kendi arayüz IP'si yerine istekleri belirli bir harici IP adresiyle zehirlemesini söyler.
+        Saldırganın makinesi NAT arkasındayken veya trafiğin farklı bir sunucuya yönlendirilmesi gerektiğinde faydalıdır.
+        Verilen harici IP'nin ağdaki kurbanlar tarafından erişilebilir olduğundan emin ol.
+        İç ağ çalışmalarındaki karmaşık pivot senaryolarında yaygın olarak kullanılır.
     command: "responder -I {{interface|eth0}} -e {{external_ip}}"
 
-  - title: responder - force lm hashing downgrade
-    desc: |
-      Forces a downgrade to the older and much weaker LM (LAN Manager) hashing for Windows XP/2003 and earlier.
-      LM hashes are significantly easier to crack than modern NTLMv2 hashes.
-      This is generally only useful in legacy environments where old Windows versions are still in use.
-      Modern Windows systems will typically ignore this downgrade attempt due to security policies.
+  - title:
+      en: responder - force lm hashing downgrade
+      tr: responder - LM hash seviyesine düşürmeye zorlama
+    desc:
+      en: |
+        Forces a downgrade to the older and much weaker LM (LAN Manager) hashing for Windows XP/2003 and earlier.
+        LM hashes are significantly easier to crack than modern NTLMv2 hashes.
+        This is generally only useful in legacy environments where old Windows versions are still in use.
+        Modern Windows systems will typically ignore this downgrade attempt due to security policies.
+      tr: |
+        Windows XP/2003 ve öncesinde kullanılan eski ve çok daha zayıf LM (LAN Manager) hash seviyesine düşürmeye zorlar.
+        LM hash'leri modern NTLMv2 hash'lerine kıyasla çok daha kolay kırılır.
+        Bu genellikle yalnızca eski Windows sürümlerinin hâlâ kullanıldığı eski ortamlarda işe yarar.
+        Modern Windows sistemleri güvenlik ilkeleri nedeniyle bu düşürme girişimini genellikle yok sayar.
     command: "responder -I {{interface|eth0}} --lm"
 
-  - title: responder - webdav authentication prompt
-    desc: |
-      Changes the SMB error code to STATUS_LOGON_FAILURE to trigger WebDAV authentications.
-      By default, Responder returns ACCESS_DENIED, but some services like WebClient require a logon failure to prompt.
-      This is particularly useful for capturing hashes from the Windows WebClient service.
-      It can help bypass certain SMB signing requirements by forcing the client to use HTTP-based WebDAV.
+  - title:
+      en: responder - webdav authentication prompt
+      tr: responder - WebDAV kimlik doğrulama istemi
+    desc:
+      en: |
+        Changes the SMB error code to STATUS_LOGON_FAILURE to trigger WebDAV authentications.
+        By default, Responder returns ACCESS_DENIED, but some services like WebClient require a logon failure to prompt.
+        This is particularly useful for capturing hashes from the Windows WebClient service.
+        It can help bypass certain SMB signing requirements by forcing the client to use HTTP-based WebDAV.
+      tr: |
+        WebDAV kimlik doğrulamalarını tetiklemek için SMB hata kodunu STATUS_LOGON_FAILURE olarak değiştirir.
+        Varsayılan olarak Responder ACCESS_DENIED döndürür; ancak WebClient gibi bazı hizmetler istem çıkarmak için oturum açma hatası gerektirir.
+        Bu, Windows WebClient hizmetinden hash yakalamak için özellikle faydalıdır.
+        İstemciyi HTTP tabanlı WebDAV kullanmaya zorlayarak belirli SMB imzalama gereksinimlerini atlatmaya yardımcı olabilir.
     command: "responder -I {{interface|eth0}} -E"

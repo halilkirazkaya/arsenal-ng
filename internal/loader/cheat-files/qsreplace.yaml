@@ -4,41 +4,76 @@ tags: [web, bug-bounty, reconnaissance, scanning, security, pentest, automation]
 actions:
 # === BASIC REPLACEMENT ===
 
- - title: qsreplace - replace all query values
-   desc: |
-     Replaces all query string parameter values in a list of URLs with a specified payload or string. 
-     This is a fundamental technique for testing vulnerabilities like Cross-Site Scripting (XSS) or Open Redirects across hundreds of URLs simultaneously. 
-     The tool automatically filters the input to ensure that only unique combinations of host, path, and parameter keys are processed, which prevents redundant testing of the same endpoint.
+ - title:
+     en: qsreplace - replace all query values
+     tr: qsreplace - sorgu değerlerinin tamamını değiştir
+   desc:
+     en: |
+       Replaces all query string parameter values in a list of URLs with a specified payload or string. 
+       This is a fundamental technique for testing vulnerabilities like Cross-Site Scripting (XSS) or Open Redirects across hundreds of URLs simultaneously. 
+       The tool automatically filters the input to ensure that only unique combinations of host, path, and parameter keys are processed, which prevents redundant testing of the same endpoint.
+     tr: |
+       URL listesindeki sorgu dizgisi parametre değerlerinin tamamını belirtilen payload veya metinle değiştirir.
+       Yüzlerce URL üzerinde XSS ya da açık yönlendirme (open redirect) gibi zafiyetleri test etmek için temel bir tekniktir.
+       Araç, girdiyi otomatik olarak filtreleyerek yalnızca host, yol ve parametre anahtarı kombinasyonu benzersiz olanları işler; böylece aynı uç noktanın gereksiz yere tekrar test edilmesi önlenir.
    command: "qsreplace {{payload|'\" language=\"javascript\">alert(1)//'}} < {{url_list}}"
 
- - title: qsreplace - replace with placeholder for fuzzing
-   desc: |
-     Replaces all parameter values with a static placeholder like "FUZZ" or "PAYLOAD". 
-     This is extremely useful when preparing a list of targets for other tools such as ffuf, nuclei, or custom bash loops. 
-     It ensures that the fuzzer knows exactly where to inject its wordlist while maintaining the original URL structure.
+ - title:
+     en: qsreplace - replace with placeholder for fuzzing
+     tr: qsreplace - fuzzing için yer tutucu ile değiştir
+   desc:
+     en: |
+       Replaces all parameter values with a static placeholder like "FUZZ" or "PAYLOAD". 
+       This is extremely useful when preparing a list of targets for other tools such as ffuf, nuclei, or custom bash loops. 
+       It ensures that the fuzzer knows exactly where to inject its wordlist while maintaining the original URL structure.
+     tr: |
+       Tüm parametre değerlerini "FUZZ" veya "PAYLOAD" gibi sabit bir yer tutucuyla değiştirir.
+       ffuf, nuclei veya özel bash döngüleri gibi diğer araçlara hedef listesi hazırlarken son derece kullanışlıdır.
+       Orijinal URL yapısını korurken fuzzing aracının kelime listesini tam olarak nereye enjekte edeceğini bilmesini sağlar.
    command: "qsreplace {{placeholder|FUZZ}} < {{url_list}}"
 
 # === ADVANCED MODES ===
 
- - title: qsreplace - append to existing values
-   desc: |
-     Appends the user-supplied string to the end of existing query parameter values instead of overwriting them. 
-     This mode is useful when the target application expects a certain data type or format (like an ID or email) to process the request, but you still want to inject a payload at the end. 
-     Use the -a flag to enable this behavior for scenarios like SQL injection or parameter pollution testing.
+ - title:
+     en: qsreplace - append to existing values
+     tr: qsreplace - mevcut değerlerin sonuna ekle
+   desc:
+     en: |
+       Appends the user-supplied string to the end of existing query parameter values instead of overwriting them. 
+       This mode is useful when the target application expects a certain data type or format (like an ID or email) to process the request, but you still want to inject a payload at the end. 
+       Use the -a flag to enable this behavior for scenarios like SQL injection or parameter pollution testing.
+     tr: |
+       Kullanıcının verdiği metni, mevcut sorgu parametresi değerlerinin üzerine yazmak yerine sonuna ekler.
+       Hedef uygulamanın isteği işlemesi için belirli bir veri türü veya biçimi (ör. ID ya da e-posta) beklediği, ancak yine de sona bir payload enjekte etmek istediğiniz durumlarda kullanışlıdır.
+       SQL enjeksiyonu veya parametre kirliliği (parameter pollution) testleri gibi senaryolar için -a bayrağı ile bu davranış etkinleştirilir.
    command: "qsreplace -a {{suffix|' AND 1=1'}} < {{url_list}}"
 
- - title: qsreplace - unique URL and parameter combinations
-   desc: |
-     Filters a list of URLs to only show unique combinations of host, path, and parameter keys without changing any values. 
-     This is essentially a "de-cluttering" command that helps clean up massive lists generated by discovery tools like waybackurls or gau. 
-     It is a "must-use" step in reconnaissance pipelines to reduce the number of requests sent to the target server by removing duplicates that only differ in parameter order or specific values.
+ - title:
+     en: qsreplace - unique URL and parameter combinations
+     tr: qsreplace - benzersiz URL ve parametre kombinasyonları
+   desc:
+     en: |
+       Filters a list of URLs to only show unique combinations of host, path, and parameter keys without changing any values. 
+       This is essentially a "de-cluttering" command that helps clean up massive lists generated by discovery tools like waybackurls or gau. 
+       It is a "must-use" step in reconnaissance pipelines to reduce the number of requests sent to the target server by removing duplicates that only differ in parameter order or specific values.
+     tr: |
+       Herhangi bir değeri değiştirmeden, URL listesini host, yol ve parametre anahtarı kombinasyonu benzersiz olanlarla sınırlar.
+       waybackurls veya gau gibi keşif araçlarının ürettiği devasa listeleri temizlemeye yarayan bir "ayıklama" komutudur.
+       Yalnızca parametre sırası veya değeri farklı olan kopyaları eleyerek hedef sunucuya gönderilen istek sayısını azalttığı için keşif hatlarında mutlaka kullanılması gereken bir adımdır.
    command: "qsreplace -a < {{url_list}}"
 
 # === PIPELINE EXAMPLES ===
 
- - title: qsreplace - filter and test with curl
-   desc: |
-     Integrates qsreplace into a shell pipeline to perform live testing against discovered endpoints. 
-     The command first replaces all query values with a canary string and then uses xargs to send requests with curl to check for reflections or errors. 
-     Be cautious when using this on large lists, as it can generate significant traffic and potentially trigger rate-limiting or account lockouts.
+ - title:
+     en: qsreplace - filter and test with curl
+     tr: qsreplace - curl ile filtrele ve test et
+   desc:
+     en: |
+       Integrates qsreplace into a shell pipeline to perform live testing against discovered endpoints. 
+       The command first replaces all query values with a canary string and then uses xargs to send requests with curl to check for reflections or errors. 
+       Be cautious when using this on large lists, as it can generate significant traffic and potentially trigger rate-limiting or account lockouts.
+     tr: |
+       Keşfedilen uç noktalara karşı canlı test yapmak için qsreplace'i bir kabuk hattına (pipeline) entegre eder.
+       Komut önce tüm sorgu değerlerini bir kanarya (canary) metniyle değiştirir, ardından yansımaları veya hataları denetlemek için xargs ile curl istekleri gönderir.
+       Önemli ölçüde trafik üretebileceği ve hız sınırlama (rate-limit) ya da hesap kilitlenmelerini tetikleyebileceği için büyük listelerde dikkatli kullanın.
    command: "qsreplace {{canary|REFLECTED_HERE}} < {{url_list}} | xargs -I {} curl -s -L {} | grep {{canary|REFLECTED_HERE}}"

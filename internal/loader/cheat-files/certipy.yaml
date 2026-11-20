@@ -3,94 +3,183 @@ tags: [active-directory, adcs, security, pentest, enumeration, exploitation, ker
 
 actions:
   # === ENUMERATION ===
-  - title: certipy - find vulnerable templates (text output)
-    desc: |
-      Perform enumeration of Active Directory Certificate Services to identify misconfigurations.
-      This command queries LDAP for Certificate Authorities and Templates, then flags potential ESC vulnerabilities.
-      It is the essential first step for any AD CS audit or attack chain to map the environment.
-      The output includes detailed information about permissions, enrollment rights, and specific vulnerability IDs.
+  - title:
+      en: certipy - find vulnerable templates (text output)
+      tr: certipy - zafiyetli şablonları bulma (metin çıktısı)
+    desc:
+      en: |
+        Perform enumeration of Active Directory Certificate Services to identify misconfigurations.
+        This command queries LDAP for Certificate Authorities and Templates, then flags potential ESC vulnerabilities.
+        It is the essential first step for any AD CS audit or attack chain to map the environment.
+        The output includes detailed information about permissions, enrollment rights, and specific vulnerability IDs.
+      tr: |
+        Yanlış yapılandırmaları saptamak için Active Directory Sertifika Servislerini numaralandırır.
+        Sertifika yetkilileri ile şablonları LDAP üzerinden sorgular, ardından olası ESC zafiyetlerini işaretler.
+        Ortamı haritalamak isteyen her AD CS denetimi veya saldırı zinciri için vazgeçilmez ilk adımdır.
+        Çıktı izinler, kayıt hakları ve somut zafiyet kimlikleri hakkında ayrıntılı bilgi içerir.
     command: "certipy find -u {{username}}@{{domain}} -p {{password}} -dc-ip {{dc_ip}} -enabled -vulnerable -stdout"
 
-  - title: certipy - find and save results to file
-    desc: |
-      Execute AD CS enumeration and save the output in multiple formats including JSON and BloodHound-compatible ZIP.
-      Saving to files is useful for offline analysis or importing data into graph-based tools like BloodHound.
-      This helps in visualizing complex permission chains that might lead to domain escalation.
-      The command will generate several files prefixed with the current timestamp in the working directory.
+  - title:
+      en: certipy - find and save results to file
+      tr: certipy - bulma ve sonuçları dosyaya kaydetme
+    desc:
+      en: |
+        Execute AD CS enumeration and save the output in multiple formats including JSON and BloodHound-compatible ZIP.
+        Saving to files is useful for offline analysis or importing data into graph-based tools like BloodHound.
+        This helps in visualizing complex permission chains that might lead to domain escalation.
+        The command will generate several files prefixed with the current timestamp in the working directory.
+      tr: |
+        AD CS numaralandırması yürütür, çıktıyı JSON ve BloodHound uyumlu ZIP dahil çoklu biçimde kaydeder.
+        Dosyaya kaydetmek çevrimdışı inceleme veya veriyi BloodHound benzeri çizge tabanlı araçlara aktarma için yararlıdır.
+        Etki alanı yükseltmeye götürebilecek karmaşık izin zincirlerini görselleştirmeye yardımcı olur.
+        Çalışma dizininde güncel zaman damgasıyla başlayan birkaç dosya üretir.
     command: "certipy find -u {{username}}@{{domain}} -p {{password}} -dc-ip {{dc_ip}} -output {{filename_prefix|results}}"
 
   # === EXPLOITATION ===
-  - title: certipy - exploit ESC1 (request certificate as other user)
-    desc: |
-      Request a certificate for a target user by exploiting a template that allows user-defined Subject Alternative Names (SAN).
-      This is the standard command for ESC1 exploitation where an attacker specifies a UPN to impersonate.
-      If successful, the CA will issue a certificate for the specified target user (e.g., a Domain Admin).
-      The resulting PFX file can then be used for authentication to gain full access to the target account.
+  - title:
+      en: certipy - exploit ESC1 (request certificate as other user)
+      tr: certipy - ESC1 sömürme (başka kullanıcı adına sertifika isteme)
+    desc:
+      en: |
+        Request a certificate for a target user by exploiting a template that allows user-defined Subject Alternative Names (SAN).
+        This is the standard command for ESC1 exploitation where an attacker specifies a UPN to impersonate.
+        If successful, the CA will issue a certificate for the specified target user (e.g., a Domain Admin).
+        The resulting PFX file can then be used for authentication to gain full access to the target account.
+      tr: |
+        Kullanıcı tanımlı Konu Alternatif Adlarına (SAN) izin veren şablonu sömürerek hedef kullanıcı adına sertifika ister.
+        Saldırganın taklit edilecek UPN değerini belirttiği klasik ESC1 sömürü komutudur.
+        Başarılı olursa CA belirtilen hedef kullanıcı adına sertifika düzenler (örneğin etki alanı yöneticisi).
+        Oluşan PFX dosyası kimlik doğrulamada kullanılarak hedef hesaba tam erişim sağlar.
     command: "certipy req -u {{username}}@{{domain}} -p {{password}} -dc-ip {{dc_ip}} -target {{ca_hostname}} -ca {{ca_name}} -template {{vulnerable_template}} -upn {{target_user_upn}}"
 
-  - title: certipy - request certificate via RPC (ESC1/ESC6)
-    desc: |
-      Request a certificate specifically using the RPC protocol against the CA endpoint.
-      This is often used when web enrollment is disabled but the RPC interface remains accessible.
-      You must provide the CA name and a template that the current user has enrollment permissions for.
-      The command handles the certificate request and saves the private key and certificate into a local PFX file.
+  - title:
+      en: certipy - request certificate via RPC (ESC1/ESC6)
+      tr: certipy - RPC üzerinden sertifika isteme (ESC1/ESC6)
+    desc:
+      en: |
+        Request a certificate specifically using the RPC protocol against the CA endpoint.
+        This is often used when web enrollment is disabled but the RPC interface remains accessible.
+        You must provide the CA name and a template that the current user has enrollment permissions for.
+        The command handles the certificate request and saves the private key and certificate into a local PFX file.
+      tr: |
+        CA uç noktasına karşı özellikle RPC iletişim kuralıyla sertifika ister.
+        Web kaydı kapalıyken RPC arayüzü erişilebilir kaldığında sıklıkla başvurulur.
+        CA adı ile güncel kullanıcının kayıt izni bulunan şablonu belirtmek gerekir.
+        Sertifika isteğini yönetir, özel anahtar ile sertifikayı yerel PFX dosyasına kaydeder.
     command: "certipy req -u {{username}}@{{domain}} -p {{password}} -dc-ip {{dc_ip}} -target {{ca_hostname}} -ca {{ca_name}} -template {{template_name}}"
 
-  - title: certipy - authenticate using PFX (TGT & NTLM retrieval)
-    desc: |
-      Use a retrieved PFX certificate file to authenticate against the Domain Controller via Kerberos PKINIT.
-      This command will attempt to retrieve both a Ticket Granting Ticket (TGT) and the NT hash of the user.
-      It is a critical post-exploitation step that converts a certificate into a standard Kerberos ticket or NTLM hash.
-      The generated .ccache file can be used with other tools like Impacket or Rubeus for further movement.
+  - title:
+      en: certipy - authenticate using PFX (TGT & NTLM retrieval)
+      tr: certipy - PFX ile kimlik doğrulama (TGT ve NTLM alma)
+    desc:
+      en: |
+        Use a retrieved PFX certificate file to authenticate against the Domain Controller via Kerberos PKINIT.
+        This command will attempt to retrieve both a Ticket Granting Ticket (TGT) and the NT hash of the user.
+        It is a critical post-exploitation step that converts a certificate into a standard Kerberos ticket or NTLM hash.
+        The generated .ccache file can be used with other tools like Impacket or Rubeus for further movement.
+      tr: |
+        Ele geçirilen PFX sertifika dosyasıyla Kerberos PKINIT yoluyla etki alanı denetleyicisine karşı kimlik doğrular.
+        Hem bilet verme bileti (TGT) hem de kullanıcıya ait NT özetini almayı dener.
+        Sertifikayı klasik Kerberos bileti veya NTLM özetine dönüştüren kritik sömürü sonrası adımdır.
+        Üretilen .ccache dosyası Impacket veya Rubeus benzeri araçlarla ileri hareket için kullanılabilir.
     command: "certipy auth -pfx {{pfx_file}} -dc-ip {{dc_ip}}"
 
   # === RELAY ATTACKS ===
-  - title: certipy - NTLM relay to AD CS (ESC8)
-    desc: |
-      Start an NTLM relay server that targets the AD CS HTTP Web Enrollment interface.
-      This is used to exploit ESC8 by relaying authentication from a coerced victim to the CA to obtain a certificate.
-      The attacker must typically use a tool like PetitPotam or PrinterBug to trigger the authentication.
-      Ensure the target CA has Web Enrollment enabled and does not enforce Enforce Channel Binding (EPA).
+  - title:
+      en: certipy - NTLM relay to AD CS (ESC8)
+      tr: certipy - AD CS üzerine NTLM aktarma (ESC8)
+    desc:
+      en: |
+        Start an NTLM relay server that targets the AD CS HTTP Web Enrollment interface.
+        This is used to exploit ESC8 by relaying authentication from a coerced victim to the CA to obtain a certificate.
+        The attacker must typically use a tool like PetitPotam or PrinterBug to trigger the authentication.
+        Ensure the target CA has Web Enrollment enabled and does not enforce Enforce Channel Binding (EPA).
+      tr: |
+        AD CS HTTP web kayıt arayüzünü hedefleyen NTLM aktarma sunucusu başlatır.
+        Zorlanan kurbandan gelen kimlik doğrulamayı CA üzerine aktararak sertifika almak için ESC8 sömürüsünde kullanılır.
+        Saldırganın kimlik doğrulamayı tetiklemek için genellikle PetitPotam veya PrinterBug benzeri araç kullanması gerekir.
+        Hedef CA üzerinde web kaydının açık, kanal bağlama zorlaması (EPA) uygulamasının kapalı olduğunu doğrulayın.
     command: "certipy relay -target {{ca_web_url|http://ca.domain.local/certsrv/certfnsh.asp}} -template {{template_name|Machine}}"
 
   # === PERSISTENCE AND ADVANCED ATTACKS ===
-  - title: certipy - shadow credentials attack
-    desc: |
-      Perform a Shadow Credentials attack by adding a new Key Credential to a target object's msDS-KeyCredentialLink attribute.
-      This allows an attacker with 'GenericWrite' or 'WriteProperty' over an object to authenticate as that object.
-      Certipy will create a self-signed certificate and link it to the target account.
-      This is a powerful persistence mechanism that does not require the presence of AD CS in the environment.
+  - title:
+      en: certipy - shadow credentials attack
+      tr: certipy - gölge kimlik bilgisi saldırısı
+    desc:
+      en: |
+        Perform a Shadow Credentials attack by adding a new Key Credential to a target object's msDS-KeyCredentialLink attribute.
+        This allows an attacker with 'GenericWrite' or 'WriteProperty' over an object to authenticate as that object.
+        Certipy will create a self-signed certificate and link it to the target account.
+        This is a powerful persistence mechanism that does not require the presence of AD CS in the environment.
+      tr: |
+        Hedef nesnenin msDS-KeyCredentialLink özniteliğine yeni anahtar kimlik bilgisi ekleyerek gölge kimlik bilgisi saldırısı yapar.
+        Nesne üzerinde 'GenericWrite' veya 'WriteProperty' hakkı bulunan saldırganın o nesne adına kimlik doğrulamasına olanak tanır.
+        Certipy kendinden imzalı sertifika üretip hedef hesaba bağlar.
+        Ortamda AD CS bulunmasını gerektirmeyen güçlü kalıcılık yöntemidir.
     command: "certipy shadow -u {{username}}@{{domain}} -p {{password}} -target {{target_account}} -dc-ip {{dc_ip}}"
 
-  - title: certipy - forge golden certificate
-    desc: |
-      Forge a "Golden Certificate" using a compromised CA private key and certificate.
-      With the CA's root certificate and key, an attacker can sign certificates for any user in the domain.
-      This provides long-term persistence that is extremely difficult to detect as the certificates appear legitimate.
-      The resulting forged certificate can be used with 'certipy auth' to impersonate any domain identity.
+  - title:
+      en: certipy - forge golden certificate
+      tr: certipy - sahte altın sertifika üretme
+    desc:
+      en: |
+        Forge a "Golden Certificate" using a compromised CA private key and certificate.
+        With the CA's root certificate and key, an attacker can sign certificates for any user in the domain.
+        This provides long-term persistence that is extremely difficult to detect as the certificates appear legitimate.
+        The resulting forged certificate can be used with 'certipy auth' to impersonate any domain identity.
+      tr: |
+        Ele geçirilen CA özel anahtarı ve sertifikasıyla "altın sertifika" üretir.
+        CA kök sertifikası ve anahtarıyla saldırgan etki alanındaki her kullanıcı adına sertifika imzalayabilir.
+        Sertifikalar meşru göründüğü için saptanması son derece güç, uzun süreli kalıcılık sağlar.
+        Üretilen sahte sertifika 'certipy auth' komutuyla her etki alanı kimliğini taklit etmek için kullanılabilir.
     command: "certipy forge -ca-pfx {{ca_private_key_pfx}} -upn {{admin_upn}} -subject {{subject_dn}}"
 
   # === MANAGEMENT ===
-  - title: certipy - manage CA (ESC7 exploitation)
-    desc: |
-      Interact with Certificate Authority settings, typically used when an attacker has 'ManageCA' or 'ManageCertificates' rights.
-      This command can be used to enable vulnerable templates on a CA or approve pending certificate requests.
-      In an ESC7 scenario, you can grant yourself the 'Manage Certificates' right and then approve your own requests.
-      It is a vital tool for manipulating the CA service state during complex AD CS exploitation.
+  - title:
+      en: certipy - manage CA (ESC7 exploitation)
+      tr: certipy - CA yönetme (ESC7 sömürüsü)
+    desc:
+      en: |
+        Interact with Certificate Authority settings, typically used when an attacker has 'ManageCA' or 'ManageCertificates' rights.
+        This command can be used to enable vulnerable templates on a CA or approve pending certificate requests.
+        In an ESC7 scenario, you can grant yourself the 'Manage Certificates' right and then approve your own requests.
+        It is a vital tool for manipulating the CA service state during complex AD CS exploitation.
+      tr: |
+        Sertifika yetkilisi ayarlarıyla etkileşim kurar; genellikle saldırgan 'ManageCA' veya 'ManageCertificates'
+        hakkına sahipken başvurulur. CA üzerinde zafiyetli şablonları etkinleştirmek veya bekleyen sertifika
+        isteklerini onaylamak için kullanılabilir. ESC7 senaryosunda önce kendinize sertifika yönetme hakkı verip
+        ardından kendi isteklerinizi onaylayabilirsiniz. Karmaşık AD CS sömürüsü sırasında CA servis durumunu
+        değiştirmek için hayati araçtır.
     command: "certipy ca -u {{username}}@{{domain}} -p {{password}} -dc-ip {{dc_ip}} -target {{ca_hostname}} -ca {{ca_name}} -add-officer {{attacker_user}}"
 
-  - title: certipy - modify certificate template (ESC4)
-    desc: |
-      Modify the configuration of a Certificate Template in Active Directory.
-      This is primarily used for ESC4, where an attacker has write permissions over a template object.
-      You can use this to make a template vulnerable to ESC1 by enabling the 'msPKI-Certificate-Name-Flag'.
-      Always remember to back up the original template configuration before making modifications to avoid detection.
+  - title:
+      en: certipy - modify certificate template (ESC4)
+      tr: certipy - sertifika şablonunu değiştirme (ESC4)
+    desc:
+      en: |
+        Modify the configuration of a Certificate Template in Active Directory.
+        This is primarily used for ESC4, where an attacker has write permissions over a template object.
+        You can use this to make a template vulnerable to ESC1 by enabling the 'msPKI-Certificate-Name-Flag'.
+        Always remember to back up the original template configuration before making modifications to avoid detection.
+      tr: |
+        Active Directory içindeki sertifika şablonunun yapılandırmasını değiştirir.
+        Başlıca ESC4 için kullanılır; saldırgan şablon nesnesi üzerinde yazma iznine sahiptir.
+        'msPKI-Certificate-Name-Flag' değerini etkinleştirerek şablonu ESC1 karşısında zafiyetli duruma getirebilirsiniz.
+        Yakalanmamak için değişiklikten önce özgün şablon yapılandırmasını yedeklemeyi unutmayın.
     command: "certipy template -u {{username}}@{{domain}} -p {{password}} -dc-ip {{dc_ip}} -template {{template_name}} -save-old"
 
-  - title: certipy - create new machine account
-    desc: |
-      Create a new computer account in the domain using the MachineAccountQuota.
-      This is often used as a prerequisite for various AD CS attacks that require a machine identity.
-      Certipy will automatically generate a password for the new machine account if one is not provided.
-      The new account can then be used to request certificates or participate in relay attacks.
+  - title:
+      en: certipy - create new machine account
+      tr: certipy - yeni makine hesabı oluşturma
+    desc:
+      en: |
+        Create a new computer account in the domain using the MachineAccountQuota.
+        This is often used as a prerequisite for various AD CS attacks that require a machine identity.
+        Certipy will automatically generate a password for the new machine account if one is not provided.
+        The new account can then be used to request certificates or participate in relay attacks.
+      tr: |
+        MachineAccountQuota kotasını kullanarak etki alanında yeni bilgisayar hesabı oluşturur.
+        Makine kimliği gerektiren çeşitli AD CS saldırıları öncesinde hazırlık olarak sıklıkla başvurulur.
+        Parola verilmezse Certipy yeni makine hesabı için otomatik parola üretir.
+        Yeni hesap sertifika istemek veya aktarma saldırısına katılmak için kullanılabilir.
     command: "certipy account create -u {{username}}@{{domain}} -p {{password}} -user {{new_machine_name}} -dc-ip {{dc_ip}}"

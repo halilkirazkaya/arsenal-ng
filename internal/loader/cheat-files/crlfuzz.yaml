@@ -3,82 +3,159 @@ tags: [web-security, crlf-injection, scanner, pentest, reconnaissance, bug-bount
 
 actions:
   # === BASIC TARGETING ===
-  - title: crlfuzz - basic scan of a single URL
-    desc: |
-      Performs a targeted scan for CRLF injection vulnerabilities on a single specified URL. 
-      The tool injects various payloads into the headers to detect if the server is susceptible to HTTP Response Splitting. 
-      This is the most common starting point when you have identified a specific suspicious endpoint.
+  - title:
+      en: crlfuzz - basic scan of a single URL
+      tr: crlfuzz - tek adres için temel tarama
+    desc:
+      en: |
+        Performs a targeted scan for CRLF injection vulnerabilities on a single specified URL. 
+        The tool injects various payloads into the headers to detect if the server is susceptible to HTTP Response Splitting. 
+        This is the most common starting point when you have identified a specific suspicious endpoint.
+      tr: |
+        Belirtilen tek adres üzerinde CRLF enjeksiyon zafiyetlerine yönelik hedefli tarama yapar.
+        Başlıklara çeşitli yükler göndererek sunucunun HTTP yanıt bölünmesine karşı savunmasız olup olmadığını belirler.
+        Şüpheli belirli bir uç noktayı incelerken başvurulan en yaygın başlangıç yöntemidir.
     command: "crlfuzz -u {{url}}"
 
-  - title: crlfuzz - scan URLs from a list
-    desc: |
-      Reads multiple target URLs from a text file and performs automated fuzzing on each entry. 
-      This is highly efficient for large-scale reconnaissance and bug bounty hunting when you have a list of subdomains. 
-      Ensure the file contains one URL per line for the tool to process them correctly.
+  - title:
+      en: crlfuzz - scan URLs from a list
+      tr: crlfuzz - listeden adres tarama
+    desc:
+      en: |
+        Reads multiple target URLs from a text file and performs automated fuzzing on each entry. 
+        This is highly efficient for large-scale reconnaissance and bug bounty hunting when you have a list of subdomains. 
+        Ensure the file contains one URL per line for the tool to process them correctly.
+      tr: |
+        Metin dosyasındaki birden fazla hedef adresi okuyarak her kayıt üzerinde otomatik bulanıklaştırma yapar.
+        Alt alan adı listeleriyle geniş çaplı keşif veya ödül avcılığı yürütürken oldukça verimlidir.
+        Doğru işlenebilmesi amacıyla dosyada satır başına tek adres bulunmalıdır.
     command: "crlfuzz -l {{file_path}}"
 
-  - title: crlfuzz - scan from standard input (stdin)
-    desc: |
-      Enables the tool to receive URLs directly from the output of other tools in a pipeline. 
-      When no input flag is provided, crlfuzz waits for data from stdin, making it perfect for chaining with tools like subfinder or httpx. 
-      This approach is essential for building fully automated vulnerability scanning workflows.
+  - title:
+      en: crlfuzz - scan from standard input (stdin)
+      tr: crlfuzz - standart girdiden tarama
+    desc:
+      en: |
+        Enables the tool to receive URLs directly from the output of other tools in a pipeline. 
+        When no input flag is provided, crlfuzz waits for data from stdin, making it perfect for chaining with tools like subfinder or httpx. 
+        This approach is essential for building fully automated vulnerability scanning workflows.
+      tr: |
+        Adresleri işlem hattı üzerinden başka araçların çıktısından doğrudan almayı sağlar.
+        Girdi seçeneği verilmediğinde crlfuzz stdin üzerinden veri bekler; subfinder veya httpx benzeri araçlarla zincirleme kullanım amacıyla kusursuzdur.
+        Tam otomatik zafiyet tarama düzenleri kurmak isteyenler açısından vazgeçilmezdir.
     command: "crlfuzz {{options}}"
 
   # === REQUEST CONFIGURATION ===
-  - title: crlfuzz - specify HTTP request method
-    desc: |
-      Allows you to define a specific HTTP method such as POST, PUT, or DELETE instead of the default GET method. 
-      CRLF vulnerabilities can often be triggered through specific methods that handle headers or data differently. 
-      Use this when testing REST APIs or endpoints that require specific interaction types.
+  - title:
+      en: crlfuzz - specify HTTP request method
+      tr: crlfuzz - HTTP istek yöntemi belirtme
+    desc:
+      en: |
+        Allows you to define a specific HTTP method such as POST, PUT, or DELETE instead of the default GET method. 
+        CRLF vulnerabilities can often be triggered through specific methods that handle headers or data differently. 
+        Use this when testing REST APIs or endpoints that require specific interaction types.
+      tr: |
+        Varsayılan GET yerine POST, PUT veya DELETE benzeri belirli bir HTTP yöntemi tanımlamayı sağlar.
+        Başlıkları veya veriyi farklı işleyen yöntemler üzerinden CRLF zafiyetleri çoğunlukla tetiklenebilir.
+        REST arayüzlerini veya belirli etkileşim bekleyen uç noktaları denerken kullanılmalıdır.
     command: "crlfuzz -u {{url}} -X {{method|POST}}"
 
-  - title: crlfuzz - scan with request body data
-    desc: |
-      Sends custom data within the request body, which is typically required for POST, PATCH, or DELETE methods. 
-      This allows for the testing of endpoints that require specific parameters to reach the logic where headers are processed. 
-      Be careful with the data format to ensure it matches what the target server expects (e.g., JSON or form-encoded).
+  - title:
+      en: crlfuzz - scan with request body data
+      tr: crlfuzz - istek gövdesindeki veriyle tarama
+    desc:
+      en: |
+        Sends custom data within the request body, which is typically required for POST, PATCH, or DELETE methods. 
+        This allows for the testing of endpoints that require specific parameters to reach the logic where headers are processed. 
+        Be careful with the data format to ensure it matches what the target server expects (e.g., JSON or form-encoded).
+      tr: |
+        İstek gövdesi içinde özel veri gönderir; POST, PATCH veya DELETE yöntemlerinde çoğunlukla gereklidir.
+        Başlıkların işlendiği mantığa ulaşmak amacıyla belirli değişkenler isteyen uç noktaların denenmesine olanak tanır.
+        Hedef sunucunun beklediği biçime (örneğin JSON veya form kodlamalı) uygunluk amacıyla veri biçimine dikkat edilmelidir.
     command: "crlfuzz -u {{url}} -X {{method|POST}} -d {{data}}"
 
-  - title: crlfuzz - pass custom headers
-    desc: |
-      Includes custom HTTP headers in the outgoing request, such as specialized User-Agents or Authorization tokens. 
-      This is critical for scanning authenticated areas of an application where a session cookie or bearer token is required. 
-      You can also use this to simulate specific client environments or bypass basic header-based filters.
+  - title:
+      en: crlfuzz - pass custom headers
+      tr: crlfuzz - özel başlık gönderme
+    desc:
+      en: |
+        Includes custom HTTP headers in the outgoing request, such as specialized User-Agents or Authorization tokens. 
+        This is critical for scanning authenticated areas of an application where a session cookie or bearer token is required. 
+        You can also use this to simulate specific client environments or bypass basic header-based filters.
+      tr: |
+        Giden isteğe özel HTTP başlıkları ekler; özel istemci tanıtımları veya yetkilendirme jetonları örnek verilebilir.
+        Oturum çerezi veya taşıyıcı jeton gerektiren giriş korumalı uygulama bölümlerini taramak amacıyla kritik önemdedir.
+        Belirli istemci ortamlarını taklit etmek veya basit başlık tabanlı filtreleri aşmak amacıyla da kullanılabilir.
     command: "crlfuzz -u {{url}} -H \"{{header_name}}: {{header_value}}\""
 
   # === PERFORMANCE & PROXY ===
-  - title: crlfuzz - set concurrency level
-    desc: |
-      Adjusts the number of concurrent fuzzing tasks running at the same time to optimize scanning speed. 
-      The default concurrency is 25, but you can increase it for faster results on robust servers or decrease it to avoid overwhelming the target. 
-      Setting this too high might lead to rate-limiting or false negatives due to network congestion.
+  - title:
+      en: crlfuzz - set concurrency level
+      tr: crlfuzz - eşzamanlılık seviyesini ayarlama
+    desc:
+      en: |
+        Adjusts the number of concurrent fuzzing tasks running at the same time to optimize scanning speed. 
+        The default concurrency is 25, but you can increase it for faster results on robust servers or decrease it to avoid overwhelming the target. 
+        Setting this too high might lead to rate-limiting or false negatives due to network congestion.
+      tr: |
+        Tarama hızını iyileştirmek amacıyla aynı anda çalışan bulanıklaştırma görev sayısını ayarlar.
+        Varsayılan eşzamanlılık 25 değerindedir; güçlü sunucularda hızlanmak amacıyla yükseltilebilir, hedefi yormamak amacıyla düşürülebilir.
+        Aşırı yüksek değerler hız sınırlamasına veya ağ yoğunluğundan kaynaklanan gözden kaçan bulgulara yol açabilir.
     command: "crlfuzz -l {{file_path}} -c {{concurrency|50}}"
 
-  - title: crlfuzz - route traffic through a proxy
-    desc: |
-      Directs all fuzzing traffic through a specified proxy server, such as Burp Suite or OWASP ZAP. 
-      This allows you to manually inspect the payloads being sent and the responses received from the server. 
-      The proxy string must include the protocol, for example, http://127.0.0.1:8080.
+  - title:
+      en: crlfuzz - route traffic through a proxy
+      tr: crlfuzz - trafiği vekil sunucuya yönlendirme
+    desc:
+      en: |
+        Directs all fuzzing traffic through a specified proxy server, such as Burp Suite or OWASP ZAP. 
+        This allows you to manually inspect the payloads being sent and the responses received from the server. 
+        The proxy string must include the protocol, for example, http://127.0.0.1:8080.
+      tr: |
+        Tüm bulanıklaştırma trafiğini belirtilen vekil sunucu üzerinden geçirir; Burp Suite veya OWASP ZAP örnek verilebilir.
+        Gönderilen yüklerin sunucudan dönen yanıtlarla birlikte elle incelenmesine olanak tanır.
+        Vekil adresi iletişim kuralını içermelidir; örneğin http://127.0.0.1:8080.
     command: "crlfuzz -u {{url}} -x {{proxy_url|http://127.0.0.1:8080}}"
 
   # === OUTPUT & LOGGING ===
-  - title: crlfuzz - silent mode for vulnerable targets
-    desc: |
-      Activates silent mode, which suppresses all standard output except for the URLs found to be vulnerable. 
-      This is extremely useful when piping results into other tools or saving only actionable findings to a log. 
-      It reduces terminal noise significantly during large-scale automated scans.
+  - title:
+      en: crlfuzz - silent mode for vulnerable targets
+      tr: crlfuzz - zafiyetli hedefler için sessiz mod
+    desc:
+      en: |
+        Activates silent mode, which suppresses all standard output except for the URLs found to be vulnerable. 
+        This is extremely useful when piping results into other tools or saving only actionable findings to a log. 
+        It reduces terminal noise significantly during large-scale automated scans.
+      tr: |
+        Yalnızca zafiyetli bulunan adresleri gösteren sessiz kipi etkinleştirir.
+        Sonuçları başka araçlara aktarırken veya kayda yalnızca işe yarar bulguları yazarken son derece kullanışlıdır.
+        Geniş çaplı otomatik taramalarda uçbirim kalabalığını belirgin biçimde azaltır.
     command: "crlfuzz -l {{file_path}} -s"
 
-  - title: crlfuzz - verbose mode for debugging
-    desc: |
-      Enables verbose output to display detailed error messages and progress information. 
-      Use this when the tool is not behaving as expected or when you need to troubleshoot connection issues. 
-      It provides more context on why certain requests might be failing during the fuzzing process.
+  - title:
+      en: crlfuzz - verbose mode for debugging
+      tr: crlfuzz - hata ayıklama için ayrıntılı mod
+    desc:
+      en: |
+        Enables verbose output to display detailed error messages and progress information. 
+        Use this when the tool is not behaving as expected or when you need to troubleshoot connection issues. 
+        It provides more context on why certain requests might be failing during the fuzzing process.
+      tr: |
+        Ayrıntılı hata iletileriyle ilerleme bilgisini gösteren ayrıntılı çıktıyı etkinleştirir.
+        Araç beklenenden farklı davrandığında veya bağlantı sorunlarını gidermek gerektiğinde kullanılmalıdır.
+        Bulanıklaştırma sırasında bazı isteklerin neden başarısız kaldığını anlamaya yönelik ek bağlam sunar.
     command: "crlfuzz -l {{file_path}} -v"
 
-  - title: crlfuzz - save results to a file
-    desc: |
-      Automatically saves the output of the fuzzing process to a specified text file. 
-      This is recommended for long-running scans to ensure that no findings are lost due to terminal buffer limits. 
-      The output file will contain the details of the vulnerabilities discovered for later reporting.
+  - title:
+      en: crlfuzz - save results to a file
+      tr: crlfuzz - sonuçları dosyaya kaydetme
+    desc:
+      en: |
+        Automatically saves the output of the fuzzing process to a specified text file. 
+        This is recommended for long-running scans to ensure that no findings are lost due to terminal buffer limits. 
+        The output file will contain the details of the vulnerabilities discovered for later reporting.
+      tr: |
+        Bulanıklaştırma çıktısını belirtilen metin dosyasına kendiliğinden kaydeder.
+        Uçbirim arabellek sınırları yüzünden bulgu yitirmemek amacıyla uzun süren taramalarda önerilir.
+        Çıktı dosyası sonradan raporlanmak üzere keşfedilen zafiyetlerin ayrıntılarını içerir.
     command: "crlfuzz -l {{file_path}} -o {{output_file}}"

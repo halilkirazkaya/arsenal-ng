@@ -3,85 +3,165 @@ tags: [pentest, security, kerberos, impacket, exploitation, persistence, windows
 
 actions:
   # === GOLDEN TICKET OPERATIONS ===
-  - title: impacket-ticketer - generate golden ticket with nt hash
-    desc: |
-      Generates a Kerberos Golden Ticket (TGT) using the KRBTGT account's NT hash. 
-      This allows for long-term persistence within an Active Directory environment by spoofing a Ticket Granting Ticket for any user. 
-      The resulting .ccache file can be used for authentication across the domain by setting the KRB5CCNAME environment variable. 
-      Note that this requires the SID of the domain and the compromised KRBTGT hash.
+  - title:
+      en: impacket-ticketer - generate golden ticket with nt hash
+      tr: impacket-ticketer - NT hash ile golden ticket üretme
+    desc:
+      en: |
+        Generates a Kerberos Golden Ticket (TGT) using the KRBTGT account's NT hash. 
+        This allows for long-term persistence within an Active Directory environment by spoofing a Ticket Granting Ticket for any user. 
+        The resulting .ccache file can be used for authentication across the domain by setting the KRB5CCNAME environment variable. 
+        Note that this requires the SID of the domain and the compromised KRBTGT hash.
+      tr: |
+        KRBTGT hesabının NT hash'ini kullanarak bir Kerberos Golden Ticket (TGT) üretir.
+        Herhangi bir kullanıcı için Bilet Verme Bileti taklit ederek Active Directory ortamında uzun süreli kalıcılık sağlar.
+        Oluşan .ccache dosyası, KRB5CCNAME ortam değişkeni ayarlanarak etki alanı genelinde kimlik doğrulama için kullanılabilir.
+        Bunun etki alanının SID'ini ve ele geçirilmiş KRBTGT hash'ini gerektirdiğini unutmayın.
     command: "impacket-ticketer -domain {{domain}} -domain-sid {{domain_sid}} -nthash {{krbtgt_nt_hash}} {{username|Administrator}}"
 
-  - title: impacket-ticketer - generate golden ticket with aes key
-    desc: |
-      Creates a Golden Ticket using the KRBTGT account's AES-128 or AES-256 key instead of an NT hash. 
-      Using AES keys is generally more resilient against detection and is the modern standard for Kerberos encryption in newer Windows environments. 
-      This command creates a ticket for the specified user (usually Administrator) granting full domain-level access. 
-      The generated ticket is stored in the current directory as a .ccache file.
+  - title:
+      en: impacket-ticketer - generate golden ticket with aes key
+      tr: impacket-ticketer - AES anahtarıyla golden ticket üretme
+    desc:
+      en: |
+        Creates a Golden Ticket using the KRBTGT account's AES-128 or AES-256 key instead of an NT hash. 
+        Using AES keys is generally more resilient against detection and is the modern standard for Kerberos encryption in newer Windows environments. 
+        This command creates a ticket for the specified user (usually Administrator) granting full domain-level access. 
+        The generated ticket is stored in the current directory as a .ccache file.
+      tr: |
+        NT hash'i yerine KRBTGT hesabının AES-128 veya AES-256 anahtarıyla bir Golden Ticket oluşturur.
+        AES anahtarları kullanmak genellikle tespite karşı daha dayanıklıdır ve yeni Windows ortamlarında Kerberos şifreleme için modern standarttır.
+        Bu komut, belirtilen kullanıcı (genellikle Administrator) için etki alanı düzeyinde tam erişim veren bir bilet oluşturur.
+        Üretilen bilet, mevcut dizinde bir .ccache dosyası olarak saklanır.
     command: "impacket-ticketer -domain {{domain}} -domain-sid {{domain_sid}} -aesKey {{aes_key}} {{username|Administrator}}"
 
-  - title: impacket-ticketer - golden ticket with custom groups
-    desc: |
-      Generates a ticket and modifies the PAC (Privilege Attribute Certificate) to include specific Group RIDs. 
-      By default, it includes Domain Admins (512), but you can provide a comma-separated list to include other groups like Enterprise Admins or Schema Admins. 
-      This is critical for elevating privileges across different levels of the forest or bypassing specific group-based access controls. 
-      Standard RIDs include 512 (Domain Admins), 513 (Domain Users), and 544 (Administrators).
+  - title:
+      en: impacket-ticketer - golden ticket with custom groups
+      tr: impacket-ticketer - özel gruplu golden ticket
+    desc:
+      en: |
+        Generates a ticket and modifies the PAC (Privilege Attribute Certificate) to include specific Group RIDs. 
+        By default, it includes Domain Admins (512), but you can provide a comma-separated list to include other groups like Enterprise Admins or Schema Admins. 
+        This is critical for elevating privileges across different levels of the forest or bypassing specific group-based access controls. 
+        Standard RIDs include 512 (Domain Admins), 513 (Domain Users), and 544 (Administrators).
+      tr: |
+        Bir bilet üretir ve belirli Grup RID'lerini içerecek şekilde PAC'i (Ayrıcalık Öznitelik Sertifikası) değiştirir.
+        Varsayılan olarak Domain Admins (512) içerir, ancak Enterprise Admins veya Schema Admins gibi diğer grupları eklemek için virgülle ayrılmış bir liste verebilirsiniz.
+        Ormanın farklı düzeylerinde ayrıcalık yükseltmek veya belirli grup tabanlı erişim denetimlerini atlatmak için kritik öneme sahiptir.
+        Standart RID'ler arasında 512 (Domain Admins), 513 (Domain Users) ve 544 (Administrators) bulunur.
     command: "impacket-ticketer -domain {{domain}} -domain-sid {{domain_sid}} -nthash {{krbtgt_nt_hash}} -groups {{group_rids|513,512,520,518,519}} {{username|Administrator}}"
 
-  - title: impacket-ticketer - golden ticket with extra sid
-    desc: |
-      Creates a ticket containing an Extra SID in the PAC, typically used for SID History exploitation. 
-      This technique allows a user in a child domain to gain Domain Admin rights in a forest root domain if SID filtering is not enabled. 
-      It is a powerful method for cross-domain lateral movement and escalation from a compromised child domain to the forest root. 
-      Ensure you have the correct SID for the target administrative group in the parent domain.
+  - title:
+      en: impacket-ticketer - golden ticket with extra sid
+      tr: impacket-ticketer - ek SID'li golden ticket
+    desc:
+      en: |
+        Creates a ticket containing an Extra SID in the PAC, typically used for SID History exploitation. 
+        This technique allows a user in a child domain to gain Domain Admin rights in a forest root domain if SID filtering is not enabled. 
+        It is a powerful method for cross-domain lateral movement and escalation from a compromised child domain to the forest root. 
+        Ensure you have the correct SID for the target administrative group in the parent domain.
+      tr: |
+        Genellikle SID Geçmişi istismarı için kullanılan, PAC içinde Ek SID barındıran bir bilet oluşturur.
+        SID filtreleme etkin değilse alt etki alanındaki bir kullanıcının orman kök etki alanında Domain Admin hakları kazanmasına olanak tanır.
+        Ele geçirilmiş bir alt etki alanından orman köküne etki alanları arası yatay hareket ve yükseltme için güçlü bir yöntemdir.
+        Üst etki alanındaki hedef yönetici grubu için doğru SID'e sahip olduğunuzdan emin olun.
     command: "impacket-ticketer -domain {{domain}} -domain-sid {{domain_sid}} -nthash {{krbtgt_nt_hash}} -extra-sid {{extra_sid}} {{username|Administrator}}"
 
   # === SILVER TICKET OPERATIONS ===
-  - title: impacket-ticketer - generate silver ticket
-    desc: |
-      Generates a Silver Ticket (TGS) for a specific service using the service account's NT hash. 
-      Unlike a Golden Ticket, a Silver Ticket only grants access to a specific service on a specific host (e.g., CIFS, HTTP, MSSQL). 
-      This is useful when you have the hash of a computer account or a service account but do not have the KRBTGT account hash. 
-      Silver tickets are harder to detect because they do not involve communication with the Domain Controller.
+  - title:
+      en: impacket-ticketer - generate silver ticket
+      tr: impacket-ticketer - silver ticket üretme
+    desc:
+      en: |
+        Generates a Silver Ticket (TGS) for a specific service using the service account's NT hash. 
+        Unlike a Golden Ticket, a Silver Ticket only grants access to a specific service on a specific host (e.g., CIFS, HTTP, MSSQL). 
+        This is useful when you have the hash of a computer account or a service account but do not have the KRBTGT account hash. 
+        Silver tickets are harder to detect because they do not involve communication with the Domain Controller.
+      tr: |
+        Hizmet hesabının NT hash'ini kullanarak belirli bir hizmet için Silver Ticket (TGS) üretir.
+        Golden Ticket'tan farklı olarak Silver Ticket yalnızca belirli bir makinedeki belirli bir hizmete erişim verir (örn. CIFS, HTTP, MSSQL).
+        Bir bilgisayar hesabının veya hizmet hesabının hash'ine sahipken KRBTGT hesabı hash'i yoksa faydalıdır.
+        Etki Alanı Denetleyicisiyle iletişim içermediğinden silver ticket'ları tespit etmek daha zordur.
     command: "impacket-ticketer -domain {{domain}} -domain-sid {{domain_sid}} -nthash {{service_nt_hash}} -spn {{spn|cifs/target.corp.local}} {{username|Administrator}}"
 
-  - title: impacket-ticketer - silver ticket using aes key
-    desc: |
-      Generates a Silver Ticket for a target service using the AES key of the service account. 
-      Using the AES key is often necessary in environments where DES and RC4 are disabled for Kerberos. 
-      The resulting ticket allows the attacker to authenticate to the specified SPN (Service Principal Name) with the privileges of the chosen user. 
-      This is a common post-exploitation technique after obtaining a machine account's long-term keys.
+  - title:
+      en: impacket-ticketer - silver ticket using aes key
+      tr: impacket-ticketer - AES anahtarıyla silver ticket
+    desc:
+      en: |
+        Generates a Silver Ticket for a target service using the AES key of the service account. 
+        Using the AES key is often necessary in environments where DES and RC4 are disabled for Kerberos. 
+        The resulting ticket allows the attacker to authenticate to the specified SPN (Service Principal Name) with the privileges of the chosen user. 
+        This is a common post-exploitation technique after obtaining a machine account's long-term keys.
+      tr: |
+        Hizmet hesabının AES anahtarıyla hedef bir hizmet için Silver Ticket üretir.
+        Kerberos için DES ve RC4'ün devre dışı olduğu ortamlarda AES anahtarı kullanmak genellikle gereklidir.
+        Oluşan bilet, saldırganın belirtilen SPN'e (Hizmet Asıl Adı) seçilen kullanıcının ayrıcalıklarıyla kimlik doğrulamasına olanak tanır.
+        Bir makine hesabının uzun vadeli anahtarları elde edildikten sonra yaygın bir sömürü sonrası tekniktir.
     command: "impacket-ticketer -domain {{domain}} -domain-sid {{domain_sid}} -aesKey {{aes_key}} -spn {{spn|cifs/target.corp.local}} {{username|Administrator}}"
 
   # === ADVANCED TICKET TYPES ===
-  - title: impacket-ticketer - sapphire ticket generation
-    desc: |
-      Generates a Sapphire Ticket by impersonating a target user to extract their PAC via S4U2Self and U2U. 
-      This allows for the creation of a valid ticket with a real PAC for any user without needing to know their actual password. 
-      It requires valid credentials for a domain user to perform the initial Kerberos requests to the Domain Controller. 
-      The technique is highly effective for creating indistinguishable tickets from legitimate ones.
+  - title:
+      en: impacket-ticketer - sapphire ticket generation
+      tr: impacket-ticketer - sapphire ticket üretme
+    desc:
+      en: |
+        Generates a Sapphire Ticket by impersonating a target user to extract their PAC via S4U2Self and U2U. 
+        This allows for the creation of a valid ticket with a real PAC for any user without needing to know their actual password. 
+        It requires valid credentials for a domain user to perform the initial Kerberos requests to the Domain Controller. 
+        The technique is highly effective for creating indistinguishable tickets from legitimate ones.
+      tr: |
+        Hedef bir kullanıcıyı taklit edip S4U2Self ve U2U ile PAC'ini çıkararak bir Sapphire Ticket üretir.
+        Gerçek parolayı bilmeye gerek kalmadan herhangi bir kullanıcı için gerçek PAC'li geçerli bir bilet oluşturmaya olanak tanır.
+        Etki Alanı Denetleyicisine ilk Kerberos isteklerini yapmak için bir etki alanı kullanıcısının geçerli kimlik bilgilerini gerektirir.
+        Bu teknik, meşru biletlerden ayırt edilemeyen biletler oluşturmada oldukça etkilidir.
     command: "impacket-ticketer -domain {{domain}} -domain-sid {{domain_sid}} -aesKey {{krbtgt_aes_key}} -impersonate {{target_user}} -user {{current_user}} -password {{password}} {{username|Administrator}}"
 
-  - title: impacket-ticketer - request and clone ticket
-    desc: |
-      Requests a ticket from the Domain Controller and clones it while allowing modifications to the supplied user information. 
-      This requires specifying a valid domain user and their authentication (password or hashes) to talk to the DC. 
-      The tool fetches a legitimate ticket and then applies your custom SID or Group modifications to it. 
-      This can be used to bypass certain PAC validation checks by starting with a "real" ticket structure.
+  - title:
+      en: impacket-ticketer - request and clone ticket
+      tr: impacket-ticketer - bilet isteme ve klonlama
+    desc:
+      en: |
+        Requests a ticket from the Domain Controller and clones it while allowing modifications to the supplied user information. 
+        This requires specifying a valid domain user and their authentication (password or hashes) to talk to the DC. 
+        The tool fetches a legitimate ticket and then applies your custom SID or Group modifications to it. 
+        This can be used to bypass certain PAC validation checks by starting with a "real" ticket structure.
+      tr: |
+        Etki Alanı Denetleyicisinden bir bilet ister ve verilen kullanıcı bilgilerinde değişikliklere izin vererek onu klonlar.
+        DC ile konuşmak için geçerli bir etki alanı kullanıcısı ve kimlik doğrulamasını (parola veya hash) belirtmeyi gerektirir.
+        Araç meşru bir bilet alıp ardından özel SID veya Grup değişikliklerinizi ona uygular.
+        "Gerçek" bir bilet yapısıyla başlayarak belirli PAC doğrulama denetimlerini atlatmak için kullanılabilir.
     command: "impacket-ticketer -domain {{domain}} -domain-sid {{domain_sid}} -nthash {{krbtgt_nt_hash}} -request -user {{user}} -password {{password}} {{username|Administrator}}"
 
   # === UTILITY & STRUCTURE ===
-  - title: impacket-ticketer - ticket with old pac structure
-    desc: |
-      Generates a ticket using the older PAC structure, excluding PAC_ATTRIBUTES_INFO and PAC_REQUESTOR. 
-      This might be necessary for compatibility with older Windows systems or specific legacy applications. 
-      It can also be used as an evasion technique to see if security monitors only look for modern PAC signatures. 
-      The command otherwise behaves like a standard Golden Ticket creation.
+  - title:
+      en: impacket-ticketer - ticket with old pac structure
+      tr: impacket-ticketer - eski PAC yapılı bilet
+    desc:
+      en: |
+        Generates a ticket using the older PAC structure, excluding PAC_ATTRIBUTES_INFO and PAC_REQUESTOR. 
+        This might be necessary for compatibility with older Windows systems or specific legacy applications. 
+        It can also be used as an evasion technique to see if security monitors only look for modern PAC signatures. 
+        The command otherwise behaves like a standard Golden Ticket creation.
+      tr: |
+        PAC_ATTRIBUTES_INFO ve PAC_REQUESTOR alanlarını hariç tutan eski PAC yapısıyla bir bilet üretir.
+        Eski Windows sistemleri veya belirli eski uygulamalarla uyumluluk için gerekli olabilir.
+        Güvenlik izleyicilerin yalnızca modern PAC imzalarına bakıp bakmadığını görmek için bir kaçınma tekniği olarak da kullanılabilir.
+        Komut bunun dışında standart bir Golden Ticket oluşturma gibi davranır.
     command: "impacket-ticketer -domain {{domain}} -domain-sid {{domain_sid}} -nthash {{krbtgt_nt_hash}} -old-pac {{username|Administrator}}"
 
-  - title: impacket-ticketer - custom duration ticket
-    desc: |
-      Generates a ticket with a custom duration for its expiration. 
-      By default, Impacket creates tickets valid for 10 years, which is excellent for persistence but might be noisy. 
-      Reducing the duration can help in scenarios where you want the ticket to expire shortly after your operation. 
-      The duration value is provided in hours.
+  - title:
+      en: impacket-ticketer - custom duration ticket
+      tr: impacket-ticketer - özel süreli bilet
+    desc:
+      en: |
+        Generates a ticket with a custom duration for its expiration. 
+        By default, Impacket creates tickets valid for 10 years, which is excellent for persistence but might be noisy. 
+        Reducing the duration can help in scenarios where you want the ticket to expire shortly after your operation. 
+        The duration value is provided in hours.
+      tr: |
+        Süresi dolma zamanı özel bir süreyle ayarlanmış bir bilet üretir.
+        Varsayılan olarak Impacket 10 yıl geçerli biletler oluşturur; bu kalıcılık için mükemmeldir ancak dikkat çekebilir.
+        Süreyi kısaltmak, biletin işleminizden kısa süre sonra dolmasını istediğiniz senaryolarda yardımcı olur.
+        Süre değeri saat cinsinden verilir.
     command: "impacket-ticketer -domain {{domain}} -domain-sid {{domain_sid}} -nthash {{krbtgt_nt_hash}} -duration {{hours|24}} {{username|Administrator}}"

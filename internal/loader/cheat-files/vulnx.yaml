@@ -4,78 +4,176 @@ tags: [vulnerability-scanner, cve, reconnaissance, pentest, security, exploitati
 actions:
 # === CONFIGURATION AND DISCOVERY ===
 
- - title: vulnx - authenticate api
-   desc: |
-     Configure your API key to access the ProjectDiscovery vulnerability database. This step is highly recommended to bypass rate limits associated with anonymous searching. You can obtain a free API key from the ProjectDiscovery Cloud website.
+ - title:
+     en: vulnx - authenticate api
+     tr: vulnx - api kimlik doğrulama
+   desc:
+     en: |
+       Configure your API key to access the ProjectDiscovery vulnerability database. This step is highly recommended to bypass rate limits associated with anonymous searching. You can obtain a free API key from the ProjectDiscovery Cloud website.
+     tr: |
+       ProjectDiscovery zafiyet veritabanına erişmek için API anahtarınızı yapılandırır.
+       Bu adım, anonim aramalarla ilgili hız limitlerini aşmak için önemle önerilir.
+       Ücretsiz bir API anahtarını ProjectDiscovery Cloud web sitesinden edinebilirsiniz.
    command: "vulnx auth"
 
- - title: vulnx - list available filters
-   desc: |
-     Show all searchable fields and filter options available in the tool. This helps users understand the specific syntax and data types allowed for complex queries. It provides descriptions, examples, and enum values for fields like severity or CVSS scores.
+ - title:
+     en: vulnx - list available filters
+     tr: vulnx - mevcut filtreleri listeleme
+   desc:
+     en: |
+       Show all searchable fields and filter options available in the tool. This helps users understand the specific syntax and data types allowed for complex queries. It provides descriptions, examples, and enum values for fields like severity or CVSS scores.
+     tr: |
+       Araçta bulunan tüm aranabilir alanları ve filtre seçeneklerini gösterir.
+       Bu, karmaşık sorgular için izin verilen belirli sözdizimini ve veri türlerini anlamaya yardımcı olur.
+       severity veya CVSS skorları gibi alanlar için açıklamalar, örnekler ve enum değerleri sunar.
    command: "vulnx filters"
 
- - title: vulnx - health check
-   desc: |
-     Test the connectivity to the vulnerability database backend. This command ensures that your network environment allows communication with the API and that your credentials are valid. Use this for troubleshooting if searches are failing or returning unexpected errors.
+ - title:
+     en: vulnx - health check
+     tr: vulnx - sağlık kontrolü
+   desc:
+     en: |
+       Test the connectivity to the vulnerability database backend. This command ensures that your network environment allows communication with the API and that your credentials are valid. Use this for troubleshooting if searches are failing or returning unexpected errors.
+     tr: |
+       Zafiyet veritabanı arka ucuna bağlantıyı test eder.
+       Bu komut, ağ ortamınızın API ile iletişime izin verdiğini ve kimlik bilgilerinizin geçerli olduğunu doğrular.
+       Aramalar başarısız oluyorsa veya beklenmeyen hatalar döndürüyorsa sorun gidermek için kullanın.
    command: "vulnx healthcheck"
 
 # === BASIC SEARCHING ===
 
- - title: vulnx - simple keyword search
-   desc: |
-     Perform a basic search for vulnerabilities related to a specific product or technology. This is the quickest way to find CVEs associated with a keyword like 'apache' or 'nginx'. The output provides a summary of relevant vulnerabilities including their IDs and severity levels.
+ - title:
+     en: vulnx - simple keyword search
+     tr: vulnx - basit anahtar kelime araması
+   desc:
+     en: |
+       Perform a basic search for vulnerabilities related to a specific product or technology. This is the quickest way to find CVEs associated with a keyword like 'apache' or 'nginx'. The output provides a summary of relevant vulnerabilities including their IDs and severity levels.
+     tr: |
+       Belirli bir ürün veya teknolojiyle ilgili zafiyetler için temel bir arama gerçekleştirir.
+       Bu, 'apache' veya 'nginx' gibi bir anahtar kelimeyle ilişkili CVE'leri bulmanın en hızlı yoludur.
+       Çıktı, ilgili zafiyetlerin kimlikleri ve önem dereceleriyle birlikte bir özetini sunar.
    command: "vulnx search {{keyword|apache}}"
 
- - title: vulnx - specific cve lookup
-   desc: |
-     Retrieve detailed information about a single vulnerability using its CVE identifier. This command provides a comprehensive breakdown including technical descriptions, affected products, and references. It is the best way to analyze the impact and requirements of a specific known bug.
+ - title:
+     en: vulnx - specific cve lookup
+     tr: vulnx - belirli cve sorgulama
+   desc:
+     en: |
+       Retrieve detailed information about a single vulnerability using its CVE identifier. This command provides a comprehensive breakdown including technical descriptions, affected products, and references. It is the best way to analyze the impact and requirements of a specific known bug.
+     tr: |
+       Bir CVE tanımlayıcısını kullanarak tek bir zafiyet hakkında ayrıntılı bilgi alır.
+       Bu komut, teknik açıklamalar, etkilenen ürünler ve referanslarla kapsamlı bir döküm sunar.
+       Bilinen belirli bir hatanın etkisini ve gereksinimlerini analiz etmenin en iyi yoludur.
    command: "vulnx id {{cve_id|CVE-2021-44228}}"
 
- - title: vulnx - search with result limit
-   desc: |
-     Search for vulnerabilities while restricting the number of returned results. Use this when searching for broad terms to prevent the terminal from being overwhelmed with data. It helps in focusing on the most relevant or recent entries first.
+ - title:
+     en: vulnx - search with result limit
+     tr: vulnx - sonuç limitli arama
+   desc:
+     en: |
+       Search for vulnerabilities while restricting the number of returned results. Use this when searching for broad terms to prevent the terminal from being overwhelmed with data. It helps in focusing on the most relevant or recent entries first.
+     tr: |
+       Döndürülen sonuç sayısını kısıtlayarak zafiyet arar.
+       Geniş terimlerle arama yaparken terminalin veriye boğulmasını önlemek için kullanın.
+       En ilgili veya en güncel girdilere odaklanmaya yardımcı olur.
    command: "vulnx search {{keyword|nginx}} --limit {{count|10}}"
 
 # === ADVANCED FILTERING ===
 
- - title: vulnx - search by severity and score
-   desc: |
-     Find vulnerabilities that match a specific severity level or exceed a CVSS score threshold. This is critical for prioritizing remediation efforts on the most dangerous flaws. You can use comparison operators like greater-than to find scores above a certain point.
+ - title:
+     en: vulnx - search by severity and score
+     tr: vulnx - önem ve skora göre arama
+   desc:
+     en: |
+       Find vulnerabilities that match a specific severity level or exceed a CVSS score threshold. This is critical for prioritizing remediation efforts on the most dangerous flaws. You can use comparison operators like greater-than to find scores above a certain point.
+     tr: |
+       Belirli bir önem derecesine uyan veya CVSS skor eşiğini aşan zafiyetleri bulur.
+       Bu, düzeltme çabalarını en tehlikeli açıklara önceliklendirmek için kritiktir.
+       Belirli bir puanın üzerindeki skorları bulmak için büyüktür gibi karşılaştırma işleçleri kullanabilirsiniz.
    command: "vulnx search \"severity:{{severity|critical}} && cvss_score:>{{score|8.0}}\""
 
- - title: vulnx - filter by exploitable characteristics
-   desc: |
-     Filter vulnerabilities that are known to be exploited in the wild or have public Proof of Concepts. This command specifically targets vulnerabilities in the Known Exploited Vulnerabilities (KEV) list or those with Nuclei templates. It is essential for risk-based vulnerability management and penetration testing.
+ - title:
+     en: vulnx - filter by exploitable characteristics
+     tr: vulnx - istismar edilebilir özelliklere göre filtreleme
+   desc:
+     en: |
+       Filter vulnerabilities that are known to be exploited in the wild or have public Proof of Concepts. This command specifically targets vulnerabilities in the Known Exploited Vulnerabilities (KEV) list or those with Nuclei templates. It is essential for risk-based vulnerability management and penetration testing.
+     tr: |
+       Vahşi doğada istismar edildiği bilinen veya herkese açık kavram kanıtı (PoC) bulunan zafiyetleri filtreler.
+       Bu komut özellikle Bilinen İstismar Edilen Zafiyetler (KEV) listesindeki veya Nuclei şablonları olan zafiyetleri hedefler.
+       Risk tabanlı zafiyet yönetimi ve sızma testleri için gereklidir.
    command: "vulnx search \"is_kev:{{kev_status|true}} && is_poc:{{poc_status|true}}\" --template"
 
- - title: vulnx - search by vendor and product
-   desc: |
-     Narrow down search results to a specific software vendor or product name. This helps in identifying vulnerabilities within a specific stack, such as Microsoft Windows or Oracle Database. You can use the --product or --vendor flags to achieve high precision in your results.
+ - title:
+     en: vulnx - search by vendor and product
+     tr: vulnx - satıcı ve ürüne göre arama
+   desc:
+     en: |
+       Narrow down search results to a specific software vendor or product name. This helps in identifying vulnerabilities within a specific stack, such as Microsoft Windows or Oracle Database. You can use the --product or --vendor flags to achieve high precision in your results.
+     tr: |
+       Arama sonuçlarını belirli bir yazılım satıcısı veya ürün adına daraltır.
+       Bu, Microsoft Windows veya Oracle Database gibi belirli bir yığındaki zafiyetleri belirlemeye yardımcı olur.
+       Yüksek hassasiyetli sonuçlar için --product veya --vendor bayraklarını kullanabilirsiniz.
    command: "vulnx search --vendor {{vendor|microsoft}} --product {{product|windows}}"
 
- - title: vulnx - time based search
-   desc: |
-     Search for vulnerabilities published within a specific timeframe or based on their age in days. This is useful for identifying recently discovered zero-day vulnerabilities or bugs from a specific year. Date formats can include years, months, or specific day ranges.
+ - title:
+     en: vulnx - time based search
+     tr: vulnx - zamana dayalı arama
+   desc:
+     en: |
+       Search for vulnerabilities published within a specific timeframe or based on their age in days. This is useful for identifying recently discovered zero-day vulnerabilities or bugs from a specific year. Date formats can include years, months, or specific day ranges.
+     tr: |
+       Belirli bir zaman diliminde yayımlanan veya yaşlarına göre zafiyet arar.
+       Bu, yakın zamanda keşfedilen sıfırıncı gün zafiyetlerini veya belirli bir yıldaki hataları belirlemek için kullanışlıdır.
+       Tarih biçimleri yıllar, aylar veya belirli gün aralıkları içerebilir.
    command: "vulnx search \"cve_created_at:>={{year|2024}} && age_in_days:<{{days|30}}\""
 
 # === ANALYSIS AND OUTPUT ===
 
- - title: vulnx - aggregate data analysis
-   desc: |
-     Analyze vulnerability patterns by aggregating data based on specific fields. This command helps you understand which vendors or severities are most prevalent in a given search set. It is an excellent tool for generating high-level security posture reports.
+ - title:
+     en: vulnx - aggregate data analysis
+     tr: vulnx - toplu veri analizi
+   desc:
+     en: |
+       Analyze vulnerability patterns by aggregating data based on specific fields. This command helps you understand which vendors or severities are most prevalent in a given search set. It is an excellent tool for generating high-level security posture reports.
+     tr: |
+       Belirli alanlara göre veriyi toplayarak zafiyet kalıplarını analiz eder.
+       Bu komut, belirli bir arama kümesinde hangi satıcıların veya önem derecelerinin en yaygın olduğunu anlamaya yardımcı olur.
+       Üst düzey güvenlik duruş raporları oluşturmak için mükemmel bir araçtır.
    command: "vulnx analyze --fields {{field|severity}}"
 
- - title: vulnx - export results to json
-   desc: |
-     Save the search results into a machine-readable JSON format for further processing or automation. This allows integration with other tools in a DevSecOps pipeline or for custom scripting. The --output flag ensures the data is saved directly to a file on disk.
+ - title:
+     en: vulnx - export results to json
+     tr: vulnx - sonuçları json olarak dışa aktarma
+   desc:
+     en: |
+       Save the search results into a machine-readable JSON format for further processing or automation. This allows integration with other tools in a DevSecOps pipeline or for custom scripting. The --output flag ensures the data is saved directly to a file on disk.
+     tr: |
+       Arama sonuçlarını ileri işlem veya otomasyon için makine tarafından okunabilir JSON biçiminde kaydeder.
+       Bu, DevSecOps hattındaki diğer araçlarla bütünleşmeye veya özel betiklere olanak tanır.
+       --output bayrağı verinin doğrudan diske kaydedilmesini sağlar.
    command: "vulnx search {{query|log4j}} --json --output {{filename|results.json}}"
 
- - title: vulnx - detailed multi-id lookup
-   desc: |
-     Look up multiple CVE IDs simultaneously and retrieve detailed information for each. You can provide a comma-separated list of IDs to get a combined report. This is much faster than running the id command multiple times for a list of findings.
+ - title:
+     en: vulnx - detailed multi-id lookup
+     tr: vulnx - ayrıntılı çoklu kimlik sorgulama
+   desc:
+     en: |
+       Look up multiple CVE IDs simultaneously and retrieve detailed information for each. You can provide a comma-separated list of IDs to get a combined report. This is much faster than running the id command multiple times for a list of findings.
+     tr: |
+       Birden fazla CVE kimliğini aynı anda sorgular ve her biri için ayrıntılı bilgi alır.
+       Bulgu listesi için id komutunu birden çok kez çalıştırmaktan çok daha hızlıdır.
+       Birleştirilmiş bir rapor almak için virgülle ayrılmış kimlik listesi verebilirsiniz.
    command: "vulnx id {{cve_list|CVE-2024-1234,CVE-2024-5678}} --detailed"
 
- - title: vulnx - sorted search results
-   desc: |
-     Search for vulnerabilities and sort the output based on a specific field like CVSS score or creation date. Sorting helps in quickly identifying the highest-risk items or the most recent updates. Use --sort-desc for descending order to see the highest scores at the top.
+ - title:
+     en: vulnx - sorted search results
+     tr: vulnx - sıralı arama sonuçları
+   desc:
+     en: |
+       Search for vulnerabilities and sort the output based on a specific field like CVSS score or creation date. Sorting helps in quickly identifying the highest-risk items or the most recent updates. Use --sort-desc for descending order to see the highest scores at the top.
+     tr: |
+       Zafiyet arar ve çıktıyı CVSS skoru veya oluşturulma tarihi gibi belirli bir alana göre sıralar.
+       Sıralama, en yüksek riskli öğeleri veya en güncel güncellemeleri hızla belirlemeye yardımcı olur.
+       En yüksek skorları en üstte görmek için --sort-desc kullanın.
    command: "vulnx search {{keyword|cms}} --sort-desc {{field|cvss_score}}"

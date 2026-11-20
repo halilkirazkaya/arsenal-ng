@@ -3,44 +3,84 @@ tags: [smb, pentest, exploitation, impacket, network, reconnaissance]
 
 actions:
   # === BASIC USAGE ===
-  - title: impacket-karmaSMB - basic file delivery
-    desc: |
-      Starts an SMB server that delivers the contents of a specific local file regardless of what filename the client requests. 
-      This is primarily used in penetration testing to force clients into downloading a malicious payload or script when they attempt to access any file on a share. 
-      It effectively creates a "catch-all" file server where the requested path is ignored in favor of the specified payload. 
-      Note that binding to the default SMB port (445) usually requires root or administrative privileges on the host system.
+  - title:
+      en: impacket-karmaSMB - basic file delivery
+      tr: impacket-karmaSMB - temel dosya sunumu
+    desc:
+      en: |
+        Starts an SMB server that delivers the contents of a specific local file regardless of what filename the client requests. 
+        This is primarily used in penetration testing to force clients into downloading a malicious payload or script when they attempt to access any file on a share. 
+        It effectively creates a "catch-all" file server where the requested path is ignored in favor of the specified payload. 
+        Note that binding to the default SMB port (445) usually requires root or administrative privileges on the host system.
+      tr: |
+        İstemcinin istediği dosya adından bağımsız olarak belirli bir yerel dosyanın içeriğini sunan bir SMB sunucusu başlatır.
+        Sızma testlerinde, istemciler paylaşımdaki herhangi bir dosyaya erişmeye çalıştığında onları kötü amaçlı yük veya betik indirmeye zorlamak için kullanılır.
+        İstenen yolun yok sayılıp belirtilen yükün verildiği her şeyi yakalayan bir dosya sunucusu oluşturur.
+        Varsayılan SMB portuna (445) bağlanmanın genellikle makinede kök veya yönetici yetkisi gerektirdiğini unutmayın.
     command: "impacket-karmaSMB {{payload_path}}"
 
-  - title: impacket-karmaSMB - enable SMB2 support
-    desc: |
-      Enables the experimental SMB2 protocol support for the Karma SMB server. 
-      Modern Windows environments often have SMBv1 disabled by default for security reasons, making this flag necessary for compatibility with newer targets. 
-      Use this when the target machine fails to establish a connection or negotiate a protocol version during the initial handshake. 
-      As this feature is marked experimental in Impacket, it should be tested against the target environment if possible to ensure stable delivery.
+  - title:
+      en: impacket-karmaSMB - enable SMB2 support
+      tr: impacket-karmaSMB - SMB2 desteğini etkinleştirme
+    desc:
+      en: |
+        Enables the experimental SMB2 protocol support for the Karma SMB server. 
+        Modern Windows environments often have SMBv1 disabled by default for security reasons, making this flag necessary for compatibility with newer targets. 
+        Use this when the target machine fails to establish a connection or negotiate a protocol version during the initial handshake. 
+        As this feature is marked experimental in Impacket, it should be tested against the target environment if possible to ensure stable delivery.
+      tr: |
+        Karma SMB sunucusu için deneysel SMB2 protokol desteğini etkinleştirir.
+        Modern Windows ortamlarında güvenlik nedeniyle SMBv1 genellikle varsayılan kapalıdır; yeni hedeflerle uyumluluk için bu bayrak gerekir.
+        Hedef makine ilk el sıkışmada bağlantı kuramaz veya protokol sürümünde anlaşamazsa bunu kullanın.
+        Bu özellik Impacket'te deneysel olarak işaretlendiğinden kararlı sunum için hedef ortamda test edilmelidir.
     command: "impacket-karmaSMB -smb2support {{payload_path}}"
 
   # === ADVANCED CONFIGURATION ===
-  - title: impacket-karmaSMB - delivery via extension mapping
-    desc: |
-      Utilizes a configuration file to map specific file extensions to different local files for delivery. 
-      This allows for more sophisticated attacks where requests for .exe, .ps1, or .txt files can each result in different tailored payloads being served. 
-      For any file extension requested by the client that is not explicitly defined in the configuration file, the server will default to delivering the file specified in the positional argument. 
-      This is highly effective for mimicking a real file share structure while maintaining control over the delivered content.
+  - title:
+      en: impacket-karmaSMB - delivery via extension mapping
+      tr: impacket-karmaSMB - uzantı eşlemeyle sunum
+    desc:
+      en: |
+        Utilizes a configuration file to map specific file extensions to different local files for delivery. 
+        This allows for more sophisticated attacks where requests for .exe, .ps1, or .txt files can each result in different tailored payloads being served. 
+        For any file extension requested by the client that is not explicitly defined in the configuration file, the server will default to delivering the file specified in the positional argument. 
+        This is highly effective for mimicking a real file share structure while maintaining control over the delivered content.
+      tr: |
+        Farklı yerel dosyaları belirli dosya uzantılarına eşlemek için bir yapılandırma dosyası kullanır.
+        .exe, .ps1 veya .txt isteklerinin her birinin farklı özel yüklerle yanıtlanabildiği daha sofistike saldırılara olanak tanır.
+        Yapılandırma dosyasında açıkça tanımlanmamış bir uzantı isteyen istemciler için sunucu, konumsal argümanda belirtilen dosyayı varsayılan sunar.
+        Sunulan içeriğin denetimini korurken gerçek bir dosya paylaşımını taklit etmek için oldukça etkilidir.
     command: "impacket-karmaSMB -config {{config_file|mappings.conf}} {{default_payload}}"
 
   # === LOGGING AND TROUBLESHOOTING ===
-  - title: impacket-karmaSMB - delivery with timestamps
-    desc: |
-      Prefixes every line of the server's output with a timestamp for better event tracking. 
-      This is particularly useful during long-running engagements or red team operations where you need to correlate client access with other system logs. 
-      It helps in identifying exactly when a target machine or user attempted to pull a file from your malicious share. 
-      Adding timestamps simplifies the process of creating a timeline of events for final reporting.
+  - title:
+      en: impacket-karmaSMB - delivery with timestamps
+      tr: impacket-karmaSMB - zaman damgalarıyla sunum
+    desc:
+      en: |
+        Prefixes every line of the server's output with a timestamp for better event tracking. 
+        This is particularly useful during long-running engagements or red team operations where you need to correlate client access with other system logs. 
+        It helps in identifying exactly when a target machine or user attempted to pull a file from your malicious share. 
+        Adding timestamps simplifies the process of creating a timeline of events for final reporting.
+      tr: |
+        Sunucunun çıktısındaki her satırın başına daha iyi olay takibi için zaman damgası ekler.
+        İstemci erişimini diğer sistem günlükleriyle ilişkilendirmeniz gereken uzun süreli çalışmalarda veya kırmızı takım operasyonlarında özellikle kullanışlıdır.
+        Hedef makine veya kullanıcının kötü amaçlı paylaşımınızdan tam olarak ne zaman dosya çekmeye çalıştığını belirlemeye yardımcı olur.
+        Zaman damgası eklemek, son rapor için olay zaman çizelgesi oluşturmayı kolaylaştırır.
     command: "impacket-karmaSMB -ts {{payload_path}}"
 
-  - title: impacket-karmaSMB - debug mode
-    desc: |
-      Runs the SMB server in debug mode to provide verbose output regarding the underlying protocol exchange. 
-      This is essential for troubleshooting why a specific client might be failing to connect or why the payload is not being transferred as expected. 
-      It reveals detailed information about the SMB negotiation, session setup, and tree connect phases. 
-      Use this if you suspect firewall interference or protocol incompatibility issues are preventing the attack from succeeding.
+  - title:
+      en: impacket-karmaSMB - debug mode
+      tr: impacket-karmaSMB - hata ayıklama modu
+    desc:
+      en: |
+        Runs the SMB server in debug mode to provide verbose output regarding the underlying protocol exchange. 
+        This is essential for troubleshooting why a specific client might be failing to connect or why the payload is not being transferred as expected. 
+        It reveals detailed information about the SMB negotiation, session setup, and tree connect phases. 
+        Use this if you suspect firewall interference or protocol incompatibility issues are preventing the attack from succeeding.
+      tr: |
+        Temel protokol alışverişine ilişkin ayrıntılı çıktı için SMB sunucusunu hata ayıklama modunda çalıştırır.
+        Belirli bir istemcinin neden bağlanamadığını veya yükün beklendiği gibi aktarılamadığını gidermek için esastır.
+        SMB anlaşması, oturum kurulumu ve ağaç bağlama aşamaları hakkında ayrıntılı bilgi verir.
+        Saldırının başarısını güvenlik duvarı girişimi veya protokol uyumsuzluğunun engellediğinden şüpheleniyorsanız kullanın.
     command: "impacket-karmaSMB -debug {{payload_path}}"

@@ -3,89 +3,172 @@ tags: [network, file-sharing, security, web, pentest, server, webdav, sftp]
 
 actions:
   # === BASIC USAGE ===
-  - title: goshs - start basic server
-    desc: |
-      Start the web server with default settings on all interfaces. This is the most common 
-      way to quickly share files in the current directory over port 8000. It provides a 
-      clean web interface for browsing and downloading files.
+  - title:
+      en: goshs - start basic server
+      tr: goshs - temel sunucu başlatma
+    desc:
+      en: |
+        Start the web server with default settings on all interfaces. This is the most common 
+        way to quickly share files in the current directory over port 8000. It provides a 
+        clean web interface for browsing and downloading files.
+      tr: |
+        Web sunucusunu tüm arayüzlerde varsayılan ayarlarla başlatın. Bu, mevcut dizindeki
+        dosyaları 8000 portu üzerinden hızlıca paylaşmanın en yaygın yoludur. Dosyalara göz
+        atmak ve indirmek için temiz bir web arayüzü sunar.
     command: "goshs -p {{port|8000}} -d {{directory|./}}"
 
-  - title: goshs - upload only mode
-    desc: |
-      Start the server in a mode that only allows file uploads. Use this when you want 
-      to collect files from other users without allowing them to see or download existing 
-      files in the directory. It is particularly useful for receiving exfiltrated data or 
-      reports during a security assessment.
+  - title:
+      en: goshs - upload only mode
+      tr: goshs - yalnızca yükleme kipi
+    desc:
+      en: |
+        Start the server in a mode that only allows file uploads. Use this when you want 
+        to collect files from other users without allowing them to see or download existing 
+        files in the directory. It is particularly useful for receiving exfiltrated data or 
+        reports during a security assessment.
+      tr: |
+        Sunucuyu yalnızca dosya yüklemeye izin veren bir kipte başlatın. Dizindeki mevcut
+        dosyaları başkalarının görmesine veya indirmesine izin vermeden dosya toplamak
+        istediğinizde bunu kullanın. Güvenlik değerlendirmesi sırasında dışarı çıkarılmış
+        veri veya raporları almak için özellikle kullanışlıdır.
     command: "goshs -uo -p {{port|8000}} -uf {{upload_folder|./uploads}}"
 
-  - title: goshs - silent mode without directory listing
-    desc: |
-      Run the server without providing a directory listing to the user. This effectively 
-      hides the file structure, requiring the user to know the exact filename to download it. 
-      This adds a small layer of obscurity for sensitive file transfers.
+  - title:
+      en: goshs - silent mode without directory listing
+      tr: goshs - dizin listelemesiz sessiz kip
+    desc:
+      en: |
+        Run the server without providing a directory listing to the user. This effectively 
+        hides the file structure, requiring the user to know the exact filename to download it. 
+        This adds a small layer of obscurity for sensitive file transfers.
+      tr: |
+        Sunucuyu kullanıcıya dizin listesi sunmadan çalıştırın. Bu, dosya yapısını etkili
+        şekilde gizler; indirmek için kullanıcının tam dosya adını bilmesini gerektirir.
+        Hassas dosya aktarımlarına küçük bir gizlilik katmanı ekler.
     command: "goshs -si"
 
   # === SECURITY AND AUTHENTICATION ===
-  - title: goshs - basic authentication
-    desc: |
-      Secure the server using standard HTTP Basic Authentication. This requires users to 
-      provide a valid username and password before they can access any content. It is 
-      highly recommended when hosting the server on a public or shared network to prevent 
-      unauthorized access.
+  - title:
+      en: goshs - basic authentication
+      tr: goshs - temel kimlik doğrulama
+    desc:
+      en: |
+        Secure the server using standard HTTP Basic Authentication. This requires users to 
+        provide a valid username and password before they can access any content. It is 
+        highly recommended when hosting the server on a public or shared network to prevent 
+        unauthorized access.
+      tr: |
+        Sunucuyu standart HTTP Temel Kimlik Doğrulama ile güvenli hale getirin. Bu, kullanıcıların
+        herhangi bir içeriğe erişmeden önce geçerli bir kullanıcı adı ve parola vermesini gerektirir.
+        Yetkisiz erişimi önlemek için sunucuyu genel veya paylaşımlı bir ağda barındırırken
+        şiddetle önerilir.
     command: "goshs -b '{{username|admin}}:{{password|password123}}'"
 
-  - title: goshs - self-signed TLS
-    desc: |
-      Enable encrypted communication using a self-signed SSL/TLS certificate. This 
-      protects the data in transit from being sniffed on the network. Note that browsers 
-      will display a certificate warning since the certificate is not signed by a 
-      trusted Certificate Authority.
+  - title:
+      en: goshs - self-signed TLS
+      tr: goshs - kendinden imzalı TLS
+    desc:
+      en: |
+        Enable encrypted communication using a self-signed SSL/TLS certificate. This 
+        protects the data in transit from being sniffed on the network. Note that browsers 
+        will display a certificate warning since the certificate is not signed by a 
+        trusted Certificate Authority.
+      tr: |
+        Kendinden imzalı bir SSL/TLS sertifikasıyla şifreli iletişimi etkinleştirin. Bu,
+        aktarım halindeki veriyi ağda koklanmaya karşı korur. Sertifika güvenilir bir
+        Sertifika Yetkilisi'nce imzalanmadığından tarayıcıların sertifika uyarısı
+        göstereceğini unutmayın.
     command: "goshs -s -ss"
 
-  - title: goshs - ip whitelisting
-    desc: |
-      Restrict access to the server so that only specific IP addresses can connect. 
-      This is a powerful security feature that prevents any connection attempts from 
-      unauthorized hosts. Multiple IP addresses can be provided as a comma-separated list.
+  - title:
+      en: goshs - ip whitelisting
+      tr: goshs - IP beyaz listesi
+    desc:
+      en: |
+        Restrict access to the server so that only specific IP addresses can connect. 
+        This is a powerful security feature that prevents any connection attempts from 
+        unauthorized hosts. Multiple IP addresses can be provided as a comma-separated list.
+      tr: |
+        Sunucuya erişimi yalnızca belirli IP adresleri bağlanabilecek şekilde kısıtlayın.
+        Bu, yetkisiz hostlardan gelen bağlantı girişimlerini engelleyen güçlü bir güvenlik
+        özelliğidir. Birden çok IP adresi virgülle ayrılmış liste olarak verilebilir.
     command: "goshs -ipw {{allowed_ips|127.0.0.1,192.168.1.100}}"
 
   # === ADVANCED PROTOCOLS ===
-  - title: goshs - webdav support
-    desc: |
-      Enable the WebDAV protocol alongside the standard web interface. This allows 
-      users to mount the server directory as a local network drive on Windows, macOS, 
-      or Linux. It is very useful for managing files as if they were on a local disk 
-      rather than using a browser.
+  - title:
+      en: goshs - webdav support
+      tr: goshs - webdav desteği
+    desc:
+      en: |
+        Enable the WebDAV protocol alongside the standard web interface. This allows 
+        users to mount the server directory as a local network drive on Windows, macOS, 
+        or Linux. It is very useful for managing files as if they were on a local disk 
+        rather than using a browser.
+      tr: |
+        Standart web arayüzünün yanında WebDAV protokolünü etkinleştirin. Bu, kullanıcıların
+        sunucu dizinini Windows, macOS veya Linux'ta yerel bir ağ sürücüsü olarak bağlamasına
+        olanak tanır. Dosyaları tarayıcı yerine yerel diskteymiş gibi yönetmek için çok kullanışlıdır.
     command: "goshs -w -wp {{webdav_port|8001}}"
 
-  - title: goshs - sftp server
-    desc: |
-      Activate a built-in SFTP server for secure file transfers over SSH. This provides 
-      a robust alternative to HTTP for users who prefer using command-line SFTP clients 
-      or FileZilla. You can customize the listening port to avoid conflicts with 
-      existing SSH services.
+  - title:
+      en: goshs - sftp server
+      tr: goshs - sftp sunucusu
+    desc:
+      en: |
+        Activate a built-in SFTP server for secure file transfers over SSH. This provides 
+        a robust alternative to HTTP for users who prefer using command-line SFTP clients 
+        or FileZilla. You can customize the listening port to avoid conflicts with 
+        existing SSH services.
+      tr: |
+        SSH üzerinden güvenli dosya aktarımı için yerleşik bir SFTP sunucusunu etkinleştirin. Bu,
+        komut satırı SFTP istemcilerini veya FileZilla'yı tercih eden kullanıcılara HTTP'ye karşı
+        sağlam bir alternatif sunar. Mevcut SSH hizmetleriyle çakışmayı önlemek için dinleme
+        portunu özelleştirebilirsiniz.
     command: "goshs -sftp -sp {{sftp_port|2022}}"
 
   # === AUTOMATION AND LOGGING ===
-  - title: goshs - webhook notifications
-    desc: |
-      Configure the server to send real-time notifications to a webhook URL when 
-      actions occur. This is ideal for monitoring when a file is uploaded, downloaded, 
-      or deleted by a user. It supports popular providers like Discord, Slack, and 
-      Mattermost for easy integration into your workflow.
+  - title:
+      en: goshs - webhook notifications
+      tr: goshs - webhook bildirimleri
+    desc:
+      en: |
+        Configure the server to send real-time notifications to a webhook URL when 
+        actions occur. This is ideal for monitoring when a file is uploaded, downloaded, 
+        or deleted by a user. It supports popular providers like Discord, Slack, and 
+        Mattermost for easy integration into your workflow.
+      tr: |
+        Olaylar gerçekleştiğinde bir webhook URL'sine gerçek zamanlı bildirim gönderecek
+        şekilde sunucuyu yapılandırın. Bir dosya yüklendiğinde, indirildiğinde veya bir
+        kullanıcıca silindiğinde izlemek için idealdir. İş akışınıza kolay entegrasyon
+        için Discord, Slack ve Mattermost gibi popüler sağlayıcıları destekler.
     command: "goshs -W -Wu {{webhook_url}} -Wp {{provider|Discord}} -We {{events|all}}"
 
-  - title: goshs - verbose logging to file
-    desc: |
-      Run the server with verbose output and redirect the logs to a specific file. 
-      This is essential for auditing purposes and troubleshooting connection issues. 
-      It captures detailed information about every request made to the server.
+  - title:
+      en: goshs - verbose logging to file
+      tr: goshs - dosyaya ayrıntılı kayıt
+    desc:
+      en: |
+        Run the server with verbose output and redirect the logs to a specific file. 
+        This is essential for auditing purposes and troubleshooting connection issues. 
+        It captures detailed information about every request made to the server.
+      tr: |
+        Sunucuyu ayrıntılı çıktıyla çalıştırıp kayıtları belirli bir dosyaya yönlendirin.
+        Bu, denetim amaçları ve bağlantı sorunlarını gidermek için gereklidir.
+        Sunucuya yapılan her istek hakkında ayrıntılı bilgi yakalar.
     command: "goshs -V -o > {{logfile|access.log}}"
 
-  - title: goshs - use configuration file
-    desc: |
-      Start the server using a predefined YAML configuration file instead of 
-      command-line arguments. This allows for complex setups to be easily reused 
-      and version-controlled. You can generate a sample configuration using the 
-      -P flag to see all available options.
+  - title:
+      en: goshs - use configuration file
+      tr: goshs - yapılandırma dosyası kullanma
+    desc:
+      en: |
+        Start the server using a predefined YAML configuration file instead of 
+        command-line arguments. This allows for complex setups to be easily reused 
+        and version-controlled. You can generate a sample configuration using the 
+        -P flag to see all available options.
+      tr: |
+        Sunucuyu komut satırı argümanları yerine önceden tanımlanmış bir YAML yapılandırma
+        dosyasıyla başlatın. Bu, karmaşık kurulumların kolayca yeniden kullanılıp sürüm
+        denetimine alınmasını sağlar. Tüm kullanılabilir seçenekleri görmek için -P
+        bayrağıyla örnek bir yapılandırma üretebilirsiniz.
     command: "goshs -C {{config_path|config.yaml}}"

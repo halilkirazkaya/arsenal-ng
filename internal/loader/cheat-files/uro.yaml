@@ -3,60 +3,136 @@ tags: [web, security, pentest, reconnaissance, discovery, url-normalization]
 
 actions:
   # === BASIC USAGE ===
-  - title: uro - process URLs via stdin
-    desc: |
-      Pipe a list of URLs directly into uro to remove duplicates and noise. It is the most common way to integrate uro into a reconnaissance pipeline after tools like waybackurls, gau, or katana. This command will output a cleaned, unique list of URLs to the terminal.
+  - title:
+      en: uro - process URLs via stdin
+      tr: uro - stdin ile URL işleme
+    desc:
+      en: |
+        Pipe a list of URLs directly into uro to remove duplicates and noise. It is the most common way to integrate uro into a reconnaissance pipeline after tools like waybackurls, gau, or katana. This command will output a cleaned, unique list of URLs to the terminal.
+      tr: |
+        Temizlemek için URL listesini doğrudan uro'ya aktarın. waybackurls, gau veya katana gibi araçlardan sonra uro'yu keşif hattına bütünleştirmenin en yaygın yoludur.
+        Bu komut terminale temizlenmiş, tekilleştirilmiş bir URL listesi verir.
     command: "cat {{input_file|urls.txt}} | uro"
 
-  - title: uro - input and output files
-    desc: |
-      Specify an input file and an output file directly using flags. This is useful when dealing with very large datasets that you want to save for later analysis. Note that uro will not overwrite the output file if it already exists, ensuring data safety.
+  - title:
+      en: uro - input and output files
+      tr: uro - girdi ve çıktı dosyaları
+    desc:
+      en: |
+        Specify an input file and an output file directly using flags. This is useful when dealing with very large datasets that you want to save for later analysis. Note that uro will not overwrite the output file if it already exists, ensuring data safety.
+      tr: |
+        Bayraklarla doğrudan bir girdi dosyası ve bir çıktı dosyası belirtir.
+        Bu, daha sonra analiz etmek üzere kaydettiğiniz çok büyük veri kümelerinde kullanışlıdır.
+        uro'nun veri güvenliğini sağlamak için mevcut çıktı dosyasının üzerine yazmayacağını unutmayın.
     command: "uro -i {{input_file}} -o {{output_file|cleaned_urls.txt}}"
 
   # === EXTENSION FILTERING ===
-  - title: uro - whitelist specific extensions
-    desc: |
-      Filter the URL list to only include the extensions you specifically want to see. This ignores all other extensions except the ones provided in the whitelist. Extensionless pages (like /api/v1/user) will still be included by default unless additional filters are used.
+  - title:
+      en: uro - whitelist specific extensions
+      tr: uro - belirli uzantıları beyaz listeye alma
+    desc:
+      en: |
+        Filter the URL list to only include the extensions you specifically want to see. This ignores all other extensions except the ones provided in the whitelist. Extensionless pages (like /api/v1/user) will still be included by default unless additional filters are used.
+      tr: |
+        URL listesini yalnızca özellikle görmek istediğiniz uzantıları içerecek şekilde filtreler.
+        Beyaz listede verilenler dışındaki tüm uzantıları yok sayar.
+        Ek filtreler kullanılmadıkça (/api/v1/user gibi) uzantısız sayfalar yine de dahil edilir.
     command: "uro -i {{input_file}} -w {{extensions|php asp html}}"
 
-  - title: uro - blacklist specific extensions
-    desc: |
-      Explicitly exclude certain file extensions from the output list. By default, uro has a built-in list of "useless" extensions it removes, but providing this flag will override that default list with your own. Use this to hide noise like images, fonts, or CSS files during manual review.
+  - title:
+      en: uro - blacklist specific extensions
+      tr: uro - belirli uzantıları kara listeye alma
+    desc:
+      en: |
+        Explicitly exclude certain file extensions from the output list. By default, uro has a built-in list of "useless" extensions it removes, but providing this flag will override that default list with your own. Use this to hide noise like images, fonts, or CSS files during manual review.
+      tr: |
+        Çıktı listesinden belirli dosya uzantılarını açıkça çıkarır.
+        uro varsayılan olarak "işe yaramaz" uzantıların yerleşik bir listesini kaldırır, ancak bu bayrağı vermek varsayılan listeyi kendi listenizle değiştirir.
+        Manuel inceleme sırasında resim, yazı tipi veya CSS dosyaları gibi gürültüyü gizlemek için kullanın.
     command: "uro -i {{input_file}} -b {{extensions|jpg png js pdf}}"
 
   # === GRANULAR FILTERS ===
-  - title: uro - filter for parameters only
-    desc: |
-      Filter the output to only show URLs that contain query parameters. This is highly effective for preparing targets for tools like SQLMap, Dalfox, or Airix. It removes static pages and focuses purely on potentially interactive and vulnerable endpoints.
+  - title:
+      en: uro - filter for parameters only
+      tr: uro - yalnızca parametreli filtreleme
+    desc:
+      en: |
+        Filter the output to only show URLs that contain query parameters. This is highly effective for preparing targets for tools like SQLMap, Dalfox, or Airix. It removes static pages and focuses purely on potentially interactive and vulnerable endpoints.
+      tr: |
+        Çıktıyı yalnızca sorgu parametresi içeren URL'leri gösterecek şekilde filtreler.
+        Bu, SQLMap, Dalfox veya Airix gibi araçlar için hedef hazırlamada oldukça etkilidir.
+        Statik sayfaları kaldırır ve yalnızca potansiyel olarak etkileşimli ve savunmasız uç noktalara odaklanır.
     command: "uro -i {{input_file}} -f hasparams"
 
-  - title: uro - filter for extensions only
-    desc: |
-      Only output URLs that have a file extension in the path. This is useful when you want to ignore directory-style endpoints and focus on specific files like scripts or configuration files. It helps in mapping out the technology stack of the target.
+  - title:
+      en: uro - filter for extensions only
+      tr: uro - yalnızca uzantılı filtreleme
+    desc:
+      en: |
+        Only output URLs that have a file extension in the path. This is useful when you want to ignore directory-style endpoints and focus on specific files like scripts or configuration files. It helps in mapping out the technology stack of the target.
+      tr: |
+        Yalnızca yolunda dosya uzantısı bulunan URL'leri verir.
+        Bu, dizin tarzı uç noktaları göz ardı edip komut dosyaları veya yapılandırma dosyaları gibi belirli dosyalara odaklanmak istediğinizde kullanışlıdır.
+        Hedefin teknoloji yığınını haritalamada yardımcı olur.
     command: "uro -i {{input_file}} -f hasext"
 
-  - title: uro - filter for vulnerability-prone parameters
-    desc: |
-      Filter the list to only include URLs with parameters that are historically known to be vulnerable. Uro uses a predefined list of parameter names commonly associated with XSS, SQLi, LFI, and SSRF. This allows a researcher to prioritize the most "interesting" targets first.
+  - title:
+      en: uro - filter for vulnerability-prone parameters
+      tr: uro - zafiyete açık parametreler için filtreleme
+    desc:
+      en: |
+        Filter the list to only include URLs with parameters that are historically known to be vulnerable. Uro uses a predefined list of parameter names commonly associated with XSS, SQLi, LFI, and SSRF. This allows a researcher to prioritize the most "interesting" targets first.
+      tr: |
+        Listeyi geçmişte zafiyetli olduğu bilinen parametre adlarına sahip URL'lerle sınırlar.
+        Uro, XSS, SQLi, LFI ve SSRF ile yaygın ilişkilendirilen parametre adlarının önceden tanımlı bir listesini kullanır.
+        Bu, araştırmacının en "ilginç" hedeflere öncelik vermesini sağlar.
     command: "uro -i {{input_file}} -f vuln"
 
   # === ADVANCED CONFIGURATION ===
-  - title: uro - combine multiple filters
-    desc: |
-      Apply multiple filters simultaneously for granular control over the data. For example, you can filter for URLs that must have both an extension and parameters. This reduces the final list to a highly specific subset of URLs for targeted exploitation.
+  - title:
+      en: uro - combine multiple filters
+      tr: uro - birden fazla filtreyi birleştirme
+    desc:
+      en: |
+        Apply multiple filters simultaneously for granular control over the data. For example, you can filter for URLs that must have both an extension and parameters. This reduces the final list to a highly specific subset of URLs for targeted exploitation.
+      tr: |
+        Veri üzerinde ayrıntılı kontrol için birden fazla filtreyi aynı anda uygular.
+        Örneğin, hem uzantısı hem de parametresi olması gereken URL'leri filtreleyebilirsiniz.
+        Bu, son listeyi hedefli sömürü için oldukça belirli bir URL alt kümesine indirger.
     command: "uro -i {{input_file}} --filters {{filter1|hasext}} {{filter2|hasparams}}"
 
-  - title: uro - keep human-written content
-    desc: |
-      Prevent uro from removing URLs that appear to be human-written content like blog posts or articles. Normally, uro tries to deduplicate these to save time during scanning. Use this if your scope includes CMS platforms where the path structure might contain valuable keywords or unique templates.
+  - title:
+      en: uro - keep human-written content
+      tr: uro - insan eliyle yazılmış içeriği koruma
+    desc:
+      en: |
+        Prevent uro from removing URLs that appear to be human-written content like blog posts or articles. Normally, uro tries to deduplicate these to save time during scanning. Use this if your scope includes CMS platforms where the path structure might contain valuable keywords or unique templates.
+      tr: |
+        uro'nun blog yazıları veya makaleler gibi insan eliyle yazılmış görünen URL'leri kaldırmasını engeller.
+        Normalde uro tarama sırasında zamandan kazanmak için bunları tekilleştirmeye çalışır.
+        Kapsamınız yol yapısının değerli anahtar kelimeler veya benzersiz şablonlar içerebileceği CMS platformlarını içeriyorsa kullanın.
     command: "uro -i {{input_file}} -f keepcontent"
 
-  - title: uro - disable all extension filtering
-    desc: |
-      Tell uro not to remove any page based on its extension, including the ones it usually considers useless. This is useful when you want a completely comprehensive list and don't want to miss things like .jpg or .css files. Use this during the initial broad discovery phase.
+  - title:
+      en: uro - disable all extension filtering
+      tr: uro - tüm uzantı filtrelemeyi devre dışı bırakma
+    desc:
+      en: |
+        Tell uro not to remove any page based on its extension, including the ones it usually considers useless. This is useful when you want a completely comprehensive list and don't want to miss things like .jpg or .css files. Use this during the initial broad discovery phase.
+      tr: |
+        uro'ya genellikle işe yaramaz saydığı dosyalar dahil hiçbir sayfayı uzantısına göre kaldırmamasını söyler.
+        Bu, .jpg veya .css gibi dosyaları kaçırmak istemediğinizde eksiksiz bir liste için kullanışlıdır.
+        İlk geniş keşif aşamasında kullanın.
     command: "uro -i {{input_file}} -f allexts"
 
-  - title: uro - preserve trailing slashes
-    desc: |
-      Ensure that trailing slashes are not removed from the end of the URLs. By default, uro normalizes URLs by removing these slashes. Use this if the target web server treats `domain.com/page` and `domain.com/page/` as different resources.
+  - title:
+      en: uro - preserve trailing slashes
+      tr: uro - sondaki eğik çizgileri koruma
+    desc:
+      en: |
+        Ensure that trailing slashes are not removed from the end of the URLs. By default, uro normalizes URLs by removing these slashes. Use this if the target web server treats `domain.com/page` and `domain.com/page/` as different resources.
+      tr: |
+        URL'lerin sonundaki eğik çizgilerin kaldırılmamasını sağlar.
+        uro varsayılan olarak eğik çizgileri kaldırarak URL'leri normalleştirir.
+        Hedef web sunucusu `domain.com/page` ve `domain.com/page/` adreslerini farklı kaynaklar olarak değerlendiriyorsa kullanın.
     command: "uro -i {{input_file}} -f keepslash"

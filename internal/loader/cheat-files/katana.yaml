@@ -3,104 +3,202 @@ tags: [web, scanner, reconnaissance, crawler, pentest, security, automation]
 
 actions:
   # === BASIC CRAWLING ===
-  - title: katana - basic crawl
-    desc: |
-      Performs a standard crawl on a single target URL. It follows links within the same scope by default to discover endpoints and assets. 
-      This is the most common entry point for mapping a web application's structure during the initial reconnaissance phase. 
-      It returns a list of discovered URLs found through simple HTML parsing.
+  - title:
+      en: katana - basic crawl
+      tr: katana - temel tarama
+    desc:
+      en: |
+        Performs a standard crawl on a single target URL. It follows links within the same scope by default to discover endpoints and assets. 
+        This is the most common entry point for mapping a web application's structure during the initial reconnaissance phase. 
+        It returns a list of discovered URLs found through simple HTML parsing.
+      tr: |
+        Tek bir hedef URL üzerinde standart tarama gerçekleştirir. Uç noktaları ve varlıkları keşfetmek için varsayılan olarak aynı kapsamdaki bağlantıları takip eder.
+        İlk keşif aşamasında bir web uygulamasının yapısını haritalamak için en yaygın giriş noktasıdır.
+        Basit HTML ayrıştırma ile bulunan keşfedilmiş URL'lerin listesini döndürür.
     command: "katana -u {{target_url}}"
 
-  - title: katana - list based crawl
-    desc: |
-      Crawls multiple targets provided in a text file. This is highly efficient for large-scale reconnaissance across multiple domains or subdomains. 
-      Each URL in the list will be processed according to the default or specified configuration. 
-      It is ideal for automated pipelines where a list of active subdomains is passed from tools like subfinder.
+  - title:
+      en: katana - list based crawl
+      tr: katana - liste tabanlı tarama
+    desc:
+      en: |
+        Crawls multiple targets provided in a text file. This is highly efficient for large-scale reconnaissance across multiple domains or subdomains. 
+        Each URL in the list will be processed according to the default or specified configuration. 
+        It is ideal for automated pipelines where a list of active subdomains is passed from tools like subfinder.
+      tr: |
+        Bir metin dosyasında verilen birden fazla hedefi tarar. Birden fazla alan adı veya alt alan adında geniş ölçekli keşif için oldukça verimlidir.
+        Listedeki her URL, varsayılan veya belirtilen yapılandırmaya göre işlenir.
+        Subfinder gibi araçlardan gelen aktif alt alan adı listelerinin aktarıldığı otomatik işlem hatları için idealdir.
     command: "katana -list {{target_list_file}}"
 
-  - title: katana - crawl with specific depth
-    desc: |
-      Sets the maximum depth for the crawler to follow links from the starting point. 
-      A higher depth value leads to more thorough discovery but significantly increases execution time and resource usage. 
-      Use this when the default depth (usually 3) is insufficient for complex applications with deep directory structures.
+  - title:
+      en: katana - crawl with specific depth
+      tr: katana - belirli derinlikle tarama
+    desc:
+      en: |
+        Sets the maximum depth for the crawler to follow links from the starting point. 
+        A higher depth value leads to more thorough discovery but significantly increases execution time and resource usage. 
+        Use this when the default depth (usually 3) is insufficient for complex applications with deep directory structures.
+      tr: |
+        Tarayıcının başlangıç noktasından bağlantıları takip etmesi için maksimum derinliği ayarlar.
+        Daha yüksek derinlik değeri daha kapsamlı keşif sağlar ancak çalışma süresini ve kaynak kullanımını önemli ölçüde artırır.
+        Varsayılan derinlik (genellikle 3) derin dizin yapısına sahip karmaşık uygulamalar için yetersiz kaldığında bunu kullanın.
     command: "katana -u {{target_url}} -d {{depth|5}}"
 
   # === ADVANCED DISCOVERY ===
-  - title: katana - javascript endpoint extraction
-    desc: |
-      Enables parsing and crawling of endpoints found within JavaScript files. 
-      This is crucial for modern single-page applications (SPAs) where many routes and API endpoints are defined in client-side code. 
-      Activating this option helps discover hidden functionalities that are not linked directly in the HTML source.
+  - title:
+      en: katana - javascript endpoint extraction
+      tr: katana - javascript uç nokta çıkarma
+    desc:
+      en: |
+        Enables parsing and crawling of endpoints found within JavaScript files. 
+        This is crucial for modern single-page applications (SPAs) where many routes and API endpoints are defined in client-side code. 
+        Activating this option helps discover hidden functionalities that are not linked directly in the HTML source.
+      tr: |
+        JavaScript dosyalarında bulunan uç noktaların ayrıştırılmasını ve taranmasını etkinleştirir.
+        Birçok rota ve API uç noktasının istemci tarafı kodda tanımlandığı modern tek sayfa uygulamaları (SPA) için kritik öneme sahiptir.
+        Bu seçeneği etkinleştirmek, HTML kaynağında doğrudan bağlantısı olmayan gizli işlevlerin keşfedilmesine yardımcı olur.
     command: "katana -u {{target_url}} -jc"
 
-  - title: katana - intensive javascript parsing (jsluice)
-    desc: |
-      Uses the jsluice library to perform a more intensive and accurate parsing of JavaScript files. 
-      While more memory-intensive, it provides superior results in extracting URLs and secrets from complex JS bundles. 
-      This is recommended when performing deep manual assessments of modern web frameworks like React or Angular.
+  - title:
+      en: katana - intensive javascript parsing (jsluice)
+      tr: katana - yoğun javascript ayrıştırma (jsluice)
+    desc:
+      en: |
+        Uses the jsluice library to perform a more intensive and accurate parsing of JavaScript files. 
+        While more memory-intensive, it provides superior results in extracting URLs and secrets from complex JS bundles. 
+        This is recommended when performing deep manual assessments of modern web frameworks like React or Angular.
+      tr: |
+        JavaScript dosyalarının daha yoğun ve doğru ayrıştırılması için jsluice kütüphanesini kullanır.
+        Daha fazla bellek tüketmesine rağmen karmaşık JS paketlerinden URL ve gizli bilgi çıkarmada üstün sonuçlar verir.
+        React veya Angular gibi modern web çatılarının derinlemesine manuel değerlendirmelerinde önerilir.
     command: "katana -u {{target_url}} -jsl"
 
-  - title: katana - crawl known files
-    desc: |
-      Specifically instructs the crawler to look for and parse common files like robots.txt and sitemap.xml. 
-      These files often contain explicit paths to sensitive or hidden areas of the web application. 
-      A minimum depth of 3 is usually required to ensure these files are properly discovered and processed by the engine.
+  - title:
+      en: katana - crawl known files
+      tr: katana - bilinen dosyaları tarama
+    desc:
+      en: |
+        Specifically instructs the crawler to look for and parse common files like robots.txt and sitemap.xml. 
+        These files often contain explicit paths to sensitive or hidden areas of the web application. 
+        A minimum depth of 3 is usually required to ensure these files are properly discovered and processed by the engine.
+      tr: |
+        Tarayıcıya özellikle robots.txt ve sitemap.xml gibi yaygın dosyaları aramasını ve ayrıştırmasını söyler.
+        Bu dosyalar genellikle web uygulamasının hassas veya gizli alanlarına giden açık yollar içerir.
+        Bu dosyaların motor tarafından düzgün keşfedilip işlenmesini sağlamak için genellikle en az 3 derinlik gerekir.
     command: "katana -u {{target_url}} -kf {{file_type|all}}"
 
   # === HEADLESS CRAWLING ===
-  - title: katana - headless hybrid crawling
-    desc: |
-      Uses a headless browser to crawl the target, allowing for the execution of dynamic JavaScript. 
-      This mode is essential for capturing elements, requests, and routes that are only generated during runtime. 
-      Note that headless mode consumes significantly more CPU and RAM compared to the standard Go-based crawler.
+  - title:
+      en: katana - headless hybrid crawling
+      tr: katana - headless hibrit tarama
+    desc:
+      en: |
+        Uses a headless browser to crawl the target, allowing for the execution of dynamic JavaScript. 
+        This mode is essential for capturing elements, requests, and routes that are only generated during runtime. 
+        Note that headless mode consumes significantly more CPU and RAM compared to the standard Go-based crawler.
+      tr: |
+        Hedefi taramak için headless tarayıcı kullanır ve dinamik JavaScript çalıştırılmasına olanak tanır.
+        Bu mod, yalnızca çalışma zamanında üretilen öğeleri, istekleri ve rotaları yakalamak için gereklidir.
+        Headless modun standart Go tabanlı tarayıcıya kıyasla önemli ölçüde daha fazla CPU ve RAM tükettiğini unutmayın.
     command: "katana -u {{target_url}} -hl"
 
-  - title: katana - headless with XHR extraction
-    desc: |
-      Runs the crawler in headless mode and specifically extracts XHR (XMLHttpRequest) and Fetch requests. 
-      This is vital for identifying internal API endpoints used by the frontend to communicate with the backend. 
-      The results are best viewed in JSONL format to see the HTTP methods associated with each XHR request.
+  - title:
+      en: katana - headless with XHR extraction
+      tr: katana - XHR çıkarmalı headless tarama
+    desc:
+      en: |
+        Runs the crawler in headless mode and specifically extracts XHR (XMLHttpRequest) and Fetch requests. 
+        This is vital for identifying internal API endpoints used by the frontend to communicate with the backend. 
+        The results are best viewed in JSONL format to see the HTTP methods associated with each XHR request.
+      tr: |
+        Tarayıcıyı headless modda çalıştırır ve özellikle XHR (XMLHttpRequest) ve Fetch isteklerini çıkarır.
+        Ön yüzün arka uçla iletişim kurmak için kullandığı dahili API uç noktalarını belirlemek için hayati öneme sahiptir.
+        Her XHR isteğiyle ilişkili HTTP yöntemlerini görmek için sonuçlar en iyi JSONL biçiminde incelenir.
     command: "katana -u {{target_url}} -hl -xhr -j"
 
   # === SCOPE AND FILTERING ===
-  - title: katana - scoped crawling with regex
-    desc: |
-      Restricts the crawler to follow only URLs that match a specific regular expression. 
-      This prevents the crawler from wandering off-target into external third-party services or social media links. 
-      It is a critical feature for staying within the legal and technical boundaries of a penetration test.
+  - title:
+      en: katana - scoped crawling with regex
+      tr: katana - regex ile kapsamlı tarama
+    desc:
+      en: |
+        Restricts the crawler to follow only URLs that match a specific regular expression. 
+        This prevents the crawler from wandering off-target into external third-party services or social media links. 
+        It is a critical feature for staying within the legal and technical boundaries of a penetration test.
+      tr: |
+        Tarayıcıyı yalnızca belirli bir düzenli ifadeyle eşleşen URL'leri takip edecek şekilde kısıtlar.
+        Bu, tarayıcının harici üçüncü taraf hizmetlere veya sosyal medya bağlantılarına sapmasını engeller.
+        Bir sızma testinin yasal ve teknik sınırları içinde kalmak için kritik bir özelliktir.
     command: "katana -u {{target_url}} -cs {{regex_pattern}}"
 
-  - title: katana - filter output by extension
-    desc: |
-      Filters the final output to only show files that match the provided extensions. 
-      This is useful for quickly identifying specific file types like configuration files, scripts, or backups (e.g., php, js, txt). 
-      Alternatively, you can use -ef to exclude common noisy extensions like css, png, or jpg.
+  - title:
+      en: katana - filter output by extension
+      tr: katana - uzantıya göre çıktı filtreleme
+    desc:
+      en: |
+        Filters the final output to only show files that match the provided extensions. 
+        This is useful for quickly identifying specific file types like configuration files, scripts, or backups (e.g., php, js, txt). 
+        Alternatively, you can use -ef to exclude common noisy extensions like css, png, or jpg.
+      tr: |
+        Nihai çıktıyı yalnızca verilen uzantılarla eşleşen dosyaları gösterecek şekilde filtreler.
+        Yapılandırma dosyaları, betikler veya yedekler gibi belirli dosya türlerini (ör. php, js, txt) hızlıca belirlemek için kullanışlıdır.
+        Alternatif olarak, css, png veya jpg gibi yaygın gürültülü uzantıları hariç tutmak için -ef kullanabilirsiniz.
     command: "katana -u {{target_url}} -em {{extensions|js,php,aspx,json}}"
 
   # === PERFORMANCE AND OUTPUT ===
-  - title: katana - rate limited crawl
-    desc: |
-      Controls the speed of the crawl by setting a maximum number of requests per second. 
-      Lowering the rate limit is important to avoid overwhelming small servers or triggering Web Application Firewalls (WAF) and account lockouts. 
-      Always adjust this based on the stability and sensitivity of the target environment.
+  - title:
+      en: katana - rate limited crawl
+      tr: katana - hız sınırlı tarama
+    desc:
+      en: |
+        Controls the speed of the crawl by setting a maximum number of requests per second. 
+        Lowering the rate limit is important to avoid overwhelming small servers or triggering Web Application Firewalls (WAF) and account lockouts. 
+        Always adjust this based on the stability and sensitivity of the target environment.
+      tr: |
+        Saniyedeki maksimum istek sayısını ayarlayarak tarama hızını kontrol eder.
+        Hız sınırını düşürmek, küçük sunucuları zorlamamak veya Web Uygulama Güvenlik Duvarlarını (WAF) ve hesap kilitlenmelerini tetiklememek için önemlidir.
+        Bunu her zaman hedef ortamın kararlılığına ve hassasiyetine göre ayarlayın.
     command: "katana -u {{target_url}} -rl {{rate_limit|10}}"
 
-  - title: katana - save output to JSONL
-    desc: |
-      Writes the crawl results into a JSON Lines (JSONL) format file. 
-      This format includes rich metadata for each discovered URL, such as the source link, request method, and status codes. 
-      JSONL is the preferred format for integrating Katana results into other tools or custom analysis scripts.
+  - title:
+      en: katana - save output to JSONL
+      tr: katana - çıktıyı JSONL olarak kaydetme
+    desc:
+      en: |
+        Writes the crawl results into a JSON Lines (JSONL) format file. 
+        This format includes rich metadata for each discovered URL, such as the source link, request method, and status codes. 
+        JSONL is the preferred format for integrating Katana results into other tools or custom analysis scripts.
+      tr: |
+        Tarama sonuçlarını JSON Lines (JSONL) biçiminde bir dosyaya yazar.
+        Bu biçim, keşfedilen her URL için kaynak bağlantı, istek yöntemi ve durum kodları gibi zengin üstveri içerir.
+        JSONL, Katana sonuçlarını diğer araçlara veya özel analiz betiklerine entegre etmek için tercih edilen biçimdir.
     command: "katana -u {{target_url}} -j -o {{output_file|results.jsonl}}"
 
-  - title: katana - automatic form filling
-    desc: |
-      Enables an experimental feature that attempts to automatically fill and submit forms during the crawl. 
-      This can help the crawler reach areas of the site hidden behind input fields or search bars. 
-      Use with caution as it may result in unintentional data submission or state changes on the target application.
+  - title:
+      en: katana - automatic form filling
+      tr: katana - otomatik form doldurma
+    desc:
+      en: |
+        Enables an experimental feature that attempts to automatically fill and submit forms during the crawl. 
+        This can help the crawler reach areas of the site hidden behind input fields or search bars. 
+        Use with caution as it may result in unintentional data submission or state changes on the target application.
+      tr: |
+        Tarama sırasında formları otomatik doldurup göndermeyi deneyen deneysel bir özelliği etkinleştirir.
+        Bu, tarayıcının giriş alanları veya arama çubuklarının ardında gizli site alanlarına ulaşmasına yardımcı olabilir.
+        Hedef uygulamada istenmeyen veri gönderimine veya durum değişikliklerine yol açabileceğinden dikkatli kullanın.
     command: "katana -u {{target_url}} -aff"
 
-  - title: katana - technology detection
-    desc: |
-      Enables technology detection for the crawled endpoints. 
-      This helps identify the underlying stack, such as web servers, frameworks, and CMS versions. 
-      It adds valuable context to the discovery process, helping the tester prioritize specific exploitation vectors.
+  - title:
+      en: katana - technology detection
+      tr: katana - teknoloji tespiti
+    desc:
+      en: |
+        Enables technology detection for the crawled endpoints. 
+        This helps identify the underlying stack, such as web servers, frameworks, and CMS versions. 
+        It adds valuable context to the discovery process, helping the tester prioritize specific exploitation vectors.
+      tr: |
+        Taranan uç noktalar için teknoloji tespitini etkinleştirir.
+        Web sunucuları, çatılar ve CMS sürümleri gibi altta yatan yığını belirlemeye yardımcı olur.
+        Keşif sürecine değerli bağlam ekleyerek testçinin belirli sömürü vektörlerine öncelik vermesine yardımcı olur.
     command: "katana -u {{target_url}} -td"

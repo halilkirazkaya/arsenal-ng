@@ -4,103 +4,187 @@ tags: [system, archive, compression, utility, linux, files]
 # === ARCHIVE CREATION ===
 
 actions:
- - title: tar - create a basic archive
-   desc: |
-     Create a standard tarball from specified files or directories. This command does not apply 
-     compression by default, making it faster but resulting in larger file sizes. It is useful 
-     for bundling files while preserving directory structures and basic metadata. Use the 
-     verbose flag (-v) to see the progress of the operation as files are added.
+ - title:
+     en: tar - create a basic archive
+     tr: tar - temel arşiv oluşturma
+   desc:
+     en: |
+       Create a standard tarball from specified files or directories. This command does not apply 
+       compression by default, making it faster but resulting in larger file sizes. It is useful 
+       for bundling files while preserving directory structures and basic metadata. Use the 
+       verbose flag (-v) to see the progress of the operation as files are added.
+     tr: |
+       Belirtilen dosya veya dizinlerden standart bir tarball oluşturur.
+       Bu komut varsayılan olarak sıkıştırma uygulamaz; daha hızlıdır ama dosya boyutu büyük olur.
+       Dizin yapılarını ve temel üstveriyi koruyarak dosya paketlemek için yararlıdır.
    command: "tar -cvf {{archive_name|archive.tar}} {{source_files}}"
 
- - title: tar - create a compressed gzip archive
-   desc: |
-     Create a compressed archive using the gzip algorithm, which is the most common format 
-     for Linux software distribution. It provides a good balance between compression speed and 
-     reduced file size. This is ideal for backups and transferring files over the network 
-     efficiently. The .tar.gz or .tgz extensions are typically used for these archive types.
+ - title:
+     en: tar - create a compressed gzip archive
+     tr: tar - sıkıştırılmış gzip arşivi oluşturma
+   desc:
+     en: |
+       Create a compressed archive using the gzip algorithm, which is the most common format 
+       for Linux software distribution. It provides a good balance between compression speed and 
+       reduced file size. This is ideal for backups and transferring files over the network 
+       efficiently. The .tar.gz or .tgz extensions are typically used for these archive types.
+     tr: |
+       En yaygın Linux dağıtım biçimi olan gzip algoritmasıyla sıkıştırılmış arşiv oluşturur.
+       Sıkıştırma hızı ve küçültülmüş dosya boyutu arasında iyi bir denge sağlar.
+       Ağ üzerinden verimli yedekleme ve dosya aktarma için idealdir.
    command: "tar -czvf {{archive_name|archive.tar.gz}} {{source_files}}"
 
- - title: tar - create a compressed bzip2 archive
-   desc: |
-     Create an archive using bzip2 compression to achieve a better compression ratio than gzip. 
-     While it results in smaller file sizes, it requires significantly more CPU time and 
-     memory to process. Use this when storage space or bandwidth is a higher priority than 
-     processing speed. It commonly utilizes the .tar.bz2 extension for identification.
+ - title:
+     en: tar - create a compressed bzip2 archive
+     tr: tar - sıkıştırılmış bzip2 arşivi oluşturma
+   desc:
+     en: |
+       Create an archive using bzip2 compression to achieve a better compression ratio than gzip. 
+       While it results in smaller file sizes, it requires significantly more CPU time and 
+       memory to process. Use this when storage space or bandwidth is a higher priority than 
+       processing speed. It commonly utilizes the .tar.bz2 extension for identification.
+     tr: |
+       gzip'ten daha iyi sıkıştırma oranı için bzip2 sıkıştırmasıyla arşiv oluşturur.
+       Daha küçük dosyalar üretirken ciddi ölçüde fazla CPU zamanı ve bellek gerektirir.
+       Depolama alanı veya bant genişliği işlem hızından öncelikliyse kullanın.
    command: "tar -cjvf {{archive_name|archive.tar.bz2}} {{source_files}}"
 
- - title: tar - create a compressed xz archive
-   desc: |
-     Create an archive using the XZ compression algorithm, which offers the highest 
-     compression ratios available in standard tar. This is the preferred format for 
-     distributing large source code repositories or system images. Note that extraction and 
-     compression take more time compared to gzip or bzip2. It typically uses the .tar.xz extension.
+ - title:
+     en: tar - create a compressed xz archive
+     tr: tar - sıkıştırılmış xz arşivi oluşturma
+   desc:
+     en: |
+       Create an archive using the XZ compression algorithm, which offers the highest 
+       compression ratios available in standard tar. This is the preferred format for 
+       distributing large source code repositories or system images. Note that extraction and 
+       compression take more time compared to gzip or bzip2. It typically uses the .tar.xz extension.
+     tr: |
+       Standart tar içinde en yüksek sıkıştırma oranlarını sunan XZ algoritmasıyla arşiv oluşturur.
+       Büyük kaynak kodu depoları veya sistem görüntüleri dağıtmak için tercih edilen biçimdir.
+       gzip veya bzip2'ye göre çıkarma ve sıkıştırmanın daha uzun sürdüğünü unutmayın.
    command: "tar -cJvf {{archive_name|archive.tar.xz}} {{source_files}}"
 
 # === EXTRACTION AND INSPECTION ===
 
- - title: tar - extract an archive
-   desc: |
-     Extract the contents of an archive into the current working directory. Modern versions 
-     of tar automatically detect the compression format (gzip, bzip2, xz) without needing 
-     the specific flag. Ensure you have sufficient write permissions in the target directory 
-     to avoid extraction errors. Use the verbose flag to monitor which files are being written.
+ - title:
+     en: tar - extract an archive
+     tr: tar - arşiv çıkarma
+   desc:
+     en: |
+       Extract the contents of an archive into the current working directory. Modern versions 
+       of tar automatically detect the compression format (gzip, bzip2, xz) without needing 
+       the specific flag. Ensure you have sufficient write permissions in the target directory 
+       to avoid extraction errors. Use the verbose flag to monitor which files are being written.
+     tr: |
+       Arşiv içeriğini geçerli çalışma dizinine çıkarır.
+       Modern tar sürümleri sıkıştırma biçimini (gzip, bzip2, xz) otomatik algılar; özel flag gerekmez.
+       Yazma izninizin yeterli olduğundan emin olun; aksi halde çıkarma hataları alırsınız.
    command: "tar -xvf {{archive_name|archive.tar.gz}}"
 
- - title: tar - extract archive to specific directory
-   desc: |
-     Extract the archive contents into a specific target directory using the -C flag. This is 
-     highly useful for keeping the current directory clean or deploying software to a 
-     pre-defined path. The target directory must already exist before running the command 
-     to avoid failure. It helps prevent accidental overwrites of existing files in the current path.
+ - title:
+     en: tar - extract archive to specific directory
+     tr: tar - arşivi belirli dizine çıkarma
+   desc:
+     en: |
+       Extract the archive contents into a specific target directory using the -C flag. This is 
+       highly useful for keeping the current directory clean or deploying software to a 
+       pre-defined path. The target directory must already exist before running the command 
+       to avoid failure. It helps prevent accidental overwrites of existing files in the current path.
+     tr: |
+       -C flag'iyle arşiv içeriğini belirli bir hedef dizine çıkarır.
+       Geçerli dizini temiz tutmak veya yazılımı önceden tanımlı yola kurmak için oldukça yararlıdır.
+       Komutun başarısız olmaması için hedef dizinin önceden var olması gerekir.
    command: "tar -xvf {{archive_name|archive.tar}} -C {{destination_dir}}"
 
- - title: tar - list archive contents
-   desc: |
-     List the contents of a tar archive without extracting any files to the disk. This allows 
-     you to verify the internal folder structure and the presence of specific files inside 
-     the package. It is a safe way to inspect downloaded archives for unwanted or malicious 
-     content before execution. For detailed info like permissions and sizes, use the verbose flag.
+ - title:
+     en: tar - list archive contents
+     tr: tar - arşiv içeriğini listeleme
+   desc:
+     en: |
+       List the contents of a tar archive without extracting any files to the disk. This allows 
+       you to verify the internal folder structure and the presence of specific files inside 
+       the package. It is a safe way to inspect downloaded archives for unwanted or malicious 
+       content before execution. For detailed info like permissions and sizes, use the verbose flag.
+     tr: |
+       Hiçbir dosyayı diske çıkarmadan arşiv içeriğini listeler.
+       Paket içindeki klasör yapısını ve belirli dosyaların varlığını doğrulamanızı sağlar.
+       İndirilen arşivleri çalıştırmadan önce istenmeyen veya zararlı içeriğe karşı denetlemenin güvenli yoludur.
    command: "tar -tvf {{archive_name|archive.tar}}"
 
- - title: tar - extract specific file or directory
-   desc: |
-     Extract only a specific file or a single subdirectory from a larger archive. This is 
-     highly efficient when you only need one piece of data and do not want to unpack the 
-     entire archive. You must provide the exact relative path as it exists within the 
-     archive structure. Use the list (-t) command first to find the correct internal path.
+ - title:
+     en: tar - extract specific file or directory
+     tr: tar - belirli dosya veya dizini çıkarma
+   desc:
+     en: |
+       Extract only a specific file or a single subdirectory from a larger archive. This is 
+       highly efficient when you only need one piece of data and do not want to unpack the 
+       entire archive. You must provide the exact relative path as it exists within the 
+       archive structure. Use the list (-t) command first to find the correct internal path.
+     tr: |
+       Büyük arşivden yalnızca belirli bir dosya veya alt dizini çıkarır.
+       Yalnızca bir veri parçasına ihtiyacınız varken tüm arşivi açmaktan oldukça verimlidir.
+       Arşiv içindeki tam göreli yolu vermelisiniz; doğru iç yolu bulmak için önce listeleme (-t) komutunu kullanın.
    command: "tar -xvf {{archive_name|archive.tar}} {{specific_path}}"
 
 # === ARCHIVE MANAGEMENT ===
 
- - title: tar - append files to existing archive
-   desc: |
-     Add new files to the end of an existing uncompressed tar archive. Note that this 
-     operation does not work on compressed archives (like .tar.gz) because the compression 
-     stream cannot be easily appended to. It is useful for incrementally building an archive 
-     as new data becomes available. Always verify the archive integrity after the append operation.
+ - title:
+     en: tar - append files to existing archive
+     tr: tar - mevcut arşive dosya ekleme
+   desc:
+     en: |
+       Add new files to the end of an existing uncompressed tar archive. Note that this 
+       operation does not work on compressed archives (like .tar.gz) because the compression 
+       stream cannot be easily appended to. It is useful for incrementally building an archive 
+       as new data becomes available. Always verify the archive integrity after the append operation.
+     tr: |
+       Mevcut sıkıştırılmamış tar arşivinin sonuna yeni dosyalar ekler.
+       Sıkıştırma akışına kolayca eklenemediği için sıkıştırılmış arşivlerde (.tar.gz gibi) çalışmadığını unutmayın.
+       Yeni veriler geldikçe arşivi artımlı büyütmek için yararlıdır.
    command: "tar -rvf {{archive_name|archive.tar}} {{new_file}}"
 
- - title: tar - update files in archive
-   desc: |
-     Update files within an archive only if the source file on disk is newer than the 
-     version already stored in the tarball. Similar to appending, this typically works only 
-     on uncompressed archives. It saves time by only adding modified files rather than 
-     recreating the entire archive from scratch. This is a basic way to manage incremental backups.
+ - title:
+     en: tar - update files in archive
+     tr: tar - arşivdeki dosyaları güncelleme
+   desc:
+     en: |
+       Update files within an archive only if the source file on disk is newer than the 
+       version already stored in the tarball. Similar to appending, this typically works only 
+       on uncompressed archives. It saves time by only adding modified files rather than 
+       recreating the entire archive from scratch. This is a basic way to manage incremental backups.
+     tr: |
+       Diskteki kaynak dosya arşivdeki sürümden yeniyse arşivdeki dosyaları günceller.
+       Ekleme gibi bu da genelde yalnızca sıkıştırılmamış arşivlerde çalışır.
+       Tüm arşivi sıfırdan yeniden oluşturmak yerine yalnızca değişen dosyaları ekleyerek zaman kazandırır.
    command: "tar -uvf {{archive_name|archive.tar}} {{source_file}}"
 
- - title: tar - archive with excluded patterns
-   desc: |
-     Create an archive while skipping files or directories that match a specific pattern. 
-     This is essential for avoiding the inclusion of temporary files, large cache 
-     directories, or version control folders like .git. Multiple exclusion patterns can be 
-     specified by repeating the flag. Ensure the pattern is quoted to prevent shell expansion.
+ - title:
+     en: tar - archive with excluded patterns
+     tr: tar - kalıpla hariç tutarak arşivleme
+   desc:
+     en: |
+       Create an archive while skipping files or directories that match a specific pattern. 
+       This is essential for avoiding the inclusion of temporary files, large cache 
+       directories, or version control folders like .git. Multiple exclusion patterns can be 
+       specified by repeating the flag. Ensure the pattern is quoted to prevent shell expansion.
+     tr: |
+       Belirli bir kalıba uyan dosya veya dizinleri atlayarak arşiv oluşturur.
+       Geçici dosyaları, büyük önbellek dizinlerini veya .git gibi sürüm kontrol klasörlerini dışlamak için gereklidir.
+       Birden çok dışlama kalıbı flag tekrarlanarak belirtilebilir.
    command: "tar -cvf {{archive_name|archive.tar}} --exclude='{{pattern|*.log}}' {{source_dir}}"
 
- - title: tar - preserve permissions and metadata
-   desc: |
-     Extract an archive while strictly preserving file permissions, including ACLs and 
-     ownership information. This is often the default for the root user but must be explicitly 
-     called using -p for other users if they have the necessary privileges. It is critical 
-     when restoring system backups or moving configurations between servers. It ensures 
-     the security context of the files remains intact.
+ - title:
+     en: tar - preserve permissions and metadata
+     tr: tar - izinleri ve üstveriyi koruma
+   desc:
+     en: |
+       Extract an archive while strictly preserving file permissions, including ACLs and 
+       ownership information. This is often the default for the root user but must be explicitly 
+       called using -p for other users if they have the necessary privileges. It is critical 
+       when restoring system backups or moving configurations between servers. It ensures 
+       the security context of the files remains intact.
+     tr: |
+       ACL'ler ve sahiplik bilgileri dahil dosya izinlerini sıkı biçimde koruyarak arşiv çıkarır.
+       Genelde root kullanıcısı için varsayılandır ama yeterli yetkisi olan diğer kullanıcılar -p ile açıkça çağırmalıdır.
+       Sunucu yedeklerini geri yüklerken veya yapılandırmaları taşırken dosyaların güvenlik bağlamını korumak için kritiktir.
    command: "tar -xvpf {{archive_name|archive.tar}}"

@@ -4,70 +4,126 @@ tags: [dns, enumeration, subdomains, pentest, recon, security, massdns]
 # === RESOLVING AND BRUTEFORCING ===
 
 actions:
- - title: shuffledns - resolve subdomains from list
-   desc: |
-     Resolve a predefined list of subdomains using a specific resolver file to verify their current existence.
-     This is useful when you have a large list of potential subdomains from passive sources and need to filter out inactive ones.
-     Using a reliable and updated resolver list is crucial for accuracy and performance.
-     Note that high rate limits might lead to temporary IP blacklisting by some DNS providers.
+ - title:
+     en: shuffledns - resolve subdomains from list
+     tr: shuffledns - listeden alt alan adı çözümleme
+   desc:
+     en: |
+       Resolve a predefined list of subdomains using a specific resolver file to verify their current existence.
+       This is useful when you have a large list of potential subdomains from passive sources and need to filter out inactive ones.
+       Using a reliable and updated resolver list is crucial for accuracy and performance.
+       Note that high rate limits might lead to temporary IP blacklisting by some DNS providers.
+     tr: |
+       Önceden hazırlanmış bir alt alan adı listesini verilen çözümleyici dosyasıyla çözümleyerek güncel varlıklarını doğrular.
+       Pasif kaynaklardan toplanmış büyük olası listelerdeki aktif olmayanları elemek için kullanılır.
+       Doğruluk ve performans için güvenilir ve güncel bir çözümleyici listesi şarttır.
    command: "shuffledns -d {{domain}} -list {{subdomain_list}} -r {{resolvers_file}} -mode resolve"
 
- - title: shuffledns - subdomain bruteforcing
-   desc: |
-     Perform active subdomain discovery by combining a target domain with a local wordlist file.
-     The tool generates combinations and resolves them using massdns for high-speed performance and efficiency.
-     This method is highly effective for finding hidden subdomains that are not indexed in public databases.
-     Always use a trusted list of resolvers to minimize false positives during the bruteforce process.
+ - title:
+     en: shuffledns - subdomain bruteforcing
+     tr: shuffledns - alt alan adı kaba kuvvet saldırısı
+   desc:
+     en: |
+       Perform active subdomain discovery by combining a target domain with a local wordlist file.
+       The tool generates combinations and resolves them using massdns for high-speed performance and efficiency.
+       This method is highly effective for finding hidden subdomains that are not indexed in public databases.
+       Always use a trusted list of resolvers to minimize false positives during the bruteforce process.
+     tr: |
+       Hedef alan adını yerel bir wordlist dosyasıyla birleştirerek aktif alt alan adı keşfi yapar.
+       massdns ile çözümleyerek yüksek hız ve verimlilik sağlar.
+       Herkese açık veritabanlarında indekslenmeyen gizli alt alan adlarını bulmada oldukça etkilidir.
    command: "shuffledns -d {{domain}} -w {{wordlist_file}} -r {{resolvers_file|resolvers.txt}} -mode bruteforce"
 
- - title: shuffledns - piped input from subfinder
-   desc: |
-     Pipe results directly from subfinder into shuffledns for seamless passive-to-active subdomain validation.
-     This workflow allows you to combine passive discovery results with active verification in a single command line string.
-     It is the industry standard approach for performing comprehensive and rapid subdomain enumeration.
-     Ensure your resolvers file is properly configured to handle the incoming stream of data.
+ - title:
+     en: shuffledns - piped input from subfinder
+     tr: shuffledns - subfinder'dan aktarılan girdi
+   desc:
+     en: |
+       Pipe results directly from subfinder into shuffledns for seamless passive-to-active subdomain validation.
+       This workflow allows you to combine passive discovery results with active verification in a single command line string.
+       It is the industry standard approach for performing comprehensive and rapid subdomain enumeration.
+       Ensure your resolvers file is properly configured to handle the incoming stream of data.
+     tr: |
+       Kesintisiz pasif-doğrulamalı iş akışı için subfinder sonuçlarını doğrudan shuffledns'e aktarır.
+       Tek komut satırında pasif keşifle aktif doğrulamayı birleştirir.
+       Kapsamlı ve hızlı alt alan adı numaralandırma için endüstri standardı yöntemdir.
    command: "subfinder -d {{domain}} -silent | shuffledns -d {{domain}} -r {{resolvers_file}} -mode resolve"
 
 # === PERFORMANCE AND FILTERING ===
 
- - title: shuffledns - resolve with trusted resolvers
-   desc: |
-     Use a separate list of trusted resolvers to verify the results obtained from general resolvers for higher accuracy.
-     This provides a multi-layered verification process that helps eliminate false positives introduced by unreliable DNS servers.
-     It is especially useful when dealing with DNS providers that might return "garbage" data or hijacked records.
-     This feature requires an additional file containing known-good resolvers like Google (8.8.8.8) or Cloudflare (1.1.1.1).
+ - title:
+     en: shuffledns - resolve with trusted resolvers
+     tr: shuffledns - güvenilir çözümleyicilerle çözümleme
+   desc:
+     en: |
+       Use a separate list of trusted resolvers to verify the results obtained from general resolvers for higher accuracy.
+       This provides a multi-layered verification process that helps eliminate false positives introduced by unreliable DNS servers.
+       It is especially useful when dealing with DNS providers that might return "garbage" data or hijacked records.
+       This feature requires an additional file containing known-good resolvers like Google (8.8.8.8) or Cloudflare (1.1.1.1).
+     tr: |
+       Genel çözümleyicilerden alınan sonuçları ayrı bir güvenilir çözümleyici listesiyle doğrulayarak doğruluğu artırır.
+       Güvenilmez DNS sunucularının ürettiği yanlış pozitifleri eleyen çok katmanlı bir doğrulama sağlar.
+       Google (8.8.8.8) veya Cloudflare (1.1.1.1) gibi bilinen-geçerli çözümleyiciler içeren ek bir dosya gerektirir.
    command: "shuffledns -d {{domain}} -list {{subdomain_list}} -r {{resolvers_file}} -tr {{trusted_resolvers_file}} -mode resolve"
 
- - title: shuffledns - high-speed resolution with rate limiting
-   desc: |
-     Adjust the number of concurrent massdns resolves to balance between execution speed and system stability.
-     The default value is 10,000, but you can increase it for faster results if your network bandwidth allows.
-     Setting this value too high may cause local network congestion or high packet loss, leading to inaccurate results.
-     Monitor your CPU and network interface usage when running with extremely high concurrency settings.
+ - title:
+     en: shuffledns - high-speed resolution with rate limiting
+     tr: shuffledns - hız sınırlamalı yüksek hızlı çözümleme
+   desc:
+     en: |
+       Adjust the number of concurrent massdns resolves to balance between execution speed and system stability.
+       The default value is 10,000, but you can increase it for faster results if your network bandwidth allows.
+       Setting this value too high may cause local network congestion or high packet loss, leading to inaccurate results.
+       Monitor your CPU and network interface usage when running with extremely high concurrency settings.
+     tr: |
+       Yürütme hızı ile sistem kararlılığı arasında denge kurmak için eşzamanlı massdns çözümleme sayısını ayarlar.
+       Varsayılan değer 10000'dir; ağ bant genişliğiniz elveriyorsa daha hızlı sonuç için artırılabilir.
+       Çok yüksek değerler yerel ağ tıkanıklığına veya paket kaybına yol açarak hatalı sonuçlar doğurabilir.
    command: "shuffledns -d {{domain}} -list {{subdomain_list}} -r {{resolvers_file}} -mode resolve -t {{rate_limit|20000}}"
 
- - title: shuffledns - resolve with strict wildcard filtering
-   desc: |
-     Enable strict wildcard checking to filter out false positive results caused by catch-all DNS records.
-     This is critical for domains that map all non-existent subdomains to a specific landing page or IP address.
-     The tool performs additional checks on discovered subdomains to ensure they are unique and truly valid.
-     Using this flag might slightly increase the total execution time due to the extra verification steps.
+ - title:
+     en: shuffledns - resolve with strict wildcard filtering
+     tr: shuffledns - katı wildcard filtrelemeli çözümleme
+   desc:
+     en: |
+       Enable strict wildcard checking to filter out false positive results caused by catch-all DNS records.
+       This is critical for domains that map all non-existent subdomains to a specific landing page or IP address.
+       The tool performs additional checks on discovered subdomains to ensure they are unique and truly valid.
+       Using this flag might slightly increase the total execution time due to the extra verification steps.
+     tr: |
+       Catch-all DNS kayıtlarının yol açtığı yanlış pozitifleri elemek için katı wildcard denetimini etkinleştirir.
+       Var olmayan tüm alt alan adlarını tek bir sayfaya yönlendiren alan adlarında kritiktir.
+       Ek doğrulama adımları nedeniyle toplam yürütme süresi biraz artabilir.
    command: "shuffledns -d {{domain}} -list {{subdomain_list}} -r {{resolvers_file}} -mode resolve -sw"
 
 # === OUTPUT AND INTEGRATION ===
 
- - title: shuffledns - save output to JSON
-   desc: |
-     Save the results of the DNS enumeration in NDJSON format for easier parsing by other automated security tools.
-     This format includes more metadata than a simple text list, making it ideal for integration into custom scripts.
-     It is highly recommended for building automated security pipelines and long-term data analysis.
-     Use the -o flag to specify the destination file path for the JSON results.
+ - title:
+     en: shuffledns - save output to JSON
+     tr: shuffledns - çıktıyı JSON olarak kaydetme
+   desc:
+     en: |
+       Save the results of the DNS enumeration in NDJSON format for easier parsing by other automated security tools.
+       This format includes more metadata than a simple text list, making it ideal for integration into custom scripts.
+       It is highly recommended for building automated security pipelines and long-term data analysis.
+       Use the -o flag to specify the destination file path for the JSON results.
+     tr: |
+       DNS numaralandırma sonuçlarını diğer güvenlik araçlarınca kolayca işlenebilen NDJSON biçiminde kaydeder.
+       Düz metin listesine göre daha fazla üstveri içerir; özel betiklere entegrasyon için idealdir.
+       Otomatik güvenlik hatları ve uzun vadeli veri analizi için önerilir.
    command: "shuffledns -d {{domain}} -list {{subdomain_list}} -r {{resolvers_file}} -mode resolve -j -o {{output_file|results.json}}"
 
- - title: shuffledns - silent output for scripts
-   desc: |
-     Run the tool in silent mode to output only the discovered and validated subdomains.
-     This mode is perfect for clean integration with other command-line tools in a bash pipeline.
-     It removes banners and verbose logs, providing a clean list of strings as the final output.
-     This is the preferred way to use the tool when results need to be passed to another tool like httpx.
+ - title:
+     en: shuffledns - silent output for scripts
+     tr: shuffledns - betikler için sessiz çıktı
+   desc:
+     en: |
+       Run the tool in silent mode to output only the discovered and validated subdomains.
+       This mode is perfect for clean integration with other command-line tools in a bash pipeline.
+       It removes banners and verbose logs, providing a clean list of strings as the final output.
+       This is the preferred way to use the tool when results need to be passed to another tool like httpx.
+     tr: |
+       Aracı sessiz kipte çalıştırarak yalnızca doğrulanan alt alan adlarını gösterir.
+       Bash hattında diğer komut satırı araçlarıyla temiz entegrasyon için mükemmeldir.
+       Sonuçların httpx gibi başka bir araca aktarılması gerektiğinde tercih edilen kullanım biçimidir.
    command: "shuffledns -d {{domain}} -list {{subdomain_list}} -r {{resolvers_file}} -mode resolve -silent"

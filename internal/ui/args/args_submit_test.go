@@ -49,7 +49,7 @@ func TestSubmitQuotesCompletedPathWithSpace(t *testing.T) {
 	if err := os.WriteFile(filepath.Join(home, "annual report.txt"), nil, 0o644); err != nil {
 		t.Fatal(err)
 	}
-	cheat := &model.Cheat{Tool: "cat", Title: "Cat", Command: "cat {{file}}"}
+	cheat := &model.Cheat{Tool: "cat", Title: model.NewText("Cat"), Command: "cat {{file}}"}
 	m := New(cheat, g)
 	m.Inputs[0].SetValue("~/annual")
 	m.suggest()

@@ -3,125 +3,244 @@ tags: [forensics, reverse-engineering, firmware, analysis, extraction, security,
 
 actions:
   # === ANALYSIS & IDENTIFICATION ===
-  - title: binwalk - basic signature scan
-    desc: |
-      Performs a basic signature scan of the target file to identify embedded files and filesystems. 
-      This is the most common starting point for firmware analysis and reconnaissance. 
-      It searches for magic numbers and headers defined in the binwalk signature database.
+  - title:
+      en: binwalk - basic signature scan
+      tr: binwalk - temel imza taraması
+    desc:
+      en: |
+        Performs a basic signature scan of the target file to identify embedded files and filesystems. 
+        This is the most common starting point for firmware analysis and reconnaissance. 
+        It searches for magic numbers and headers defined in the binwalk signature database.
+      tr: |
+        Gömülü dosyaları ve dosya sistemlerini belirlemek için hedef dosyanın temel imza taramasını yapar.
+        Bu, donanım yazılımı analizi ve keşfi için en yaygın başlangıç noktasıdır.
+        binwalk imza veritabanında tanımlı sihirli sayıları ve başlıkları arar.
     command: "binwalk {{file_path}}"
 
-  - title: binwalk - identify cpu architecture
-    desc: |
-      Identifies the CPU architecture of a file using the capstone disassembler. 
-      This is extremely useful when analyzing raw binary blobs where the architecture (e.g., ARM, MIPS, x86) is unknown. 
-      It helps determine how the binary should be loaded into specialized tools like IDA Pro or Ghidra.
+  - title:
+      en: binwalk - identify cpu architecture
+      tr: binwalk - cpu mimarisini belirleme
+    desc:
+      en: |
+        Identifies the CPU architecture of a file using the capstone disassembler. 
+        This is extremely useful when analyzing raw binary blobs where the architecture (e.g., ARM, MIPS, x86) is unknown. 
+        It helps determine how the binary should be loaded into specialized tools like IDA Pro or Ghidra.
+      tr: |
+        Capstone sökücüyü kullanarak dosyanın CPU mimarisini belirler.
+        Mimarisinin (ör. ARM, MIPS, x86) bilinmediği ham ikili yığınları analiz ederken son derece yararlıdır.
+        İkili dosyanın IDA Pro veya Ghidra gibi özel araçlara nasıl yüklenmesi gerektiğini belirlemeye yardımcı olur.
     command: "binwalk -Y {{file_path}}"
 
-  - title: binwalk - opcode scanning
-    desc: |
-      Scans the target file for common executable opcode signatures across various architectures. 
-      This helps in locating code segments within a binary that might not have a clear file header. 
-      It is particularly useful for finding entry points or shellcode within a large data dump.
+  - title:
+      en: binwalk - opcode scanning
+      tr: binwalk - işlem kodu taraması
+    desc:
+      en: |
+        Scans the target file for common executable opcode signatures across various architectures. 
+        This helps in locating code segments within a binary that might not have a clear file header. 
+        It is particularly useful for finding entry points or shellcode within a large data dump.
+      tr: |
+        Hedef dosyayı çeşitli mimarilerde yaygın çalıştırılabilir işlem kodu imzalarına karşı tarar.
+        Bu, net dosya başlığı olmayan ikili dosyadaki kod bölümlerini bulmaya yardımcı olur.
+        Büyük veri dökümü içinde giriş noktaları veya kabuk kodu bulmada özellikle yararlıdır.
     command: "binwalk -A {{file_path}}"
 
-  - title: binwalk - entropy analysis
-    desc: |
-      Calculates and analyzes the entropy of the file to identify regions of compressed or encrypted data. 
-      High entropy (approaching 1.0) typically indicates encrypted data or compressed archives, while low entropy indicates structured data or padding. 
-      This is a vital step for identifying hidden data that doesn't match known signatures.
+  - title:
+      en: binwalk - entropy analysis
+      tr: binwalk - entropi analizi
+    desc:
+      en: |
+        Calculates and analyzes the entropy of the file to identify regions of compressed or encrypted data. 
+        High entropy (approaching 1.0) typically indicates encrypted data or compressed archives, while low entropy indicates structured data or padding. 
+        This is a vital step for identifying hidden data that doesn't match known signatures.
+      tr: |
+        Sıkıştırılmış veya şifreli veri bölgelerini belirlemek için dosyanın entropisini hesaplar ve analiz eder.
+        Yüksek entropi (1.0'a yakın) genellikle şifreli veri veya sıkıştırılmış arşivleri, düşük entropi yapısal veri veya dolguyu gösterir.
+        Bu, bilinen imzalarla eşleşmeyen gizli verileri belirlemede hayati adımdır.
     command: "binwalk -E {{file_path}}"
 
-  - title: binwalk - fast entropy plot
-    desc: |
-      Generates an entropy analysis using the fast method and saves the resulting plot as a PNG image. 
-      This provides a visual representation of data density, making it easier to spot patterns and boundaries in the file. 
-      The resulting image is saved in the current working directory by default.
+  - title:
+      en: binwalk - fast entropy plot
+      tr: binwalk - hızlı entropi grafiği
+    desc:
+      en: |
+        Generates an entropy analysis using the fast method and saves the resulting plot as a PNG image. 
+        This provides a visual representation of data density, making it easier to spot patterns and boundaries in the file. 
+        The resulting image is saved in the current working directory by default.
+      tr: |
+        Hızlı yöntemle entropi analizi üretip sonuç grafiği PNG görüntü olarak kaydeder.
+        Bu, veri yoğunluğunun görsel temsilini vererek dosyadaki kalıp ve sınırları fark etmeyi kolaylaştırır.
+        Sonuç görüntü varsayılan olarak geçerli çalışma dizinine kaydedilir.
     command: "binwalk -EJ {{file_path}}"
 
   # === EXTRACTION ===
-  - title: binwalk - automatic extraction
-    desc: |
-      Automatically extracts any recognized file types found during the signature scan. 
-      The tool uses internal extractors and external utilities to carve out files and directories into a new folder. 
-      Be aware that some extraction utilities might require root privileges or specific dependencies installed on the host.
+  - title:
+      en: binwalk - automatic extraction
+      tr: binwalk - otomatik çıkarma
+    desc:
+      en: |
+        Automatically extracts any recognized file types found during the signature scan. 
+        The tool uses internal extractors and external utilities to carve out files and directories into a new folder. 
+        Be aware that some extraction utilities might require root privileges or specific dependencies installed on the host.
+      tr: |
+        İmza taramasında bulunan tanınmış dosya türlerini otomatik çıkarır.
+        Araç, dosya ve dizinleri yeni bir klasöre çıkarmak için dahili çıkarıcılar ve harici yardımcılar kullanır.
+        Bazı çıkarma yardımcılarının root yetkisi veya host'ta kurulu belirli bağımlılıklar gerektirebileceğini unutmayın.
     command: "binwalk -e {{file_path}}"
 
-  - title: binwalk - recursive extraction
-    desc: |
-      Performs a "matryoshka" style recursive scan and extraction. 
-      It will scan the results of the initial extraction and extract any files found within those, which is essential for deeply nested firmware images. 
-      You can limit the depth of recursion using the --depth flag if the process becomes too resource-intensive.
+  - title:
+      en: binwalk - recursive extraction
+      tr: binwalk - özyinelemeli çıkarma
+    desc:
+      en: |
+        Performs a "matryoshka" style recursive scan and extraction. 
+        It will scan the results of the initial extraction and extract any files found within those, which is essential for deeply nested firmware images. 
+        You can limit the depth of recursion using the --depth flag if the process becomes too resource-intensive.
+      tr: |
+        "Matruşka" tarzı özyinelemeli tarama ve çıkarma yapar.
+        İlk çıkarmanın sonuçlarını tarayıp içinde bulunan dosyaları çıkarır; derinden iç içe donanım yazılımı imajları için gereklidir.
+        İşlem çok kaynak tüketirse --depth bayrağıyla özyineleme derinliğini sınırlayabilirsiniz.
     command: "binwalk -eM {{file_path}}"
 
-  - title: binwalk - extract to custom directory
-    desc: |
-      Extracts files discovered in the signature scan to a specific target directory. 
-      By default, binwalk creates a folder named after the file with an extraction suffix; this command overrides that behavior. 
-      This is useful for maintaining organization during complex forensic investigations.
+  - title:
+      en: binwalk - extract to custom directory
+      tr: binwalk - özel dizine çıkarma
+    desc:
+      en: |
+        Extracts files discovered in the signature scan to a specific target directory. 
+        By default, binwalk creates a folder named after the file with an extraction suffix; this command overrides that behavior. 
+        This is useful for maintaining organization during complex forensic investigations.
+      tr: |
+        İmza taramasında keşfedilen dosyaları belirli bir hedef dizine çıkarır.
+        binwalk varsayılan olarak dosya adıyla çıkarma son ekli bir klasör oluşturur; bu komut bu davranışı geçersiz kılar.
+        Bu, karmaşık adli incelemelerde düzeni korumak için yararlıdır.
     command: "binwalk -e -C {{output_directory|extracted_data}} {{file_path}}"
 
-  - title: binwalk - extract specific signature
-    desc: |
-      Extracts only specific types of signatures based on a regular expression. 
-      This is highly efficient when you are only interested in a specific type of data, such as JPEG images or SquashFS filesystems. 
-      It prevents the creation of unnecessary files that would result from a full extraction.
+  - title:
+      en: binwalk - extract specific signature
+      tr: binwalk - belirli imzayı çıkarma
+    desc:
+      en: |
+        Extracts only specific types of signatures based on a regular expression. 
+        This is highly efficient when you are only interested in a specific type of data, such as JPEG images or SquashFS filesystems. 
+        It prevents the creation of unnecessary files that would result from a full extraction.
+      tr: |
+        Düzenli ifadeye göre yalnızca belirli tür imzaları çıkarır.
+        Bu, yalnızca JPEG görüntüler veya SquashFS dosya sistemleri gibi belirli bir veri türüyle ilgilendiğinizde oldukça verimlidir.
+        Tam çıkarmadan doğacak gereksiz dosyaların oluşmasını engeller.
     command: "binwalk -D {{signature_type|'filesystem:squashfs'}} {{file_path}}"
 
   # === BINARY DIFFING ===
-  - title: binwalk - binary diffing (hexdump)
-    desc: |
-      Performs a binary diff between two or more files and displays a colored hexdump. 
-      This is useful for identifying changes between different versions of the same firmware image. 
-      It highlights differences in red, similarities in green, and unique bytes in blue.
+  - title:
+      en: binwalk - binary diffing (hexdump)
+      tr: binwalk - ikili karşılaştırma (hexdump)
+    desc:
+      en: |
+        Performs a binary diff between two or more files and displays a colored hexdump. 
+        This is useful for identifying changes between different versions of the same firmware image. 
+        It highlights differences in red, similarities in green, and unique bytes in blue.
+      tr: |
+        İki veya daha çok dosya arasında ikili fark alıp renkli hexdump gösterir.
+        Bu, aynı donanım yazılımı imajının farklı sürümleri arasındaki değişiklikleri belirlemede yararlıdır.
+        Farkları kırmızıyla, benzerlikleri yeşille ve benzersiz baytları maviyle vurgular.
     command: "binwalk -W {{file1}} {{file2}}"
 
-  - title: binwalk - show similarities only
-    desc: |
-      Filters the binary diffing output to show only the lines that are identical between all compared files. 
-      This is helpful when searching for constant patterns, static configurations, or shared headers across multiple firmware samples. 
-      It reduces noise by hiding all changing data.
+  - title:
+      en: binwalk - show similarities only
+      tr: binwalk - yalnızca benzerlikleri gösterme
+    desc:
+      en: |
+        Filters the binary diffing output to show only the lines that are identical between all compared files. 
+        This is helpful when searching for constant patterns, static configurations, or shared headers across multiple firmware samples. 
+        It reduces noise by hiding all changing data.
+      tr: |
+        İkili fark çıktısını karşılaştırılan tüm dosyalar arasında aynı olan satırları gösterecek şekilde filtreler.
+        Birden çok donanım yazılımı örneğinde sabit kalıplar, statik yapılandırmalar veya ortak başlıklar ararken yardımcıdır.
+        Değişen tüm veriyi gizleyerek gürültüyü azaltır.
     command: "binwalk -Wu {{file1}} {{file2}}"
 
   # === ADVANCED SCANS & COMPRESSION ===
-  - title: binwalk - scan for raw deflate streams
-    desc: |
-      Specially scans the file for raw deflate (zlib) compression streams. 
-      Some firmware formats use raw compression without standard headers that would be caught by a signature scan. 
-      Note that this can produce many false positives, so it is often used with the --stop or --partial flags.
+  - title:
+      en: binwalk - scan for raw deflate streams
+      tr: binwalk - ham deflate akışlarını tarama
+    desc:
+      en: |
+        Specially scans the file for raw deflate (zlib) compression streams. 
+        Some firmware formats use raw compression without standard headers that would be caught by a signature scan. 
+        Note that this can produce many false positives, so it is often used with the --stop or --partial flags.
+      tr: |
+        Dosyayı ham deflate (zlib) sıkıştırma akışlarına karşı özel tarar.
+        Bazı donanım yazılımı biçimleri, imza taramasının yakalayacağı standart başlıklar olmadan ham sıkıştırma kullanır.
+        Bunun çok yanlış pozitif üretebileceğini unutmayın; bu yüzden sıkça --stop veya --partial bayraklarıyla kullanılır.
     command: "binwalk -X {{file_path}}"
 
-  - title: binwalk - raw byte sequence search
-    desc: |
-      Scans the binary for a specific, user-defined sequence of raw bytes. 
-      This is perfect for finding hardcoded secrets, specific developer strings, or unique byte patterns across a file. 
-      The sequence should be provided in hex format within quotes.
+  - title:
+      en: binwalk - raw byte sequence search
+      tr: binwalk - ham bayt dizisi arama
+    desc:
+      en: |
+        Scans the binary for a specific, user-defined sequence of raw bytes. 
+        This is perfect for finding hardcoded secrets, specific developer strings, or unique byte patterns across a file. 
+        The sequence should be provided in hex format within quotes.
+      tr: |
+        İkili dosyayı kullanıcı tanımlı belirli bir ham bayt dizisine karşı tarar.
+        Bu, sabit kodlanmış gizli bilgileri, belirli geliştirici dizelerini veya dosyadaki benzersiz bayt kalıplarını bulmada mükemmeldir.
+        Dizi tırnak içinde hex biçiminde verilmelidir.
     command: "binwalk -R {{hex_pattern|'\\x00\\x01\\x02'}} {{file_path}}"
 
   # === FILTERING & LOGGING ===
-  - title: binwalk - include specific signatures only
-    desc: |
-      Only displays results that match the specified string or regular expression. 
-      This filters out irrelevant noise from the signature scan, allowing you to focus on specific components like bootloaders or kernel images. 
-      It is an excellent way to clean up output for reporting.
+  - title:
+      en: binwalk - include specific signatures only
+      tr: binwalk - yalnızca belirli imzaları dahil etme
+    desc:
+      en: |
+        Only displays results that match the specified string or regular expression. 
+        This filters out irrelevant noise from the signature scan, allowing you to focus on specific components like bootloaders or kernel images. 
+        It is an excellent way to clean up output for reporting.
+      tr: |
+        Yalnızca belirtilen dize veya düzenli ifadeyle eşleşen sonuçları gösterir.
+        Bu, imza taramasındaki ilgisiz gürültüyü filtreleyip önyükleyici veya çekirdek imajları gibi belirli bileşenlere odaklanmanıza olanak tanır.
+        Raporlama için çıktıyı temizlemenin mükemmel yoludur.
     command: "binwalk -y {{filter_text|'filesystem'}} {{file_path}}"
 
-  - title: binwalk - exclude specific signatures
-    desc: |
-      Excludes results that match the specified string from the scan output. 
-      This is useful when a file contains many repetitive false positives or known uninteresting data types. 
-      It helps in identifying unique or unusual headers that might otherwise be buried.
+  - title:
+      en: binwalk - exclude specific signatures
+      tr: binwalk - belirli imzaları hariç tutma
+    desc:
+      en: |
+        Excludes results that match the specified string from the scan output. 
+        This is useful when a file contains many repetitive false positives or known uninteresting data types. 
+        It helps in identifying unique or unusual headers that might otherwise be buried.
+      tr: |
+        Taramadan belirtilen dizeyle eşleşen sonuçları hariç tutar.
+        Bu, bir dosya çok sayıda tekrarlı yanlış pozitif veya bilinen ilgisiz veri türleri içerdiğinde yararlıdır.
+        Aksi halde gömülü kalabilecek benzersiz veya olağandışı başlıkları belirlemeye yardımcı olur.
     command: "binwalk -x {{exclude_text|'invalid'}} {{file_path}}"
 
-  - title: binwalk - log results to csv
-    desc: |
-      Logs all scan results to a file in CSV format for later analysis. 
-      This is ideal for automated workflows or for importing data into spreadsheets for documentation. 
-      It captures the offset, description, and other metadata in a structured way.
+  - title:
+      en: binwalk - log results to csv
+      tr: binwalk - sonuçları csv'ye kaydetme
+    desc:
+      en: |
+        Logs all scan results to a file in CSV format for later analysis. 
+        This is ideal for automated workflows or for importing data into spreadsheets for documentation. 
+        It captures the offset, description, and other metadata in a structured way.
+      tr: |
+        Tüm tarama sonuçlarını ileride analiz için CSV biçiminde dosyaya kaydeder.
+        Bu, otomatik iş akışları veya belgeleme için veriyi tablolara aktarmakta idealdir.
+        Ofset, açıklama ve diğer üstveriyi yapısal şekilde yakalar.
     command: "binwalk -c -f {{log_file|results.csv}} {{file_path}}"
 
-  - title: binwalk - scan specific range
-    desc: |
-      Starts the scan at a specific offset and limits the number of bytes read. 
-      This is crucial when dealing with extremely large images where you only suspect interesting data in a certain region. 
-      It saves time and system resources by ignoring the rest of the file.
+  - title:
+      en: binwalk - scan specific range
+      tr: binwalk - belirli aralığı tarama
+    desc:
+      en: |
+        Starts the scan at a specific offset and limits the number of bytes read. 
+        This is crucial when dealing with extremely large images where you only suspect interesting data in a certain region. 
+        It saves time and system resources by ignoring the rest of the file.
+      tr: |
+        Taramayı belirli bir ofsette başlatıp okunan bayt sayısını sınırlar.
+        Bu, yalnızca belirli bir bölgede ilginç veri olduğundan şüphelendiğiniz aşırı büyük imajlarla uğraşırken kritiktir.
+        Dosyanın geri kalanını yoksayarak zaman ve sistem kaynağı tasarrufu sağlar.
     command: "binwalk -o {{start_offset|0x100}} -l {{length|1024}} {{file_path}}"

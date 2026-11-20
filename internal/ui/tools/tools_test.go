@@ -33,7 +33,7 @@ func manyCheats(n int) []*model.Cheat {
 	for i := range n {
 		cheats = append(cheats, &model.Cheat{
 			Tool:    fmt.Sprintf("tool-%03d", i),
-			Title:   fmt.Sprintf("cmd %d", i),
+			Title:   model.NewText(fmt.Sprintf("cmd %d", i)),
 			Command: "run it",
 		})
 	}

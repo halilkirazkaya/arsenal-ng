@@ -3,67 +3,130 @@ tags: [active-directory, ldap, pentest, security, exploitation, impacket, privil
 
 actions:
   # === RECONNAISSANCE & READING ===
-  - title: impacket-owneredit - read owner of a target object
-    desc: |
-      This command is used to retrieve the current owner of a specific Active Directory object by its sAMAccountName. 
-      It is a critical first step during reconnaissance to identify if an object is owned by a specific user, which might lead to privilege escalation.
-      The output will display the owner's SID and Distinguished Name (DN).
+  - title:
+      en: impacket-owneredit - read owner of a target object
+      tr: impacket-owneredit - hedef nesnenin sahibini okuma
+    desc:
+      en: |
+        This command is used to retrieve the current owner of a specific Active Directory object by its sAMAccountName. 
+        It is a critical first step during reconnaissance to identify if an object is owned by a specific user, which might lead to privilege escalation.
+        The output will display the owner's SID and Distinguished Name (DN).
+      tr: |
+        Bu komut, sAMAccountName ile belirtilen belirli bir Active Directory nesnesinin mevcut sahibini alır.
+        Nesnenin belirli bir kullanıcıya ait olup olmadığını belirlemek için keşifte kritik ilk adımdır; bu, yetki yükseltmeye yol açabilir.
+        Çıktı, sahibin SID değerini ve Ayırt Edici Adını (DN) gösterir.
     command: "impacket-owneredit -target {{target_name}} -action read {{domain}}/{{username}}:{{password}}"
 
-  - title: impacket-owneredit - read owner using SID
-    desc: |
-      This command identifies the owner of a target object by providing the target's Security Identifier (SID) instead of a name.
-      Use this when the sAMAccountName is unknown or when dealing with objects that do not have standard naming conventions.
-      Targeting by SID is often more precise in complex environments with multiple domains or renamed accounts.
+  - title:
+      en: impacket-owneredit - read owner using SID
+      tr: impacket-owneredit - SID ile sahip okuma
+    desc:
+      en: |
+        This command identifies the owner of a target object by providing the target's Security Identifier (SID) instead of a name.
+        Use this when the sAMAccountName is unknown or when dealing with objects that do not have standard naming conventions.
+        Targeting by SID is often more precise in complex environments with multiple domains or renamed accounts.
+      tr: |
+        Bu komut, hedefin Güvenlik Tanımlayıcısını (SID) vererek nesnenin sahibini belirler.
+        sAMAccountName bilinmediğinde veya standart adlandırma kurallarına uymayan nesnelerle uğraşırken kullanın.
+        Karmaşık çok etki alanlı ortamlarda SID ile hedefleme genellikle daha hassastır.
     command: "impacket-owneredit -target-sid {{target_sid}} -action read {{domain}}/{{username}}:{{password}}"
 
-  - title: impacket-owneredit - read owner using Distinguished Name (DN)
-    desc: |
-      This command retrieves the owner of an object identified by its full Distinguished Name (DN).
-      This is particularly useful for targeting specific Organizational Units (OUs) or containers that might not have a sAMAccountName.
-      Ensure the DN is correctly escaped if it contains special characters like commas or spaces.
+  - title:
+      en: impacket-owneredit - read owner using Distinguished Name (DN)
+      tr: impacket-owneredit - Ayırt Edici Ad (DN) ile sahip okuma
+    desc:
+      en: |
+        This command retrieves the owner of an object identified by its full Distinguished Name (DN).
+        This is particularly useful for targeting specific Organizational Units (OUs) or containers that might not have a sAMAccountName.
+        Ensure the DN is correctly escaped if it contains special characters like commas or spaces.
+      tr: |
+        Bu komut, tam Ayırt Edici Adıyla (DN) belirlenen nesnenin sahibini alır.
+        sAMAccountName'i olmayan belirli Kuruluş Birimlerini (OU) veya kapsayıcıları hedeflemek için özellikle kullanışlıdır.
+        Virgül veya boşluk gibi özel karakterler içeriyorsa DN'in doğru kaçırıldığından emin olun.
     command: "impacket-owneredit -target-dn {{target_dn}} -action read {{domain}}/{{username}}:{{password}}"
 
   # === EXPLOITATION & WRITING ===
-  - title: impacket-owneredit - change owner of a target object
-    desc: |
-      This action modifies the owner attribute of a target object to a new principal specified by their sAMAccountName.
-      Changing the owner is a powerful technique because the owner of an object can typically grant themselves full control over it, regardless of existing DACL restrictions.
-      This requires the attacker to have 'Write Owner' permissions on the target object.
+  - title:
+      en: impacket-owneredit - change owner of a target object
+      tr: impacket-owneredit - hedef nesnenin sahibini değiştirme
+    desc:
+      en: |
+        This action modifies the owner attribute of a target object to a new principal specified by their sAMAccountName.
+        Changing the owner is a powerful technique because the owner of an object can typically grant themselves full control over it, regardless of existing DACL restrictions.
+        This requires the attacker to have 'Write Owner' permissions on the target object.
+      tr: |
+        Bu eylem, sAMAccountName ile belirtilen yeni asıl kullanıcıya hedef nesnenin sahiplik özniteliğini değiştirir.
+        Sahibi değiştirmek güçlü bir tekniktir çünkü nesnenin sahibi, mevcut DACL kısıtlamalarından bağımsız olarak kendine tam denetim verebilir.
+        Saldırganın hedef nesnede 'Sahibi Yazma' iznine sahip olması gerekir.
     command: "impacket-owneredit -target {{target_name}} -new-owner {{new_owner_name}} -action write {{domain}}/{{username}}:{{password}}"
 
-  - title: impacket-owneredit - set new owner using SID
-    desc: |
-      This command sets a new owner for a target object using the new owner's Security Identifier (SID).
-      This is useful if you want to assign ownership to a well-known SID (like Domain Admins) or a specific user whose name you haven't resolved.
-      Note that setting a new owner may trigger alerts in environments with active Directory auditing.
+  - title:
+      en: impacket-owneredit - set new owner using SID
+      tr: impacket-owneredit - SID ile yeni sahip ayarlama
+    desc:
+      en: |
+        This command sets a new owner for a target object using the new owner's Security Identifier (SID).
+        This is useful if you want to assign ownership to a well-known SID (like Domain Admins) or a specific user whose name you haven't resolved.
+        Note that setting a new owner may trigger alerts in environments with active Directory auditing.
+      tr: |
+        Bu komut, yeni sahibin Güvenlik Tanımlayıcısını (SID) kullanarak hedef nesneye yeni sahip atar.
+        Adını çözümlemediğiniz belirli bir kullanıcıya veya iyi bilinen bir SID'e (Domain Admins gibi) sahiplik vermek istiyorsanız kullanışlıdır.
+        Aktif Dizin denetimi olan ortamlarda yeni sahip ayarlamanın uyarı tetikleyebileceğini unutmayın.
     command: "impacket-owneredit -target {{target_name}} -new-owner-sid {{new_owner_sid}} -action write {{domain}}/{{username}}:{{password}}"
 
   # === AUTHENTICATION & CONNECTION ===
-  - title: impacket-owneredit - authentication using NTLM hashes
-    desc: |
-      This command allows performing owner operations by authenticating with NTLM hashes instead of a cleartext password.
-      This is standard practice in pass-the-hash scenarios where you have compromised a local admin or service account hash.
-      The format for the hashes parameter must be LMHASH:NTHASH.
+  - title:
+      en: impacket-owneredit - authentication using NTLM hashes
+      tr: impacket-owneredit - NTLM hash'leriyle kimlik doğrulama
+    desc:
+      en: |
+        This command allows performing owner operations by authenticating with NTLM hashes instead of a cleartext password.
+        This is standard practice in pass-the-hash scenarios where you have compromised a local admin or service account hash.
+        The format for the hashes parameter must be LMHASH:NTHASH.
+      tr: |
+        Bu komut, açık parola yerine NTLM hash'leriyle kimlik doğrulayarak sahip işlemleri yapar.
+        Yerel yönetici veya hizmet hesabı hash'ini ele geçirdiğinizde standart pass-the-hash uygulamasıdır.
+        hashes parametresinin biçimi LMHASH:NTHASH olmalıdır.
     command: "impacket-owneredit -target {{target_name}} -hashes {{lmhash:nthash}} -action read {{domain}}/{{username}}"
 
-  - title: impacket-owneredit - authenticate using Kerberos (Pass-the-Ticket)
-    desc: |
-      This command uses Kerberos authentication to interact with the Domain Controller.
-      It expects a valid Kerberos ticket (CCACHE) to be present in the environment (e.g., via KRB5CCNAME variable).
-      Using Kerberos is often more stealthy than NTLM and is required in environments where NTLM authentication is disabled.
+  - title:
+      en: impacket-owneredit - authenticate using Kerberos (Pass-the-Ticket)
+      tr: impacket-owneredit - Kerberos ile kimlik doğrulama (Pass-the-Ticket)
+    desc:
+      en: |
+        This command uses Kerberos authentication to interact with the Domain Controller.
+        It expects a valid Kerberos ticket (CCACHE) to be present in the environment (e.g., via KRB5CCNAME variable).
+        Using Kerberos is often more stealthy than NTLM and is required in environments where NTLM authentication is disabled.
+      tr: |
+        Bu komut, Etki Alanı Denetleyicisiyle etkileşimde Kerberos kimlik doğrulaması kullanır.
+        Ortamda geçerli bir Kerberos biletinin (CCACHE) bulunmasını bekler (ör. KRB5CCNAME değişkeniyle).
+        Kerberos kullanmak genellikle NTLM'den daha gizlidir ve NTLM kimlik doğrulamasının devre dışı olduğu ortamlarda gereklidir.
     command: "impacket-owneredit -k -no-pass -dc-ip {{dc_ip}} -target {{target_name}} -action read {{domain}}/{{username}}"
 
-  - title: impacket-owneredit - secure connection via LDAPS
-    desc: |
-      Forces the tool to use LDAP over SSL/TLS (LDAPS) for communication with the Domain Controller.
-      Modern Active Directory environments often enforce LDAP signing and encryption, making standard LDAP connections fail.
-      Using LDAPS ensures that sensitive data, including potential credentials or object SIDs, are encrypted in transit.
+  - title:
+      en: impacket-owneredit - secure connection via LDAPS
+      tr: impacket-owneredit - LDAPS ile güvenli bağlantı
+    desc:
+      en: |
+        Forces the tool to use LDAP over SSL/TLS (LDAPS) for communication with the Domain Controller.
+        Modern Active Directory environments often enforce LDAP signing and encryption, making standard LDAP connections fail.
+        Using LDAPS ensures that sensitive data, including potential credentials or object SIDs, are encrypted in transit.
+      tr: |
+        Etki Alanı Denetleyicisiyle iletişimde LDAP over SSL/TLS (LDAPS) kullanımını zorlar.
+        Modern Active Directory ortamları LDAP imzalama ve şifrelemeyi sıkça zorunlu kılar; standart LDAP bağlantıları başarısız olur.
+        LDAPS kullanmak, olası kimlik bilgileri veya nesne SID'leri gibi hassas verilerin aktarımda şifrelenmesini sağlar.
     command: "impacket-owneredit -use-ldaps -dc-ip {{dc_ip}} -target {{target_name}} -action read {{domain}}/{{username}}:{{password}}"
 
-  - title: impacket-owneredit - debug mode for troubleshooting
-    desc: |
-      Runs the tool with the -debug flag to provide verbose output regarding the LDAP connection and response.
-      This is extremely helpful for troubleshooting authentication failures, permission denied errors, or network connectivity issues.
-      It will show the underlying LDAP queries and response codes from the Domain Controller.
+  - title:
+      en: impacket-owneredit - debug mode for troubleshooting
+      tr: impacket-owneredit - sorun gidermede hata ayıklama modu
+    desc:
+      en: |
+        Runs the tool with the -debug flag to provide verbose output regarding the LDAP connection and response.
+        This is extremely helpful for troubleshooting authentication failures, permission denied errors, or network connectivity issues.
+        It will show the underlying LDAP queries and response codes from the Domain Controller.
+      tr: |
+        LDAP bağlantısı ve yanıtına ilişkin ayrıntılı çıktı için aracı -debug bayrağıyla çalıştırır.
+        Kimlik doğrulama hataları, izin reddi veya ağ bağlantı sorunlarını gidermede son derece yararlıdır.
+        Etki Alanı Denetleyicisinden gelen temel LDAP sorgularını ve yanıt kodlarını gösterir.
     command: "impacket-owneredit -debug -target {{target_name}} -action read {{domain}}/{{username}}:{{password}}"

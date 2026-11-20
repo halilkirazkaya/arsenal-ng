@@ -4,78 +4,148 @@ tags: [network, enumeration, security, pentest, monitoring, snmp]
 actions:
 # === BASIC ENUMERATION (SNMP v1/v2c) ===
 
- - title: snmpwalk - basic walk v2c
-   desc: |
-     Perform a recursive SNMP query starting from the root OID using SNMP version 2c. 
-     This is the most common method to enumerate system information, network interfaces, and running processes on a device. 
-     Ensure you have the correct community string, as 'public' is the most frequent default but may be restricted or disabled.
+ - title:
+     en: snmpwalk - basic walk v2c
+     tr: snmpwalk - temel v2c taraması
+   desc:
+     en: |
+       Perform a recursive SNMP query starting from the root OID using SNMP version 2c. 
+       This is the most common method to enumerate system information, network interfaces, and running processes on a device. 
+       Ensure you have the correct community string, as 'public' is the most frequent default but may be restricted or disabled.
+     tr: |
+       Kök OID'den başlayarak SNMP 2c sürümüyle özyinelemeli sorgu yapar.
+       Cihazdaki sistem bilgisi, ağ arayüzleri ve çalışan işlemleri numaralandırmanın en yaygın yöntemidir.
+       Doğru community dizesine sahip olduğunuzdan emin olun; 'public' en yaygın varsayılandır.
    command: "snmpwalk -v 2c -c {{community|public}} {{target}}"
 
- - title: snmpwalk - basic walk v1
-   desc: |
-     Execute an SNMP walk using version 1 protocol. 
-     Use this command for legacy devices that do not support the newer v2c or v3 features. 
-     While less efficient than v2c, it is often successful on older industrial or networking hardware during reconnaissance.
+ - title:
+     en: snmpwalk - basic walk v1
+     tr: snmpwalk - temel v1 taraması
+   desc:
+     en: |
+       Execute an SNMP walk using version 1 protocol. 
+       Use this command for legacy devices that do not support the newer v2c or v3 features. 
+       While less efficient than v2c, it is often successful on older industrial or networking hardware during reconnaissance.
+     tr: |
+       1. sürüm protokolüyle SNMP taraması yürütür.
+       Daha yeni v2c veya v3 özelliklerini desteklemeyen eski cihazlar için bu komutu kullanın.
+       v2c kadar verimli olmasa da keşif sırasında eski endüstriyel veya ağ donanımlarında genelde başarılıdır.
    command: "snmpwalk -v 1 -c {{community|public}} {{target}}"
 
- - title: snmpwalk - numerical OIDs
-   desc: |
-     Display the output using numerical OIDs instead of translating them to human-readable names. 
-     This is useful when the local system lacks the necessary MIB files to translate the data. 
-     It provides a raw look at the data structure, which is essential for scripting or manual OID analysis.
+ - title:
+     en: snmpwalk - numerical OIDs
+     tr: snmpwalk - sayısal OID'ler
+   desc:
+     en: |
+       Display the output using numerical OIDs instead of translating them to human-readable names. 
+       This is useful when the local system lacks the necessary MIB files to translate the data. 
+       It provides a raw look at the data structure, which is essential for scripting or manual OID analysis.
+     tr: |
+       Çıktıyı okunabilir adlara çevirmeden sayısal OID'lerle gösterir.
+       Yerel sistemde veriyi çeviren gerekli MIB dosyaları yoksa yararlıdır.
+       Veri yapısının ham görünümünü verir; betikleme veya manuel OID analizi için gereklidir.
    command: "snmpwalk -v 2c -c {{community|public}} -n {{target}}"
 
 # === SNMP VERSION 3 (AUTHENTICATED) ===
 
- - title: snmpwalk - v3 authentication without privacy
-   desc: |
-     Query a target using SNMPv3 with the authNoPriv security level. 
-     This level provides identity verification through a username and an authentication passphrase but does not encrypt the data. 
-     It is typically used in environments that require user accountability without the CPU overhead of full encryption.
+ - title:
+     en: snmpwalk - v3 authentication without privacy
+     tr: snmpwalk - gizliliksiz v3 kimlik doğrulama
+   desc:
+     en: |
+       Query a target using SNMPv3 with the authNoPriv security level. 
+       This level provides identity verification through a username and an authentication passphrase but does not encrypt the data. 
+       It is typically used in environments that require user accountability without the CPU overhead of full encryption.
+     tr: |
+       Hedefi, kimlik doğrulama ama gizlilik içermeyen authNoPriv güvenlik düzeyiyle sorgular.
+       Bu düzey, kullanıcı adı ve parolayla kimlik doğrulaması sağlar ama veriyi şifrelemez.
+       Hesap verilebilirlik istenen ancak tam şifrelemenin CPU yükünden kaçınılan ortamlarda kullanılır.
    command: "snmpwalk -v 3 -l authNoPriv -u {{username}} -a {{auth_proto|SHA}} -A {{auth_passphrase}} {{target}}"
 
- - title: snmpwalk - v3 authentication and privacy
-   desc: |
-     Query a target using the highest security level (authPriv) available in SNMPv3. 
-     This ensures that the SNMP traffic is protected against both spoofing and eavesdropping by using both authentication and encryption. 
-     You must specify the authentication protocol (MD5/SHA) and the privacy protocol (DES/AES) along with their respective passwords.
+ - title:
+     en: snmpwalk - v3 authentication and privacy
+     tr: snmpwalk - kimlik doğrulamalı ve gizlilikli v3
+   desc:
+     en: |
+       Query a target using the highest security level (authPriv) available in SNMPv3. 
+       This ensures that the SNMP traffic is protected against both spoofing and eavesdropping by using both authentication and encryption. 
+       You must specify the authentication protocol (MD5/SHA) and the privacy protocol (DES/AES) along with their respective passwords.
+     tr: |
+       Hedefi SNMPv3'teki en yüksek güvenlik düzeyiyle (authPriv) sorgular.
+       Hem kimlik doğrulama hem şifreleme kullanarak SNMP trafiğini sahteciliğe ve gizli dinlemeye karşı korur.
+       Kimlik doğrulama (MD5/SHA) ve gizlilik (DES/AES) protokollerini parolalarıyla birlikte belirtmelisiniz.
    command: "snmpwalk -v 3 -l authPriv -u {{username}} -a {{auth_proto|SHA}} -A {{auth_passphrase}} -x {{priv_proto|AES}} -X {{priv_passphrase}} {{target}}"
 
 # === TARGETED QUERIES AND MIB HANDLING ===
 
- - title: snmpwalk - walk specific OID
-   desc: |
-     Start the SNMP walk from a specific OID branch instead of the entire tree. 
-     This is highly efficient when you are only interested in a specific category of data, such as interface statistics or process lists. 
-     It reduces the time taken to complete the walk and minimizes unnecessary network traffic to the target agent.
+ - title:
+     en: snmpwalk - walk specific OID
+     tr: snmpwalk - belirli OID taraması
+   desc:
+     en: |
+       Start the SNMP walk from a specific OID branch instead of the entire tree. 
+       This is highly efficient when you are only interested in a specific category of data, such as interface statistics or process lists. 
+       It reduces the time taken to complete the walk and minimizes unnecessary network traffic to the target agent.
+     tr: |
+       SNMP taramasını tüm ağaç yerine belirli bir OID dalından başlatır.
+       Yalnızca arayüz istatistikleri veya işlem listeleri gibi belirli bir veri kategorisiyle ilgilenirken oldukça verimlidir.
+       Taramayı hızlandırır ve hedef aracıya giden gereksiz ağ trafiğini azaltır.
    command: "snmpwalk -v 2c -c {{community|public}} {{target}} {{oid}}"
 
- - title: snmpwalk - load all MIBs
-   desc: |
-     Force the tool to load all available MIB files stored in the system directories during the walk. 
-     This ensures that the output contains human-readable labels for as many objects as possible. 
-     Use this when the standard output contains too many numerical strings that are difficult to interpret manually.
+ - title:
+     en: snmpwalk - load all MIBs
+     tr: snmpwalk - tüm MIB'leri yükleme
+   desc:
+     en: |
+       Force the tool to load all available MIB files stored in the system directories during the walk. 
+       This ensures that the output contains human-readable labels for as many objects as possible. 
+       Use this when the standard output contains too many numerical strings that are difficult to interpret manually.
+     tr: |
+       Tarama sırasında sistem dizinlerindeki tüm MIB dosyalarını yüklemeye zorlar.
+       Çıktıda olabildiğince çok nesnenin okunabilir etiketle görünmesini sağlar.
+       Standart çıktı yorumlanması zor çok sayıda sayısal dize içerdiğinde kullanın.
    command: "snmpwalk -v 2c -c {{community|public}} -m ALL {{target}}"
 
- - title: snmpwalk - enumerate system information
-   desc: |
-     Specifically target the system MIB group (OID 1.3.6.1.2.1.1) to gather basic host details. 
-     The resulting output usually includes the device description, system uptime, administrator contact, and the hostname. 
-     This is a standard first step in fingerprinting an unknown network device via SNMP.
+ - title:
+     en: snmpwalk - enumerate system information
+     tr: snmpwalk - sistem bilgisi numaralandırma
+   desc:
+     en: |
+       Specifically target the system MIB group (OID 1.3.6.1.2.1.1) to gather basic host details. 
+       The resulting output usually includes the device description, system uptime, administrator contact, and the hostname. 
+       This is a standard first step in fingerprinting an unknown network device via SNMP.
+     tr: |
+       Sistem MIB grubunu (OID 1.3.6.2.1.1) özellikle hedefleyerek temel makine ayrıntılarını toplar.
+       Çıktı genelde cihaz açıklaması, çalışma süresi, yönetici iletişim bilgisi ve makine adını içerir.
+       SNMP ile bilinmeyen bir ağ cihazını tanımada standart ilk adımdır.
    command: "snmpwalk -v 2c -c {{community|public}} {{target}} 1.3.6.1.2.1.1"
 
 # === OUTPUT FORMATTING ===
 
- - title: snmpwalk - quick print format
-   desc: |
-     Format the output for easier parsing by removing unnecessary information from the display. 
-     Using the -Oq flag strips away the OID type and other metadata, leaving a cleaner 'OID = value' format. 
-     This is particularly helpful when you intend to pipe the output into other command-line tools like grep, awk, or sed.
+ - title:
+     en: snmpwalk - quick print format
+     tr: snmpwalk - hızlı yazdırma biçimi
+   desc:
+     en: |
+       Format the output for easier parsing by removing unnecessary information from the display. 
+       Using the -Oq flag strips away the OID type and other metadata, leaving a cleaner 'OID = value' format. 
+       This is particularly helpful when you intend to pipe the output into other command-line tools like grep, awk, or sed.
+     tr: |
+       Gereksiz bilgileri kaldırarak çıktıyı kolay ayrıştırılabilir biçimde düzenler.
+       -Oq flag'i OID türü ve üstveriyi kaldırıp temiz bir 'OID = değer' biçimi bırakır.
+       Çıktıyı grep, awk veya sed gibi araçlara aktaracaksanız özellikle yararlıdır.
    command: "snmpwalk -v 2c -c {{community|public}} -Oq {{target}}"
 
- - title: snmpwalk - hexadecimal string output
-   desc: |
-     Force all string values to be displayed in hexadecimal format. 
-     This is useful when the agent returns non-printable characters or data that is misinterpreted as standard ASCII. 
-     It is often used when debugging custom MIBs or examining binary data embedded in SNMP strings.
+ - title:
+     en: snmpwalk - hexadecimal string output
+     tr: snmpwalk - onaltılık dize çıktısı
+   desc:
+     en: |
+       Force all string values to be displayed in hexadecimal format. 
+       This is useful when the agent returns non-printable characters or data that is misinterpreted as standard ASCII. 
+       It is often used when debugging custom MIBs or examining binary data embedded in SNMP strings.
+     tr: |
+       Tüm dize değerlerini onaltılık biçimde göstermeye zorlar.
+       Aracı yazdırılamayan karakterler veya ASCII dışı yorumlanan veri döndürdüğünde yararlıdır.
+       Özel MIB'leri ayıklarken veya SNMP dizelerine gömülü ikili veriyi incelerken sık kullanılır.
    command: "snmpwalk -v 2c -c {{community|public}} -Ox {{target}}"

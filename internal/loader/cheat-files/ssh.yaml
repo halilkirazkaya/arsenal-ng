@@ -3,70 +3,161 @@ tags: [network, security, pentest, authentication, enumeration, exploitation, fi
 
 actions:
   # === BASIC USAGE ===
-  - title: ssh - basic connection
-    desc: |
-      Establish a standard secure shell connection to a remote host. This is the primary method for accessing a remote terminal securely over an unencrypted network. It will use the default port 22 and attempt authentication with the current local username unless specified otherwise.
+  - title:
+      en: ssh - basic connection
+      tr: ssh - temel bağlantı
+    desc:
+      en: |
+        Establish a standard secure shell connection to a remote host. This is the primary method for accessing a remote terminal securely over an unencrypted network. It will use the default port 22 and attempt authentication with the current local username unless specified otherwise.
+      tr: |
+        Uzak makineye standart güvenli kabuk bağlantısı kurar.
+        Güvensiz ağ üzerinden uzak terminale erişimin birincil yöntemidir.
+        Varsayılan 22 portunu kullanır ve aksi belirtilmedikçe yerel kullanıcı adınızla kimlik doğrulamayı dener.
     command: "ssh {{user}}@{{host}}"
 
-  - title: ssh - connection on specific port
-    desc: |
-      Connect to a remote server that is listening on a non-standard SSH port. Administrators often change the default port from 22 to a random high port to reduce the noise from automated brute-force bots. Always ensure the target port is open in the firewall before attempting the connection.
+  - title:
+      en: ssh - connection on specific port
+      tr: ssh - belirli port üzerinden bağlantı
+    desc:
+      en: |
+        Connect to a remote server that is listening on a non-standard SSH port. Administrators often change the default port from 22 to a random high port to reduce the noise from automated brute-force bots. Always ensure the target port is open in the firewall before attempting the connection.
+      tr: |
+        SSH'in standart dışı bir portta dinlediği uzak sunucuya bağlanır.
+        Yöneticiler otomatik bot tarama gürültüsünü azaltmak için varsayılan 22 portunu rastgele yüksek portlarla değiştirir.
+        Bağlanmadan önce hedef portun güvenlik duvarında açık olduğundan emin olun.
     command: "ssh -p {{port|2222}} {{user}}@{{host}}"
 
-  - title: ssh - connection using private key
-    desc: |
-      Authenticate to a remote server using a specific SSH private key file. This is significantly more secure than password authentication and is mandatory for most cloud providers like AWS or GCP. The private key file must have restricted permissions (typically chmod 600) or the client will refuse to use it for security reasons.
+  - title:
+      en: ssh - connection using private key
+      tr: ssh - özel anahtarla bağlantı
+    desc:
+      en: |
+        Authenticate to a remote server using a specific SSH private key file. This is significantly more secure than password authentication and is mandatory for most cloud providers like AWS or GCP. The private key file must have restricted permissions (typically chmod 600) or the client will refuse to use it for security reasons.
+      tr: |
+        Belirli bir SSH özel anahtar dosyasıyla uzak sunucuda kimlik doğrular.
+        Parola kimlik doğrulamasından ciddi ölçüde güvenlidir ve çoğu bulut sağlayıcıda zorunludur.
+        Özel anahtar dosyasının kısıtlı izinlere sahip olması gerekir (genelde chmod 600), yoksa istemci güvenlik gerekçesiyle kullanmayı reddeder.
     command: "ssh -i {{identity_file|~/.ssh/id_rsa}} {{user}}@{{host}}"
 
-  - title: ssh - execute remote command
-    desc: |
-      Run a single command or script on the remote host without opening a persistent interactive shell. The command executes, the output is returned to your local terminal, and the connection is immediately terminated. This is highly useful for automation, cron jobs, or quick system checks across multiple servers.
+  - title:
+      en: ssh - execute remote command
+      tr: ssh - uzak komut çalıştırma
+    desc:
+      en: |
+        Run a single command or script on the remote host without opening a persistent interactive shell. The command executes, the output is returned to your local terminal, and the connection is immediately terminated. This is highly useful for automation, cron jobs, or quick system checks across multiple servers.
+      tr: |
+        Kalıcı etkileşimli kabuk açmadan uzak makinede tek bir komut çalıştırır.
+        Komut çalışır, çıktısı yerel terminalinize döner ve bağlantı hemen kapatılır.
+        Otomasyon, cron işleri veya çok sayıda sunucuda hızlı sistem kontrolleri için oldukça yararlıdır.
     command: "ssh {{user}}@{{host}} \"{{remote_command|uptime}}\""
 
   # === PORT FORWARDING & TUNNELING ===
-  - title: ssh - local port forwarding
-    desc: |
-      Forward a local port on your machine to a specific port on the remote server or a host reachable by that server. This creates a secure tunnel that allows you to access internal services like databases or web panels that are not exposed to the public internet. Traffic sent to the local port is encrypted and tunneled through the SSH connection.
+  - title:
+      en: ssh - local port forwarding
+      tr: ssh - yerel port yönlendirme
+    desc:
+      en: |
+        Forward a local port on your machine to a specific port on the remote server or a host reachable by that server. This creates a secure tunnel that allows you to access internal services like databases or web panels that are not exposed to the public internet. Traffic sent to the local port is encrypted and tunneled through the SSH connection.
+      tr: |
+        Makinenizdeki yerel bir portu, uzak sunucudaki veya onun erişebildiği bir makinedeki belirli bir porta iletir.
+        İnternete açık olmayan veritabanı veya web paneli gibi iç servislere erişen güvenli bir tünel oluşturur.
+        Yerel porta gelen trafik şifrelenerek SSH bağlantısı üzerinden tünellenir.
     command: "ssh -L {{local_port|8080}}:{{remote_destination|127.0.0.1}}:{{remote_port|80}} {{user}}@{{host}}"
 
-  - title: ssh - remote port forwarding
-    desc: |
-      Forward a port from the remote server back to a port on your local machine. This allows users on the remote server or external network to access a service running on your local workstation. Note that the 'GatewayPorts' option must be enabled in the remote server's sshd_config for the port to be accessible from other external machines.
+  - title:
+      en: ssh - remote port forwarding
+      tr: ssh - uzak port yönlendirme
+    desc:
+      en: |
+        Forward a port from the remote server back to a port on your local machine. This allows users on the remote server or external network to access a service running on your local workstation. Note that the 'GatewayPorts' option must be enabled in the remote server's sshd_config for the port to be accessible from other external machines.
+      tr: |
+        Uzak sunucudaki bir portu makinenizdeki yerel bir porta iletir.
+        Uzak sunucudaki veya dış ağdaki kullanıcıların yerel makinenizde çalışan bir servise erişmesini sağlar.
+        Portun dış makinelerden erişilebilir olması için uzak sunucunun sshd_config dosyasında 'GatewayPorts' seçeneğinin etkin olması gerekir.
     command: "ssh -R {{remote_port|9090}}:{{local_destination|127.0.0.1}}:{{local_port|80}} {{user}}@{{host}}"
 
-  - title: ssh - dynamic port forwarding
-    desc: |
-      Create a SOCKS proxy on your local machine that tunnels all traffic through the remote SSH server. This is a powerful technique for bypassing restrictive firewalls or masking your original IP address by routing traffic through the remote host. Most modern web browsers and networking tools can be configured to use this SOCKS proxy.
+  - title:
+      en: ssh - dynamic port forwarding
+      tr: ssh - dinamik port yönlendirme
+    desc:
+      en: |
+        Create a SOCKS proxy on your local machine that tunnels all traffic through the remote SSH server. This is a powerful technique for bypassing restrictive firewalls or masking your original IP address by routing traffic through the remote host. Most modern web browsers and networking tools can be configured to use this SOCKS proxy.
+      tr: |
+        Makinenizde tüm trafiği uzak SSH sunucusu üzerinden tünelleyen bir SOCKS vekil sunucusu oluşturur.
+        Kısıtlayıcı güvenlik duvarlarını aşmak veya trafiği uzak makine üzerinden yönlendirerek gerçek IP adresinizi gizlemek için güçlü bir tekniktir.
+        Çoğu modern tarayıcı ve ağ aracı bu SOCKS vekilini kullanacak şekilde yapılandırılabilir.
     command: "ssh -D {{proxy_port|1080}} {{user}}@{{host}}"
 
   # === PROXY & MULTI-HOP ===
-  - title: ssh - connection via jump host
-    desc: |
-      Connect to a destination server by bouncing through an intermediate "jump" or bastion host. This is the modern and preferred way to access servers within a private subnet that do not have direct public internet access. The SSH client handles the multi-hop authentication and tunneling automatically in a single command.
+  - title:
+      en: ssh - connection via jump host
+      tr: ssh - atlama makinesi üzerinden bağlantı
+    desc:
+      en: |
+        Connect to a destination server by bouncing through an intermediate "jump" or bastion host. This is the modern and preferred way to access servers within a private subnet that do not have direct public internet access. The SSH client handles the multi-hop authentication and tunneling automatically in a single command.
+      tr: |
+        Ara bir atlama (bastion) makinesi üzerinden hedef sunucuya bağlanır.
+        Doğrudan genel internet erişimi olmayan özel alt ağlardaki sunuculara erişmenin modern ve tercih edilen yoludur.
+        SSH istemcisi çok atlamalı kimlik doğrulama ve tünellemeyi tek komutta otomatik yönetir.
     command: "ssh -J {{jump_user}}@{{jump_host}} {{user}}@{{host}}"
 
-  - title: ssh - reverse shell/proxy via jump host (ProxyCommand)
-    desc: |
-      Establish a connection using a proxy command to reach the target. This is useful for older versions of SSH that do not support the -J flag or for complex routing scenarios involving tools like netcat (nc). It allows the client to pipe the connection through a secondary process to reach the final destination.
+  - title:
+      en: ssh - reverse shell/proxy via jump host (ProxyCommand)
+      tr: ssh - vekil komutla atlama makinesi üzerinden kabuk
+    desc:
+      en: |
+        Establish a connection using a proxy command to reach the target. This is useful for older versions of SSH that do not support the -J flag or for complex routing scenarios involving tools like netcat (nc). It allows the client to pipe the connection through a secondary process to reach the final destination.
+      tr: |
+        Hedefe ulaşmak için bir vekil komut kullanan bağlantı kurar.
+        -J flag'ini desteklemeyen eski SSH sürümleri veya netcat (nc) içeren karmaşık yönlendirme senaryoları için yararlıdır.
+        İstemcinin bağlantıyı ikincil bir süreç üzerinden taşıyarak nihai hedefe ulaşmasını sağlar.
     command: "ssh -o ProxyCommand=\"ssh -W %h:%p {{jump_host}}\" {{user}}@{{host}}"
 
   # === ADVANCED OPTIONS & DEBUGGING ===
-  - title: ssh - enable X11 forwarding
-    desc: |
-      Forward the X11 graphical protocol from the remote server to your local machine. This allows you to run GUI-based Linux applications on the server and interact with them in a window on your local desktop. You must have an X server (like XQuartz or VcXsrv) running locally for the window to render correctly.
+  - title:
+      en: ssh - enable X11 forwarding
+      tr: ssh - X11 yönlendirmeyi etkinleştirme
+    desc:
+      en: |
+        Forward the X11 graphical protocol from the remote server to your local machine. This allows you to run GUI-based Linux applications on the server and interact with them in a window on your local desktop. You must have an X server (like XQuartz or VcXsrv) running locally for the window to render correctly.
+      tr: |
+        Uzak sunucudaki grafiksel X11 protokolünü yerel makinenize iletir.
+        Sunucuda GUI tabanlı Linux uygulamaları çalıştırıp yerel masaüstünüzdeki bir pencerede etkileşim kurmanızı sağlar.
+        Pencerenin doğru çizilmesi için yerel makinede X sunucusu (XQuartz veya VcXsrv gibi) çalışıyor olmalıdır.
     command: "ssh -X {{user}}@{{host}}"
 
-  - title: ssh - verbose debugging mode
-    desc: |
-      Increase the logging level to provide detailed information about the connection process and handshake. This is essential for troubleshooting authentication failures, key exchange issues, or unexpected disconnects. Adding more 'v' characters (up to -vvv) provides even more granular technical details about the SSH protocol exchange.
+  - title:
+      en: ssh - verbose debugging mode
+      tr: ssh - ayrıntılı hata ayıklama kipi
+    desc:
+      en: |
+        Increase the logging level to provide detailed information about the connection process and handshake. This is essential for troubleshooting authentication failures, key exchange issues, or unexpected disconnects. Adding more 'v' characters (up to -vvv) provides even more granular technical details about the SSH protocol exchange.
+      tr: |
+        Bağlantı ve el sıkışma süreci hakkında ayrıntılı bilgi için günlük düzeyini artırır.
+        Kimlik doğrulama hataları, anahtar değişimi sorunları veya beklenmedik kopmaları gidermek için gereklidir.
+        Daha fazla 'v' harfi (en fazla -vvv) SSH protokolü hakkında daha ayrıntılı teknik bilgi verir.
     command: "ssh -v {{user}}@{{host}}"
 
-  - title: ssh - disable host key checking
-    desc: |
-      Connect to a host while skipping the verification of its public key against the known_hosts file. This is useful for automated environments or when frequently rebuilding virtual machines where the host key changes often. Warning: This facilitates Man-in-the-Middle (MITM) attacks and should only be used in trusted or controlled environments.
+  - title:
+      en: ssh - disable host key checking
+      tr: ssh - makine anahtarı denetimini devre dışı bırakma
+    desc:
+      en: |
+        Connect to a host while skipping the verification of its public key against the known_hosts file. This is useful for automated environments or when frequently rebuilding virtual machines where the host key changes often. Warning: This facilitates Man-in-the-Middle (MITM) attacks and should only be used in trusted or controlled environments.
+      tr: |
+        Makine anahtarını known_hosts dosyasına karşı doğrulamayı atlayarak makineye bağlanır.
+        Makine anahtarının sık değiştiği otomatik ortamlar veya sürekli yeniden kurulan sanal makinelerde yararlıdır.
+        Uyarı: Ortadaki Adam (MITM) saldırılarını kolaylaştırır; yalnızca güvenilir veya kontrollü ortamlarda kullanın.
     command: "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null {{user}}@{{host}}"
 
-  - title: ssh - compression and performance
-    desc: |
-      Enable data compression for the SSH session to improve performance on slow or high-latency connections. Compression is applied to all data sent and received, which is particularly beneficial for large text-based outputs or X11 forwarding. On fast local networks, this might actually decrease performance due to the CPU overhead of compression.
+  - title:
+      en: ssh - compression and performance
+      tr: ssh - sıkıştırma ve performans
+    desc:
+      en: |
+        Enable data compression for the SSH session to improve performance on slow or high-latency connections. Compression is applied to all data sent and received, which is particularly beneficial for large text-based outputs or X11 forwarding. On fast local networks, this might actually decrease performance due to the CPU overhead of compression.
+      tr: |
+        Yavaş veya yüksek gecikmeli bağlantılarda performansı artırmak için SSH oturumunda veri sıkıştırmayı etkinleştirir.
+        Gönderilen ve alınan tüm verilere uygulanır; özellikle büyük metin çıktıları veya X11 yönlendirme için faydalıdır.
+        Hızlı yerel ağlarda CPU yükü nedeniyle performansı düşürebilir.
     command: "ssh -C {{user}}@{{host}}"

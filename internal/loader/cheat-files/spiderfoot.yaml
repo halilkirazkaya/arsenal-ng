@@ -3,97 +3,188 @@ tags: [osint, reconnaissance, footprinting, information-gathering, pentest, secu
 
 actions:
   # === BASIC SCANNING & USE CASES ===
-  - title: spiderfoot - passive osint scan
-    desc: |
-      Perform a passive scan to gather intelligence without directly interacting with the target. 
-      This mode is ideal for stealthy reconnaissance as it only queries third-party databases, search engines, and public records. 
-      Use this when you want to avoid appearing in the target's web server or security logs.
+  - title:
+      en: spiderfoot - passive osint scan
+      tr: spiderfoot - pasif OSINT taraması
+    desc:
+      en: |
+        Perform a passive scan to gather intelligence without directly interacting with the target. 
+        This mode is ideal for stealthy reconnaissance as it only queries third-party databases, search engines, and public records. 
+        Use this when you want to avoid appearing in the target's web server or security logs.
+      tr: |
+        Hedefle doğrudan etkileşime girmeden pasif tarama yaparak istihbarat toplar.
+        Yalnızca üçüncü taraf veritabanlarını, arama motorlarını ve herkese açık kayıtları sorguladığı için gizli keşif için idealdir.
+        Hedefin web sunucusu veya güvenlik günlüklerinde görünmek istemediğinizde kullanın.
     command: "sf.py -s {{target}} -u passive"
 
-  - title: spiderfoot - footprinting scan
-    desc: |
-      Run a footprinting scan to understand what the target exposes to the internet. 
-      This use case focuses on identifying subdomains, IP addresses, and web technologies associated with the target. 
-      It is a balanced approach that provides a broad overview of the target's digital footprint.
+  - title:
+      en: spiderfoot - footprinting scan
+      tr: spiderfoot - iz sürme taraması
+    desc:
+      en: |
+        Run a footprinting scan to understand what the target exposes to the internet. 
+        This use case focuses on identifying subdomains, IP addresses, and web technologies associated with the target. 
+        It is a balanced approach that provides a broad overview of the target's digital footprint.
+      tr: |
+        Hedefin internete açık yüzünü anlamak için iz sürme (footprinting) taraması çalıştırır.
+        Hedefle ilişkili alt alan adları, IP adresleri ve web teknolojilerini belirlemeye odaklanır.
+        Hedefin dijital ayak izine geniş genel bakış sağlayan dengeli bir yaklaşımdır.
     command: "sf.py -s {{target}} -u footprint"
 
-  - title: spiderfoot - investigate scan
-    desc: |
-      Execute an investigation scan which is typically used when you have a specific indicator of compromise or a suspicious target. 
-      This mode is more intensive than a passive scan and tries to find deeper links between data points. 
-      Be aware that this might involve more active modules that could be detected by the target.
+  - title:
+      en: spiderfoot - investigate scan
+      tr: spiderfoot - soruşturma taraması
+    desc:
+      en: |
+        Execute an investigation scan which is typically used when you have a specific indicator of compromise or a suspicious target. 
+        This mode is more intensive than a passive scan and tries to find deeper links between data points. 
+        Be aware that this might involve more active modules that could be detected by the target.
+      tr: |
+        Belirli bir uzlaşma göstergesi veya şüpheli hedef için soruşturma taraması yürütür.
+        Pasif taramadan daha yoğundur ve veri noktaları arasında daha derin bağlantılar bulmaya çalışır.
+        Daha fazla aktif modül içerebileceğinden hedef tarafından tespit edilebileceğini unutmayın.
     command: "sf.py -s {{target}} -u investigate"
 
-  - title: spiderfoot - all modules scan
-    desc: |
-      Run a comprehensive scan using every available module in the SpiderFoot library. 
-      This is the most "noisy" and time-consuming scan type as it triggers all active and passive checks. 
-      It is recommended only when you have explicit permission and require a complete data dump of all possible associations.
+  - title:
+      en: spiderfoot - all modules scan
+      tr: spiderfoot - tüm modüllerle tarama
+    desc:
+      en: |
+        Run a comprehensive scan using every available module in the SpiderFoot library. 
+        This is the most "noisy" and time-consuming scan type as it triggers all active and passive checks. 
+        It is recommended only when you have explicit permission and require a complete data dump of all possible associations.
+      tr: |
+        SpiderFoot kütüphanesindeki tüm modülleri kullanarak kapsamlı tarama yapar.
+        Tüm aktif ve pasif kontrolleri tetiklediği için en gürültülü ve zaman alan tarama türüdür.
+        Yalnızca açık izin ve tüm ilişkilerin eksiksiz dökümü gerektiğinde önerilir.
     command: "sf.py -s {{target}} -u all"
 
   # === MODULE & DATA FILTERING ===
-  - title: spiderfoot - list available modules
-    desc: |
-      Display a complete list of all modules currently installed in your SpiderFoot environment. 
-      This helps you identify which modules require API keys and which are ready to use out of the box. 
-      Reviewing this list is essential for troubleshooting missing data or configuring custom scans.
+  - title:
+      en: spiderfoot - list available modules
+      tr: spiderfoot - kullanılabilir modülleri listeleme
+    desc:
+      en: |
+        Display a complete list of all modules currently installed in your SpiderFoot environment. 
+        This helps you identify which modules require API keys and which are ready to use out of the box. 
+        Reviewing this list is essential for troubleshooting missing data or configuring custom scans.
+      tr: |
+        Ortamınızda kurulu tüm modüllerin tam listesini gösterir.
+        Hangi modüllerin API anahtarı istediğini ve hangilerinin hazır çalıştığını görmenize yardımcı olur.
+        Eksik verileri gidermek veya özel taramaları yapılandırmak için bu listeyi incelemek şarttır.
     command: "sf.py -M"
 
-  - title: spiderfoot - run specific modules
-    desc: |
-      Execute a scan using only a specific set of comma-separated modules. 
-      This is highly efficient when you only need data from specific sources, such as Shodan, HaveIBeenPwned, or GitHub. 
-      It reduces scan time significantly and prevents unnecessary API credit consumption.
+  - title:
+      en: spiderfoot - run specific modules
+      tr: spiderfoot - belirli modülleri çalıştırma
+    desc:
+      en: |
+        Execute a scan using only a specific set of comma-separated modules. 
+        This is highly efficient when you only need data from specific sources, such as Shodan, HaveIBeenPwned, or GitHub. 
+        It reduces scan time significantly and prevents unnecessary API credit consumption.
+      tr: |
+        Yalnızca virgülle ayrılmış belirli modül kümesiyle tarama yürütür.
+        Yalnızca Shodan, HaveIBeenPwned veya GitHub gibi belirli kaynaklardan veri gerektiğinde oldukça verimlidir.
+        Tarama süresini ciddi ölçüde kısaltır ve gereksiz API kredisi tüketimini önler.
     command: "sf.py -s {{target}} -m {{modules|s3bucket,google_maps,github}}"
 
-  - title: spiderfoot - collect specific event types
-    desc: |
-      Launch a scan targeted at retrieving specific data types regardless of the module used. 
-      For example, you can request only 'EMAILADDR' or 'PHONE_NUMBER' to filter out infrastructure data. 
-      SpiderFoot will automatically enable the modules required to produce those specific event types.
+  - title:
+      en: spiderfoot - collect specific event types
+      tr: spiderfoot - belirli olay türlerini toplama
+    desc:
+      en: |
+        Launch a scan targeted at retrieving specific data types regardless of the module used. 
+        For example, you can request only 'EMAILADDR' or 'PHONE_NUMBER' to filter out infrastructure data. 
+        SpiderFoot will automatically enable the modules required to produce those specific event types.
+      tr: |
+        Kullanılan modülden bağımsız belirli veri türlerini toplamaya yönelik tarama başlatır.
+        Örneğin altyapı verisini eleyerek yalnızca 'EMAILADDR' veya 'PHONE_NUMBER' isteyebilirsiniz.
+        SpiderFoot, bu olay türlerini üretebilen modülleri otomatik etkinleştirir.
     command: "sf.py -s {{target}} -t {{event_types|EMAILADDR,BITCOIN_ADDRESS}}"
 
-  - title: spiderfoot - strict mode scan
-    desc: |
-      Enable strict mode to ensure that only modules capable of directly consuming the target type are used. 
-      This prevents the tool from branching out into secondary or tertiary data types that might be irrelevant. 
-      It is useful for keeping the scan focused and preventing the "spidering" effect from becoming unmanageable.
+  - title:
+      en: spiderfoot - strict mode scan
+      tr: spiderfoot - katı kip taraması
+    desc:
+      en: |
+        Enable strict mode to ensure that only modules capable of directly consuming the target type are used. 
+        This prevents the tool from branching out into secondary or tertiary data types that might be irrelevant. 
+        It is useful for keeping the scan focused and preventing the "spidering" effect from becoming unmanageable.
+      tr: |
+        Yalnızca hedef türünü doğrudan tüketebilen modüllerin kullanılmasını sağlayarak katı kipi etkinleştirir.
+        Aracın ilgisiz ikincil veya üçüncül veri türlerine dallanmasını engeller.
+        Taramayı odaklı tutmak ve örümcek etkisinin kontrolden çıkmasını önlemek için yararlıdır.
     command: "sf.py -s {{target}} -x"
 
   # === OUTPUT & FORMATTING ===
-  - title: spiderfoot - export results to csv
-    desc: |
-      Run a scan and export the results directly into a CSV file for external analysis. 
-      This is useful for importing OSINT data into spreadsheets or other reporting tools. 
-      You can define a custom delimiter if the default comma is not suitable for your data processing pipeline.
+  - title:
+      en: spiderfoot - export results to csv
+      tr: spiderfoot - sonuçları CSV olarak dışa aktarma
+    desc:
+      en: |
+        Run a scan and export the results directly into a CSV file for external analysis. 
+        This is useful for importing OSINT data into spreadsheets or other reporting tools. 
+        You can define a custom delimiter if the default comma is not suitable for your data processing pipeline.
+      tr: |
+        Taramayı çalıştırıp sonuçları doğrudan CSV dosyasına aktarır.
+        OSINT verilerini elektronik tablolara veya raporlama araçlarına aktarmak için yararlıdır.
+        Veri işleme hattınıza virgül uygun değilse özel bir ayraç tanımlayabilirsiniz.
     command: "sf.py -s {{target}} -u passive -o csv > {{output_file|results.csv}}"
 
-  - title: spiderfoot - json output with source data
-    desc: |
-      Generate scan results in JSON format while including the raw source data field. 
-      JSON output is ideal for automation and integrating SpiderFoot results into other security platforms (SOAR/SIEM). 
-      The inclusion of source data allows you to verify the evidence behind each finding.
+  - title:
+      en: spiderfoot - json output with source data
+      tr: spiderfoot - kaynak verili JSON çıktısı
+    desc:
+      en: |
+        Generate scan results in JSON format while including the raw source data field. 
+        JSON output is ideal for automation and integrating SpiderFoot results into other security platforms (SOAR/SIEM). 
+        The inclusion of source data allows you to verify the evidence behind each finding.
+      tr: |
+        Ham kaynak veri alanını da içeren JSON biçiminde tarama sonuçları üretir.
+        JSON çıktısı otomasyon ve SpiderFoot sonuçlarını SOAR/SIEM gibi platformlara entegre etmek için idealdir.
+        Kaynak verisi sayesinde her bulgunun kanıtını doğrulayabilirsiniz.
     command: "sf.py -s {{target}} -u footprint -o json -r"
 
   # === SERVER & INTERFACE ===
-  - title: spiderfoot - start web interface
-    desc: |
-      Launch the SpiderFoot web-based GUI on a specific IP address and port. 
-      The web interface provides a much more visual experience, including node graphs and easy configuration of API keys. 
-      By default, it listens on 127.0.0.1:5001, but you can change this to allow remote access (ensure firewall rules are in place).
+  - title:
+      en: spiderfoot - start web interface
+      tr: spiderfoot - web arayüzünü başlatma
+    desc:
+      en: |
+        Launch the SpiderFoot web-based GUI on a specific IP address and port. 
+        The web interface provides a much more visual experience, including node graphs and easy configuration of API keys. 
+        By default, it listens on 127.0.0.1:5001, but you can change this to allow remote access (ensure firewall rules are in place).
+      tr: |
+        SpiderFoot web tabanlı arayüzünü belirli bir IP adresi ve portta başlatır.
+        Web arayüzü düğüm grafikleri ve API anahtarı yapılandırmasıyla çok daha görsel bir deneyim sunar.
+        Varsayılan 127.0.0.1:5001'de dinler; uzaktan erişime açarken güvenlik duvarı kurallarını gözden geçirin.
     command: "sf.py -l {{ip_address|127.0.0.1}}:{{port|5001}}"
 
   # === ADVANCED OPERATIONS ===
-  - title: spiderfoot - correlate scan results
-    desc: |
-      Apply correlation rules to an existing scan ID to identify meaningful patterns or high-risk findings. 
-      Correlation helps filter the "noise" by highlighting connections like 'Malicious IP found in DNS records'. 
-      You must have the Scan ID from a previously completed or running scan to use this feature.
+  - title:
+      en: spiderfoot - correlate scan results
+      tr: spiderfoot - tarama sonuçlarını ilişkilendirme
+    desc:
+      en: |
+        Apply correlation rules to an existing scan ID to identify meaningful patterns or high-risk findings. 
+        Correlation helps filter the "noise" by highlighting connections like 'Malicious IP found in DNS records'. 
+        You must have the Scan ID from a previously completed or running scan to use this feature.
+      tr: |
+        Anlamlı kalıpları ve yüksek riskli bulguları belirlemek için mevcut bir tarama kimliğine korelasyon kuralları uygular.
+        Korelasyon, 'DNS kayıtlarında zararlı IP bulundu' gibi bağlantıları vurgulayarak gürültüyü eler.
+        Bu özelliği kullanmak için tamamlanmış veya çalışan bir taramanın kimliği gerekir.
     command: "sf.py -C {{scan_id}}"
 
-  - title: spiderfoot - limit concurrent threads
-    desc: |
-      Manually set the maximum number of modules to run concurrently during a scan. 
-      Reducing the thread count can prevent your IP from being rate-limited by third-party services. 
-      Increasing it can speed up scans if you have a high-performance machine and stable network connection.
+  - title:
+      en: spiderfoot - limit concurrent threads
+      tr: spiderfoot - eşzamanlı iş parçacığını sınırlama
+    desc:
+      en: |
+        Manually set the maximum number of modules to run concurrently during a scan. 
+        Reducing the thread count can prevent your IP from being rate-limited by third-party services. 
+        Increasing it can speed up scans if you have a high-performance machine and stable network connection.
+      tr: |
+        Tarama sırasında eşzamanlı çalışacak azami modül sayısını manuel ayarlar.
+        İş parçacığı sayısını azaltmak üçüncü taraf servislerce hız sınırlamasına takılmanızı önleyebilir.
+        Yüksek performanslı makine ve kararlı ağ bağlantısında artırmak taramaları hızlandırır.
     command: "sf.py -s {{target}} -u all -max-threads {{thread_count|10}}"

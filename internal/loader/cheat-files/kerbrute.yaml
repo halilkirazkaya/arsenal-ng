@@ -3,75 +3,145 @@ tags: [active-directory, kerberos, pentest, enumeration, authentication, securit
 
 actions:
 # === ENUMERATION ===
- - title: kerbrute - username enumeration
-   desc: |
-     Performs username enumeration against an Active Directory Domain Controller using Kerberos Pre-Authentication. 
-     This method is highly efficient as it does not require valid credentials and is often faster than NTLM-based enumeration. 
-     Be aware that while this doesn't "log in," it still generates event logs (Event ID 4768) on the DC which can be monitored.
+ - title:
+     en: kerbrute - username enumeration
+     tr: kerbrute - kullanıcı adı numaralandırma
+   desc:
+     en: |
+       Performs username enumeration against an Active Directory Domain Controller using Kerberos Pre-Authentication. 
+       This method is highly efficient as it does not require valid credentials and is often faster than NTLM-based enumeration. 
+       Be aware that while this doesn't "log in," it still generates event logs (Event ID 4768) on the DC which can be monitored.
+     tr: |
+       Kerberos Ön Kimlik Doğrulama kullanarak Active Directory Alan Denetleyicisine karşı kullanıcı adı numaralandırma gerçekleştirir.
+       Bu yöntem geçerli kimlik bilgisi gerektirmediğinden oldukça verimlidir ve genellikle NTLM tabanlı numaralandırmadan daha hızlıdır.
+       "Oturum açmasa" da DC üzerinde izlenebilen olay günlükleri (Olay Kimliği 4768) oluşturduğunu unutmayın.
    command: "kerbrute userenum -d {{domain}} --dc {{dc_ip}} {{user_wordlist}}"
 
- - title: kerbrute - username enumeration with hash capturing
-   desc: |
-     Enumerates valid usernames and automatically saves AS-REP hashes for accounts that do not require Kerberos Pre-Authentication. 
-     This effectively combines enumeration with AS-REP Roasting, allowing you to crack the captured hashes offline. 
-     It is a critical step for gaining initial access if accounts are configured with "Do not require Kerberos preauthentication."
+ - title:
+     en: kerbrute - username enumeration with hash capturing
+     tr: kerbrute - karma yakalamalı kullanıcı adı numaralandırma
+   desc:
+     en: |
+       Enumerates valid usernames and automatically saves AS-REP hashes for accounts that do not require Kerberos Pre-Authentication. 
+       This effectively combines enumeration with AS-REP Roasting, allowing you to crack the captured hashes offline. 
+       It is a critical step for gaining initial access if accounts are configured with "Do not require Kerberos preauthentication."
+     tr: |
+       Geçerli kullanıcı adlarını numaralandırır ve Kerberos Ön Kimlik Doğrulama gerektirmeyen hesapların AS-REP karmalarını otomatik kaydeder.
+       Bu, numaralandırmayı AS-REP Roasting ile etkili biçimde birleştirerek yakalanan karmaları çevrimdışı kırmanıza olanak tanır.
+       Hesaplar "Kerberos ön kimlik doğrulaması gerektirmesin" şeklinde yapılandırılmışsa ilk erişimi elde etmek için kritik bir adımdır.
    command: "kerbrute userenum -d {{domain}} --dc {{dc_ip}} --hash-file {{hash_output_file|hashes.txt}} {{user_wordlist}}"
 
 # === BRUTE FORCE & SPRAYING ===
- - title: kerbrute - password spraying
-   desc: |
-     Tests a single password against a list of users to find accounts with weak credentials. 
-     Password spraying is a common technique to avoid account lockouts, as it only attempts one password per user in a cycle. 
-     Always verify the domain's lockout policy (threshold and duration) before starting to ensure you don't lock out the entire organization.
+ - title:
+     en: kerbrute - password spraying
+     tr: kerbrute - parola püskürtme
+   desc:
+     en: |
+       Tests a single password against a list of users to find accounts with weak credentials. 
+       Password spraying is a common technique to avoid account lockouts, as it only attempts one password per user in a cycle. 
+       Always verify the domain's lockout policy (threshold and duration) before starting to ensure you don't lock out the entire organization.
+     tr: |
+       Zayıf kimlik bilgisine sahip hesapları bulmak için tek bir parolayı kullanıcı listesine karşı dener.
+       Parola püskürtme, her döngüde kullanıcı başına yalnızca bir parola denediğinden hesap kilitlenmelerinden kaçınmak için yaygın bir tekniktir.
+       Tüm kuruluşu kilitlememek için başlamadan önce alanın kilitlenme ilkesini (eşik ve süre) mutlaka doğrulayın.
    command: "kerbrute passwordspray -d {{domain}} --dc {{dc_ip}} {{user_wordlist}} {{password}}"
 
- - title: kerbrute - brute force single user
-   desc: |
-     Attempts to find the password for a specific target user by testing a wordlist of passwords. 
-     This is a targeted attack and is highly likely to lock out the account if the password is not discovered within the lockout threshold. 
-     Use this only when you have a specific reason to target an individual account and understand the risks of account lockout.
+ - title:
+     en: kerbrute - brute force single user
+     tr: kerbrute - tek kullanıcı kaba kuvvet
+   desc:
+     en: |
+       Attempts to find the password for a specific target user by testing a wordlist of passwords. 
+       This is a targeted attack and is highly likely to lock out the account if the password is not discovered within the lockout threshold. 
+       Use this only when you have a specific reason to target an individual account and understand the risks of account lockout.
+     tr: |
+       Bir parola sözlüğünü deneyerek belirli bir hedef kullanıcının parolasını bulmaya çalışır.
+       Bu hedefli bir saldırıdır ve parola kilitlenme eşiği içinde bulunamazsa hesabı kilitleme olasılığı yüksektir.
+       Bunu yalnızca tek bir hesabı hedeflemek için özel bir nedeniniz varsa ve hesap kilitlenme risklerini anlıyorsanız kullanın.
    command: "kerbrute bruteuser -d {{domain}} --dc {{dc_ip}} {{pass_wordlist}} {{username}}"
 
- - title: kerbrute - combo list brute force
-   desc: |
-     Tests a list of username and password pairs (formatted as user:pass) against the Domain Controller. 
-     This is useful for credential stuffing attacks or when you have acquired a list of potential credentials from other sources. 
-     The tool will attempt to validate each pair and report any successful authentications.
+ - title:
+     en: kerbrute - combo list brute force
+     tr: kerbrute - kombine liste kaba kuvvet
+   desc:
+     en: |
+       Tests a list of username and password pairs (formatted as user:pass) against the Domain Controller. 
+       This is useful for credential stuffing attacks or when you have acquired a list of potential credentials from other sources. 
+       The tool will attempt to validate each pair and report any successful authentications.
+     tr: |
+       Kullanıcı adı ve parola çiftlerinin listesini (user:pass biçiminde) Alan Denetleyicisine karşı dener.
+       Kimlik bilgisi doldurma saldırıları için veya diğer kaynaklardan potansiyel kimlik bilgileri listesi edindiğinizde kullanışlıdır.
+       Araç her çifti doğrulamaya çalışır ve başarılı kimlik doğrulamaları raporlar.
    command: "kerbrute bruteforce -d {{domain}} --dc {{dc_ip}} {{combo_list}}"
 
 # === STEALTH & PERFORMANCE ===
- - title: kerbrute - safe mode enumeration
-   desc: |
-     Runs the enumeration or brute force process with the 'safe' flag enabled. 
-     In safe mode, kerbrute will immediately abort the process if it detects that any user account has been locked out. 
-     This acts as a failsafe to prevent widespread account lockouts during an engagement.
+ - title:
+     en: kerbrute - safe mode enumeration
+     tr: kerbrute - güvenli mod numaralandırma
+   desc:
+     en: |
+       Runs the enumeration or brute force process with the 'safe' flag enabled. 
+       In safe mode, kerbrute will immediately abort the process if it detects that any user account has been locked out. 
+       This acts as a failsafe to prevent widespread account lockouts during an engagement.
+     tr: |
+       Numaralandırma veya kaba kuvvet sürecini 'safe' bayrağı etkin şekilde çalıştırır.
+       Güvenli modda kerbrute, herhangi bir kullanıcı hesabının kilitlendiğini tespit ederse süreci hemen durdurur.
+       Bu, çalışma sırasında yaygın hesap kilitlenmelerini önlemek için bir emniyet görevi görür.
    command: "kerbrute userenum -d {{domain}} --dc {{dc_ip}} --safe {{user_wordlist}}"
 
- - title: kerbrute - throttled enumeration with delay
-   desc: |
-     Introduces a specific delay between each request to bypass rate-limiting or avoid detection by security monitoring tools. 
-     When a delay is set, the tool will automatically switch to a single-threaded mode to maintain the timing. 
-     This is recommended for stealthier operations where speed is less important than remaining undetected.
+ - title:
+     en: kerbrute - throttled enumeration with delay
+     tr: kerbrute - gecikmeli kısıtlı numaralandırma
+   desc:
+     en: |
+       Introduces a specific delay between each request to bypass rate-limiting or avoid detection by security monitoring tools. 
+       When a delay is set, the tool will automatically switch to a single-threaded mode to maintain the timing. 
+       This is recommended for stealthier operations where speed is less important than remaining undetected.
+     tr: |
+       Hız sınırlamayı aşmak veya güvenlik izleme araçlarınca tespitten kaçınmak için her istek arasına belirli bir gecikme koyar.
+       Gecikme ayarlandığında araç zamanlamayı korumak için otomatik olarak tek iş parçacıklı moda geçer.
+       Hızın yakalanmamaktan daha az önemli olduğu daha gizli operasyonlar için önerilir.
    command: "kerbrute userenum -d {{domain}} --dc {{dc_ip}} --delay {{delay_ms|500}} {{user_wordlist}}"
 
- - title: kerbrute - multi-threaded attack
-   desc: |
-     Increases the number of concurrent threads used during the attack to speed up the process. 
-     The default is 10 threads, but this can be increased for faster results if the network and Domain Controller can handle the load. 
-     Higher thread counts increase the risk of detection and can potentially cause performance issues on the target KDC.
+ - title:
+     en: kerbrute - multi-threaded attack
+     tr: kerbrute - çok iş parçacıklı saldırı
+   desc:
+     en: |
+       Increases the number of concurrent threads used during the attack to speed up the process. 
+       The default is 10 threads, but this can be increased for faster results if the network and Domain Controller can handle the load. 
+       Higher thread counts increase the risk of detection and can potentially cause performance issues on the target KDC.
+     tr: |
+       Süreci hızlandırmak için saldırı sırasında kullanılan eşzamanlı iş parçacığı sayısını artırır.
+       Varsayılan 10 iş parçacığıdır, ancak ağ ve Alan Denetleyicisi yükü kaldırabiliyorsa daha hızlı sonuçlar için artırılabilir.
+       Yüksek iş parçacığı sayısı tespit riskini artırır ve hedef KDC üzerinde performans sorunlarına yol açabilir.
    command: "kerbrute userenum -d {{domain}} --dc {{dc_ip}} -t {{threads|50}} {{user_wordlist}}"
 
 # === ADVANCED CONFIGURATION ===
- - title: kerbrute - force encryption downgrade
-   desc: |
-     Forces the Kerberos exchange to use the older and weaker arcfour-hmac-md5 (RC4) encryption type. 
-     This can be useful in environments where modern AES encryption is heavily monitored or if the target DC has specific legacy configurations. 
-     Note that many modern environments might flag the use of RC4 as suspicious.
+ - title:
+     en: kerbrute - force encryption downgrade
+     tr: kerbrute - zorunlu şifreleme düşürme
+   desc:
+     en: |
+       Forces the Kerberos exchange to use the older and weaker arcfour-hmac-md5 (RC4) encryption type. 
+       This can be useful in environments where modern AES encryption is heavily monitored or if the target DC has specific legacy configurations. 
+       Note that many modern environments might flag the use of RC4 as suspicious.
+     tr: |
+       Kerberos değişimini eski ve daha zayıf arcfour-hmac-md5 (RC4) şifreleme türünü kullanmaya zorlar.
+       Modern AES şifrelemenin yoğun izlendiği ortamlarda veya hedef DC'nin belirli eski yapılandırmaları varsa kullanışlı olabilir.
+       Birçok modern ortamın RC4 kullanımını şüpheli olarak işaretleyebileceğini unutmayın.
    command: "kerbrute userenum -d {{domain}} --dc {{dc_ip}} --downgrade {{user_wordlist}}"
 
- - title: kerbrute - verbose logging to file
-   desc: |
-     Runs the tool with verbose output and saves all log entries to a specified file. 
-     Verbose mode is helpful for debugging connection issues or seeing specific Kerberos error codes returned by the DC. 
-     Saving to an output file ensures you have a record of all attempts, including failures, for your final report.
+ - title:
+     en: kerbrute - verbose logging to file
+     tr: kerbrute - dosyaya ayrıntılı günlükleme
+   desc:
+     en: |
+       Runs the tool with verbose output and saves all log entries to a specified file. 
+       Verbose mode is helpful for debugging connection issues or seeing specific Kerberos error codes returned by the DC. 
+       Saving to an output file ensures you have a record of all attempts, including failures, for your final report.
+     tr: |
+       Aracı ayrıntılı çıktıyla çalıştırır ve tüm günlük kayıtlarını belirtilen dosyaya kaydeder.
+       Ayrıntılı mod, bağlantı sorunlarını ayıklamak veya DC tarafından döndürülen belirli Kerberos hata kodlarını görmek için yardımcıdır.
+       Çıktı dosyasına kaydetmek, nihai raporunuz için başarısızlar dahil tüm denemelerin kaydına sahip olmanızı sağlar.
    command: "kerbrute userenum -d {{domain}} --dc {{dc_ip}} -v -o {{log_file|kerbrute_results.log}} {{user_wordlist}}"

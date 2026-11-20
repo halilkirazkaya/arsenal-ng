@@ -3,68 +3,131 @@ tags: [network, file-transfer, security, pentest, exploitation, authentication, 
 
 actions:
   # === BASIC FILE SHARING ===
-  - title: impacket-smbserver - basic anonymous share
-    desc: |
-      Start a basic SMB server without any authentication requirements. 
-      This is the most common way to quickly transfer files from a Linux attack host to a Windows target. 
-      The share will be accessible to any user on the network, so avoid placing sensitive data here.
+  - title:
+      en: impacket-smbserver - basic anonymous share
+      tr: impacket-smbserver - temel anonim paylaşım
+    desc:
+      en: |
+        Start a basic SMB server without any authentication requirements. 
+        This is the most common way to quickly transfer files from a Linux attack host to a Windows target. 
+        The share will be accessible to any user on the network, so avoid placing sensitive data here.
+      tr: |
+        Herhangi bir kimlik doğrulama gerektirmeyen temel bir SMB sunucusu başlatır.
+        Bir Linux saldırı makinesinden bir Windows hedefine hızlıca dosya aktarmanın en yaygın yoludur.
+        Paylaşım ağdaki her kullanıcıya açık olacağından buraya hassas veri koymaktan kaçının.
     command: "impacket-smbserver {{share_name|SHARE}} {{path|/tmp}}"
 
-  - title: impacket-smbserver - enable smb2 support
-    desc: |
-      Launch the SMB server with support for the SMB2 protocol version. 
-      Modern Windows versions (Windows 10, Server 2016+) often disable SMB1 by default for security reasons. 
-      Use this flag if you encounter "protocol not supported" errors or connection timeouts on newer targets.
+  - title:
+      en: impacket-smbserver - enable smb2 support
+      tr: impacket-smbserver - SMB2 desteğini etkinleştirme
+    desc:
+      en: |
+        Launch the SMB server with support for the SMB2 protocol version. 
+        Modern Windows versions (Windows 10, Server 2016+) often disable SMB1 by default for security reasons. 
+        Use this flag if you encounter "protocol not supported" errors or connection timeouts on newer targets.
+      tr: |
+        SMB sunucusunu SMB2 protokol sürümü desteğiyle başlatır.
+        Modern Windows sürümleri (Windows 10, Server 2016+) güvenlik nedeniyle SMB1'i varsayılan olarak sıkça devre dışı bırakır.
+        Yeni hedeflerde "protocol not supported" hataları veya bağlantı zaman aşımlarıyla karşılaşırsanız bu bayrağı kullanın.
     command: "impacket-smbserver -smb2support {{share_name|SHARE}} {{path|/tmp}}"
 
-  - title: impacket-smbserver - share with custom comment
-    desc: |
-      Create a share with a specific descriptive comment that appears in network browsing. 
-      This can be used to make the share look more legitimate or to provide context for users. 
-      It is an optional metadata field that helps in organizational tasks during internal audits.
+  - title:
+      en: impacket-smbserver - share with custom comment
+      tr: impacket-smbserver - özel açıklamalı paylaşım
+    desc:
+      en: |
+        Create a share with a specific descriptive comment that appears in network browsing. 
+        This can be used to make the share look more legitimate or to provide context for users. 
+        It is an optional metadata field that helps in organizational tasks during internal audits.
+      tr: |
+        Ağda gezinirken görünen belirli bir açıklayıcı yorumla paylaşım oluşturur.
+        Paylaşımı daha meşru göstermek veya kullanıcılara bağlam sunmak için kullanılabilir.
+        İç denetimler sırasında düzenleme görevlerine yardımcı olan isteğe bağlı bir üstveri alanıdır.
     command: "impacket-smbserver -comment {{comment|'Public Tools'}} {{share_name|TOOLS}} {{path|/opt/tools}}"
 
   # === AUTHENTICATION & SECURITY ===
-  - title: impacket-smbserver - authenticated share with password
-    desc: |
-      Set up an SMB server that requires a specific username and password for access. 
-      This prevents unauthorized users on the network from browsing your files or uploading malicious content. 
-      It is a critical step when performing engagements in environments with active blue teams or multiple testers.
+  - title:
+      en: impacket-smbserver - authenticated share with password
+      tr: impacket-smbserver - parolalı kimlik doğrulamalı paylaşım
+    desc:
+      en: |
+        Set up an SMB server that requires a specific username and password for access. 
+        This prevents unauthorized users on the network from browsing your files or uploading malicious content. 
+        It is a critical step when performing engagements in environments with active blue teams or multiple testers.
+      tr: |
+        Erişim için belirli bir kullanıcı adı ve parola gerektiren bir SMB sunucusu kurar.
+        Ağdaki yetkisiz kullanıcıların dosyalarınıza göz atmasını veya zararlı içerik yüklemesini engeller.
+        Aktif mavi ekiplerin veya birden çok testçinin bulunduğu ortamlarda çalışırken kritik bir adımdır.
     command: "impacket-smbserver -username {{user|admin}} -password {{pass|password123}} {{share_name|SECURE}} {{path|/root/loot}}"
 
-  - title: impacket-smbserver - authenticated share with NTLM hashes
-    desc: |
-      Provide access to the SMB share using NTLM hashes instead of a plaintext password. 
-      The format for the hashes must be LMHASH:NTHASH (use a string of 32 zeros for the LM hash if only NT is known). 
-      This allows you to simulate or utilize existing compromised credentials without knowing the actual password.
+  - title:
+      en: impacket-smbserver - authenticated share with NTLM hashes
+      tr: impacket-smbserver - NTLM hash'li kimlik doğrulamalı paylaşım
+    desc:
+      en: |
+        Provide access to the SMB share using NTLM hashes instead of a plaintext password. 
+        The format for the hashes must be LMHASH:NTHASH (use a string of 32 zeros for the LM hash if only NT is known). 
+        This allows you to simulate or utilize existing compromised credentials without knowing the actual password.
+      tr: |
+        SMB paylaşımına açık parola yerine NTLM hash'leri ile erişim sağlar.
+        Hash'lerin biçimi LMHASH:NTHASH olmalıdır (yalnızca NT biliniyorsa LM hash'i için 32 adet sıfırdan oluşan bir dizgi kullanın).
+        Gerçek parolayı bilmeden mevcut ele geçirilmiş kimlik bilgilerini taklit etmenize veya kullanmanıza olanak tanır.
     command: "impacket-smbserver -username {{user|admin}} -hashes {{hash}} {{share_name|HASH_AUTH}} {{path|/tmp}}"
 
   # === NETWORK CONFIGURATION ===
-  - title: impacket-smbserver - custom interface and port
-    desc: |
-      Bind the SMB server to a specific network interface and a non-standard port. 
-      This is useful when the default port 445 is already in use by a local Samba service or another tool. 
-      Note that Windows clients usually expect SMB on port 445, so port forwarding might be required on the target side.
+  - title:
+      en: impacket-smbserver - custom interface and port
+      tr: impacket-smbserver - özel arayüz ve port
+    desc:
+      en: |
+        Bind the SMB server to a specific network interface and a non-standard port. 
+        This is useful when the default port 445 is already in use by a local Samba service or another tool. 
+        Note that Windows clients usually expect SMB on port 445, so port forwarding might be required on the target side.
+      tr: |
+        SMB sunucusunu belirli bir ağ arayüzüne ve standart dışı bir porta bağlar.
+        Varsayılan 445 portu yerel bir Samba hizmeti veya başka bir araç tarafından kullanılıyorken faydalıdır.
+        Windows istemcilerinin SMB'yi genellikle 445 portunda beklediğini, dolayısıyla hedef tarafta port yönlendirme gerekebileceğini unutmayın.
     command: "impacket-smbserver -ip {{ip_address|0.0.0.0}} -port {{port|4445}} {{share_name|SHARE}} {{path|/tmp}}"
 
-  - title: impacket-smbserver - listen on IPv6
-    desc: |
-      Configure the SMB server to listen for incoming connections over the IPv6 protocol. 
-      This can be used to bypass certain IPv4-only firewall rules or to operate in IPv6-only environments. 
-      Ensure your network stack and the target machine are properly configured for IPv6 communication.
+  - title:
+      en: impacket-smbserver - listen on IPv6
+      tr: impacket-smbserver - IPv6 üzerinden dinleme
+    desc:
+      en: |
+        Configure the SMB server to listen for incoming connections over the IPv6 protocol. 
+        This can be used to bypass certain IPv4-only firewall rules or to operate in IPv6-only environments. 
+        Ensure your network stack and the target machine are properly configured for IPv6 communication.
+      tr: |
+        SMB sunucusunu gelen bağlantıları IPv6 protokolü üzerinden dinleyecek şekilde yapılandırır.
+        Yalnızca IPv4'e yönelik belirli güvenlik duvarı kurallarını atlatmak veya yalnızca IPv6 ortamlarında çalışmak için kullanılabilir.
+        Ağ yığınınızın ve hedef makinenin IPv6 iletişimi için düzgün yapılandırıldığından emin olun.
     command: "impacket-smbserver -6 {{share_name|SHARE}} {{path|/tmp}}"
 
   # === LOGGING & CAPTURE ===
-  - title: impacket-smbserver - capture hashes to file
-    desc: |
-      Redirect all output, including captured NTLM hashes from incoming authentication attempts, to a text file. 
-      When a target machine attempts to connect to this server, the NTLM challenge-response sequence is logged. 
-      These logged hashes can later be used for offline cracking with tools like Hashcat or John the Ripper.
+  - title:
+      en: impacket-smbserver - capture hashes to file
+      tr: impacket-smbserver - hash'leri dosyaya yakalama
+    desc:
+      en: |
+        Redirect all output, including captured NTLM hashes from incoming authentication attempts, to a text file. 
+        When a target machine attempts to connect to this server, the NTLM challenge-response sequence is logged. 
+        These logged hashes can later be used for offline cracking with tools like Hashcat or John the Ripper.
+      tr: |
+        Gelen kimlik doğrulama denemelerinden yakalanan NTLM hash'leri dahil tüm çıktıyı bir metin dosyasına yönlendirir.
+        Hedef bir makine bu sunucuya bağlanmaya çalıştığında NTLM challenge-response sırası günlüğe kaydedilir.
+        Günlüğe kaydedilen bu hash'ler daha sonra Hashcat veya John the Ripper gibi araçlarla çevrimdışı kırmak için kullanılabilir.
     command: "impacket-smbserver -outputfile {{log_file|hashes.txt}} {{share_name|RECON}} {{path|/tmp}}"
 
-  - title: impacket-smbserver - debug mode with timestamps
-    desc: |
-      Enable verbose debug output and add timestamps to every log entry produced by the server. 
-      This is extremely helpful for troubleshooting connection drops or understanding the negotiation process. 
-      The timestamps provide a clear timeline of events during an exploitation or data exfiltration phase.
+  - title:
+      en: impacket-smbserver - debug mode with timestamps
+      tr: impacket-smbserver - zaman damgalı hata ayıklama kipi
+    desc:
+      en: |
+        Enable verbose debug output and add timestamps to every log entry produced by the server. 
+        This is extremely helpful for troubleshooting connection drops or understanding the negotiation process. 
+        The timestamps provide a clear timeline of events during an exploitation or data exfiltration phase.
+      tr: |
+        Ayrıntılı hata ayıklama çıktısını etkinleştirir ve sunucunun ürettiği her günlük girdisine zaman damgası ekler.
+        Bağlantı kopmalarını gidermek veya anlaşma sürecini anlamak için son derece faydalıdır.
+        Zaman damgaları, istismar veya veri sızdırma aşamasında olayların net bir zaman çizelgesini sunar.
     command: "impacket-smbserver -debug -ts {{share_name|DEBUG_SHARE}} {{path|/tmp}}"

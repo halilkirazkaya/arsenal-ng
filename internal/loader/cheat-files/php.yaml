@@ -4,122 +4,202 @@ tags: [web, development, scripting, server, backend, pentest]
 actions:
 # === BASIC INFORMATION & CONFIGURATION ===
 
-  - title: php - check version
-    desc: |
-      Display the current PHP version and build information. Use this to verify that the
-      correct version of PHP is installed for your application's requirements. It also
-      provides information about the build date and the Zend Engine version.
+  - title:
+      en: php - check version
+      tr: php - sürümü denetleme
+    desc:
+      en: |
+        Display the current PHP version and build information. Use this to verify that the
+        correct version of PHP is installed for your application's requirements. It also
+        provides information about the build date and the Zend Engine version.
+      tr: |
+        Geçerli PHP sürümünü ve derleme bilgisini görüntüler. Uygulamanızın gereksinimlerine uygun PHP sürümünün kurulu olduğunu doğrulamak için bunu kullanın. Ayrıca derleme tarihi ve Zend Engine sürümü hakkında bilgi verir.
     command: "php -v"
 
-  - title: php - show information (phpinfo)
-    desc: |
-      Output comprehensive information about the current PHP configuration, similar to phpinfo().
-      This includes details about loaded extensions, environment variables, and server settings.
-      Be cautious when running this on a production system as it may leak sensitive configuration data.
+  - title:
+      en: php - show information (phpinfo)
+      tr: php - bilgileri gösterme (phpinfo)
+    desc:
+      en: |
+        Output comprehensive information about the current PHP configuration, similar to phpinfo().
+        This includes details about loaded extensions, environment variables, and server settings.
+        Be cautious when running this on a production system as it may leak sensitive configuration data.
+      tr: |
+        phpinfo() işlevine benzer şekilde geçerli PHP yapılandırması hakkında kapsamlı bilgi çıktılar. Buna yüklü eklentiler, ortam değişkenleri ve sunucu ayarlarına dair ayrıntılar dahildir. Hassas yapılandırma verilerini sızdırabileceğinden üretim sisteminde çalıştırırken dikkatli olun.
     command: "php -i"
 
-  - title: php - list modules
-    desc: |
-      List all compiled-in and dynamically loaded PHP modules. This is useful for checking if a 
-      required extension like 'mysqli', 'gd', or 'curl' is active. If a module is missing, 
-      you may need to install it via your system's package manager or enable it in php.ini.
+  - title:
+      en: php - list modules
+      tr: php - modülleri listeleme
+    desc:
+      en: |
+        List all compiled-in and dynamically loaded PHP modules. This is useful for checking if a 
+        required extension like 'mysqli', 'gd', or 'curl' is active. If a module is missing, 
+        you may need to install it via your system's package manager or enable it in php.ini.
+      tr: |
+        Derlenmiş ve dinamik olarak yüklenen tüm PHP modüllerini listeler. 'mysqli', 'gd' veya 'curl' gibi gerekli bir eklentinin etkin olup olmadığını denetlemek için kullanışlıdır. Bir modül eksikse sisteminizin paket yöneticisiyle kurmanız veya php.ini içinde etkinleştirmeniz gerekebilir.
     command: "php -m"
 
-  - title: php - show configuration files
-    desc: |
-      Display the paths to the loaded configuration file (php.ini) and any additional .ini directories.
-      Use this when you need to know exactly which file to edit to change server settings. 
-      It is essential for troubleshooting configuration overrides or missing settings.
+  - title:
+      en: php - show configuration files
+      tr: php - yapılandırma dosyalarını gösterme
+    desc:
+      en: |
+        Display the paths to the loaded configuration file (php.ini) and any additional .ini directories.
+        Use this when you need to know exactly which file to edit to change server settings. 
+        It is essential for troubleshooting configuration overrides or missing settings.
+      tr: |
+        Yüklenen yapılandırma dosyasının (php.ini) ve ek .ini dizinlerinin yollarını görüntüler. Sunucu ayarlarını değiştirmek için tam olarak hangi dosyayı düzenlemeniz gerektiğini bilmeniz gerektiğinde kullanın. Yapılandırma geçersiz kılmalarında veya eksik ayarlarda sorun gidermek için vazgeçilmezdir.
     command: "php --ini"
 
 # === EXECUTION & SYNTAX ===
 
-  - title: php - execute file
-    desc: |
-      Parse and execute a specific PHP script file from the command line. This is the 
-      standard way to run CLI-based PHP applications or maintenance scripts. You can pass 
-      arguments to the script by adding them after the filename.
+  - title:
+      en: php - execute file
+      tr: php - dosya çalıştırma
+    desc:
+      en: |
+        Parse and execute a specific PHP script file from the command line. This is the 
+        standard way to run CLI-based PHP applications or maintenance scripts. You can pass 
+        arguments to the script by adding them after the filename.
+      tr: |
+        Komut satırından belirli bir PHP betik dosyasını ayrıştırıp çalıştırır. CLI tabanlı PHP uygulamalarını veya bakım betiklerini çalıştırmanın standart yoludur. Dosya adından sonra ekleyerek betiğe argüman aktarabilirsiniz.
     command: "php -f {{file|index.php}}"
 
-  - title: php - run code directly
-    desc: |
-      Execute a string of PHP code directly from the terminal without using script tags.
-      This is highly effective for quick debugging or testing small logic snippets. 
-      Ensure you wrap the code in quotes to prevent the shell from interpreting special characters.
+  - title:
+      en: php - run code directly
+      tr: php - kodu doğrudan çalıştırma
+    desc:
+      en: |
+        Execute a string of PHP code directly from the terminal without using script tags.
+        This is highly effective for quick debugging or testing small logic snippets. 
+        Ensure you wrap the code in quotes to prevent the shell from interpreting special characters.
+      tr: |
+        Betik etiketleri kullanmadan bir PHP kod dizgisini doğrudan terminalden çalıştırır. Hızlı hata ayıklama veya küçük mantık parçalarını test etme için oldukça etkilidir. Kabuğun özel karakterleri yorumlamasını önlemek için kodu tırnak içine aldığınızdan emin olun.
     command: "php -r {{code|'echo \"Hello World\\n\";'}}"
 
-  - title: php - syntax check (lint)
-    desc: |
-      Perform a syntax check on the specified PHP file without executing the code. 
-      This 'lint' mode is a critical step in CI/CD pipelines to catch parse errors before deployment.
-      It will report any syntax mistakes and return a non-zero exit code if errors are found.
+  - title:
+      en: php - syntax check (lint)
+      tr: php - sözdizimi denetimi (lint)
+    desc:
+      en: |
+        Perform a syntax check on the specified PHP file without executing the code. 
+        This 'lint' mode is a critical step in CI/CD pipelines to catch parse errors before deployment.
+        It will report any syntax mistakes and return a non-zero exit code if errors are found.
+      tr: |
+        Kodu çalıştırmadan belirtilen PHP dosyasında sözdizimi denetimi gerçekleştirir. Bu 'lint' modu, dağıtım öncesi ayrıştırma hatalarını yakalamak için CI/CD hatlarında kritik bir adımdır. Sözdizimi hatalarını raporlar ve hata bulunursa sıfırdan farklı bir çıkış koduyla döner.
     command: "php -l {{file|index.php}}"
 
-  - title: php - interactive shell
-    desc: |
-      Start an interactive PHP shell (REPL) for real-time code execution and testing. 
-      This mode requires the 'readline' extension to be enabled in your PHP installation. 
-      It allows you to type PHP code and see the results immediately, which is great for learning or prototyping.
+  - title:
+      en: php - interactive shell
+      tr: php - etkileşimli kabuk
+    desc:
+      en: |
+        Start an interactive PHP shell (REPL) for real-time code execution and testing. 
+        This mode requires the 'readline' extension to be enabled in your PHP installation. 
+        It allows you to type PHP code and see the results immediately, which is great for learning or prototyping.
+      tr: |
+        Gerçek zamanlı kod çalıştırma ve test için etkileşimli bir PHP kabuğu (REPL) başlatır. Bu mod, PHP kurulumunuzda 'readline' eklentisinin etkin olmasını gerektirir. PHP kodu yazıp sonuçları hemen görmenize olanak tanır; öğrenme veya prototip oluşturma için idealdir.
     command: "php -a"
 
 # === BUILT-IN WEB SERVER ===
 
-  - title: php - start development server
-    desc: |
-      Launch a built-in web server for local development purposes on a specific address and port.
-      This server is not intended for production environments as it is single-threaded and lacks advanced security.
-      It is a convenient way to test web applications without installing a full web server like Apache or Nginx.
+  - title:
+      en: php - start development server
+      tr: php - geliştirme sunucusunu başlatma
+    desc:
+      en: |
+        Launch a built-in web server for local development purposes on a specific address and port.
+        This server is not intended for production environments as it is single-threaded and lacks advanced security.
+        It is a convenient way to test web applications without installing a full web server like Apache or Nginx.
+      tr: |
+        Belirli bir adres ve portta yerel geliştirme amaçlı yerleşik bir web sunucusu başlatır. Tek iş parçacıklı olduğu ve gelişmiş güvenlikten yoksun olduğu için bu sunucu üretim ortamlarına yönelik değildir. Apache veya Nginx gibi tam bir web sunucusu kurmadan web uygulamalarını test etmenin pratik bir yoludur.
     command: "php -S {{host|localhost}}:{{port|8000}}"
 
-  - title: php - start server with document root
-    desc: |
-      Start the built-in development web server using a specific directory as the root.
-      This is particularly useful for modern frameworks where the entry point is in a 'public' or 'web' folder.
-      Routing will be handled automatically for static files, while other requests are sent to index.php.
+  - title:
+      en: php - start server with document root
+      tr: php - belge köküyle sunucu başlatma
+    desc:
+      en: |
+        Start the built-in development web server using a specific directory as the root.
+        This is particularly useful for modern frameworks where the entry point is in a 'public' or 'web' folder.
+        Routing will be handled automatically for static files, while other requests are sent to index.php.
+      tr: |
+        Belirli bir dizini kök olarak kullanan yerleşik geliştirme web sunucusunu başlatır. Giriş noktasının 'public' veya 'web' klasöründe olduğu modern çatılar (framework) için özellikle kullanışlıdır. Statik dosyalar için yönlendirme otomatik yapılır, diğer istekler index.php dosyasına gönderilir.
     command: "php -S {{host|localhost}}:{{port|8000}} -t {{docroot|./public}}"
 
 # === REFLECTION & INSPECTION ===
 
-  - title: php - show function info
-    desc: |
-      Display detailed reflection information about a specific built-in or user-defined function.
-      The output includes parameter names, types, and whether the function is internal or user-defined.
-      This is helpful for developers to understand the signature of functions without consulting external documentation.
+  - title:
+      en: php - show function info
+      tr: php - işlev bilgisini gösterme
+    desc:
+      en: |
+        Display detailed reflection information about a specific built-in or user-defined function.
+        The output includes parameter names, types, and whether the function is internal or user-defined.
+        This is helpful for developers to understand the signature of functions without consulting external documentation.
+      tr: |
+        Belirli bir yerleşik veya kullanıcı tanımlı işlev hakkında ayrıntılı yansıma (reflection) bilgisini görüntüler. Çıktı, parametre adlarını, türleri ve işlevin dahili mi kullanıcı tanımlı mı olduğunu içerir. Harici belgelere başvurmadan işlevlerin imzasını anlamak isteyen geliştiriciler için yararlıdır.
     command: "php --rf {{function_name|strlen}}"
 
-  - title: php - show class info
-    desc: |
-      Show reflection data for a specific PHP class, including its methods, properties, and constants.
-      It provides visibility into the class structure, including inheritance and implemented interfaces.
-      Use this to inspect library classes or verify the structure of your own objects during development.
+  - title:
+      en: php - show class info
+      tr: php - sınıf bilgisini gösterme
+    desc:
+      en: |
+        Show reflection data for a specific PHP class, including its methods, properties, and constants.
+        It provides visibility into the class structure, including inheritance and implemented interfaces.
+        Use this to inspect library classes or verify the structure of your own objects during development.
+      tr: |
+        Belirli bir PHP sınıfı için yöntemleri, özellikleri ve sabitleri içeren yansıma verisini gösterir. Kalıtım ve uygulanan arayüzler dahil sınıf yapısına görünürlük sağlar. Kütüphane sınıflarını incelemek veya geliştirme sırasında kendi nesnelerinizin yapısını doğrulamak için bunu kullanın.
     command: "php --rc {{class_name|DateTime}}"
 
-  - title: php - show extension info
-    desc: |
-      Display information about a specific PHP extension and its defined functions/classes.
-      This helps in understanding what features a particular module (like 'json' or 'mbstring') provides.
-      It is useful for verifying versioning and capabilities of installed extensions.
+  - title:
+      en: php - show extension info
+      tr: php - eklenti bilgisini gösterme
+    desc:
+      en: |
+        Display information about a specific PHP extension and its defined functions/classes.
+        This helps in understanding what features a particular module (like 'json' or 'mbstring') provides.
+        It is useful for verifying versioning and capabilities of installed extensions.
+      tr: |
+        Belirli bir PHP eklentisi ve tanımladığı işlevler/sınıflar hakkında bilgi görüntüler. Bu, belirli bir modülün ('json' veya 'mbstring' gibi) hangi özellikleri sağladığını anlamaya yardımcı olur. Kurulu eklentilerin sürümlerini ve yeteneklerini doğrulamak için kullanışlıdır.
     command: "php --re {{extension_name|json}}"
 
 # === ADVANCED PROCESSING ===
 
-  - title: php - process input line by line
-    desc: |
-      Execute PHP code for every line of input received from the standard input (stdin).
-      The current line's content is available within the code for processing or filtering.
-      This makes PHP a powerful tool for text processing and log analysis in a shell environment.
+  - title:
+      en: php - process input line by line
+      tr: php - girdiyi satır satır işleme
+    desc:
+      en: |
+        Execute PHP code for every line of input received from the standard input (stdin).
+        The current line's content is available within the code for processing or filtering.
+        This makes PHP a powerful tool for text processing and log analysis in a shell environment.
+      tr: |
+        Standart girdiden (stdin) alınan her girdi satırı için PHP kodu çalıştırır. Geçerli satırın içeriği, işleme veya filtreleme için kodun içinde kullanılabilir. Bu, PHP'yi kabuk ortamında metin işleme ve kayıt analizi için güçlü bir araç yapar.
     command: "echo {{input|'data'}} | php -R {{code|'echo \"Line: $argn\\n\";'}}"
 
-  - title: php - execute with custom INI settings
-    desc: |
-      Run a PHP script while overriding specific configuration directives from the command line.
-      This allows you to temporarily change settings like 'memory_limit' or 'display_errors' for a single execution.
-      You can use multiple -d flags to define several different configuration entries.
+  - title:
+      en: php - execute with custom INI settings
+      tr: php - özel INI ayarlarıyla çalıştırma
+    desc:
+      en: |
+        Run a PHP script while overriding specific configuration directives from the command line.
+        This allows you to temporarily change settings like 'memory_limit' or 'display_errors' for a single execution.
+        You can use multiple -d flags to define several different configuration entries.
+      tr: |
+        Komut satırından belirli yapılandırma yönergelerini geçersiz kılarak bir PHP betiği çalıştırır. Bu, tek bir çalıştırma için 'memory_limit' veya 'display_errors' gibi ayarları geçici olarak değiştirmenize olanak tanır. Birden fazla farklı yapılandırma girdisi tanımlamak için birden çok -d bayrağı kullanabilirsiniz.
     command: "php -d {{key|memory_limit}}={{value|512M}} -f {{file|script.php}}"
 
-  - title: php - strip comments and whitespace
-    desc: |
-      Output the source of a PHP file after removing all comments and unnecessary whitespace.
-      This can be used to create a "minified" version of a script or to analyze the core logic without distractions.
-      The resulting code is still functional but much harder for humans to read.
+  - title:
+      en: php - strip comments and whitespace
+      tr: php - yorumları ve boşlukları temizleme
+    desc:
+      en: |
+        Output the source of a PHP file after removing all comments and unnecessary whitespace.
+        This can be used to create a "minified" version of a script or to analyze the core logic without distractions.
+        The resulting code is still functional but much harder for humans to read.
+      tr: |
+        Bir PHP dosyasının kaynağını tüm yorumlar ve gereksiz boşluklar kaldırılmış şekilde çıktılar. Betiğin "küçültülmüş" bir sürümünü oluşturmak veya çekirdek mantığı dikkat dağıtıcılar olmadan analiz etmek için kullanılabilir. Ortaya çıkan kod hâlâ işlevseldir ancak insanlar için okuması çok daha zordur.
     command: "php -w {{file|index.php}}"

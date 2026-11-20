@@ -3,97 +3,188 @@ tags: [network, remote-desktop, rdp, security, pentest, exploitation, authentica
 
 actions:
   # === BASIC AUTHENTICATION & CONNECTION ===
-  - title: xfreerdp - basic connection with credentials
-    desc: |
-      Connects to a remote Windows machine using standard username and password authentication. 
-      This is the primary method for accessing an RDP server. 
-      Ensure that the target port (default 3389) is reachable through the network.
+  - title:
+      en: xfreerdp - basic connection with credentials
+      tr: xfreerdp - kimlik bilgileriyle temel bağlantı
+    desc:
+      en: |
+        Connects to a remote Windows machine using standard username and password authentication. 
+        This is the primary method for accessing an RDP server. 
+        Ensure that the target port (default 3389) is reachable through the network.
+      tr: |
+        Standart kullanıcı adı ve parola kimlik doğrulamasıyla uzak bir Windows makinesine bağlanır.
+        Bu, bir RDP sunucusuna erişmenin birincil yöntemidir.
+        Hedef portun (varsayılan 3389) ağ üzerinden erişilebilir olduğundan emin olun.
     command: "xfreerdp /v:{{target_ip}} /u:{{username}} /p:{{password}}"
 
-  - title: xfreerdp - connection with domain
-    desc: |
-      Initiates a connection specifically including the Active Directory domain. 
-      This is necessary when logging into machines that are part of a corporate network. 
-      If the domain is not specified, the authentication might fail or default to a local account.
+  - title:
+      en: xfreerdp - connection with domain
+      tr: xfreerdp - alan adıyla bağlantı
+    desc:
+      en: |
+        Initiates a connection specifically including the Active Directory domain. 
+        This is necessary when logging into machines that are part of a corporate network. 
+        If the domain is not specified, the authentication might fail or default to a local account.
+      tr: |
+        Özellikle Active Directory alanını içeren bir bağlantı başlatır.
+        Bu, kurumsal bir ağın parçası olan makinelere girişte gereklidir.
+        Alan belirtilmezse kimlik doğrulama başarısız olabilir veya varsayılan olarak yerel hesaba dönebilir.
     command: "xfreerdp /v:{{target_ip}} /d:{{domain}} /u:{{username}} /p:{{password}}"
 
-  - title: xfreerdp - ignore certificate validation
-    desc: |
-      Connects to the target while suppressing certificate warnings and validation. 
-      This is highly recommended for penetration testers working with self-signed certificates or lab environments. 
-      It prevents the connection from aborting due to "untrusted CA" errors.
+  - title:
+      en: xfreerdp - ignore certificate validation
+      tr: xfreerdp - sertifika doğrulamayı yoksayma
+    desc:
+      en: |
+        Connects to the target while suppressing certificate warnings and validation. 
+        This is highly recommended for penetration testers working with self-signed certificates or lab environments. 
+        It prevents the connection from aborting due to "untrusted CA" errors.
+      tr: |
+        Sertifika uyarılarını ve doğrulamayı bastırarak hedefe bağlanır.
+        Kendinden imzalı sertifikalar veya laboratuvar ortamlarıyla çalışan sızma testçileri için önemle önerilir.
+        "Güvenilmeyen CA" hataları nedeniyle bağlantının kesilmesini engeller.
     command: "xfreerdp /v:{{target_ip}} /u:{{username}} /p:{{password}} /cert:ignore"
 
   # === ADVANCED AUTHENTICATION (PENTESTING) ===
-  - title: xfreerdp - pass the hash (PTH)
-    desc: |
-      Authenticates to the remote system using an NTLM hash instead of a cleartext password. 
-      This technique is a staple in post-exploitation scenarios where a user's hash has been dumped from memory or SAM. 
-      The target must support Restricted Admin mode or have specific registry settings enabled.
+  - title:
+      en: xfreerdp - pass the hash (PTH)
+      tr: xfreerdp - hash ile geçme (PTH)
+    desc:
+      en: |
+        Authenticates to the remote system using an NTLM hash instead of a cleartext password. 
+        This technique is a staple in post-exploitation scenarios where a user's hash has been dumped from memory or SAM. 
+        The target must support Restricted Admin mode or have specific registry settings enabled.
+      tr: |
+        Açık metin parola yerine NTLM karmasıyla uzak sisteme kimlik doğrulaması yapar.
+        Bu teknik, kullanıcının karması bellekten veya SAM'den dökülmüşse sömürü sonrası senaryoların vazgeçilmezidir.
+        Hedefin Kısıtlı Yönetici modunu desteklemesi veya belirli kayıt defteri ayarlarının etkin olması gerekir.
     command: "xfreerdp /v:{{target_ip}} /u:{{username}} /pth:{{ntlm_hash}} /cert:ignore"
 
-  - title: xfreerdp - restricted admin mode
-    desc: |
-      Enables the Restricted Admin mode for the RDP session. 
-      This prevents the transmission of reusable credentials to the remote server, protecting the client. 
-      It is often required for successful Pass-the-Hash attacks on modern Windows systems.
+  - title:
+      en: xfreerdp - restricted admin mode
+      tr: xfreerdp - kısıtlı yönetici modu
+    desc:
+      en: |
+        Enables the Restricted Admin mode for the RDP session. 
+        This prevents the transmission of reusable credentials to the remote server, protecting the client. 
+        It is often required for successful Pass-the-Hash attacks on modern Windows systems.
+      tr: |
+        RDP oturumu için Kısıtlı Yönetici modunu etkinleştirir.
+        Bu, yeniden kullanılabilir kimlik bilgilerinin uzak sunucuya iletilmesini engelleyerek istemciyi korur.
+        Modern Windows sistemlerinde başarılı Hash ile Geçme saldırıları için genellikle gereklidir.
     command: "xfreerdp /v:{{target_ip}} /u:{{username}} /p:{{password}} +restricted-admin /cert:ignore"
 
-  - title: xfreerdp - nla security force
-    desc: |
-      Forces the connection to use Network Level Authentication (NLA). 
-      NLA is a more secure method that requires the user to authenticate before a full RDP session is established. 
-      Use this if the server strictly requires NLA and negotiation fails automatically.
+  - title:
+      en: xfreerdp - nla security force
+      tr: xfreerdp - nla güvenliğini zorlama
+    desc:
+      en: |
+        Forces the connection to use Network Level Authentication (NLA). 
+        NLA is a more secure method that requires the user to authenticate before a full RDP session is established. 
+        Use this if the server strictly requires NLA and negotiation fails automatically.
+      tr: |
+        Bağlantıyı Ağ Düzeyi Kimlik Doğrulaması (NLA) kullanmaya zorlar.
+        NLA, tam bir RDP oturumu kurulmadan önce kullanıcının kimlik doğrulamasını gerektiren daha güvenli bir yöntemdir.
+        Sunucu kesinlikle NLA gerektiriyorsa ve anlaşma otomatik başarısız oluyorsa kullanın.
     command: "xfreerdp /v:{{target_ip}} /u:{{username}} /p:{{password}} /sec:nla /cert:ignore"
 
   # === RESOURCE REDIRECTION & FILE OPERATIONS ===
-  - title: xfreerdp - map local drive for file transfer
-    desc: |
-      Maps a local directory on the client machine to the remote RDP session as a network share. 
-      This is the most efficient way to transfer files, tools, or scripts between the attacker and the victim. 
-      The folder will appear inside "This PC" on the remote Windows machine.
+  - title:
+      en: xfreerdp - map local drive for file transfer
+      tr: xfreerdp - dosya aktarımı için yerel sürücüyü eşleme
+    desc:
+      en: |
+        Maps a local directory on the client machine to the remote RDP session as a network share. 
+        This is the most efficient way to transfer files, tools, or scripts between the attacker and the victim. 
+        The folder will appear inside "This PC" on the remote Windows machine.
+      tr: |
+        İstemci makinedeki yerel bir dizini uzak RDP oturumuna ağ paylaşımı olarak eşler.
+        Bu, saldırgan ile kurban arasında dosya, araç veya betik aktarmanın en verimli yoludur.
+        Klasör, uzak Windows makinede "Bu Bilgisayar" içinde görünür.
     command: "xfreerdp /v:{{target_ip}} /u:{{username}} /p:{{password}} /drive:{{share_name|myshare}},{{local_path|/tmp}} /cert:ignore"
 
-  - title: xfreerdp - enable clipboard and sound
-    desc: |
-      Enables both clipboard synchronization and audio redirection. 
-      This allows for copying text or files between the host and guest via the clipboard. 
-      Sound redirection is useful if you need to monitor system alerts or multimedia on the target.
+  - title:
+      en: xfreerdp - enable clipboard and sound
+      tr: xfreerdp - pano ve sesi etkinleştirme
+    desc:
+      en: |
+        Enables both clipboard synchronization and audio redirection. 
+        This allows for copying text or files between the host and guest via the clipboard. 
+        Sound redirection is useful if you need to monitor system alerts or multimedia on the target.
+      tr: |
+        Pano eşitleme ve ses yönlendirmeyi birlikte etkinleştirir.
+        Bu, konak ile misafir arasında pano üzerinden metin veya dosya kopyalamaya olanak tanır.
+        Ses yönlendirme, hedefteki sistem uyarılarını veya çoklu ortamı izlemeniz gerekiyorsa kullanışlıdır.
     command: "xfreerdp /v:{{target_ip}} /u:{{username}} /p:{{password}} +clipboard /sound:sys:alsa /cert:ignore"
 
-  - title: xfreerdp - smartcard redirection
-    desc: |
-      Redirects local smartcard readers to the remote session. 
-      This is commonly used in high-security environments for multi-factor authentication. 
-      Ensure the local pcscd service is running before using this flag.
+  - title:
+      en: xfreerdp - smartcard redirection
+      tr: xfreerdp - akıllı kart yönlendirme
+    desc:
+      en: |
+        Redirects local smartcard readers to the remote session. 
+        This is commonly used in high-security environments for multi-factor authentication. 
+        Ensure the local pcscd service is running before using this flag.
+      tr: |
+        Yerel akıllı kart okuyucuları uzak oturuma yönlendirir.
+        Bu, çok faktörlü kimlik doğrulama için yüksek güvenlikli ortamlarda yaygın kullanılır.
+        Bu bayrağı kullanmadan önce yerel pcscd servisinin çalıştığından emin olun.
     command: "xfreerdp /v:{{target_ip}} /u:{{username}} /p:{{password}} /smartcard:{{device_name}} /cert:ignore"
 
   # === DISPLAY & USER EXPERIENCE ===
-  - title: xfreerdp - fullscreen mode with dynamic resolution
-    desc: |
-      Starts the RDP session in fullscreen mode and enables dynamic resolution. 
-      Dynamic resolution allows the remote desktop to automatically resize when you change the window size. 
-      Use the key combination Ctrl+Alt+Enter to toggle fullscreen mode during the session.
+  - title:
+      en: xfreerdp - fullscreen mode with dynamic resolution
+      tr: xfreerdp - dinamik çözünürlüklü tam ekran modu
+    desc:
+      en: |
+        Starts the RDP session in fullscreen mode and enables dynamic resolution. 
+        Dynamic resolution allows the remote desktop to automatically resize when you change the window size. 
+        Use the key combination Ctrl+Alt+Enter to toggle fullscreen mode during the session.
+      tr: |
+        RDP oturumunu tam ekran modda başlatır ve dinamik çözünürlüğü etkinleştirir.
+        Dinamik çözünürlük, pencere boyutunu değiştirdiğinizde uzak masaüstünün otomatik yeniden boyutlanmasını sağlar.
+        Oturum sırasında tam ekran modunu açıp kapatmak için Ctrl+Alt+Enter tuş bileşimini kullanın.
     command: "xfreerdp /v:{{target_ip}} /u:{{username}} /p:{{password}} /f +dynamic-resolution /cert:ignore"
 
-  - title: xfreerdp - specific resolution and smart sizing
-    desc: |
-      Sets a fixed window resolution and enables smart sizing. 
-      Smart sizing scales the remote desktop display to fit the window size without changing the remote resolution. 
-      This is useful when working with high-resolution monitors while accessing lower-resolution targets.
+  - title:
+      en: xfreerdp - specific resolution and smart sizing
+      tr: xfreerdp - belirli çözünürlük ve akıllı boyutlandırma
+    desc:
+      en: |
+        Sets a fixed window resolution and enables smart sizing. 
+        Smart sizing scales the remote desktop display to fit the window size without changing the remote resolution. 
+        This is useful when working with high-resolution monitors while accessing lower-resolution targets.
+      tr: |
+        Sabit bir pencere çözünürlüğü ayarlar ve akıllı boyutlandırmayı etkinleştirir.
+        Akıllı boyutlandırma, uzak çözünürlüğü değiştirmeden uzak masaüstü görüntüsünü pencere boyutuna uyacak şekilde ölçekler.
+        Bu, düşük çözünürlüklü hedeflere erişirken yüksek çözünürlüklü monitörlerle çalışırken kullanışlıdır.
     command: "xfreerdp /v:{{target_ip}} /u:{{username}} /p:{{password}} /w:{{width|1280}} /h:{{height|720}} /smart-sizing /cert:ignore"
 
   # === NETWORK & GATEWAY ===
-  - title: xfreerdp - connection via RDP gateway
-    desc: |
-      Connects to a target machine through an intermediate RDP Gateway. 
-      Gateways are often used to provide access to internal RDP servers from the internet via HTTPS. 
-      You must provide credentials for both the gateway and the final destination server.
+  - title:
+      en: xfreerdp - connection via RDP gateway
+      tr: xfreerdp - RDP ağ geçidi üzerinden bağlantı
+    desc:
+      en: |
+        Connects to a target machine through an intermediate RDP Gateway. 
+        Gateways are often used to provide access to internal RDP servers from the internet via HTTPS. 
+        You must provide credentials for both the gateway and the final destination server.
+      tr: |
+        Ara bir RDP Ağ Geçidi üzerinden hedef makineye bağlanır.
+        Ağ geçitleri genellikle internetten dahili RDP sunucularına HTTPS üzerinden erişim sağlamak için kullanılır.
+        Hem ağ geçidi hem de nihai hedef sunucu için kimlik bilgileri vermelisiniz.
     command: "xfreerdp /v:{{target_ip}} /u:{{username}} /p:{{password}} /g:{{gateway_address}} /gu:{{gateway_user}} /gp:{{gateway_password}} /cert:ignore"
 
-  - title: xfreerdp - prevent session lock
-    desc: |
-      Attempts to prevent the remote session from locking due to inactivity. 
-      It injects fake mouse motion events at specified intervals to keep the session active. 
-      This is helpful when monitoring long-running tasks or waiting for background processes.
+  - title:
+      en: xfreerdp - prevent session lock
+      tr: xfreerdp - oturum kilidini engelleme
+    desc:
+      en: |
+        Attempts to prevent the remote session from locking due to inactivity. 
+        It injects fake mouse motion events at specified intervals to keep the session active. 
+        This is helpful when monitoring long-running tasks or waiting for background processes.
+      tr: |
+        Hareketsizlik nedeniyle uzak oturumun kilitlenmesini önlemeye çalışır.
+        Oturumu aktif tutmak için belirli aralıklarla sahte fare hareketi olayları enjekte eder.
+        Bu, uzun süren görevleri izlerken veya arka plan süreçlerini beklerken yardımcı olur.
     command: "xfreerdp /v:{{target_ip}} /u:{{username}} /p:{{password}} /prevent-session-lock:{{interval_sec|60}} /cert:ignore"

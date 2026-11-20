@@ -3,52 +3,100 @@ tags: [network, security, pentest, enumeration, authentication, rdp, impacket]
 
 actions:
   # === BASIC AUTHENTICATION ===
-  - title: impacket-rdp_check - basic local authentication
-    desc: |
-      This command checks if a specific local user account is valid on the target system using the RDP protocol. 
-      It is an essential tool for verifying credentials discovered during an engagement without the need for a full GUI session.
-      Using this method helps avoid the overhead of a desktop environment while testing for valid access. 
-      Be cautious as multiple failed attempts may trigger account lockout policies on the target.
+  - title:
+      en: impacket-rdp_check - basic local authentication
+      tr: impacket-rdp_check - temel yerel kimlik doğrulaması
+    desc:
+      en: |
+        This command checks if a specific local user account is valid on the target system using the RDP protocol. 
+        It is an essential tool for verifying credentials discovered during an engagement without the need for a full GUI session.
+        Using this method helps avoid the overhead of a desktop environment while testing for valid access. 
+        Be cautious as multiple failed attempts may trigger account lockout policies on the target.
+      tr: |
+        Bu komut, RDP protokolünü kullanarak belirli bir yerel kullanıcı hesabının hedef sistemde geçerli olup olmadığını denetler.
+        Tam bir grafik arayüz oturumuna gerek kalmadan test sırasında bulunan kimlik bilgilerini doğrulamak için temel bir araçtır.
+        Bu yöntem, geçerli erişimi test ederken masaüstü ortamının getirdiği yükten kaçınmaya yardımcı olur.
+        Birden fazla başarısız denemenin hedefte hesap kilitleme politikalarını tetikleyebileceğini unutmayın.
     command: "impacket-rdp_check {{username}}:{{password}}@{{target_ip}}"
 
-  - title: impacket-rdp_check - domain authentication
-    desc: |
-      Verifies domain account credentials against a target host over the RDP protocol.
-      This is frequently used in Active Directory environments to see if a specific domain user has rights to access a server or workstation.
-      The format requires the domain to be prepended to the username.
-      It is a quick way to map out lateral movement possibilities within a network.
+  - title:
+      en: impacket-rdp_check - domain authentication
+      tr: impacket-rdp_check - etki alanı kimlik doğrulaması
+    desc:
+      en: |
+        Verifies domain account credentials against a target host over the RDP protocol.
+        This is frequently used in Active Directory environments to see if a specific domain user has rights to access a server or workstation.
+        The format requires the domain to be prepended to the username.
+        It is a quick way to map out lateral movement possibilities within a network.
+      tr: |
+        RDP protokolü üzerinden hedef bir makineye karşı etki alanı hesabı kimlik bilgilerini doğrular.
+        Active Directory ortamlarında belirli bir etki alanı kullanıcısının bir sunucuya veya iş istasyonuna erişim hakkı olup olmadığını görmek için sıkça kullanılır.
+        Biçim, etki alanının kullanıcı adının önüne eklenmesini gerektirir.
+        Ağ içindeki yatay hareket olanaklarını hızlıca haritalamanın bir yoludur.
     command: "impacket-rdp_check {{domain}}/{{username}}:{{password}}@{{target_ip}}"
 
   # === ADVANCED AUTHENTICATION ===
-  - title: impacket-rdp_check - pass-the-hash authentication
-    desc: |
-      Performs authentication using NTLM hashes instead of a cleartext password.
-      This is a powerful post-exploitation technique used when you have extracted hashes from memory or the SAM database.
-      The hash must be provided in the LMHASH:NTHASH format; if the LM hash is unavailable, use 32 zeros.
-      This allows an attacker to verify access without needing to crack the password.
+  - title:
+      en: impacket-rdp_check - pass-the-hash authentication
+      tr: impacket-rdp_check - pass-the-hash kimlik doğrulaması
+    desc:
+      en: |
+        Performs authentication using NTLM hashes instead of a cleartext password.
+        This is a powerful post-exploitation technique used when you have extracted hashes from memory or the SAM database.
+        The hash must be provided in the LMHASH:NTHASH format; if the LM hash is unavailable, use 32 zeros.
+        This allows an attacker to verify access without needing to crack the password.
+      tr: |
+        Açık parola yerine NTLM hash'leri kullanarak kimlik doğrulaması yapar.
+        Bellekten veya SAM veritabanından hash çıkardığınızda kullanılan güçlü bir sömürü sonrası tekniktir.
+        Hash, LMHASH:NTHASH biçiminde verilmelidir; LM hash'i yoksa 32 adet sıfır kullanın.
+        Bu, saldırganın parolayı kırmaya gerek kalmadan erişimi doğrulamasına olanak tanır.
     command: "impacket-rdp_check {{domain|.}}/{{username}}@{{target_ip}} -hashes {{hash}}"
 
   # === NETWORK & TROUBLESHOOTING ===
-  - title: impacket-rdp_check - test over ipv6
-    desc: |
-      Enables the tool to communicate with the target using the IPv6 protocol.
-      This is useful in modern networks where IPv6 might be enabled and potentially less monitored than IPv4.
-      Ensure that the target address provided is a valid IPv6 representation.
-      It helps in identifying misconfigurations in dual-stack environments.
+  - title:
+      en: impacket-rdp_check - test over ipv6
+      tr: impacket-rdp_check - IPv6 üzerinden test
+    desc:
+      en: |
+        Enables the tool to communicate with the target using the IPv6 protocol.
+        This is useful in modern networks where IPv6 might be enabled and potentially less monitored than IPv4.
+        Ensure that the target address provided is a valid IPv6 representation.
+        It helps in identifying misconfigurations in dual-stack environments.
+      tr: |
+        Aracın hedefle IPv6 protokolünü kullanarak iletişim kurmasını sağlar.
+        IPv6'nın etkin ve IPv4'e göre daha az izleniyor olabileceği modern ağlarda faydalıdır.
+        Verilen hedef adresin geçerli bir IPv6 gösterimi olduğundan emin olun.
+        Çift yığınlı (dual-stack) ortamlardaki yanlış yapılandırmaları tespit etmeye yardımcı olur.
     command: "impacket-rdp_check -6 {{username}}:{{password}}@{{target_ipv6}}"
 
-  - title: impacket-rdp_check - verbose debug mode with timestamps
-    desc: |
-      Runs the RDP check with full debug output and prepends timestamps to every log line.
-      Debug mode is crucial when the connection is failing for unknown reasons, such as network resets or protocol mismatches.
-      The timestamps help in correlating the tool's activity with other network logs or packet captures.
-      This is the recommended way to troubleshoot Impacket-specific library errors.
+  - title:
+      en: impacket-rdp_check - verbose debug mode with timestamps
+      tr: impacket-rdp_check - zaman damgalı ayrıntılı hata ayıklama kipi
+    desc:
+      en: |
+        Runs the RDP check with full debug output and prepends timestamps to every log line.
+        Debug mode is crucial when the connection is failing for unknown reasons, such as network resets or protocol mismatches.
+        The timestamps help in correlating the tool's activity with other network logs or packet captures.
+        This is the recommended way to troubleshoot Impacket-specific library errors.
+      tr: |
+        RDP denetimini tam hata ayıklama çıktısıyla çalıştırır ve her günlük satırının başına zaman damgası ekler.
+        Ağ sıfırlamaları veya protokol uyumsuzlukları gibi bilinmeyen nedenlerle bağlantı başarısız olduğunda hata ayıklama kipi kritik öneme sahiptir.
+        Zaman damgaları, aracın etkinliğini diğer ağ günlükleri veya paket yakalamalarla ilişkilendirmeye yardımcı olur.
+        Impacket kütüphanesine özgü hataları gidermenin önerilen yolu budur.
     command: "impacket-rdp_check -debug -ts {{username}}:{{password}}@{{target_ip}}"
 
-  - title: impacket-rdp_check - check without password (blank password)
-    desc: |
-      Attempts to verify if an account has a blank password or if the system allows passwordless RDP access.
-      While rare in modern hardened systems, it is a common misconfiguration in older or laboratory environments.
-      The trailing colon after the username indicates an empty password field.
-      Testing for blank passwords should be part of any comprehensive internal security assessment.
+  - title:
+      en: impacket-rdp_check - check without password (blank password)
+      tr: impacket-rdp_check - parolasız denetleme (boş parola)
+    desc:
+      en: |
+        Attempts to verify if an account has a blank password or if the system allows passwordless RDP access.
+        While rare in modern hardened systems, it is a common misconfiguration in older or laboratory environments.
+        The trailing colon after the username indicates an empty password field.
+        Testing for blank passwords should be part of any comprehensive internal security assessment.
+      tr: |
+        Bir hesabın boş parolası olup olmadığını veya sistemin parolasız RDP erişimine izin verip vermediğini doğrulamaya çalışır.
+        Modern sıkılaştırılmış sistemlerde nadir olsa da eski veya laboratuvar ortamlarında yaygın bir yanlış yapılandırmadır.
+        Kullanıcı adından sonraki iki nokta üst üste, boş parola alanını gösterir.
+        Boş parola testi, her kapsamlı iç güvenlik değerlendirmesinin bir parçası olmalıdır.
     command: "impacket-rdp_check {{username}}:@{{target_ip}}"

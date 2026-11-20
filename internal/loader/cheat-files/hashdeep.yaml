@@ -3,81 +3,158 @@ tags: [forensics, security, hashing, integrity, checksum, incident-response]
 
 actions:
   # === BASIC HASHING ===
-  - title: hashdeep - compute hashes for a single file
-    desc: |
-      Generates digital signatures for a specific file using the default algorithms MD5 and SHA-256. 
-      This is the most common way to obtain a quick hash of a file to ensure its integrity or to verify it against a known value. 
-      It outputs the file size, the hashes, and the file path in a formatted string.
+  - title:
+      en: hashdeep - compute hashes for a single file
+      tr: hashdeep - tek dosya hash hesaplama
+    desc:
+      en: |
+        Generates digital signatures for a specific file using the default algorithms MD5 and SHA-256. 
+        This is the most common way to obtain a quick hash of a file to ensure its integrity or to verify it against a known value. 
+        It outputs the file size, the hashes, and the file path in a formatted string.
+      tr: |
+        Belirli bir dosyanın varsayılan MD5 ve SHA-256 algoritmalarıyla dijital imzasını üretir.
+        Bütünlüğü doğrulamak veya bilinen değerle karşılaştırmak için hızlı hash almanın en yaygın yoludur.
+        Dosya boyutu, hash'ler ve dosya yolunu formatlı dizede yazdırır.
     command: "hashdeep {{file_path}}"
 
-  - title: hashdeep - recursive directory hashing
-    desc: |
-      Traverses all subdirectories starting from the specified path and computes hashes for every file found. 
-      This is a standard procedure during forensic imaging or system auditing to baseline a directory's state. 
-      It provides a comprehensive list of all files and their corresponding hashes, which can be redirected to a file for storage.
+  - title:
+      en: hashdeep - recursive directory hashing
+      tr: hashdeep - özyineli dizin hash'leme
+    desc:
+      en: |
+        Traverses all subdirectories starting from the specified path and computes hashes for every file found. 
+        This is a standard procedure during forensic imaging or system auditing to baseline a directory's state. 
+        It provides a comprehensive list of all files and their corresponding hashes, which can be redirected to a file for storage.
+      tr: |
+        Belirtilen yoldan başlayıp tüm alt dizinlerdeki dosyaları hash'ler.
+        Adli imaj alma veya sistem denetiminde dizin durumunu taban çizgisi yapmak standart prosedürdür.
+        Tüm dosyaların listesini ve hash'lerini üretir; dosyaya yönlendirilebilir.
     command: "hashdeep -r {{directory_path}}"
 
-  - title: hashdeep - hash with specific algorithms
-    desc: |
-      Computes hashes using only the specified algorithms instead of the default MD5/SHA-256 pair. 
-      Supported algorithms include md5, sha1, sha256, tiger, and whirlpool, which can be provided as a comma-separated list. 
-      Use this when a specific compliance standard or tool requirement dictates a certain hashing method.
+  - title:
+      en: hashdeep - hash with specific algorithms
+      tr: hashdeep - belirli algoritmalarla hash'leme
+    desc:
+      en: |
+        Computes hashes using only the specified algorithms instead of the default MD5/SHA-256 pair. 
+        Supported algorithms include md5, sha1, sha256, tiger, and whirlpool, which can be provided as a comma-separated list. 
+        Use this when a specific compliance standard or tool requirement dictates a certain hashing method.
+      tr: |
+        Varsayılan MD5/SHA-256 çifti yerine yalnızca belirtilen algoritmalarla hash hesaplar.
+        md5, sha1, sha256, tiger, whirlpool virgülle ayrılmış liste olarak verilebilir.
+        Belirli uyumluluk standardı veya araç gereksinimi dayattığında kullanılır.
     command: "hashdeep -c {{algorithms|sha256,sha1}} {{file_path}}"
 
   # === AUDITING AND MATCHING ===
-  - title: hashdeep - generate hash list for auditing
-    desc: |
-      Creates a hash list and saves it to a file for later use in auditing or matching scenarios. 
-      The generated baseline file serves as the "source of truth" for verifying file integrity across different systems or points in time. 
-      Users should ensure they have write permissions to the destination path before executing this command.
+  - title:
+      en: hashdeep - generate hash list for auditing
+      tr: hashdeep - denetim için hash listesi üretme
+    desc:
+      en: |
+        Creates a hash list and saves it to a file for later use in auditing or matching scenarios. 
+        The generated baseline file serves as the "source of truth" for verifying file integrity across different systems or points in time. 
+        Users should ensure they have write permissions to the destination path before executing this command.
+      tr: |
+        Hash listesi oluşturup denetim veya eşleştirmede kullanmak üzere dosyaya kaydeder.
+        Üretilen taban çizgisi farklı sistem veya zamanlarda bütünlük doğrulamada "doğru kaynak" görevi görür.
+        Hedef yola yazma izniniz olduğundan emin olun.
     command: "hashdeep -r {{directory_path}} > {{hash_list|known_hashes.txt}}"
 
-  - title: hashdeep - audit files against known hashes
-    desc: |
-      Compares the files in a target directory against a previously generated list of known-good hashes. 
-      This mode will report any files that have been modified, deleted, or moved, as well as any new files that were not in the original list. 
-      It is an essential tool for detecting unauthorized file modifications or identifying malware persistence on a filesystem.
+  - title:
+      en: hashdeep - audit files against known hashes
+      tr: hashdeep - bilinen hash'lere karşı denetleme
+    desc:
+      en: |
+        Compares the files in a target directory against a previously generated list of known-good hashes. 
+        This mode will report any files that have been modified, deleted, or moved, as well as any new files that were not in the original list. 
+        It is an essential tool for detecting unauthorized file modifications or identifying malware persistence on a filesystem.
+      tr: |
+        Hedef dizindeki dosyaları önceden üretilmiş bilinen-iyi hash listesiyle karşılaştırır.
+        Değiştirilmiş, silinmiş, taşınmış veya listede olmayan yeni dosyaları raporlar.
+        Yetkisiz değişiklikleri veya kalıcı kötü amaçlı yazılımı tespit için vazgeçilmezdir.
     command: "hashdeep -a -k {{hash_list|known_hashes.txt}} -r {{directory_path}}"
 
-  - title: hashdeep - identify known files (Matching Mode)
-    desc: |
-      Searches for files in the target directory that match any of the hashes provided in the known-hashes file. 
-      This is particularly useful in forensics to find known malware, specific OS binaries, or sensitive documents that have been renamed. 
-      Unlike audit mode, matching mode focuses specifically on identifying signatures rather than finding differences.
+  - title:
+      en: hashdeep - identify known files (Matching Mode)
+      tr: hashdeep - bilinen dosyaları tespit (eşleşme modu)
+    desc:
+      en: |
+        Searches for files in the target directory that match any of the hashes provided in the known-hashes file. 
+        This is particularly useful in forensics to find known malware, specific OS binaries, or sensitive documents that have been renamed. 
+        Unlike audit mode, matching mode focuses specifically on identifying signatures rather than finding differences.
+      tr: |
+        Hedef dizinde bilinen-hash dosyasındaki imzalara uyanları arar.
+        Yeniden adlandırılmış bilinen kötü amaçlı yazılım, işletim sistemi dosyası veya hassas belgeyi bulmakta faydalıdır.
+        Farkları bulmaya değil imzaları tespit etmeye odaklanır.
     command: "hashdeep -m -k {{hash_list|known_hashes.txt}} -r {{directory_path}}"
 
-  - title: hashdeep - find unknown or modified files (Negative Match)
-    desc: |
-      Identifies files that do not match any of the hashes in the provided known-hashes list. 
-      This is extremely effective for finding "outlier" files in a system, such as suspicious binaries, scripts, or unauthorized configuration changes. 
-      It helps investigators filter out thousands of known-good system files to focus only on anomalies.
+  - title:
+      en: hashdeep - find unknown or modified files (Negative Match)
+      tr: hashdeep - bilinmeyen veya değişmiş dosyaları bul (negatif eşleşme)
+    desc:
+      en: |
+        Identifies files that do not match any of the hashes in the provided known-hashes list. 
+        This is extremely effective for finding "outlier" files in a system, such as suspicious binaries, scripts, or unauthorized configuration changes. 
+        It helps investigators filter out thousands of known-good system files to focus only on anomalies.
+      tr: |
+        Sağlanan listedeki hiçbir hash ile eşleşmeyen dosyaları tespit eder.
+        Şüpheli ikili, betik veya yetkisiz yapılandırma değişikliği gibi "aykırı" dosyaları bulmada çok etkilidir.
+        Binlerce bilinen-iyi sistem dosyasını eleyerek yalnızca anomalilere odaklanmayı sağlar.
     command: "hashdeep -x -k {{hash_list|known_hashes.txt}} -r {{directory_path}}"
 
   # === ADVANCED FEATURES ===
-  - title: hashdeep - piecewise hashing for large files
-    desc: |
-      Breaks files into smaller blocks of a specified size and hashes each block individually. 
-      This is useful for identifying partial matches in large files or forensic images where only specific sectors might have changed. 
-      It provides a more granular view of file contents compared to standard whole-file hashing techniques.
+  - title:
+      en: hashdeep - piecewise hashing for large files
+      tr: hashdeep - büyük dosyalar için parçalı hash'leme
+    desc:
+      en: |
+        Breaks files into smaller blocks of a specified size and hashes each block individually. 
+        This is useful for identifying partial matches in large files or forensic images where only specific sectors might have changed. 
+        It provides a more granular view of file contents compared to standard whole-file hashing techniques.
+      tr: |
+        Dosyaları belirtilen boyutta bloklara bölüp her bloğu ayrı hash'ler.
+        Büyük dosya veya adli imajlarda kısmi eşleşmeleri, değişen sektörleri bulmakta faydalıdır.
+        Standart tüm-dosya hash'lemeye göre daha ayrıntılı görünüm sunar.
     command: "hashdeep -p {{block_size|1024}} {{file_path}}"
 
-  - title: hashdeep - multithreaded hash computation
-    desc: |
-      Utilizes multiple CPU threads to speed up the hashing process across a large number of files. 
-      By default, hashdeep uses 6 threads, but this can be adjusted based on the hardware capabilities of the workstation. 
-      Increasing threads can significantly reduce the time required to process large datasets or high-capacity storage drives.
+  - title:
+      en: hashdeep - multithreaded hash computation
+      tr: hashdeep - çok iş parçacıklı hash hesaplama
+    desc:
+      en: |
+        Utilizes multiple CPU threads to speed up the hashing process across a large number of files. 
+        By default, hashdeep uses 6 threads, but this can be adjusted based on the hardware capabilities of the workstation. 
+        Increasing threads can significantly reduce the time required to process large datasets or high-capacity storage drives.
+      tr: |
+        Çok sayıda dosyada hash işlemini hızlandırmak için birden fazla CPU iş parçacığı kullanır.
+        Varsayılan 6 iş parçacığıdır; iş istasyonu donanımına göre ayarlanabilir.
+        İş parçacığını artırmak büyük disklerde işlem süresini ciddi kısaltabilir.
     command: "hashdeep -j {{thread_count|8}} -r {{directory_path}}"
 
-  - title: hashdeep - output in DFXML format
-    desc: |
-      Generates the output in Digital Forensics XML (DFXML) format, which is a standard for forensic tool interoperability. 
-      This format is machine-readable and can be easily ingested by other forensic analysis platforms or custom scripts. 
-      It includes extensive metadata about the files and the environment in which the hashes were generated.
+  - title:
+      en: hashdeep - output in DFXML format
+      tr: hashdeep - DFXML formatında çıktı
+    desc:
+      en: |
+        Generates the output in Digital Forensics XML (DFXML) format, which is a standard for forensic tool interoperability. 
+        This format is machine-readable and can be easily ingested by other forensic analysis platforms or custom scripts. 
+        It includes extensive metadata about the files and the environment in which the hashes were generated.
+      tr: |
+        Çıktıyı adli araç birlikte çalışırlığı standardı DFXML formatında üretir.
+        Makinece okunabilir format diğer adli platformlar veya betikler tarafından kolayca işlenir.
+        Dosyalar ve hash ortamı hakkında kapsamlı meta veri içerir.
     command: "hashdeep -d -r {{directory_path}}"
 
-  - title: hashdeep - display relative paths and bare names
-    desc: |
-      Changes the output format to display only the relative path or the bare filename without any path information. 
-      This is helpful when you need to compare files across different systems where the absolute paths might differ. 
-      The `-b` flag is especially useful for creating scripts that process file names directly without needing to strip directory strings.
+  - title:
+      en: hashdeep - display relative paths and bare names
+      tr: hashdeep - göreli yol ve yalın ad gösterme
+    desc:
+      en: |
+        Changes the output format to display only the relative path or the bare filename without any path information. 
+        This is helpful when you need to compare files across different systems where the absolute paths might differ. 
+        The `-b` flag is especially useful for creating scripts that process file names directly without needing to strip directory strings.
+      tr: |
+        Çıktıyı yalnızca göreli yol veya yolsuz yalın dosya adıyla gösterecek şekilde değiştirir.
+        Mutlak yolların farklı olduğu sistemler arası karşılaştırmada faydalıdır.
+        '-b' bayrağı dizin dizelerini elle ayıklayan betikler için özellikle kullanışlıdır.
     command: "hashdeep -r -l -b {{directory_path}}"

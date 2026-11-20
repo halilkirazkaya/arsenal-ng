@@ -3,92 +3,179 @@ tags: [web, security, pentest, scanner, xss, enumeration, automation]
 
 actions:
   # === BASIC SCANNING ===
-  - title: dalfox - basic url scan
-    desc: |
-      Perform a standard XSS scan on a single target URL. This is the most common entry point for checking specific parameters for reflected XSS vulnerabilities. 
-      It automatically analyzes parameters and tests for various XSS vectors using a built-in payload generator.
+  - title:
+      en: dalfox - basic url scan
+      tr: dalfox - temel adres taraması
+    desc:
+      en: |
+        Perform a standard XSS scan on a single target URL. This is the most common entry point for checking specific parameters for reflected XSS vulnerabilities. 
+        It automatically analyzes parameters and tests for various XSS vectors using a built-in payload generator.
+      tr: |
+        Tek hedef adres üzerinde standart XSS taraması yürütür. Yansımalı XSS zafiyetleri açısından belirli değişkenleri denetlemenin en yaygın giriş noktasıdır.
+        Yerleşik yük üreticiyle değişkenleri kendiliğinden çözümleyerek çeşitli XSS yönlerine karşı deneme yapar.
     command: "dalfox url {{url}}"
 
-  - title: dalfox - scan targets from file
-    desc: |
-      Load a list of target URLs from a text file for batch processing. This is ideal when you have a large list of endpoints harvested from reconnaissance tools like subfinder or waybackurls. 
-      Dalfox will process each URL in the list, making it highly efficient for scanning multiple targets at once.
+  - title:
+      en: dalfox - scan targets from file
+      tr: dalfox - dosyadan hedef tarama
+    desc:
+      en: |
+        Load a list of target URLs from a text file for batch processing. This is ideal when you have a large list of endpoints harvested from reconnaissance tools like subfinder or waybackurls. 
+        Dalfox will process each URL in the list, making it highly efficient for scanning multiple targets at once.
+      tr: |
+        Toplu işlem amacıyla hedef adres listesini metin dosyasından yükler. Subfinder veya waybackurls benzeri keşif araçlarından derlenen büyük uç nokta listelerinde idealdir.
+        Dalfox listedeki her adresi işler; birden fazla hedefi aynı anda tararken oldukça verimlidir.
     command: "dalfox file {{file_path}}"
 
-  - title: dalfox - scan from stdin pipe
-    desc: |
-      Accept target URLs directly from standard input (stdin). This allows for seamless integration into automated command-line pipelines. 
-      It is commonly used after tools that output URL lists, enabling instant scanning of discovered web assets.
+  - title:
+      en: dalfox - scan from stdin pipe
+      tr: dalfox - stdin hattından tarama
+    desc:
+      en: |
+        Accept target URLs directly from standard input (stdin). This allows for seamless integration into automated command-line pipelines. 
+        It is commonly used after tools that output URL lists, enabling instant scanning of discovered web assets.
+      tr: |
+        Hedef adresleri standart girdiden (stdin) doğrudan kabul eder. Otomatik komut satırı hatlarına sorunsuz eklemlenmeyi sağlar.
+        Adres listesi üreten araçların ardından yaygın kullanılır; keşfedilen ağ varlıklarının anında taranmasına olanak tanır.
     command: "echo {{url}} | dalfox pipe"
 
   # === REQUEST CUSTOMIZATION ===
-  - title: dalfox - scan with post data
-    desc: |
-      Test parameters within a POST request body for XSS vulnerabilities. This is essential for testing forms, login pages, and API endpoints where data is not passed via URL parameters. 
-      Ensure the data string is properly formatted as it would be sent in a real HTTP request.
+  - title:
+      en: dalfox - scan with post data
+      tr: dalfox - POST verisiyle tarama
+    desc:
+      en: |
+        Test parameters within a POST request body for XSS vulnerabilities. This is essential for testing forms, login pages, and API endpoints where data is not passed via URL parameters. 
+        Ensure the data string is properly formatted as it would be sent in a real HTTP request.
+      tr: |
+        POST istek gövdesindeki değişkenleri XSS zafiyetleri açısından sınar. Verinin adres değişkenleriyle taşınmadığı form, giriş sayfası ile arayüz uç noktalarını denemek açısından vazgeçilmezdir.
+        Veri dizesinin gerçek HTTP isteğinde gönderileceği biçime uygun olmasına dikkat edilmelidir.
     command: "dalfox url {{url}} -d {{post_data|'username=admin&id=1'}} -X POST"
 
-  - title: dalfox - scan with custom cookies and headers
-    desc: |
-      Add custom HTTP headers or cookies to scan authenticated or protected areas of an application. 
-      This is necessary for bypassing session-based access controls or providing required API keys during the scan. 
-      Multiple headers can be added to satisfy complex authentication requirements.
+  - title:
+      en: dalfox - scan with custom cookies and headers
+      tr: dalfox - özel çerez ve başlıklarla tarama
+    desc:
+      en: |
+        Add custom HTTP headers or cookies to scan authenticated or protected areas of an application. 
+        This is necessary for bypassing session-based access controls or providing required API keys during the scan. 
+        Multiple headers can be added to satisfy complex authentication requirements.
+      tr: |
+        Uygulamanın giriş korumalı veya korunaklı bölümlerini taramak amacıyla özel HTTP başlıkları veya çerezleri ekler.
+        Oturum tabanlı erişim denetimlerini aşmak veya tarama sırasında gerekli arayüz anahtarlarını sağlamak açısından zorunludur.
+        Karmaşık kimlik doğrulama gereksinimlerini karşılamak amacıyla birden fazla başlık eklenebilir.
     command: "dalfox url {{url}} -C {{cookie|'sessionid=abc123'}} -H {{header|'Authorization: Bearer token'}}"
 
-  - title: dalfox - proxy support
-    desc: |
-      Route all scanning traffic through a specified proxy server, such as Burp Suite or OWASP ZAP. 
-      This allows you to intercept, inspect, and manually manipulate the requests generated by Dalfox. 
-      It is particularly useful for debugging or when working within a restricted network environment.
+  - title:
+      en: dalfox - proxy support
+      tr: dalfox - vekil sunucu desteği
+    desc:
+      en: |
+        Route all scanning traffic through a specified proxy server, such as Burp Suite or OWASP ZAP. 
+        This allows you to intercept, inspect, and manually manipulate the requests generated by Dalfox. 
+        It is particularly useful for debugging or when working within a restricted network environment.
+      tr: |
+        Tüm tarama trafiğini belirtilen vekil sunucu üzerinden geçirir; Burp Suite veya OWASP ZAP örnek verilebilir.
+        Dalfox tarafından üretilen istekleri yakalamaya, incelemeye, elle değiştirmeye olanak tanır.
+        Hata ayıklarken veya kısıtlı ağ ortamında çalışırken özellikle kullanışlıdır.
     command: "dalfox url {{url}} --proxy {{proxy_url|'http://127.0.0.1:8080'}}"
 
   # === ADVANCED SCANNING STRATEGIES ===
-  - title: dalfox - blind xss testing
-    desc: |
-      Specify a callback URL to detect Out-of-Band (Blind) XSS vulnerabilities. 
-      The tool will inject payloads that attempt to make an external request to your listener (e.g., Interactsh or XSS Hunter) if executed. 
-      This is the only way to detect XSS that triggers in administrative panels or background processes not visible to the scanner.
+  - title:
+      en: dalfox - blind xss testing
+      tr: dalfox - kör XSS denemesi
+    desc:
+      en: |
+        Specify a callback URL to detect Out-of-Band (Blind) XSS vulnerabilities. 
+        The tool will inject payloads that attempt to make an external request to your listener (e.g., Interactsh or XSS Hunter) if executed. 
+        This is the only way to detect XSS that triggers in administrative panels or background processes not visible to the scanner.
+      tr: |
+        Bant dışı (kör) XSS zafiyetlerini yakalamak amacıyla geri çağrı adresi belirtir.
+        Araç çalıştırıldığında dinleyicinize (örneğin Interactsh veya XSS Hunter) dış istek çıkarmaya çalışan yükler enjekte eder.
+        Tarayıcının göremediği yönetim panelleri veya arka plan süreçlerinde tetiklenen XSS kodunu yakalamanın tek yoludur.
     command: "dalfox url {{url}} -b {{callback_url}}"
 
-  - title: dalfox - waf evasion mode
-    desc: |
-      Enable specialized WAF evasion techniques to bypass security filters. 
-      This mode automatically slows down the scanning speed, adds delays between requests, and uses a single worker to avoid triggering rate limits. 
-      It also utilizes specific payload variations designed to be less "noisy" to security appliances.
+  - title:
+      en: dalfox - waf evasion mode
+      tr: dalfox - WAF atlatma kipi
+    desc:
+      en: |
+        Enable specialized WAF evasion techniques to bypass security filters. 
+        This mode automatically slows down the scanning speed, adds delays between requests, and uses a single worker to avoid triggering rate limits. 
+        It also utilizes specific payload variations designed to be less "noisy" to security appliances.
+      tr: |
+        Güvenlik filtrelerini aşmaya yönelik özel WAF atlatma tekniklerini etkinleştirir.
+        Bu kip tarama hızını kendiliğinden düşürür, istekler arasına bekleme koyar, hız sınırına takılmamak amacıyla tek işçi kullanır.
+        Ayrıca güvenlik aygıtlarına daha az ses çıkaran özel yük türevlerinden yararlanır.
     command: "dalfox url {{url}} --waf-evasion"
 
-  - title: dalfox - parameter mining
-    desc: |
-      Discover hidden or unlinked parameters using dictionary-based and DOM-based mining. 
-      Hidden parameters are often overlooked during development and can be a goldmine for finding XSS. 
-      You can provide a custom wordlist to better target specific application logic or frameworks.
+  - title:
+      en: dalfox - parameter mining
+      tr: dalfox - değişken madenciliği
+    desc:
+      en: |
+        Discover hidden or unlinked parameters using dictionary-based and DOM-based mining. 
+        Hidden parameters are often overlooked during development and can be a goldmine for finding XSS. 
+        You can provide a custom wordlist to better target specific application logic or frameworks.
+      tr: |
+        Sözlük tabanlı ile DOM tabanlı madencilik kullanarak gizli veya bağlantısız değişkenleri keşfeder.
+        Gizli değişkenler geliştirme sırasında çoğunlukla gözden kaçar; XSS bulmak açısından altın madeni değerindedir.
+        Belirli uygulama mantığını veya çatıları daha iyi hedeflemek amacıyla özel kelime listesi verilebilir.
     command: "dalfox url {{url}} --mining-dict -W {{wordlist|'params.txt'}}"
 
-  - title: dalfox - headless dom xss verification
-    desc: |
-      Use a headless browser to perform deep DOM XSS testing and verify reflected findings. 
-      This feature significantly reduces false positives by confirming if the injected payload actually executes in a real browser environment. 
-      Note that this requires more system resources and will slow down the overall scanning process.
+  - title:
+      en: dalfox - headless dom xss verification
+      tr: dalfox - başsız tarayıcıyla DOM XSS doğrulama
+    desc:
+      en: |
+        Use a headless browser to perform deep DOM XSS testing and verify reflected findings. 
+        This feature significantly reduces false positives by confirming if the injected payload actually executes in a real browser environment. 
+        Note that this requires more system resources and will slow down the overall scanning process.
+      tr: |
+        Derin DOM XSS denemesi yapıp yansımalı bulguları doğrulamak amacıyla başsız tarayıcı kullanır.
+        Enjekte edilen yükün gerçek tarayıcı ortamında çalışıp çalışmadığını saptayarak yanlış alarm sayısını belirgin biçimde azaltır.
+        Bu özelliğin daha fazla sistem kaynağı istediği, genel tarama sürecini yavaşlattığı unutulmamalıdır.
     command: "dalfox url {{url}} --deep-domxss --force-headless-verification"
 
   # === OUTPUT AND AUTOMATION ===
-  - title: dalfox - save results to file
-    desc: |
-      Export the vulnerability findings to a file for reporting or further processing. 
-      Dalfox supports multiple output formats including plain text and structured JSON. 
-      JSON output is particularly useful when feeding findings into other tools or custom reporting scripts.
+  - title:
+      en: dalfox - save results to file
+      tr: dalfox - sonuçları dosyaya kaydetme
+    desc:
+      en: |
+        Export the vulnerability findings to a file for reporting or further processing. 
+        Dalfox supports multiple output formats including plain text and structured JSON. 
+        JSON output is particularly useful when feeding findings into other tools or custom reporting scripts.
+      tr: |
+        Zafiyet bulgularını raporlama veya ileri işlem amacıyla dosyaya aktarır.
+        Dalfox düz metin ile yapılandırılmış JSON içinde birden fazla çıktı biçimini destekler.
+        JSON çıktısı bulguları başka araçlara veya özel raporlama betiklerine beslerken özellikle kullanışlıdır.
     command: "dalfox url {{url}} -o {{output_file|'results.json'}} --format {{format|'json'}}"
 
-  - title: dalfox - found action trigger
-    desc: |
-      Execute a specific shell command or script immediately when a vulnerability is discovered. 
-      This allows for real-time notifications via Slack, Discord, or Telegram webhooks. 
-      It is a powerful feature for bug bounty hunters who want to be notified the moment a bug is found during a long-running scan.
+  - title:
+      en: dalfox - found action trigger
+      tr: dalfox - bulgu üzerine eylem tetikleme
+    desc:
+      en: |
+        Execute a specific shell command or script immediately when a vulnerability is discovered. 
+        This allows for real-time notifications via Slack, Discord, or Telegram webhooks. 
+        It is a powerful feature for bug bounty hunters who want to be notified the moment a bug is found during a long-running scan.
+      tr: |
+        Zafiyet keşfedildiğinde belirtilen kabuk komutunu veya betiği hemen çalıştırır.
+        Slack, Discord veya Telegram kancaları üzerinden gerçek zamanlı bildirim göndermeye olanak tanır.
+        Uzun süren tarama sırasında hata bulunur bulunmaz haber almak isteyen ödül avcıları açısından güçlü özelliktir.
     command: "dalfox url {{url}} --found-action {{command_to_run|'./notify.sh'}}"
 
-  - title: dalfox - stored xss mode
-    desc: |
-      Use the stored XSS mode to test for vulnerabilities where the payload is saved on the server and executed later. 
-      This mode focuses on identifying if a payload injected in one request is reflected in another response. 
-      It is highly effective for testing profiles, comments, and other persistent data storage features.
+  - title:
+      en: dalfox - stored xss mode
+      tr: dalfox - kalıcı XSS kipi
+    desc:
+      en: |
+        Use the stored XSS mode to test for vulnerabilities where the payload is saved on the server and executed later. 
+        This mode focuses on identifying if a payload injected in one request is reflected in another response. 
+        It is highly effective for testing profiles, comments, and other persistent data storage features.
+      tr: |
+        Yükün sunucuda saklanıp sonradan çalıştırıldığı zafiyetleri denemek amacıyla kalıcı XSS kipini kullanır.
+        Bu kip bir istekte enjekte edilen yükün başka yanıtta yansıyıp yansımadığını belirlemeye odaklanır.
+        Profil, yorum ile diğer kalıcı veri saklama işlevlerini denemek açısından oldukça etkilidir.
     command: "dalfox sxss {{url}} {{payload_flags}}"

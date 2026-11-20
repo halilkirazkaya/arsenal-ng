@@ -45,7 +45,7 @@ func (m Model) enter(cheats []*model.Cheat) (Model, tea.Cmd, Outcome, Pick) {
 	}
 
 	cheat := m.Filtered[m.Cursor]
-	log.Printf("Selected cheat: %s (tool: %s, file: %s)", cheat.Title, cheat.Tool, cheat.Filename)
+	log.Printf("Selected cheat: %s (tool: %s, file: %s)", cheat.Title.Resolve(m.lang), cheat.Tool, cheat.Filename)
 	args := model.ParseArguments(cheat.Command)
 
 	// Cheats without arguments execute immediately without the args view.

@@ -7,7 +7,7 @@ package config
 // =============================================================================
 
 // Version holds the release version injected at build time.
-var Version = "2.1"
+var Version = "2.2"
 
 // =============================================================================
 // Version Formatting

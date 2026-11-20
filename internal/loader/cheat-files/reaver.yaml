@@ -3,77 +3,149 @@ tags: [wifi, wireless, security, pentest, wps, cracking, exploitation]
 
 actions:
   # === BASIC USAGE ===
-  - title: reaver - basic wps pin attack
-    desc: |
-      Performs a brute-force attack on the target Access Point's WPS PIN to recover the WPA/WPA2 passphrase. 
-      This is the most common usage of the tool when a target AP has WPS enabled and is not currently locked. 
-      The verbose flag (-vv) is highly recommended to see the progress of the pin attempts and any error messages.
-      Be aware that continuous attempts may trigger a WPS lockout on modern routers.
+  - title:
+      en: reaver - basic wps pin attack
+      tr: reaver - temel WPS PIN saldırısı
+    desc:
+      en: |
+        Performs a brute-force attack on the target Access Point's WPS PIN to recover the WPA/WPA2 passphrase. 
+        This is the most common usage of the tool when a target AP has WPS enabled and is not currently locked. 
+        The verbose flag (-vv) is highly recommended to see the progress of the pin attempts and any error messages.
+        Be aware that continuous attempts may trigger a WPS lockout on modern routers.
+      tr: |
+        Hedef erişim noktasının WPS PIN'ine kaba kuvvet saldırısı yaparak WPA/WPA2 parolasını kurtarır.
+        Hedef AP'de WPS etkin ve şu anda kilitli değilse aracın en yaygın kullanımı budur.
+        PIN denemelerinin ilerlemesini ve hata iletilerini görmek için ayrıntılı (-vv) bayrağı şiddetle önerilir.
+        Sürekli denemelerin modern yönlendiricilerde WPS kilitlenmesi tetikleyebileceğini unutmayın.
     command: "reaver -i {{interface|wlan0mon}} -b {{bssid}} -vv"
 
-  - title: reaver - pixie dust attack
-    desc: |
-      Executes the Pixie Dust attack which exploits cryptographic weaknesses in the WPS implementation of certain chipsets. 
-      This method is significantly faster than a standard brute-force attack as it can often recover the PIN within seconds by analyzing the M3 message. 
-      It is particularly effective against Ralink, Broadcom, and Realtek chipsets. 
-      Using the -K or -Z flag initiates this specific offline cracking logic.
+  - title:
+      en: reaver - pixie dust attack
+      tr: reaver - Pixie Dust saldırısı
+    desc:
+      en: |
+        Executes the Pixie Dust attack which exploits cryptographic weaknesses in the WPS implementation of certain chipsets. 
+        This method is significantly faster than a standard brute-force attack as it can often recover the PIN within seconds by analyzing the M3 message. 
+        It is particularly effective against Ralink, Broadcom, and Realtek chipsets. 
+        Using the -K or -Z flag initiates this specific offline cracking logic.
+      tr: |
+        Belirli yonga setlerinin WPS gerçeklemesindeki kriptografik zayıflıklardan yararlanan Pixie Dust saldırısını çalıştırır.
+        M3 iletisini analiz ederek PIN'i çoğunlukla saniyeler içinde kurtarabildiği için standart kaba kuvvet saldırısından belirgin ölçüde hızlıdır.
+        Özellikle Ralink, Broadcom ve Realtek yonga setlerine karşı etkilidir.
+        -K veya -Z bayrağı bu çevrimdışı kırma mantığını başlatır.
     command: "reaver -i {{interface|wlan0mon}} -b {{bssid}} -K"
 
   # === TARGETING & ENUMERATION ===
-  - title: reaver - attack on fixed channel
-    desc: |
-      Targets a specific Access Point on a predefined wireless channel while disabling automatic channel hopping. 
-      Using a fixed channel ensures that the wireless interface stays synchronized with the target AP throughout the attack. 
-      This is recommended once the target BSSID and its operating channel have been identified via tools like airodump-ng. 
-      The -f flag forces the tool to stay on the specified frequency.
+  - title:
+      en: reaver - attack on fixed channel
+      tr: reaver - sabit kanalda saldırı
+    desc:
+      en: |
+        Targets a specific Access Point on a predefined wireless channel while disabling automatic channel hopping. 
+        Using a fixed channel ensures that the wireless interface stays synchronized with the target AP throughout the attack. 
+        This is recommended once the target BSSID and its operating channel have been identified via tools like airodump-ng. 
+        The -f flag forces the tool to stay on the specified frequency.
+      tr: |
+        Otomatik kanal atlamayı kapatarak, önceden belirlenmiş bir kablosuz kanaldaki belirli erişim noktasını hedefler.
+        Sabit kanal, kablosuz arayüzün saldırı boyunca hedef AP ile eşzamanlı kalmasını sağlar.
+        Hedef BSSID ve çalıştığı kanal airodump-ng gibi araçlarla belirlendikten sonra önerilir.
+        -f bayrağı aracı belirtilen frekansta kalmaya zorlar.
     command: "reaver -i {{interface|wlan0mon}} -b {{bssid}} -c {{channel|6}} -f"
 
-  - title: reaver - attack 5ghz networks
-    desc: |
-      Enables support for 802.11 5GHz frequency bands during the WPS attack process. 
-      Many modern dual-band routers support WPS on both 2.4GHz and 5GHz, and one band might be more vulnerable than the other. 
-      You must ensure that your wireless adapter supports 5GHz monitoring mode for this command to function. 
-      This is often combined with specific channel selection for better reliability.
+  - title:
+      en: reaver - attack 5ghz networks
+      tr: reaver - 5GHz ağlara saldırı
+    desc:
+      en: |
+        Enables support for 802.11 5GHz frequency bands during the WPS attack process. 
+        Many modern dual-band routers support WPS on both 2.4GHz and 5GHz, and one band might be more vulnerable than the other. 
+        You must ensure that your wireless adapter supports 5GHz monitoring mode for this command to function. 
+        This is often combined with specific channel selection for better reliability.
+      tr: |
+        WPS saldırısı sırasında 802.11 5GHz frekans bantları desteğini etkinleştirir.
+        Birçok modern çift bant yönlendirici WPS'i hem 2.4GHz hem 5GHz üzerinde destekler; bantlardan biri diğerinden daha savunmasız olabilir.
+        Bu komutun çalışması için kablosuz bağdaştırıcınızın 5GHz izleme modunu desteklemesi gerekir.
+        Daha iyi güvenilirlik için genellikle belirli kanal seçimiyle birlikte kullanılır.
     command: "reaver -i {{interface|wlan0mon}} -b {{bssid}} -5"
 
   # === ADVANCED CONFIGURATION & LOCKOUT EVASION ===
-  - title: reaver - avoid wps lockouts with delays
-    desc: |
-      Configures custom delays between PIN attempts and lockout recovery periods to bypass AP security triggers. 
-      The -d flag sets a delay between each individual attempt, while -l defines how long to wait if the AP reports a locked state. 
-      Slower attacks are less likely to be detected or blocked by the router's firmware. 
-      This is essential for attacking newer routers that implement aggressive rate-limiting on WPS requests.
+  - title:
+      en: reaver - avoid wps lockouts with delays
+      tr: reaver - gecikmelerle WPS kilitlenmelerinden kaçınma
+    desc:
+      en: |
+        Configures custom delays between PIN attempts and lockout recovery periods to bypass AP security triggers. 
+        The -d flag sets a delay between each individual attempt, while -l defines how long to wait if the AP reports a locked state. 
+        Slower attacks are less likely to be detected or blocked by the router's firmware. 
+        This is essential for attacking newer routers that implement aggressive rate-limiting on WPS requests.
+      tr: |
+        AP güvenlik tetikleyicilerini atlatmak için PIN denemeleri arası özel gecikmeler ve kilitlenme kurtarma süreleri yapılandırır.
+        -d bayrağı her deneme arasına gecikme koyar, -l ise AP kilitli durumu bildirirse ne kadar bekleneceğini tanımlar.
+        Daha yavaş saldırılar yönlendirici yazılımı tarafından tespit edilme veya engellenme olasılığı daha düşüktür.
+        WPS isteklerine agresif hız sınırlama uygulayan yeni yönlendiricilere saldırırken gereklidir.
     command: "reaver -i {{interface|wlan0mon}} -b {{bssid}} -d {{delay|30}} -l {{lock_delay|60}} -vv"
 
-  - title: reaver - small dh keys for speed
-    desc: |
-      Forces the use of small Diffie-Hellman keys to speed up the WPS handshake process. 
-      This reduces the computational overhead on both the attacking machine and the target Access Point. 
-      While it can improve the speed of the attack, some Access Points may not support smaller keys and might fail to associate. 
-      Use this option if you are experiencing slow response times during the authentication phase.
+  - title:
+      en: reaver - small dh keys for speed
+      tr: reaver - hız için küçük DH anahtarları
+    desc:
+      en: |
+        Forces the use of small Diffie-Hellman keys to speed up the WPS handshake process. 
+        This reduces the computational overhead on both the attacking machine and the target Access Point. 
+        While it can improve the speed of the attack, some Access Points may not support smaller keys and might fail to associate. 
+        Use this option if you are experiencing slow response times during the authentication phase.
+      tr: |
+        WPS el sıkışma sürecini hızlandırmak için küçük Diffie-Hellman anahtarlarının kullanılmasını zorlar.
+        Bu, saldıran makine ve hedef erişim noktası üzerindeki hesaplama yükünü azaltır.
+        Saldırıyı hızlandırabilse de bazı erişim noktaları küçük anahtarları desteklemeyebilir ve ilişkilendirme başarısız olabilir.
+        Kimlik doğrulama aşamasında yavaş yanıt süreleri yaşıyorsanız bu seçeneği kullanın.
     command: "reaver -i {{interface|wlan0mon}} -b {{bssid}} -S -vv"
 
-  - title: reaver - mimic windows 7 registrar
-    desc: |
-      Configures Reaver to mimic the behavior of a Windows 7 machine when acting as a WPS registrar. 
-      Some Access Points are configured to only respond or permit WPS operations from recognized client types or vendors. 
-      By using the -w flag, the attack may bypass certain basic vendor-specific filters or behavioral checks. 
-      This can be a useful fallback if standard association attempts are being rejected by the target.
+  - title:
+      en: reaver - mimic windows 7 registrar
+      tr: reaver - Windows 7 kaydedicisi gibi davran
+    desc:
+      en: |
+        Configures Reaver to mimic the behavior of a Windows 7 machine when acting as a WPS registrar. 
+        Some Access Points are configured to only respond or permit WPS operations from recognized client types or vendors. 
+        By using the -w flag, the attack may bypass certain basic vendor-specific filters or behavioral checks. 
+        This can be a useful fallback if standard association attempts are being rejected by the target.
+      tr: |
+        Reaver'ı, WPS kaydedicisi (registrar) olarak davranırken bir Windows 7 makinesinin davranışını taklit edecek şekilde yapılandırır.
+        Bazı erişim noktaları, WPS işlemlerine yalnızca tanınan istemci türlerinden veya üreticilerden gelen isteklere yanıt verecek ya da izin verecek şekilde yapılandırılmıştır.
+        -w bayrağıyla saldırı, belirli temel üretici filtrelerini veya davranış denetimlerini atlatabilir.
+        Standart ilişkilendirme denemeleri hedef tarafından reddediliyorsa kullanışlı bir geri dönüş olabilir.
     command: "reaver -i {{interface|wlan0mon}} -b {{bssid}} -w"
 
   # === SESSION MANAGEMENT ===
-  - title: reaver - resume session
-    desc: |
-      Restores a previously interrupted attack session from a saved session file. 
-      Reaver automatically saves progress, and using the -s flag allows you to pick up exactly where the brute-force last stopped. 
-      This is critical for long-running attacks that may span several days or involve thousands of PIN combinations. 
-      Ensure the session file path is correct to avoid starting the attack from the beginning.
+  - title:
+      en: reaver - resume session
+      tr: reaver - oturuma devam et
+    desc:
+      en: |
+        Restores a previously interrupted attack session from a saved session file. 
+        Reaver automatically saves progress, and using the -s flag allows you to pick up exactly where the brute-force last stopped. 
+        This is critical for long-running attacks that may span several days or involve thousands of PIN combinations. 
+        Ensure the session file path is correct to avoid starting the attack from the beginning.
+      tr: |
+        Kaydedilmiş bir oturum dosyasından daha önce yarıda kalan saldırı oturumunu geri yükler.
+        Reaver ilerlemeyi otomatik kaydeder; -s bayrağı kaba kuvvet saldırısının kaldığı yerden aynen devam etmesini sağlar.
+        Birkaç güne yayılabilen veya binlerce PIN kombinasyonu içeren uzun süreli saldırılar için kritiktir.
+        Saldırının en baştan başlamaması için oturum dosyası yolunun doğru olduğundan emin olun.
     command: "reaver -i {{interface|wlan0mon}} -b {{bssid}} -s {{session_file|session.cap}}"
 
-  - title: reaver - test specific pin
-    desc: |
-      Attempts to authenticate against the target Access Point using a single, manually specified WPS PIN. 
-      This is useful when you have a strong candidate PIN from a default PIN database or calculated via a MAC-to-PIN algorithm. 
-      If the PIN is correct, Reaver will immediately return the WPA/WPA2 PSK for the network. 
-      It is a much faster alternative to brute-forcing when the PIN is already suspected.
+  - title:
+      en: reaver - test specific pin
+      tr: reaver - belirli PIN'i dene
+    desc:
+      en: |
+        Attempts to authenticate against the target Access Point using a single, manually specified WPS PIN. 
+        This is useful when you have a strong candidate PIN from a default PIN database or calculated via a MAC-to-PIN algorithm. 
+        If the PIN is correct, Reaver will immediately return the WPA/WPA2 PSK for the network. 
+        It is a much faster alternative to brute-forcing when the PIN is already suspected.
+      tr: |
+        Elle belirtilen tek bir WPS PIN'i ile hedef erişim noktasına kimlik doğrulamayı dener.
+        Varsayılan PIN veritabanından güçlü bir adayınız veya MAC-to-PIN algoritmasıyla hesaplanmış bir PIN'iniz varsa kullanışlıdır.
+        PIN doğruysa Reaver ağın WPA/WPA2 PSK değerini hemen döndürür.
+        PIN zaten tahmin ediliyorsa kaba kuvvet denemesine göre çok daha hızlı bir alternatiftir.
     command: "reaver -i {{interface|wlan0mon}} -b {{bssid}} -p {{wps_pin}} -vv"

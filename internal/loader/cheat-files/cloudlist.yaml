@@ -4,85 +4,165 @@ tags: [cloud, reconnaissance, pentest, enumeration, asset-discovery, security]
 # === ENUMERATION ===
 
 actions:
-  - title: cloudlist - list all cloud assets
-    desc: |
-      List all available assets across all configured cloud providers. This is the primary 
-      command used to gather a comprehensive overview of your cloud infrastructure. 
-      It requires a properly configured provider-config file containing credentials 
-      for services like AWS, GCP, or Azure.
+  - title:
+      en: cloudlist - list all cloud assets
+      tr: cloudlist - bütün bulut varlıklarını listeleme
+    desc:
+      en: |
+        List all available assets across all configured cloud providers. This is the primary 
+        command used to gather a comprehensive overview of your cloud infrastructure. 
+        It requires a properly configured provider-config file containing credentials 
+        for services like AWS, GCP, or Azure.
+      tr: |
+        Yapılandırılmış bütün bulut sağlayıcılardaki kullanılabilir varlıkları listeler.
+        Bulut altyapısının kapsamlı görünümünü çıkarmak için kullanılan birincil komuttur.
+        AWS, GCP ya da Azure kimlik bilgilerini içeren sağlayıcı yapılandırma dosyasının hazır olması gerekir.
+        Keşif çalışmasının başında genel tabloyu görmek isteyenler için uygundur.
     command: "cloudlist"
 
-  - title: cloudlist - filter by specific providers
-    desc: |
-      Display assets belonging only to the specified cloud providers. Use this when 
-      you want to limit the scope of discovery to a single environment like AWS or DigitalOcean. 
-      Multiple providers can be provided as a comma-separated list to narrow down results.
+  - title:
+      en: cloudlist - filter by specific providers
+      tr: cloudlist - sağlayıcıya göre süzme
+    desc:
+      en: |
+        Display assets belonging only to the specified cloud providers. Use this when 
+        you want to limit the scope of discovery to a single environment like AWS or DigitalOcean. 
+        Multiple providers can be provided as a comma-separated list to narrow down results.
+      tr: |
+        Yalnızca belirtilen bulut sağlayıcılara ait varlıkları gösterir.
+        Keşif kapsamını AWS ya da DigitalOcean gibi tek ortama daraltmak için kullanılır.
+        Virgülle ayrılmış liste verilerek birden çok sağlayıcı birlikte sorgulanabilir.
+        Sonuç küçültülerek gürültü azalır ve inceleme hızlanır.
     command: "cloudlist -provider {{providers|aws,gcp,digitalocean}}"
 
-  - title: cloudlist - filter by specific services
-    desc: |
-      Query and display results for specific cloud services such as S3, EC2, or Route53. 
-      This is useful for identifying specific resource types that might be vulnerable 
-      or require auditing. It helps in focusing the enumeration on high-value targets 
-      like storage buckets or compute instances.
+  - title:
+      en: cloudlist - filter by specific services
+      tr: cloudlist - servise göre süzme
+    desc:
+      en: |
+        Query and display results for specific cloud services such as S3, EC2, or Route53. 
+        This is useful for identifying specific resource types that might be vulnerable 
+        or require auditing. It helps in focusing the enumeration on high-value targets 
+        like storage buckets or compute instances.
+      tr: |
+        S3, EC2 ya da Route53 gibi belirli bulut servislerine ait sonuçları sorgular ve gösterir.
+        Güvenlik açığı barındırabilecek ya da denetlenmesi gereken kaynak türlerini belirlemekte yararlıdır.
+        Depolama kovaları ile bilgi işlem örnekleri gibi yüksek değerli hedeflere odaklanmayı kolaylaştırır.
+        Numaralandırma çalışmasını kritik kaynaklara yönlendirir.
     command: "cloudlist -service {{services|s3,ec2,lambda}}"
 
-  - title: cloudlist - filter by provider ID
-    desc: |
-      Display results for specific account or provider IDs defined in your configuration. 
-      This is particularly useful if you have multiple accounts for the same provider 
-      configured and need to isolate one. It ensures that the output is restricted 
-      to the exact account context you are interested in.
+  - title:
+      en: cloudlist - filter by provider ID
+      tr: cloudlist - sağlayıcı kimliğine göre süzme
+    desc:
+      en: |
+        Display results for specific account or provider IDs defined in your configuration. 
+        This is particularly useful if you have multiple accounts for the same provider 
+        configured and need to isolate one. It ensures that the output is restricted 
+        to the exact account context you are interested in.
+      tr: |
+        Yapılandırmada tanımlı hesap ya da sağlayıcı kimliklerine ait sonuçları gösterir.
+        Aynı sağlayıcıda birden çok hesap tanımlı olduğunda tek hesabı ayırmak için özellikle yararlıdır.
+        Çıktıyı yalnızca ilgilenilen hesap bağlamıyla sınırlar.
+        Hesaplar arası karışıklığı önleyerek denetimi netleştirir.
     command: "cloudlist -id {{provider_id}}"
 
 # === OUTPUT FILTERING ===
 
-  - title: cloudlist - extract only IP addresses
-    desc: |
-      Modify the output to display only the IP addresses of the discovered assets. 
-      This is ideal for piping the results into network scanners or other security 
-      tools that require a list of IP targets. It removes all hostnames and metadata 
-      to provide a clean list of network endpoints.
+  - title:
+      en: cloudlist - extract only IP addresses
+      tr: cloudlist - yalnızca IP adreslerini gösterme
+    desc:
+      en: |
+        Modify the output to display only the IP addresses of the discovered assets. 
+        This is ideal for piping the results into network scanners or other security 
+        tools that require a list of IP targets. It removes all hostnames and metadata 
+        to provide a clean list of network endpoints.
+      tr: |
+        Bulunan varlıkların yalnızca IP adreslerini gösterecek biçimde çıktıyı sadeleştirir.
+        Sonuçları ağ tarayıcılarına ya da IP listesi bekleyen güvenlik araçlarına aktarmak için idealdir.
+        Bütün ana bilgisayar adları ile üstverileri kaldırarak temiz uç nokta listesi üretir.
+        Keşif çıktısını tarama hattına bağlamayı kolaylaştırır.
     command: "cloudlist -ip"
 
-  - title: cloudlist - extract only hostnames
-    desc: |
-      Display only the hostnames or domain names of the discovered cloud assets. 
-      Use this command when performing DNS reconnaissance or preparing targets for 
-      web-based vulnerability scanners. It provides a focused list of FQDNs for 
-      further analysis or automated testing.
+  - title:
+      en: cloudlist - extract only hostnames
+      tr: cloudlist - yalnızca ana bilgisayar adlarını gösterme
+    desc:
+      en: |
+        Display only the hostnames or domain names of the discovered cloud assets. 
+        Use this command when performing DNS reconnaissance or preparing targets for 
+        web-based vulnerability scanners. It provides a focused list of FQDNs for 
+        further analysis or automated testing.
+      tr: |
+        Bulunan bulut varlıklarının yalnızca ana bilgisayar ile alan adlarını gösterir.
+        DNS keşfi yaparken ya da hedefleri web zafiyet tarayıcılarına hazırlarken kullanılır.
+        İleri inceleme ile otomatik testler için odaklı FQDN listesi sunar.
+        Alan adı tabanlı keşif adımlarına temiz girdi sağlar.
     command: "cloudlist -host"
 
-  - title: cloudlist - exclude private IP addresses
-    desc: |
-      Filter the output to exclude any private or internal IP addresses from the results. 
-      This is essential during external penetration tests to ensure you are only 
-      targeting publicly accessible infrastructure. It reduces noise by hiding 
-      resources that are not reachable from the internet.
+  - title:
+      en: cloudlist - exclude private IP addresses
+      tr: cloudlist - özel IP adreslerini dışlama
+    desc:
+      en: |
+        Filter the output to exclude any private or internal IP addresses from the results. 
+        This is essential during external penetration tests to ensure you are only 
+        targeting publicly accessible infrastructure. It reduces noise by hiding 
+        resources that are not reachable from the internet.
+      tr: |
+        Sonuçlardan bütün özel ile dahili IP adreslerini çıkararak çıktıyı süzgeçten geçirir.
+        Yalnızca internet üzerinden erişilebilen altyapıyı hedefleyen dış testlerde vazgeçilmezdir.
+        İnternetten erişilemeyen kaynakları gizleyerek gürültüyü azaltır.
+        Dış saldırı yüzeyine odaklanmayı kolaylaştırır.
     command: "cloudlist -exclude-private"
 
 # === CONFIGURATION & EXPORT ===
 
-  - title: cloudlist - use custom configuration files
-    desc: |
-      Specify custom paths for the main config file and the provider credentials file. 
-      This is necessary when managing multiple client environments or keeping 
-      sensitive credentials in non-default locations. Ensure the provided paths 
-      are reachable and the YAML files are correctly formatted for the tool to function.
+  - title:
+      en: cloudlist - use custom configuration files
+      tr: cloudlist - özel yapılandırma dosyaları kullanma
+    desc:
+      en: |
+        Specify custom paths for the main config file and the provider credentials file. 
+        This is necessary when managing multiple client environments or keeping 
+        sensitive credentials in non-default locations. Ensure the provided paths 
+        are reachable and the YAML files are correctly formatted for the tool to function.
+      tr: |
+        Ana yapılandırma dosyası ile sağlayıcı kimlik bilgileri dosyası için özel yollar belirtir.
+        Birden çok istemci ortamı yönetilirken ya da hassas kimlik bilgileri öntanımlı konum dışında tutulurken gereklidir.
+        Verilen yolların erişilebilir olması ile YAML dosyalarının doğru biçimlendirilmesi gerekir.
+        Farklı müşteri profilleri arasında geçiş yapmayı kolaylaştırır.
     command: "cloudlist -config {{config_path|~/.config/cloudlist/config.yaml}} -pc {{provider_config|~/.config/cloudlist/provider-config.yaml}}"
 
-  - title: cloudlist - export results to JSON
-    desc: |
-      Generate the discovery results in JSON format for structured data processing. 
-      JSON output is highly recommended for automation scripts and integration into 
-      larger security pipelines. It includes all available metadata for each asset, 
-      providing more context than the standard text output.
+  - title:
+      en: cloudlist - export results to JSON
+      tr: cloudlist - sonuçları JSON olarak dışa aktarma
+    desc:
+      en: |
+        Generate the discovery results in JSON format for structured data processing. 
+        JSON output is highly recommended for automation scripts and integration into 
+        larger security pipelines. It includes all available metadata for each asset, 
+        providing more context than the standard text output.
+      tr: |
+        Keşif sonuçlarını yapılandırılmış veri işlemeye uygun JSON biçiminde üretir.
+        Otomasyon betikleri ile geniş güvenlik hatlarına aktarım için JSON çıktısı özellikle önerilir.
+        Her varlığa ait bütün üstverileri içererek standart metin çıktısından daha zengin bağlam sunar.
+        Kayıt altına alma ile raporlama süreçlerine doğrudan girdi sağlar.
     command: "cloudlist -json -o {{output_file|cloud_assets.json}}"
 
-  - title: cloudlist - verbose and silent modes
-    desc: |
-      Toggle between verbose output for debugging and silent output for scripting. 
-      Verbose mode provides extra information about the discovery process and potential errors. 
-      Silent mode is best used when you only want the final results to be printed to the 
-      console, making it easier to pipe the output to other utilities.
+  - title:
+      en: cloudlist - verbose and silent modes
+      tr: cloudlist - ayrıntılı ile sessiz kip
+    desc:
+      en: |
+        Toggle between verbose output for debugging and silent output for scripting. 
+        Verbose mode provides extra information about the discovery process and potential errors. 
+        Silent mode is best used when you only want the final results to be printed to the 
+        console, making it easier to pipe the output to other utilities.
+      tr: |
+        Ayrıntılı çıktı ile sessiz çıktı arasında geçiş yapar.
+        Ayrıntılı kip keşif süreci ile olası hatalar hakkında ek bilgi verir.
+        Sessiz kip yalnızca nihai sonuçları basarak konsolu sade tutar ve çıktının başka araçlara aktarılmasını kolaylaştırır.
+        Hata ayıklama ile betikleme gereksinimlerine göre uygun kipi seçin.
     command: "cloudlist {{mode|-silent}}"

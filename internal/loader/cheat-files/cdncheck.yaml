@@ -3,89 +3,175 @@ tags: [network, reconnaissance, security, pentest, enumeration, cdn, cloud, waf]
 
 actions:
   # === BASIC ENUMERATION ===
-  - title: cdncheck - basic check
-    desc: |
-      Perform a basic identification scan on a single IP or domain name. This command checks the target against 
-      known ranges of CDNs, Cloud providers, and WAFs. It is the most common starting point for initial 
-      infrastructure reconnaissance to determine if a target is behind a protective layer.
+  - title:
+      en: cdncheck - basic check
+      tr: cdncheck - temel denetim
+    desc:
+      en: |
+        Perform a basic identification scan on a single IP or domain name. This command checks the target against 
+        known ranges of CDNs, Cloud providers, and WAFs. It is the most common starting point for initial 
+        infrastructure reconnaissance to determine if a target is behind a protective layer.
+      tr: |
+        Tekil IP veya alan adı üzerinde temel tanımlama taraması yapar. Bilinen CDN, bulut sağlayıcı ve WAF
+        aralıklarına karşı hedefi sorgular. Hedefin koruyucu katman arkasında olup olmadığını anlamak için
+        altyapı keşfine başlarken en sık başvurulan ilk adımdır.
     command: "cdncheck -i {{target}}"
 
-  - title: cdncheck - silent mode for piping
-    desc: |
-      Run the tool in silent mode to output only the results without banners or metadata. This is ideal for 
-      piping results into other tools or saving them directly to a list for further processing. It reduces 
-      noise in the terminal and simplifies automation scripts.
+  - title:
+      en: cdncheck - silent mode for piping
+      tr: cdncheck - aktarma için sessiz kip
+    desc:
+      en: |
+        Run the tool in silent mode to output only the results without banners or metadata. This is ideal for 
+        piping results into other tools or saving them directly to a list for further processing. It reduces 
+        noise in the terminal and simplifies automation scripts.
+      tr: |
+        Başlık ve üstveri göstermeden yalnızca sonuçları yazdıran sessiz kipte çalıştırır. Çıktıyı başka araçlara
+        aktarmak veya ileri inceleme için doğrudan listeye kaydetmek isteyenler için idealdir. Uçbirim kalabalığını
+        azaltır, otomasyon betiklerini sadeleştirir.
     command: "cdncheck -i {{target}} -silent"
 
-  - title: cdncheck - detect and display technology
-    desc: |
-      Identify the infrastructure and display the specific technology or provider name in the output. This 
-      adds a "response" field showing exactly which service (e.g., Cloudflare, Akamai, AWS) is being used. 
-      Use this when you need to know the specific vendor to tailor your testing methodology.
+  - title:
+      en: cdncheck - detect and display technology
+      tr: cdncheck - teknolojiyi saptama ve gösterme
+    desc:
+      en: |
+        Identify the infrastructure and display the specific technology or provider name in the output. This 
+        adds a "response" field showing exactly which service (e.g., Cloudflare, Akamai, AWS) is being used. 
+        Use this when you need to know the specific vendor to tailor your testing methodology.
+      tr: |
+        Altyapıyı saptar, çıktıda somut teknoloji veya sağlayıcı adını gösterir. Hangi servisin kullanıldığını
+        tam olarak belirten "response" alanı ekler (örneğin Cloudflare, Akamai, AWS). Sınama yöntemini belirli
+        satıcıya göre şekillendirmek isteyenler için uygundur.
     command: "cdncheck -i {{target}} -resp"
 
   # === DETECTION FILTERS ===
-  - title: cdncheck - identify CDN only
-    desc: |
-      Filter the scan results to display only those targets that are identified as part of a Content Delivery Network. 
-      This is useful when you want to isolate the edge distribution nodes from the backend or cloud infrastructure. 
-      It helps map out how a target's content is distributed globally.
+  - title:
+      en: cdncheck - identify CDN only
+      tr: cdncheck - yalnızca CDN saptama
+    desc:
+      en: |
+        Filter the scan results to display only those targets that are identified as part of a Content Delivery Network. 
+        This is useful when you want to isolate the edge distribution nodes from the backend or cloud infrastructure. 
+        It helps map out how a target's content is distributed globally.
+      tr: |
+        Tarama sonuçlarını süzerek yalnızca içerik dağıtım ağı parçası olduğu saptanan hedefleri gösterir.
+        Kenar dağıtım düğümlerini arka uç veya bulut altyapısından ayırmak isteyenler için yararlıdır.
+        Hedef içeriğin dünya genelinde nasıl dağıtıldığını haritalamaya yardımcı olur.
     command: "cdncheck -i {{target}} -cdn"
 
-  - title: cdncheck - identify Cloud providers only
-    desc: |
-      Filter the scan results to display only targets hosted on cloud infrastructure like AWS, Azure, or GCP. 
-      This helps in identifying the hosting environment of the target, which is crucial for determining the 
-      applicable security policies and legal boundaries. It excludes WAF and CDN-specific IP ranges.
+  - title:
+      en: cdncheck - identify Cloud providers only
+      tr: cdncheck - yalnızca bulut sağlayıcı saptama
+    desc:
+      en: |
+        Filter the scan results to display only targets hosted on cloud infrastructure like AWS, Azure, or GCP. 
+        This helps in identifying the hosting environment of the target, which is crucial for determining the 
+        applicable security policies and legal boundaries. It excludes WAF and CDN-specific IP ranges.
+      tr: |
+        Tarama sonuçlarını süzerek yalnızca AWS, Azure veya GCP benzeri bulut altyapısında barındırılan hedefleri
+        gösterir. Hedefin barındırma ortamını belirlemeye yardımcı olur; geçerli güvenlik ilkeleri ile yasal
+        sınırları anlamak açısından kritik önem taşır. WAF ve CDN aralıklarını dışarıda bırakır.
     command: "cdncheck -i {{target}} -cloud"
 
-  - title: cdncheck - identify WAF only
-    desc: |
-      Narrow the output to show only targets protected by a Web Application Firewall (WAF). This is vital for 
-      penetration testers to identify which endpoints will require WAF bypass techniques or specific payload 
-      encoding. Knowing the WAF presence early prevents unnecessary account lockouts or detection.
+  - title:
+      en: cdncheck - identify WAF only
+      tr: cdncheck - yalnızca WAF saptama
+    desc:
+      en: |
+        Narrow the output to show only targets protected by a Web Application Firewall (WAF). This is vital for 
+        penetration testers to identify which endpoints will require WAF bypass techniques or specific payload 
+        encoding. Knowing the WAF presence early prevents unnecessary account lockouts or detection.
+      tr: |
+        Çıktıyı daraltarak yalnızca web uygulaması güvenlik duvarı (WAF) arkasında korunan hedefleri gösterir.
+        Hangi uç noktalarda WAF atlatma tekniği veya özel yük kodlaması gerekeceğini belirlemek isteyen sızma
+        testçileri için hayati önem taşır. WAF varlığını erken öğrenmek gereksiz hesap kilitlenmesi veya
+        yakalanma riskini azaltır.
     command: "cdncheck -i {{target}} -waf"
 
   # === ADVANCED MATCHING AND FILTERING ===
-  - title: cdncheck - match specific providers
-    desc: |
-      Filter results to show only matches for specific, user-defined providers like Cloudfront or Fastly. This 
-      allows for highly targeted reconnaissance when looking for specific infrastructure misconfigurations. 
-      You can provide a comma-separated list of providers to match against multiple vendors simultaneously.
+  - title:
+      en: cdncheck - match specific providers
+      tr: cdncheck - belirli sağlayıcıları eşleştirme
+    desc:
+      en: |
+        Filter results to show only matches for specific, user-defined providers like Cloudfront or Fastly. This 
+        allows for highly targeted reconnaissance when looking for specific infrastructure misconfigurations. 
+        You can provide a comma-separated list of providers to match against multiple vendors simultaneously.
+      tr: |
+        Sonuçları süzerek yalnızca sizin belirttiğiniz sağlayıcılarla eşleşen kayıtları gösterir (örneğin
+        Cloudfront veya Fastly). Belirli altyapı yanlış yapılandırmalarını ararken hedef odaklı keşif yapmaya
+        olanak tanır. Birden fazla satıcıyı aynı anda eşleştirmek için virgülle ayrılmış liste verilebilir.
     command: "cdncheck -i {{target_list}} -mcdn {{provider|cloudfront,fastly}}"
 
-  - title: cdncheck - exclude detected infrastructure
-    desc: |
-      Exclude any IP addresses that match known CDN, Cloud, or WAF ranges from the final output. This is 
-      a powerful technique for "Origin Discovery," as it filters out the noise to reveal potential backend 
-      IP addresses. This is often used after a large-scale DNS brute-force or port scan.
+  - title:
+      en: cdncheck - exclude detected infrastructure
+      tr: cdncheck - saptanan altyapıyı dışarıda bırakma
+    desc:
+      en: |
+        Exclude any IP addresses that match known CDN, Cloud, or WAF ranges from the final output. This is 
+        a powerful technique for "Origin Discovery," as it filters out the noise to reveal potential backend 
+        IP addresses. This is often used after a large-scale DNS brute-force or port scan.
+      tr: |
+        Bilinen CDN, bulut veya WAF aralıklarıyla eşleşen IP adreslerini sonuç listesinden çıkarır. Kalabalığı
+        eleyerek olası arka uç adreslerini ortaya çıkardığı için "kaynak sunucu bulma" çalışmasında güçlü
+        tekniktir. Genellikle geniş ölçekli DNS kaba kuvvet veya bağlantı noktası taramasından sonra uygulanır.
     command: "cdncheck -i {{target_list}} -e"
 
-  - title: cdncheck - filter out specific WAF providers
-    desc: |
-      Run a scan but explicitly hide results that belong to a specific WAF provider like Cloudflare. This 
-      is helpful when you already know certain segments are protected and you want to focus on less 
-      protected parts of the network. It helps in prioritizing targets that might have fewer security layers.
+  - title:
+      en: cdncheck - filter out specific WAF providers
+      tr: cdncheck - belirli WAF sağlayıcıları eleme
+    desc:
+      en: |
+        Run a scan but explicitly hide results that belong to a specific WAF provider like Cloudflare. This 
+        is helpful when you already know certain segments are protected and you want to focus on less 
+        protected parts of the network. It helps in prioritizing targets that might have fewer security layers.
+      tr: |
+        Belirli WAF sağlayıcıya ait sonuçları gizleyerek tarama yapar (örneğin Cloudflare). Bazı kesimlerin
+        korunduğunu önceden bilip ağın daha az korunan bölümlerine odaklanmak isteyenler için yararlıdır.
+        Güvenlik katmanı daha zayıf hedefleri önceliklendirmeye yardımcı olur.
     command: "cdncheck -i {{target_list}} -fwaf {{provider|cloudflare}}"
 
   # === OUTPUT AND CONFIGURATION ===
-  - title: cdncheck - export results to JSON
-    desc: |
-      Save the identification results in JSONL format for programmatic parsing and data analysis. This 
-      format is highly compatible with log aggregators and custom Python/Go scripts for automated 
-      security pipelines. Using the output flag ensures that the data is persisted to a file for later review.
+  - title:
+      en: cdncheck - export results to JSON
+      tr: cdncheck - sonuçları JSON dosyasına aktarma
+    desc:
+      en: |
+        Save the identification results in JSONL format for programmatic parsing and data analysis. This 
+        format is highly compatible with log aggregators and custom Python/Go scripts for automated 
+        security pipelines. Using the output flag ensures that the data is persisted to a file for later review.
+      tr: |
+        Tanımlama sonuçlarını otomatik çözümleme ve veri incelemeye uygun JSONL biçiminde kaydeder.
+        Günlük toplama sistemleri ile özel Python/Go betiklerine dayalı otomatik güvenlik hatlarıyla yüksek
+        uyum sağlar. Çıktı seçeneği veriyi dosyada saklar, sonradan gözden geçirmeye olanak tanır.
     command: "cdncheck -i {{target}} -j -o {{output_file|results.json}}"
 
-  - title: cdncheck - custom resolvers and retries
-    desc: |
-      Configure the tool to use a specific list of DNS resolvers and increase the retry count for better accuracy. 
-      Custom resolvers can help bypass local DNS caching issues or rate limits imposed by public providers. 
-      Increasing retries is recommended when scanning over unstable network connections to avoid false negatives.
+  - title:
+      en: cdncheck - custom resolvers and retries
+      tr: cdncheck - özel çözümleyiciler ve yeniden deneme ayarı
+    desc:
+      en: |
+        Configure the tool to use a specific list of DNS resolvers and increase the retry count for better accuracy. 
+        Custom resolvers can help bypass local DNS caching issues or rate limits imposed by public providers. 
+        Increasing retries is recommended when scanning over unstable network connections to avoid false negatives.
+      tr: |
+        Belirli DNS çözümleyici listesi kullanacak biçimde yapılandırır, doğruluk için yeniden deneme sayısını
+        artırır. Özel çözümleyiciler yerel DNS önbellek sorunlarını veya herkese açık sağlayıcıların hız
+        sınırlarını aşmaya yardımcı olur. Kararsız ağ bağlantılarında yanlış olumsuz sonuçları önlemek için
+        yeniden deneme sayısını yükseltmek önerilir.
     command: "cdncheck -i {{target}} -r {{resolvers_file|resolvers.txt}} -retry {{retry_count|3}}"
 
-  - title: cdncheck - update tool
-    desc: |
-      Update the cdncheck utility to the latest version directly from the source. Regular updates are 
-      important because infrastructure provider IP ranges change frequently, and staying up-to-date 
-      ensures the highest detection accuracy. This command requires an active internet connection.
+  - title:
+      en: cdncheck - update tool
+      tr: cdncheck - aracı güncelleme
+    desc:
+      en: |
+        Update the cdncheck utility to the latest version directly from the source. Regular updates are 
+        important because infrastructure provider IP ranges change frequently, and staying up-to-date 
+        ensures the highest detection accuracy. This command requires an active internet connection.
+      tr: |
+        cdncheck aracını kaynaktan doğrudan en güncel sürüme yükseltir. Altyapı sağlayıcılarının IP aralıkları
+        sık değiştiği için düzenli güncelleme önemlidir; güncel kalmak en yüksek saptama doğruluğunu sağlar.
+        Etkin internet bağlantısı gerektirir.
     command: "cdncheck -up"

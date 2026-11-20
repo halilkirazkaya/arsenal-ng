@@ -3,69 +3,133 @@ tags: [kerberos, active-directory, security, pentest, exploitation, authenticati
 
 actions:
   # === BASIC AUTHENTICATION ===
-  - title: impacket-getTGT - Request TGT with password
-    desc: |
-      Requests a Kerberos Ticket Granting Ticket (TGT) using cleartext credentials for a domain user. 
-      This is a common starting point for Kerberos-based attacks or for legitimate administrative tasks from a non-joined machine. 
-      The tool authenticates with the Key Distribution Center (KDC) and saves the ticket as a .ccache file in the current directory. 
-      You can then use this file by setting the KRB5CCNAME environment variable.
+  - title:
+      en: impacket-getTGT - Request TGT with password
+      tr: impacket-getTGT - parolayla TGT isteme
+    desc:
+      en: |
+        Requests a Kerberos Ticket Granting Ticket (TGT) using cleartext credentials for a domain user. 
+        This is a common starting point for Kerberos-based attacks or for legitimate administrative tasks from a non-joined machine. 
+        The tool authenticates with the Key Distribution Center (KDC) and saves the ticket as a .ccache file in the current directory. 
+        You can then use this file by setting the KRB5CCNAME environment variable.
+      tr: |
+        Etki alanı kullanıcısı için açık kimlik bilgileriyle Kerberos Bilet Veren Bilet (TGT) ister.
+        Kerberos tabanlı saldırıların veya etki alanına katılmamış makineden meşru yönetici işlerin yaygın başlangıç noktasıdır.
+        Araç Anahtar Dağıtım Merkezi (KDC) ile kimlik doğrulaması yapar ve bileti geçerli dizinde .ccache dosyası olarak kaydeder.
+        Bu dosyayı KRB5CCNAME ortam değişkeniyle kullanabilirsiniz.
     command: "impacket-getTGT {{domain}}/{{username}}:{{password}}"
 
-  - title: impacket-getTGT - Request TGT via specific Domain Controller
-    desc: |
-      Directs the Kerberos authentication request to a specific Domain Controller (DC) IP address. 
-      This is essential when the attacking machine cannot resolve the domain name or when targeting a specific DC in a multi-DC environment. 
-      It bypasses the need for local DNS configuration or /etc/hosts entries for the domain. 
-      Ensure the DC is reachable over port 88 (Kerberos).
+  - title:
+      en: impacket-getTGT - Request TGT via specific Domain Controller
+      tr: impacket-getTGT - belirli Etki Alanı Denetleyicisiyle TGT isteme
+    desc:
+      en: |
+        Directs the Kerberos authentication request to a specific Domain Controller (DC) IP address. 
+        This is essential when the attacking machine cannot resolve the domain name or when targeting a specific DC in a multi-DC environment. 
+        It bypasses the need for local DNS configuration or /etc/hosts entries for the domain. 
+        Ensure the DC is reachable over port 88 (Kerberos).
+      tr: |
+        Kerberos kimlik doğrulama isteğini belirli bir Etki Alanı Denetleyicisi (DC) IP adresine yönlendirir.
+        Saldırı makinesi etki alanı adını çözümleyemediğinde veya çok DC'li ortamda belirli bir DC hedeflendiğinde esastır.
+        Etki alanı için yerel DNS yapılandırması veya /etc/hosts girdilerine ihtiyacı ortadan kaldırır.
+        DC'ye 88 (Kerberos) portu üzerinden erişilebildiğinden emin olun.
     command: "impacket-getTGT -dc-ip {{dc_ip}} {{domain}}/{{username}}:{{password}}"
 
   # === ADVANCED AUTHENTICATION ===
-  - title: impacket-getTGT - Pass-the-Hash (NTLM)
-    desc: |
-      Requests a TGT using an NTLM hash instead of a cleartext password. 
-      This is the classic Pass-the-Hash (PtH) technique applied to Kerberos authentication. 
-      If you only have the NT hash, use the format 'LMHASH:NTHASH' where LMHASH can be 32 zeros. 
-      This is highly effective for lateral movement when cleartext passwords are not available in memory.
+  - title:
+      en: impacket-getTGT - Pass-the-Hash (NTLM)
+      tr: impacket-getTGT - Pass-the-Hash (NTLM)
+    desc:
+      en: |
+        Requests a TGT using an NTLM hash instead of a cleartext password. 
+        This is the classic Pass-the-Hash (PtH) technique applied to Kerberos authentication. 
+        If you only have the NT hash, use the format 'LMHASH:NTHASH' where LMHASH can be 32 zeros. 
+        This is highly effective for lateral movement when cleartext passwords are not available in memory.
+      tr: |
+        Açık parola yerine NTLM hash'iyle TGT ister.
+        Kerberos kimlik doğrulamasına uygulanmış klasik Pass-the-Hash (PtH) tekniğidir.
+        Yalnızca NT hash'i varsa LMHASH:NTHASH biçiminde verin; LMHASH için 32 sıfır kullanılabilir.
+        Bellekte açık parola bulunmadığında yanal hareket için oldukça etkilidir.
     command: "impacket-getTGT -hashes {{hash}} {{domain}}/{{username}}"
 
-  - title: impacket-getTGT - Authenticate with AES Key
-    desc: |
-      Authenticates to the KDC using a hex-encoded AES (128 or 256 bit) key. 
-      In modern Windows environments, AES keys are often used for Kerberos pre-authentication instead of NTLM. 
-      This method is stealthier and sometimes required if NTLM is disabled or if you have extracted AES keys from a computer account or NTDS.dit. 
-      Specify the full hex string of the key.
+  - title:
+      en: impacket-getTGT - Authenticate with AES Key
+      tr: impacket-getTGT - AES anahtarıyla kimlik doğrulama
+    desc:
+      en: |
+        Authenticates to the KDC using a hex-encoded AES (128 or 256 bit) key. 
+        In modern Windows environments, AES keys are often used for Kerberos pre-authentication instead of NTLM. 
+        This method is stealthier and sometimes required if NTLM is disabled or if you have extracted AES keys from a computer account or NTDS.dit. 
+        Specify the full hex string of the key.
+      tr: |
+        Onaltılık kodlanmış AES (128 veya 256 bit) anahtarıyla KDC'ye kimlik doğrulaması yapar.
+        Modern Windows ortamlarında Kerberos ön kimlik doğrulamasında NTLM yerine genellikle AES anahtarları kullanılır.
+        NTLM devre dışıysa veya bilgisayar hesabından ya da NTDS.dit'ten AES anahtarları çıkardıysanız bu yöntem daha gizlidir ve bazen zorunludur.
+        Anahtarın tam onaltılık dizesini belirtin.
     command: "impacket-getTGT -aesKey {{aes_key}} {{domain}}/{{username}}"
 
   # === SERVICE TICKETS & SPECIAL PRINCIPALS ===
-  - title: impacket-getTGT - Direct Service Ticket Request
-    desc: |
-      Requests a Service Ticket (ST) directly through an AS-REQ (Authentication Service Request) by specifying a Service Principal Name (SPN). 
-      This is useful in scenarios where you want to target a specific service like CIFS or HTTP without manually performing a TGS-REQ later. 
-      The resulting ticket is saved to a ccache file just like a standard TGT. 
-      Note that this bypasses the standard TGT -> TGS flow for the specified service.
+  - title:
+      en: impacket-getTGT - Direct Service Ticket Request
+      tr: impacket-getTGT - doğrudan hizmet bileti isteği
+    desc:
+      en: |
+        Requests a Service Ticket (ST) directly through an AS-REQ (Authentication Service Request) by specifying a Service Principal Name (SPN). 
+        This is useful in scenarios where you want to target a specific service like CIFS or HTTP without manually performing a TGS-REQ later. 
+        The resulting ticket is saved to a ccache file just like a standard TGT. 
+        Note that this bypasses the standard TGT -> TGS flow for the specified service.
+      tr: |
+        Hizmet Asıl Adı (SPN) belirterek AS-REQ ile doğrudan Hizmet Bileti (ST) ister.
+        TGS-REQ aşamasını elle yapmadan CIFS veya HTTP gibi belirli bir hizmeti hedeflemek istediğiniz senaryolarda kullanışlıdır.
+        Oluşan bilet standart TGT gibi bir ccache dosyasına kaydedilir.
+        Bunun belirtilen hizmet için standart TGT -> TGS akışını atladığını unutmayın.
     command: "impacket-getTGT -service {{spn}} {{domain}}/{{username}}:{{password}}"
 
-  - title: impacket-getTGT - Specify Principal Type
-    desc: |
-      Allows the user to specify the Principal Type of the Kerberos token being requested. 
-      This is an advanced option used when the target account is not a standard user account (e.g., NT_SRV_INST for services). 
-      Most common types include NT_PRINCIPAL (default), NT_ENTERPRISE, or NT_SRV_HST. 
-      Changing this may be necessary for successful authentication against certain non-Windows or specialized Kerberos implementations.
+  - title:
+      en: impacket-getTGT - Specify Principal Type
+      tr: impacket-getTGT - asıl türü belirtme
+    desc:
+      en: |
+        Allows the user to specify the Principal Type of the Kerberos token being requested. 
+        This is an advanced option used when the target account is not a standard user account (e.g., NT_SRV_INST for services). 
+        Most common types include NT_PRINCIPAL (default), NT_ENTERPRISE, or NT_SRV_HST. 
+        Changing this may be necessary for successful authentication against certain non-Windows or specialized Kerberos implementations.
+      tr: |
+        İstenen Kerberos belirtecinin Asıl Türünü belirtmeye olanak tanır.
+        Hedef hesabın standart kullanıcı hesabı olmadığı durumlarda (ör. hizmetler için NT_SRV_INST) kullanılan gelişmiş bir seçenektir.
+        En yaygın türler NT_PRINCIPAL (varsayılan), NT_ENTERPRISE veya NT_SRV_HST'dir.
+        Bazı Windows dışı veya özel Kerberos uygulamalarına karşı başarılı kimlik doğrulama için bunu değiştirmek gerekebilir.
     command: "impacket-getTGT -principalType {{principal_type|NT_PRINCIPAL}} {{domain}}/{{username}}:{{password}}"
 
   # === TROUBLESHOOTING & LOGGING ===
-  - title: impacket-getTGT - Debugging with Timestamps
-    desc: |
-      Enables verbose debug output and adds timestamps to every log message. 
-      This is crucial for troubleshooting Kerberos issues such as 'KDC_ERR_S_PRINCIPAL_UNKNOWN' or clock skew problems. 
-      The timestamps help correlate Kerberos requests with packet captures (e.g., Wireshark). 
-      Use this when the tool fails silently or returns cryptic Kerberos error codes.
+  - title:
+      en: impacket-getTGT - Debugging with Timestamps
+      tr: impacket-getTGT - zaman damgalı hata ayıklama
+    desc:
+      en: |
+        Enables verbose debug output and adds timestamps to every log message. 
+        This is crucial for troubleshooting Kerberos issues such as 'KDC_ERR_S_PRINCIPAL_UNKNOWN' or clock skew problems. 
+        The timestamps help correlate Kerberos requests with packet captures (e.g., Wireshark). 
+        Use this when the tool fails silently or returns cryptic Kerberos error codes.
+      tr: |
+        Ayrıntılı hata ayıklama çıktısını etkinleştirir ve her günlük iletisine zaman damgası ekler.
+        'KDC_ERR_S_PRINCIPAL_UNKNOWN' veya saat farkı gibi Kerberos sorunlarını gidermek için kritiktir.
+        Zaman damgaları Kerberos isteklerini paket yakalamalarla (ör. Wireshark) ilişkilendirmeye yardımcı olur.
+        Araç sessizce başarısız olduğunda veya anlaşılmaz Kerberos hata kodları döndürdüğünde kullanın.
     command: "impacket-getTGT -debug -ts {{domain}}/{{username}}:{{password}}"
 
-  - title: impacket-getTGT - Use existing ccache for authentication
-    desc: |
-      Uses an existing Kerberos ticket from a ccache file to authenticate the request. 
-      This requires the KRB5CCNAME environment variable to be set to the path of your valid .ccache file. 
-      If the tool cannot find valid credentials in the cache, it will fall back to the credentials provided in the command line. 
-      Useful for renewing tickets or chaining Kerberos operations.
+  - title:
+      en: impacket-getTGT - Use existing ccache for authentication
+      tr: impacket-getTGT - kimlik doğrulamada mevcut ccache kullanma
+    desc:
+      en: |
+        Uses an existing Kerberos ticket from a ccache file to authenticate the request. 
+        This requires the KRB5CCNAME environment variable to be set to the path of your valid .ccache file. 
+        If the tool cannot find valid credentials in the cache, it will fall back to the credentials provided in the command line. 
+        Useful for renewing tickets or chaining Kerberos operations.
+      tr: |
+        İsteğin kimliğini doğrulamak için ccache dosyasındaki mevcut Kerberos biletini kullanır.
+        KRB5CCNAME ortam değişkeninin geçerli .ccache dosyanızın yoluna ayarlanması gerekir.
+        Araç önbellekte geçerli kimlik bilgisi bulamazsa komut satırındaki kimlik bilgilerine geri döner.
+        Bilet yenileme veya Kerberos işlemleri zincirleme için kullanışlıdır.
     command: "impacket-getTGT -k -no-pass {{domain}}/{{username}}"

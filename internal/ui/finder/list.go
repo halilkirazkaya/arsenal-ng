@@ -19,14 +19,14 @@ import (
 // =============================================================================
 
 // InfoBox renders the detail box for the selected cheat.
-func InfoBox(cheat *model.Cheat, width int) string {
+func InfoBox(cheat *model.Cheat, width int, lang string) string {
 	var content strings.Builder
 
-	content.WriteString(theme.Title.Render(cheat.Title))
-	if cheat.Desc != "" {
+	content.WriteString(theme.Title.Render(cheat.Title.Resolve(lang)))
+	if desc := cheat.Desc.Resolve(lang); desc != "" {
 		content.WriteString("\n")
 		// Descriptions wrap so long text stays inside the box.
-		wrappedDesc := textutil.Wrap(cheat.Desc, width-6)
+		wrappedDesc := textutil.Wrap(desc, width-6)
 		content.WriteString(theme.Desc.Render(wrappedDesc))
 	}
 	content.WriteString("\n")
@@ -68,7 +68,7 @@ func (m Model) cheatRow(index int, cheat *model.Cheat, query string, matchStyle 
 	toolText := textutil.Truncate(cheat.Tool, 12)
 	tool := highlight.Fuzzy(fmt.Sprintf("%-12s", toolText), query, theme.Tool, matchStyle)
 	// Titles align in a fixed-width column with fuzzy match highlighting.
-	titleText := textutil.Truncate(cheat.Title, 40)
+	titleText := textutil.Truncate(cheat.Title.Resolve(m.lang), 40)
 	title := highlight.Fuzzy(fmt.Sprintf("%-40s", titleText), query, lipgloss.NewStyle(), matchStyle)
 	// Tags render after the title.
 	tags := theme.ColoredTags(cheat.Tags)
@@ -79,7 +79,7 @@ func (m Model) cheatRow(index int, cheat *model.Cheat, query string, matchStyle 
 func (m Model) selectedRow(cheat *model.Cheat) string {
 	// Plain fields stay readable on the selection background.
 	tool := fmt.Sprintf("%-12s", textutil.Truncate(cheat.Tool, 12))
-	title := fmt.Sprintf("%-40s", textutil.Truncate(cheat.Title, 40))
+	title := fmt.Sprintf("%-40s", textutil.Truncate(cheat.Title.Resolve(m.lang), 40))
 	line := fmt.Sprintf("▸ %s %s %s", tool, title, strings.Join(cheat.Tags, ", "))
 	// Width pads the band to the view so resizing keeps it full-bleed.
 	return theme.Selected.Width(m.Width()).Render(line) + "\n"

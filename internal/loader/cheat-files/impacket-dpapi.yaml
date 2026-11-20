@@ -4,72 +4,128 @@ tags: [windows, security, pentest, decryption, dpapi, impacket, credential-harve
 actions:
 # === DOMAIN BACKUP KEYS ===
 
- - title: impacket-dpapi - export domain backup keys
-   desc: |
-     Retrieves the Domain Backup Key from a Domain Controller via the LSA (Local Security Authority) RPC interface.
-     This key is the "holy grail" for DPAPI decryption within an AD environment as it can decrypt any user's MasterKey.
-     The output is typically saved as a .pvk file which can then be used to decrypt MasterKeys offline without knowing user passwords.
-     This action requires Domain Admin privileges or similar rights to communicate with the Domain Controller's LSA.
+ - title:
+     en: impacket-dpapi - export domain backup keys
+     tr: impacket-dpapi - alan yedekleme anahtarlarını dışa aktar
+   desc:
+     en: |
+       Retrieves the Domain Backup Key from a Domain Controller via the LSA (Local Security Authority) RPC interface.
+       This key is the "holy grail" for DPAPI decryption within an AD environment as it can decrypt any user's MasterKey.
+       The output is typically saved as a .pvk file which can then be used to decrypt MasterKeys offline without knowing user passwords.
+       This action requires Domain Admin privileges or similar rights to communicate with the Domain Controller's LSA.
+     tr: |
+       LSA RPC arayüzüyle Alan Denetleyicisinden Alan Yedekleme Anahtarını alır.
+       Bu anahtar AD'de her kullanıcının MasterKey'ini çözebildiği için DPAPI'de kritik öneme sahiptir.
+       Çıktı genelde MasterKey'leri çevrimdışı çözmekte kullanılan .pvk dosyasıdır; Alan Yöneticisi yetkisi gerekir.
    command: "impacket-dpapi backupkeys --action export --user {{domain_admin}} --password {{password}} --domain {{domain}} --dc-ip {{dc_ip}}"
 
 # === MASTERKEY DECRYPTION ===
 
- - title: impacket-dpapi - decrypt masterkey with user password
-   desc: |
-     Decrypts a DPAPI MasterKey file using the user's cleartext password and their Security Identifier (SID).
-     MasterKey files are typically located in the user's profile directory under AppData\Roaming\Microsoft\Protect\(SID).
-     Successful decryption yields the 'key' needed to unlock specific credentials, browser data, or WiFi passwords.
-     This is the most common method used when you have successfully phished or recovered a user's password.
+ - title:
+     en: impacket-dpapi - decrypt masterkey with user password
+     tr: impacket-dpapi - kullanıcı parolasıyla masterkey çözme
+   desc:
+     en: |
+       Decrypts a DPAPI MasterKey file using the user's cleartext password and their Security Identifier (SID).
+       MasterKey files are typically located in the user's profile directory under AppData\Roaming\Microsoft\Protect\(SID).
+       Successful decryption yields the 'key' needed to unlock specific credentials, browser data, or WiFi passwords.
+       This is the most common method used when you have successfully phished or recovered a user's password.
+     tr: |
+       DPAPI MasterKey dosyasını kullanıcının açık parolası ve SID'i ile çözer.
+       MasterKey dosyaları kullanıcı profilinde AppData\Roaming\Microsoft\Protect\(SID) altındadır.
+       Başarılı çözüm kimlik bilgisi, tarayıcı verisi veya WiFi parolalarını açan anahtarı verir.
    command: "impacket-dpapi masterkey -file {{masterkey_path}} -sid {{user_sid}} -password {{password}}"
 
- - title: impacket-dpapi - decrypt masterkey with NT hash
-   desc: |
-     Decrypts a DPAPI MasterKey file using the user's NT hash instead of a cleartext password.
-     This is extremely useful in Pass-the-Hash scenarios or when you have extracted hashes from a SAM or NTDS.dit file.
-     You must still provide the user's SID to correctly derive the decryption key for the MasterKey file.
-     Once decrypted, the tool will display the GUID and the decrypted key for subsequent use.
+ - title:
+     en: impacket-dpapi - decrypt masterkey with NT hash
+     tr: impacket-dpapi - NT hash ile masterkey çözme
+   desc:
+     en: |
+       Decrypts a DPAPI MasterKey file using the user's NT hash instead of a cleartext password.
+       This is extremely useful in Pass-the-Hash scenarios or when you have extracted hashes from a SAM or NTDS.dit file.
+       You must still provide the user's SID to correctly derive the decryption key for the MasterKey file.
+       Once decrypted, the tool will display the GUID and the decrypted key for subsequent use.
+     tr: |
+       MasterKey dosyasını açık parola yerine kullanıcının NT hash'i ile çözer.
+       SAM veya NTDS.dit'ten hash çıkarılan Pass-the-Hash senaryolarında çok faydalıdır.
+       Doğru anahtar türetmek için kullanıcı SID'i yine gereklidir.
    command: "impacket-dpapi masterkey -file {{masterkey_path}} -sid {{user_sid}} -hashes :{{nt_hash}}"
 
- - title: impacket-dpapi - decrypt masterkey with domain backup key (PVK)
-   desc: |
-     Uses a previously exported Domain Backup Key (.pvk file) to decrypt a user's MasterKey.
-     This method is powerful because it does not require the user's password or NT hash to be known.
-     It is the preferred method for forensic investigators or red teamers who have compromised the Domain Controller.
-     The MasterKey is the intermediate key required to decrypt the actual secrets stored in Credentials or Vaults.
+ - title:
+     en: impacket-dpapi - decrypt masterkey with domain backup key (PVK)
+     tr: impacket-dpapi - alan yedek anahtarıyla (PVK) masterkey çözme
+   desc:
+     en: |
+       Uses a previously exported Domain Backup Key (.pvk file) to decrypt a user's MasterKey.
+       This method is powerful because it does not require the user's password or NT hash to be known.
+       It is the preferred method for forensic investigators or red teamers who have compromised the Domain Controller.
+       The MasterKey is the intermediate key required to decrypt the actual secrets stored in Credentials or Vaults.
+     tr: |
+       Daha önce dışa aktarılan Alan Yedekleme Anahtarı (.pvk) ile MasterKey'i çözer.
+       Kullanıcı parolası veya NT hash bilinmeden çözebildiği için güçlü yöntemdir.
+       Alan Denetleyicisini ele geçiren kırmızı takım veya adli incelemede tercih edilir.
    command: "impacket-dpapi masterkey -file {{masterkey_path}} -pvk {{pvk_file}}"
 
 # === DECRYPTING SECRETS (CREDENTIALS & VAULTS) ===
 
- - title: impacket-dpapi - decrypt credential file
-   desc: |
-     Decrypts a Windows Credential file using a previously decrypted MasterKey.
-     Credential files are found in %APPDATA%\Microsoft\Credentials and often contain sensitive passwords for mapped drives or legacy apps.
-     You must provide the decrypted MasterKey (the hexadecimal string) obtained from the 'masterkey' command.
-     The tool will output the decrypted contents, which usually include the target resource, username, and password.
+ - title:
+     en: impacket-dpapi - decrypt credential file
+     tr: impacket-dpapi - kimlik bilgisi dosyasını çözme
+   desc:
+     en: |
+       Decrypts a Windows Credential file using a previously decrypted MasterKey.
+       Credential files are found in %APPDATA%\Microsoft\Credentials and often contain sensitive passwords for mapped drives or legacy apps.
+       You must provide the decrypted MasterKey (the hexadecimal string) obtained from the 'masterkey' command.
+       The tool will output the decrypted contents, which usually include the target resource, username, and password.
+     tr: |
+       Windows Kimlik Bilgisi dosyasını önceden çözülmüş MasterKey ile çözer.
+       Kimlik dosyaları %APPDATA%\Microsoft\Credentials altında eşlenmiş sürücü veya eski uygulama parolalarını içerir.
+       Çözülen içerikte genelde hedef kaynak, kullanıcı adı ve parola yer alır.
    command: "impacket-dpapi credential -file {{cred_file_path}} -masterkey {{decrypted_masterkey}}"
 
- - title: impacket-dpapi - decrypt vault credentials
-   desc: |
-     Unlocks Windows Vault files which are used to store web credentials (IE/Edge), Windows passwords, and App secrets.
-     Vault files are usually located in %LOCALAPPDATA%\Microsoft\Vault or %APPDATA%\Microsoft\Vault.
-     This command requires the decrypted MasterKey associated with the specific vault entry to reveal the plaintext data.
-     It is essential for recovering saved browser passwords or other system-level cached credentials.
+ - title:
+     en: impacket-dpapi - decrypt vault credentials
+     tr: impacket-dpapi - kasa kimlik bilgilerini çözme
+   desc:
+     en: |
+       Unlocks Windows Vault files which are used to store web credentials (IE/Edge), Windows passwords, and App secrets.
+       Vault files are usually located in %LOCALAPPDATA%\Microsoft\Vault or %APPDATA%\Microsoft\Vault.
+       This command requires the decrypted MasterKey associated with the specific vault entry to reveal the plaintext data.
+       It is essential for recovering saved browser passwords or other system-level cached credentials.
+     tr: |
+       Web kimlik bilgileri ve uygulama sırlarını tutan Windows Vault dosyalarını açar.
+       Vault dosyaları %LOCALAPPDATA%\Microsoft\Vault veya %APPDATA%\Microsoft\Vault altındadır.
+       Kaydedilmiş tarayıcı parolaları veya sistemde önbelleklenmiş kimlikleri kurtarmada gereklidir.
    command: "impacket-dpapi vault -file {{vault_file_path}} -masterkey {{decrypted_masterkey}}"
 
 # === ADVANCED UTILITIES ===
 
- - title: impacket-dpapi - process credential history (credhist)
-   desc: |
-     Decrypts the CREDHIST file which tracks the history of a user's password changes.
-     This is useful when a MasterKey was encrypted with an older password that is no longer the current one.
-     By processing the CREDHIST file, you can link old passwords to the decryption process of older DPAPI blobs.
-     Requires the user's SID and a valid password (current or historical) to begin the chain of decryption.
+ - title:
+     en: impacket-dpapi - process credential history (credhist)
+     tr: impacket-dpapi - kimlik geçmişi işleme (credhist)
+   desc:
+     en: |
+       Decrypts the CREDHIST file which tracks the history of a user's password changes.
+       This is useful when a MasterKey was encrypted with an older password that is no longer the current one.
+       By processing the CREDHIST file, you can link old passwords to the decryption process of older DPAPI blobs.
+       Requires the user's SID and a valid password (current or historical) to begin the chain of decryption.
+     tr: |
+       Kullanıcının parola değişiklik geçmişini tutan CREDHIST dosyasını çözer.
+       MasterKey artık geçerli olmayan eski parolayla şifrelenmişse faydalıdır.
+       Eski parolaları çözüm zincirine bağlayarak eski DPAPI bloblarını açar.
    command: "impacket-dpapi credhist -file {{credhist_path}} -sid {{user_sid}} -password {{password}}"
 
- - title: impacket-dpapi - unprotect generic DPAPI blob
-   desc: |
-     Provides a wrapper for the CryptUnprotectData functionality to decrypt generic DPAPI-protected blobs.
-     This is used for arbitrary data blobs found in the registry or third-party application configuration files.
-     You need to provide the decrypted MasterKey that was used to protect the specific blob of data.
-     It is a versatile command for manual analysis of custom applications that rely on the Windows DPAPI for security.
+ - title:
+     en: impacket-dpapi - unprotect generic DPAPI blob
+     tr: impacket-dpapi - genel DPAPI blob çözme
+   desc:
+     en: |
+       Provides a wrapper for the CryptUnprotectData functionality to decrypt generic DPAPI-protected blobs.
+       This is used for arbitrary data blobs found in the registry or third-party application configuration files.
+       You need to provide the decrypted MasterKey that was used to protect the specific blob of data.
+       It is a versatile command for manual analysis of custom applications that rely on the Windows DPAPI for security.
+     tr: |
+       CryptUnprotectData sarmalayıcısıyla genel DPAPI korumalı blobları çözer.
+       Kayıt defteri veya üçüncü parti uygulama yapılandırmalarındaki rastgele veri blobları içindir.
+       Blobu koruyan çözülmüş MasterKey sağlanmalıdır.
    command: "impacket-dpapi unprotect -data {{hex_blob}} -masterkey {{decrypted_masterkey}}"

@@ -4,101 +4,192 @@ tags: [network, proxy, security, pentest, enumeration, debugging, web]
 actions:
 # === BASIC USAGE & NETWORK CONFIGURATION ===
 
- - title: proxify - start default proxy
-   desc: |
-     Starts the proxify tool using default settings. It listens for HTTP traffic on port 8888 and SOCKS5 traffic on port 10080 by default.
-     This is the quickest way to start intercepting local traffic for analysis.
-     Ensure that your browser or application is configured to use these ports as its proxy.
+ - title:
+     en: proxify - start default proxy
+     tr: proxify - varsayılan vekil sunucuyu başlatma
+   desc:
+     en: |
+       Starts the proxify tool using default settings. It listens for HTTP traffic on port 8888 and SOCKS5 traffic on port 10080 by default.
+       This is the quickest way to start intercepting local traffic for analysis.
+       Ensure that your browser or application is configured to use these ports as its proxy.
+     tr: |
+       proxify aracını varsayılan ayarlarla başlatır. Varsayılan olarak 8888 portunda HTTP trafiğini ve 10080 portunda SOCKS5 trafiğini dinler.
+       Bu, analiz için yerel trafiği yakalamaya başlamanın en hızlı yoludur.
+       Tarayıcınızın veya uygulamanızın bu portları vekil sunucu olarak kullanacak şekilde yapılandırıldığından emin olun.
    command: "proxify"
 
- - title: proxify - custom listening addresses
-   desc: |
-     Configures the tool to listen on specific IP addresses and ports for both HTTP and SOCKS traffic.
-     This is useful when the default ports are already occupied by other services or when you need to expose the proxy on a specific network interface.
-     Always verify that the chosen ports are allowed through your local firewall to prevent connection issues.
+ - title:
+     en: proxify - custom listening addresses
+     tr: proxify - özel dinleme adresleri
+   desc:
+     en: |
+       Configures the tool to listen on specific IP addresses and ports for both HTTP and SOCKS traffic.
+       This is useful when the default ports are already occupied by other services or when you need to expose the proxy on a specific network interface.
+       Always verify that the chosen ports are allowed through your local firewall to prevent connection issues.
+     tr: |
+       Aracı hem HTTP hem SOCKS trafiği için belirli IP adreslerinde ve portlarda dinleyecek şekilde yapılandırır.
+       Varsayılan portlar başka hizmetlerce kullanılıyorsa veya vekil sunucuyu belirli bir ağ arayüzünde yayınlamanız gerekiyorsa kullanışlıdır.
+       Bağlantı sorunlarını önlemek için seçtiğiniz portların yerel güvenlik duvarınızdan geçmesine izin verildiğini her zaman doğrulayın.
    command: "proxify -http-addr {{listen_ip_port|127.0.0.1:8081}} -sa {{socks_ip_port|127.0.0.1:10081}}"
 
- - title: proxify - dns server and mapping
-   desc: |
-     Starts a local DNS server and applies custom domain-to-IP mappings.
-     This feature allows you to redirect traffic for specific domains to a target IP without modifying the system's hosts file.
-     It is highly effective for testing virtual hosts or bypassing DNS-based load balancers during a penetration test.
+ - title:
+     en: proxify - dns server and mapping
+     tr: proxify - DNS sunucusu ve eşleme
+   desc:
+     en: |
+       Starts a local DNS server and applies custom domain-to-IP mappings.
+       This feature allows you to redirect traffic for specific domains to a target IP without modifying the system's hosts file.
+       It is highly effective for testing virtual hosts or bypassing DNS-based load balancers during a penetration test.
+     tr: |
+       Yerel bir DNS sunucusu başlatır ve özel alan adı-IP eşlemeleri uygular.
+       Bu özellik, sistemin hosts dosyasını değiştirmeden belirli alan adlarının trafiğini hedef bir IP'ye yönlendirmenizi sağlar.
+       Sızma testi sırasında sanal hostları test etmek veya DNS tabanlı yük dengeleyicileri atlatmak için oldukça etkilidir.
    command: "proxify -da {{dns_addr|127.0.0.1:53}} -dm {{mapping|example.com:1.2.3.4}}"
 
 # === INTERCEPTION & LOGGING ===
 
- - title: proxify - log raw traffic to directory
-   desc: |
-     Captures and stores all raw HTTP requests and responses into a specified output directory.
-     Each request and response pair is saved as a separate file, making it easy to grep through historical traffic.
-     This is essential for long-running engagements where you need to preserve evidence or perform deep manual analysis later.
+ - title:
+     en: proxify - log raw traffic to directory
+     tr: proxify - ham trafiği dizine kaydetme
+   desc:
+     en: |
+       Captures and stores all raw HTTP requests and responses into a specified output directory.
+       Each request and response pair is saved as a separate file, making it easy to grep through historical traffic.
+       This is essential for long-running engagements where you need to preserve evidence or perform deep manual analysis later.
+     tr: |
+       Tüm ham HTTP isteklerini ve yanıtlarını belirtilen çıktı dizinine yakalar ve saklar.
+       Her istek-yanıt çifti ayrı bir dosya olarak kaydedilir, böylece geçmiş trafikte grep ile arama yapmak kolaylaşır.
+       Kanıt saklamanız veya sonradan derinlemesine manuel analiz yapmanız gereken uzun süreli çalışmalarda vazgeçilmezdir.
    command: "proxify -sr -o {{output_directory|proxify_logs}}"
 
- - title: proxify - structured output logging
-   desc: |
-     Saves intercepted traffic metadata into a single structured file using JSONL or YAML format.
-     This is ideal for piping the proxy output into other tools or custom scripts for automated analysis.
-     You can specify the format and the filename to organize your reconnaissance data efficiently.
+ - title:
+     en: proxify - structured output logging
+     tr: proxify - yapısal çıktı kaydı
+   desc:
+     en: |
+       Saves intercepted traffic metadata into a single structured file using JSONL or YAML format.
+       This is ideal for piping the proxy output into other tools or custom scripts for automated analysis.
+       You can specify the format and the filename to organize your reconnaissance data efficiently.
+     tr: |
+       Yakalanan trafik üst verisini JSONL veya YAML biçiminde tek bir yapısal dosyaya kaydeder.
+       Vekil sunucu çıktısını otomatik analiz için başka araçlara veya özel betiklere aktarmak için idealdir.
+       Keşif verinizi verimli düzenlemek için biçimi ve dosya adını belirtebilirsiniz.
    command: "proxify -o {{output_file|logs.jsonl}} -of {{format|jsonl}}"
 
- - title: proxify - dump requests only
-   desc: |
-     Filters the output to only record HTTP requests while ignoring the responses.
-     Use this when you are only interested in the outgoing payloads, headers, and endpoints being accessed.
-     It helps reduce the size of log files significantly when the server responses are large or repetitive.
+ - title:
+     en: proxify - dump requests only
+     tr: proxify - yalnızca istekleri kaydetme
+   desc:
+     en: |
+       Filters the output to only record HTTP requests while ignoring the responses.
+       Use this when you are only interested in the outgoing payloads, headers, and endpoints being accessed.
+       It helps reduce the size of log files significantly when the server responses are large or repetitive.
+     tr: |
+       Çıktıyı yalnızca HTTP isteklerini kaydedecek, yanıtları yoksayacak şekilde filtreler.
+       Yalnızca giden yükler, başlıklar ve erişilen uç noktalarla ilgilendiğinizde kullanın.
+       Sunucu yanıtları büyük veya tekrarlı olduğunda kayıt dosyalarının boyutunu belirgin biçimde küçültür.
    command: "proxify -dump-req -o {{output_file|requests.jsonl}}"
 
 # === UPSTREAM PROXYING & CHAINING ===
 
- - title: proxify - chain to upstream http proxy
-   desc: |
-     Forwards all intercepted traffic to an upstream HTTP proxy like Burp Suite or ZAP.
-     This allows you to use Proxify for initial filtering or modification before passing the traffic to a GUI-based interceptor.
-     It is a common setup for complex workflows where you need the features of both a CLI and a GUI proxy.
+ - title:
+     en: proxify - chain to upstream http proxy
+     tr: proxify - üst HTTP vekil sunucuya zincirleme
+   desc:
+     en: |
+       Forwards all intercepted traffic to an upstream HTTP proxy like Burp Suite or ZAP.
+       This allows you to use Proxify for initial filtering or modification before passing the traffic to a GUI-based interceptor.
+       It is a common setup for complex workflows where you need the features of both a CLI and a GUI proxy.
+     tr: |
+       Yakalanan tüm trafiği Burp Suite veya ZAP gibi bir üst HTTP vekil sunucuya iletir.
+       Böylece trafiği grafik arayüzlü bir yakalayıcıya aktarmadan önce ilk filtreleme veya değiştirme için Proxify kullanabilirsiniz.
+       Hem komut satırı hem grafik arayüzlü vekil sunucu özelliklerine ihtiyaç duyduğunuz karmaşık iş akışlarında yaygın bir kurulumdur.
    command: "proxify -http-proxy {{upstream_url|http://127.0.0.1:8080}}"
 
- - title: proxify - chain to upstream socks5 proxy
-   desc: |
-     Routes all traffic through an upstream SOCKS5 proxy, such as the TOR network or an SSH tunnel.
-     This is particularly useful for anonymizing your source IP or accessing internal resources via a pivot point.
-     Multiple upstream proxies can be provided to rotate the exit IP address for each request.
+ - title:
+     en: proxify - chain to upstream socks5 proxy
+     tr: proxify - üst SOCKS5 vekil sunucuya zincirleme
+   desc:
+     en: |
+       Routes all traffic through an upstream SOCKS5 proxy, such as the TOR network or an SSH tunnel.
+       This is particularly useful for anonymizing your source IP or accessing internal resources via a pivot point.
+       Multiple upstream proxies can be provided to rotate the exit IP address for each request.
+     tr: |
+       Tüm trafiği TOR ağı veya SSH tüneli gibi bir üst SOCKS5 vekil sunucu üzerinden yönlendirir.
+       Kaynak IP'nizi gizlemek veya bir sıçrama noktası üzerinden iç kaynaklara erişmek için özellikle kullanışlıdır.
+       Her istekte çıkış IP adresini döndürmek için birden fazla üst vekil sunucu verilebilir.
    command: "proxify -socks5-proxy {{upstream_socks|127.0.0.1:9050}}"
 
 # === FILTERING & MANIPULATION ===
 
- - title: proxify - request filtering with dsl
-   desc: |
-     Applies Domain Specific Language (DSL) filters to capture only specific types of requests.
-     This allows you to ignore noise and focus on relevant traffic, such as requests containing a specific keyword in the body or header.
-     DSL filtering is extremely powerful for targeted debugging of modern web applications.
+ - title:
+     en: proxify - request filtering with dsl
+     tr: proxify - DSL ile istek filtreleme
+   desc:
+     en: |
+       Applies Domain Specific Language (DSL) filters to capture only specific types of requests.
+       This allows you to ignore noise and focus on relevant traffic, such as requests containing a specific keyword in the body or header.
+       DSL filtering is extremely powerful for targeted debugging of modern web applications.
+     tr: |
+       Yalnızca belirli tür istekleri yakalamak için Alana Özgü Dil (DSL) filtreleri uygular.
+       Böylece gürültüyü yoksayıp gövdede veya başlıkta belirli bir anahtar sözcük içeren istekler gibi ilgili trafiğe odaklanabilirsiniz.
+       DSL filtreleme, modern web uygulamalarında hedefli hata ayıklama için son derece güçlüdür.
    command: "proxify -req-fd {{dsl_filter|'contains(request, \"api/v1\")'}}"
 
- - title: proxify - match and replace in requests
-   desc: |
-     Automatically finds and replaces strings within requests on the fly using DSL rules.
-     This is useful for injecting custom headers, modifying User-Agents, or changing parameter values globally.
-     Be careful with regex patterns to avoid unintentionally breaking the application's logic or authentication tokens.
+ - title:
+     en: proxify - match and replace in requests
+     tr: proxify - isteklerde eşleştir ve değiştir
+   desc:
+     en: |
+       Automatically finds and replaces strings within requests on the fly using DSL rules.
+       This is useful for injecting custom headers, modifying User-Agents, or changing parameter values globally.
+       Be careful with regex patterns to avoid unintentionally breaking the application's logic or authentication tokens.
+     tr: |
+       DSL kurallarıyla isteklerdeki dizgileri anında otomatik bulur ve değiştirir.
+       Özel başlık eklemek, User-Agent değiştirmek veya parametre değerlerini genel olarak değiştirmek için kullanışlıdır.
+       Uygulamanın mantığını veya kimlik doğrulama jetonlarını istemeden bozmamak için regex desenlerinde dikkatli olun.
    command: "proxify -req-mrd {{match_replace_rule|'replace(request, \"User-Agent\", \"Security-Scanner\")'}}"
 
- - title: proxify - response match and replace
-   desc: |
-     Modifies server responses before they reach the client based on specified DSL criteria.
-     This can be used to bypass client-side controls, disable security headers like CSP, or inject debug scripts into the HTML body.
-     It is a key technique for advanced web exploitation and testing client-side vulnerabilities.
+ - title:
+     en: proxify - response match and replace
+     tr: proxify - yanıtlarda eşleştir ve değiştir
+   desc:
+     en: |
+       Modifies server responses before they reach the client based on specified DSL criteria.
+       This can be used to bypass client-side controls, disable security headers like CSP, or inject debug scripts into the HTML body.
+       It is a key technique for advanced web exploitation and testing client-side vulnerabilities.
+     tr: |
+       Belirtilen DSL ölçütlerine göre sunucu yanıtlarını istemciye ulaşmadan önce değiştirir.
+       İstemci tarafı denetimleri atlatmak, CSP gibi güvenlik başlıklarını devre dışı bırakmak veya HTML gövdesine hata ayıklama betikleri eklemek için kullanılabilir.
+       İleri düzey web sömürüsü ve istemci tarafı zafiyetleri test etmek için kilit bir tekniktir.
    command: "proxify -resp-mrd {{match_replace_rule|'replace(response, \"<head>\", \"<head><script>alert(1)</script>\")'}}"
 
 # === ADVANCED CONFIGURATION ===
 
- - title: proxify - tls passthrough
-   desc: |
-     Specifies domains that should pass through the proxy without TLS termination.
-     Use this for domains that utilize certificate pinning or for services where you do not want to interfere with the encrypted stream.
-     It prevents "Your connection is not private" errors in browsers for specific, trusted endpoints.
+ - title:
+     en: proxify - tls passthrough
+     tr: proxify - TLS geçişi (passthrough)
+   desc:
+     en: |
+       Specifies domains that should pass through the proxy without TLS termination.
+       Use this for domains that utilize certificate pinning or for services where you do not want to interfere with the encrypted stream.
+       It prevents "Your connection is not private" errors in browsers for specific, trusted endpoints.
+     tr: |
+       TLS sonlandırma olmadan vekil sunucudan geçmesi gereken alan adlarını belirtir.
+       Sertifika sabitleme kullanan alan adları veya şifreli akışa müdahale etmek istemediğiniz hizmetler için kullanın.
+       Belirli, güvenilir uç noktalar için tarayıcılardaki "Bağlantınız gizli değil" hatalarını engeller.
    command: "proxify -pt {{domain_regex|'(.*\\.)?google\\.com.*'}}"
 
- - title: proxify - access control list
-   desc: |
-     Restricts the proxy usage to a specific list of allowed IP addresses or CIDR ranges.
-     This is a critical security measure when running Proxify on a remote server to prevent unauthorized users from using your proxy.
-     Anyone attempting to connect from an IP not in the allow list will be denied access.
+ - title:
+     en: proxify - access control list
+     tr: proxify - erişim denetim listesi
+   desc:
+     en: |
+       Restricts the proxy usage to a specific list of allowed IP addresses or CIDR ranges.
+       This is a critical security measure when running Proxify on a remote server to prevent unauthorized users from using your proxy.
+       Anyone attempting to connect from an IP not in the allow list will be denied access.
+     tr: |
+       Vekil sunucu kullanımını izin verilen belirli IP adresleri veya CIDR aralıklarıyla kısıtlar.
+       Proxify uzak bir sunucuda çalışırken yetkisiz kullanıcıların vekil sunucunuzu kullanmasını engellemek için kritik bir güvenlik önlemidir.
+       İzin listesinde olmayan bir IP'den bağlanmaya çalışan herkesin erişimi reddedilir.
    command: "proxify -allow {{allowed_ips|192.168.1.0/24,10.0.0.5}}"

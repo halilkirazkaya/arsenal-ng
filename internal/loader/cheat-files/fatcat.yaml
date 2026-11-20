@@ -3,96 +3,187 @@ tags: [forensics, filesystem, security, recovery, pentest, disk-analysis]
 
 actions:
   # === INFORMATION & EXPLORATION ===
-  - title: fatcat - display disk information
-    desc: |
-      Displays general information about the FAT filesystem within the provided image.
-      This command is typically the first step in an investigation to identify the FAT type (FAT12, FAT16, or FAT32) and verify the boot sector integrity.
-      It shows details such as sector size, cluster size, and the number of FAT tables present.
+  - title:
+      en: fatcat - display disk information
+      tr: fatcat - disk bilgisini gösterme
+    desc:
+      en: |
+        Displays general information about the FAT filesystem within the provided image.
+        This command is typically the first step in an investigation to identify the FAT type (FAT12, FAT16, or FAT32) and verify the boot sector integrity.
+        It shows details such as sector size, cluster size, and the number of FAT tables present.
+      tr: |
+        Verilen imaj içindeki FAT dosya sistemi hakkında genel bilgi gösterir.
+        Bu komut genellikle FAT türünü (FAT12, FAT16 veya FAT32) belirlemek ve önyükleme kesimi bütünlüğünü doğrulamak için soruşturmadaki ilk adımdır.
+        Kesim boyutu, küme boyutu ve mevcut FAT tablosu sayısı gibi ayrıntıları gösterir.
     command: "fatcat {{image}} -i"
 
-  - title: fatcat - list files and directories
-    desc: |
-      Lists the contents of a specific directory path within the disk image.
-      If no path is specified, it usually defaults to the root directory.
-      This is useful for mapping the file structure and identifying interesting files for further analysis.
+  - title:
+      en: fatcat - list files and directories
+      tr: fatcat - dosya ve dizinleri listeleme
+    desc:
+      en: |
+        Lists the contents of a specific directory path within the disk image.
+        If no path is specified, it usually defaults to the root directory.
+        This is useful for mapping the file structure and identifying interesting files for further analysis.
+      tr: |
+        Disk imajı içindeki belirli bir dizin yolunun içeriğini listeler.
+        Yol belirtilmezse genellikle kök dizin varsayılır.
+        Dosya yapısını haritalamak ve ileri analiz için ilgi çekici dosyaları belirlemek açısından kullanışlıdır.
     command: "fatcat {{image}} -l {{path|/}}"
 
-  - title: fatcat - list files in a specific cluster
-    desc: |
-      Lists all entries found within a specific cluster number on the disk.
-      This is a low-level operation used when you suspect a directory exists at a specific location but it is not linked in the standard tree.
-      It bypasses the directory path logic and reads the cluster's raw entry data directly.
+  - title:
+      en: fatcat - list files in a specific cluster
+      tr: fatcat - belirli bir kümedeki dosyaları listeleme
+    desc:
+      en: |
+        Lists all entries found within a specific cluster number on the disk.
+        This is a low-level operation used when you suspect a directory exists at a specific location but it is not linked in the standard tree.
+        It bypasses the directory path logic and reads the cluster's raw entry data directly.
+      tr: |
+        Diskte belirli bir küme numarası içinde bulunan tüm girdileri listeler.
+        Belirli bir konumda bir dizin olduğundan şüphelenip standart ağaca bağlı olmadığı durumlarda kullanılan düşük seviyeli bir işlemdir.
+        Dizin yolu mantığını atlayarak kümenin ham girdi verisini doğrudan okur.
     command: "fatcat {{image}} -L {{cluster}}"
 
-  - title: fatcat - list deleted files
-    desc: |
-      Lists directory contents while specifically including entries that have been marked as deleted.
-      FAT systems mark files as deleted by changing the first character of the filename, but the data often remains.
-      This command helps forensic investigators identify potential evidence that a user attempted to hide or remove.
+  - title:
+      en: fatcat - list deleted files
+      tr: fatcat - silinmiş dosyaları listeleme
+    desc:
+      en: |
+        Lists directory contents while specifically including entries that have been marked as deleted.
+        FAT systems mark files as deleted by changing the first character of the filename, but the data often remains.
+        This command helps forensic investigators identify potential evidence that a user attempted to hide or remove.
+      tr: |
+        Silinmiş olarak işaretlenmiş girdileri de içerecek şekilde dizin içeriğini listeler.
+        FAT sistemleri dosyaları, dosya adının ilk karakterini değiştirerek silinmiş işaretler ancak veri çoğu zaman kalır.
+        Bu komut, adli bilişimcilerin kullanıcının gizlemeye veya silmeye çalıştığı olası kanıtları tespit etmesine yardımcı olur.
     command: "fatcat {{image}} -l {{path|/}} -d"
 
   # === EXTRACTION & RECOVERY ===
-  - title: fatcat - extract all files
-    desc: |
-      Extracts the entire content of the disk image to a specified local directory.
-      The -d flag ensures that even deleted files are attempted to be recovered during the process.
-      Note that recovered deleted files may be corrupted if their clusters have been overwritten by newer data.
+  - title:
+      en: fatcat - extract all files
+      tr: fatcat - tüm dosyaları çıkarma
+    desc:
+      en: |
+        Extracts the entire content of the disk image to a specified local directory.
+        The -d flag ensures that even deleted files are attempted to be recovered during the process.
+        Note that recovered deleted files may be corrupted if their clusters have been overwritten by newer data.
+      tr: |
+        Disk imajının tüm içeriğini belirtilen yerel dizine çıkarır.
+        -d bayrağı, işlem sırasında silinmiş dosyaların da kurtarılmaya çalışılmasını sağlar.
+        Kümeleri yeni verilerle üzerine yazılmışsa kurtarılan silinmiş dosyaların bozuk olabileceğini unutmayın.
     command: "fatcat {{image}} -x {{output_directory}} -d"
 
-  - title: fatcat - read a specific file
-    desc: |
-      Reads the content of a single file and outputs it to the standard output.
-      You can redirect this output to a local file on your machine to extract specific evidence without extracting the whole disk.
-      This is highly efficient for targeting known configuration files or logs.
+  - title:
+      en: fatcat - read a specific file
+      tr: fatcat - belirli bir dosyayı okuma
+    desc:
+      en: |
+        Reads the content of a single file and outputs it to the standard output.
+        You can redirect this output to a local file on your machine to extract specific evidence without extracting the whole disk.
+        This is highly efficient for targeting known configuration files or logs.
+      tr: |
+        Tek bir dosyanın içeriğini okuyup standart çıktıya yazar.
+        Tüm diski çıkarmadan belirli kanıtları almak için bu çıktıyı makinenizdeki yerel bir dosyaya yönlendirebilirsiniz.
+        Bilinen yapılandırma dosyaları veya kayıtları hedeflemek için oldukça verimlidir.
     command: "fatcat {{image}} -r {{path}} > {{output_file}}"
 
-  - title: fatcat - read raw data from cluster
-    desc: |
-      Reads raw data directly from a specific cluster and a specified size.
-      This is crucial for manual forensic reconstruction when the filesystem metadata is severely damaged.
-      It allows you to pull raw bytes from the disk image regardless of what the FAT table says.
+  - title:
+      en: fatcat - read raw data from cluster
+      tr: fatcat - kümeden ham veri okuma
+    desc:
+      en: |
+        Reads raw data directly from a specific cluster and a specified size.
+        This is crucial for manual forensic reconstruction when the filesystem metadata is severely damaged.
+        It allows you to pull raw bytes from the disk image regardless of what the FAT table says.
+      tr: |
+        Belirli bir kümeden belirtilen boyutta ham veriyi doğrudan okur.
+        Dosya sistemi üst verisi ağır hasarlıyken elle adli yeniden yapılandırma için kritiktir.
+        FAT tablosunun ne söylediğinden bağımsız olarak disk imajından ham baytları çekmenizi sağlar.
     command: "fatcat {{image}} -R {{cluster}} -s {{size|512}}"
 
   # === FAT TABLE ANALYSIS ===
-  - title: fatcat - compare FAT tables
-    desc: |
-      Analyses and compares the primary and secondary FAT tables for discrepancies.
-      Standard FAT filesystems keep two copies of the allocation table; if they differ, it indicates corruption or manual tampering.
-      This command is essential for verifying the structural integrity of the partition.
+  - title:
+      en: fatcat - compare FAT tables
+      tr: fatcat - FAT tablolarını karşılaştırma
+    desc:
+      en: |
+        Analyses and compares the primary and secondary FAT tables for discrepancies.
+        Standard FAT filesystems keep two copies of the allocation table; if they differ, it indicates corruption or manual tampering.
+        This command is essential for verifying the structural integrity of the partition.
+      tr: |
+        Birincil ve ikincil FAT tablolarını tutarsızlıklara karşı analiz edip karşılaştırır.
+        Standart FAT dosya sistemleri ayırma tablosunun iki kopyasını tutar; farklılarsa bozulma veya elle müdahale göstergesidir.
+        Bu komut, bölümün yapısal bütünlüğünü doğrulamak için gereklidir.
     command: "fatcat {{image}} -2"
 
-  - title: fatcat - search for orphan files
-    desc: |
-      Performs a search for orphan files and directories that are not linked to the root directory structure.
-      Orphan files often occur due to improper unmounting or intentional manipulation of the directory entries.
-      This is a powerful forensic feature to find hidden data that doesn't appear in a standard file listing.
+  - title:
+      en: fatcat - search for orphan files
+      tr: fatcat - yetim dosyaları arama
+    desc:
+      en: |
+        Performs a search for orphan files and directories that are not linked to the root directory structure.
+        Orphan files often occur due to improper unmounting or intentional manipulation of the directory entries.
+        This is a powerful forensic feature to find hidden data that doesn't appear in a standard file listing.
+      tr: |
+        Kök dizin yapısına bağlı olmayan yetim dosya ve dizinleri arar.
+        Yetim dosyalar genellikle hatalı ayırma (unmount) veya dizin girdilerinin kasıtlı değiştirilmesi sonucu oluşur.
+        Standart dosya listelemede görünmeyen gizli veriyi bulmak için güçlü bir adli özelliktir.
     command: "fatcat {{image}} -o"
 
-  - title: fatcat - backup FAT tables
-    desc: |
-      Creates a backup of the FAT tables into a separate file.
-      This should be done before performing any write operations or "hacking" the entry tables to avoid permanent data loss.
-      The -t flag can specify which table to back up (0 for both, 1 for first, 2 for second).
+  - title:
+      en: fatcat - backup FAT tables
+      tr: fatcat - FAT tablolarını yedekleme
+    desc:
+      en: |
+        Creates a backup of the FAT tables into a separate file.
+        This should be done before performing any write operations or "hacking" the entry tables to avoid permanent data loss.
+        The -t flag can specify which table to back up (0 for both, 1 for first, 2 for second).
+      tr: |
+        FAT tablolarının yedeğini ayrı bir dosyaya oluşturur.
+        Kalıcı veri kaybını önlemek için yazma işlemleri veya girdi tablolarını "hackleme" öncesi yapılmalıdır.
+        -t bayrağı hangi tablonun yedekleneceğini belirtebilir (ikisi için 0, ilki için 1, ikincisi için 2).
     command: "fatcat {{image}} -b {{backup_file}} -t {{table|0}}"
 
   # === FILESYSTEM HACKING (WRITING) ===
-  - title: fatcat - change entry cluster (Risky)
-    desc: |
-      Manually changes the starting cluster of a specific file or directory entry.
-      This is a "hacking" command that modifies the disk image directly and can lead to corruption if used incorrectly.
-      It is used in advanced forensics to manually point a filename to a different data area on the disk.
+  - title:
+      en: fatcat - change entry cluster (Risky)
+      tr: fatcat - girdi kümesini değiştirme (Riskli)
+    desc:
+      en: |
+        Manually changes the starting cluster of a specific file or directory entry.
+        This is a "hacking" command that modifies the disk image directly and can lead to corruption if used incorrectly.
+        It is used in advanced forensics to manually point a filename to a different data area on the disk.
+      tr: |
+        Belirli bir dosya veya dizin girdisinin başlangıç kümesini elle değiştirir.
+        Bu, disk imajını doğrudan değiştiren bir "hackleme" komutudur ve yanlış kullanılırsa bozulmaya yol açabilir.
+        İleri adli bilişimde bir dosya adını diskteki farklı bir veri alanına elle yönlendirmek için kullanılır.
     command: "fatcat {{image}} -e {{path}} -c {{new_cluster}}"
 
-  - title: fatcat - modify file size (Risky)
-    desc: |
-      Manually sets the size of a file entry in the directory structure.
-      Use this when a file's metadata reports a wrong size, preventing full extraction of the underlying data.
-      Warning: This command writes to the disk image; ensure you have a backup before proceeding.
+  - title:
+      en: fatcat - modify file size (Risky)
+      tr: fatcat - dosya boyutunu değiştirme (Riskli)
+    desc:
+      en: |
+        Manually sets the size of a file entry in the directory structure.
+        Use this when a file's metadata reports a wrong size, preventing full extraction of the underlying data.
+        Warning: This command writes to the disk image; ensure you have a backup before proceeding.
+      tr: |
+        Dizin yapısındaki bir dosya girdisinin boyutunu elle ayarlar.
+        Dosyanın üst verisi yanlış boyut bildirdiğinde ve altta yatan verinin tam çıkarılmasını engellediğinde kullanın.
+        Uyarı: Bu komut disk imajına yazar; devam etmeden önce yedeğiniz olduğundan emin olun.
     command: "fatcat {{image}} -e {{path}} -s {{new_size}}"
 
-  - title: fatcat - fix reachable directories
-    desc: |
-      Attempts to automatically fix directory structures that are reachable but logically inconsistent.
-      This can repair certain types of filesystem corruption where the directory links are broken.
-      This command modifies the image and should only be used after manual analysis and backing up the FAT.
+  - title:
+      en: fatcat - fix reachable directories
+      tr: fatcat - erişilebilir dizinleri onarma
+    desc:
+      en: |
+        Attempts to automatically fix directory structures that are reachable but logically inconsistent.
+        This can repair certain types of filesystem corruption where the directory links are broken.
+        This command modifies the image and should only be used after manual analysis and backing up the FAT.
+      tr: |
+        Erişilebilir ancak mantıksal olarak tutarsız dizin yapılarını otomatik onarmaya çalışır.
+        Dizin bağlantılarının bozuk olduğu belirli dosya sistemi bozulma türlerini onarabilir.
+        Bu komut imajı değiştirir; yalnızca elle analiz ve FAT yedeği sonrası kullanılmalıdır.
     command: "fatcat {{image}} -f"

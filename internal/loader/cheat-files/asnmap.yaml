@@ -4,76 +4,146 @@ tags: [network, reconnaissance, enumeration, pentest, osint, security, cloud]
 actions:
 # === BASIC RECONNAISSANCE ===
 
- - title: asnmap - domain lookup
-   desc: |
-     Resolve a domain name to its associated Autonomous System Number (ASN) and IP ranges. 
-     This is highly effective for mapping the network perimeter of a specific organization. 
-     It helps security researchers identify the hosting infrastructure and whether the target is using a CDN or private data center.
+ - title:
+     en: asnmap - domain lookup
+     tr: asnmap - alan adı sorgulama
+   desc:
+     en: |
+       Resolve a domain name to its associated Autonomous System Number (ASN) and IP ranges. 
+       This is highly effective for mapping the network perimeter of a specific organization. 
+       It helps security researchers identify the hosting infrastructure and whether the target is using a CDN or private data center.
+     tr: |
+       Bir alan adını ilişkili Otonom Sistem Numarasına (ASN) ve IP aralıklarına çözümle.
+       Bu, belirli bir kuruluşun ağ çevresini haritalamada oldukça etkilidir.
+       Güvenlik araştırmacılarının barındırma altyapısını ve hedefin CDN mi yoksa özel veri merkezi mi kullandığını belirlemesine yardımcı olur.
    command: "asnmap -d {{domain}}"
 
- - title: asnmap - ip address lookup
-   desc: |
-     Identify the ASN information and network ownership for a specific IP address. 
-     Use this when you have an IP and need to determine which service provider or organization it belongs to. 
-     The tool supports both IPv4 and IPv6 addresses for comprehensive coverage.
+ - title:
+     en: asnmap - ip address lookup
+     tr: asnmap - ip adresi sorgulama
+   desc:
+     en: |
+       Identify the ASN information and network ownership for a specific IP address. 
+       Use this when you have an IP and need to determine which service provider or organization it belongs to. 
+       The tool supports both IPv4 and IPv6 addresses for comprehensive coverage.
+     tr: |
+       Belirli bir IP adresi için ASN bilgisini ve ağ sahipliğini belirler.
+       Bir IP'niz olup hangi servis sağlayıcıya veya kuruluşa ait olduğunu belirlemeniz gerektiğinde kullanın.
+       Araç kapsamlı kapsama için hem IPv4 hem IPv6 adreslerini destekler.
    command: "asnmap -i {{ip_address}}"
 
- - title: asnmap - lookup by asn number
-   desc: |
-     Retrieve all IP CIDR blocks associated with a specific ASN number. 
-     This is essential for discovering the full IP space assigned to an entity to define a scope for further scanning. 
-     Ensure the ASN is prefixed with "AS" for proper identification by the tool.
+ - title:
+     en: asnmap - lookup by asn number
+     tr: asnmap - asn numarasıyla sorgulama
+   desc:
+     en: |
+       Retrieve all IP CIDR blocks associated with a specific ASN number. 
+       This is essential for discovering the full IP space assigned to an entity to define a scope for further scanning. 
+       Ensure the ASN is prefixed with "AS" for proper identification by the tool.
+     tr: |
+       Belirli bir ASN numarasıyla ilişkili tüm IP CIDR bloklarını alır.
+       Bu, ileri tarama kapsamı tanımlamak için bir varlığa atanmış tüm IP alanını keşfetmede gereklidir.
+       Aracın doğru tanıması için ASN'in "AS" önekiyle yazıldığından emin olun.
    command: "asnmap -a {{asn_number|AS13335}}"
 
- - title: asnmap - lookup by organization name
-   desc: |
-     Search for network assets and ASN details using the name of an organization or company. 
-     This feature is powerful for broad reconnaissance when you do not yet have specific domains or IPs. 
-     Note that common names might return multiple results, so it is best used with specific corporate names.
+ - title:
+     en: asnmap - lookup by organization name
+     tr: asnmap - kuruluş adıyla sorgulama
+   desc:
+     en: |
+       Search for network assets and ASN details using the name of an organization or company. 
+       This feature is powerful for broad reconnaissance when you do not yet have specific domains or IPs. 
+       Note that common names might return multiple results, so it is best used with specific corporate names.
+     tr: |
+       Bir kuruluş veya şirket adıyla ağ varlıkları ve ASN ayrıntıları arar.
+       Henüz belirli alan adı veya IP'niz yokken geniş keşif için güçlü özelliktir.
+       Yaygın adların birden çok sonuç döndürebileceğini unutmayın; belirli kurumsal adlarla kullanmak en iyisidir.
    command: "asnmap -org {{org_name|GOOGLE}}"
 
 # === INPUT AND OUTPUT OPERATIONS ===
 
- - title: asnmap - bulk lookup from file
-   desc: |
-     Process multiple targets simultaneously by providing an input file containing a list of domains, IPs, or ASNs. 
-     This is the most efficient way to handle large-scale reconnaissance tasks during the initial phase of an engagement. 
-     The input file should contain one target per line to ensure accurate parsing.
+ - title:
+     en: asnmap - bulk lookup from file
+     tr: asnmap - dosyadan toplu sorgulama
+   desc:
+     en: |
+       Process multiple targets simultaneously by providing an input file containing a list of domains, IPs, or ASNs. 
+       This is the most efficient way to handle large-scale reconnaissance tasks during the initial phase of an engagement. 
+       The input file should contain one target per line to ensure accurate parsing.
+     tr: |
+       Alan adı, IP veya ASN listesi içeren bir girdi dosyası vererek birden çok hedefi eşzamanlı işler.
+       Bu, bir çalışmanın ilk aşamasında geniş ölçekli keşif görevlerini işlemenin en verimli yoludur.
+       Doğru ayrıştırma için girdi dosyası satır başına bir hedef içermelidir.
    command: "asnmap -f {{input_file|targets.txt}}"
 
- - title: asnmap - formatted json output
-   desc: |
-     Generate results in JSON format which is ideal for integration with other automation scripts or tools like jq. 
-     The JSON output provides detailed metadata including timestamps, AS names, and country codes. 
-     Using the silent flag alongside JSON helps in keeping the output clean for piping to other processes.
+ - title:
+     en: asnmap - formatted json output
+     tr: asnmap - biçimli json çıktısı
+   desc:
+     en: |
+       Generate results in JSON format which is ideal for integration with other automation scripts or tools like jq. 
+       The JSON output provides detailed metadata including timestamps, AS names, and country codes. 
+       Using the silent flag alongside JSON helps in keeping the output clean for piping to other processes.
+     tr: |
+       Sonuçları, jq gibi diğer otomasyon betikleri veya araçlarla entegrasyona ideal JSON biçiminde üretir.
+       JSON çıktısı zaman damgaları, AS adları ve ülke kodları dahil ayrıntılı üstveri sağlar.
+       JSON ile birlikte sessiz bayrağı kullanmak çıktıyı diğer işlemlere aktarmak için temiz tutmaya yardımcı olur.
    command: "asnmap -d {{domain}} -j -silent"
 
- - title: asnmap - csv export
-   desc: |
-     Export the reconnaissance results into a CSV file for structured analysis. 
-     This is useful for creating reports or performing data analysis in spreadsheet software like Excel. 
-     It provides a clear tabular view of the relationship between inputs, ASNs, and their respective ranges.
+ - title:
+     en: asnmap - csv export
+     tr: asnmap - csv dışa aktarma
+   desc:
+     en: |
+       Export the reconnaissance results into a CSV file for structured analysis. 
+       This is useful for creating reports or performing data analysis in spreadsheet software like Excel. 
+       It provides a clear tabular view of the relationship between inputs, ASNs, and their respective ranges.
+     tr: |
+       Keşif sonuçlarını yapısal analiz için CSV dosyasına aktarır.
+       Bu, rapor oluşturmak veya Excel gibi tablolama yazılımlarında veri analizi yapmak için yararlıdır.
+       Girdiler, ASN'ler ve ilgili aralıkları arasındaki ilişkinin net tablosal görünümünü verir.
    command: "asnmap -d {{domain}} -c -o {{output_file|results.csv}}"
 
 # === ADVANCED CONFIGURATION ===
 
- - title: asnmap - include ipv6 ranges
-   desc: |
-     Explicitly request the tool to display IPv6 CIDR ranges in the command-line output. 
-     As modern infrastructures increasingly use IPv6, this ensures you do not miss any part of the target's network footprint. 
-     This flag is particularly important when auditing cloud environments or large ISP networks.
+ - title:
+     en: asnmap - include ipv6 ranges
+     tr: asnmap - ipv6 aralıklarını dahil etme
+   desc:
+     en: |
+       Explicitly request the tool to display IPv6 CIDR ranges in the command-line output. 
+       As modern infrastructures increasingly use IPv6, this ensures you do not miss any part of the target's network footprint. 
+       This flag is particularly important when auditing cloud environments or large ISP networks.
+     tr: |
+       Araçtan komut satırı çıktısında IPv6 CIDR aralıklarını açıkça göstermesini ister.
+       Modern altyapılar giderek IPv6 kullandığından bu, hedefin ağ izinin hiçbir parçasını kaçırmamanızı sağlar.
+       Bu bayrak, bulut ortamlarını veya büyük İSS ağlarını denetlerken özellikle önemlidir.
    command: "asnmap -d {{domain}} -v6"
 
- - title: asnmap - custom resolvers
-   desc: |
-     Specify a list of custom DNS resolvers to use for the lookups. 
-     Using reliable or private resolvers can help bypass potential rate limits or DNS poisoning in certain environments. 
-     Provide multiple resolvers separated by commas for redundancy during the lookup process.
+ - title:
+     en: asnmap - custom resolvers
+     tr: asnmap - özel çözümleyiciler
+   desc:
+     en: |
+       Specify a list of custom DNS resolvers to use for the lookups. 
+       Using reliable or private resolvers can help bypass potential rate limits or DNS poisoning in certain environments. 
+       Provide multiple resolvers separated by commas for redundancy during the lookup process.
+     tr: |
+       Sorgular için kullanılacak özel DNS çözümleyici listesi belirtir.
+       Güvenilir veya özel çözümleyiciler, belirli ortamlarda olası hız sınırlarını veya DNS zehirlenmesini aşmaya yardımcı olabilir.
+       Sorgu sürecinde yedeklilik için virgülle ayrılmış birden çok çözümleyici verin.
    command: "asnmap -d {{domain}} -r {{resolvers|8.8.8.8,1.1.1.1}}"
 
- - title: asnmap - update tool
-   desc: |
-     Update the asnmap utility to the latest version directly from the official repository. 
-     Staying updated ensures that you have the latest features and the most stable lookup mechanisms. 
-     It is recommended to run this periodically to maintain tool efficacy.
+ - title:
+     en: asnmap - update tool
+     tr: asnmap - aracı güncelleme
+   desc:
+     en: |
+       Update the asnmap utility to the latest version directly from the official repository. 
+       Staying updated ensures that you have the latest features and the most stable lookup mechanisms. 
+       It is recommended to run this periodically to maintain tool efficacy.
+     tr: |
+       asnmap aracını resmi depodan doğrudan en son sürüme günceller.
+       Güncel kalmak en yeni özelliklere ve en kararlı sorgu mekanizmalarına sahip olmanızı sağlar.
+       Araç verimini korumak için bunu düzenli çalıştırmanız önerilir.
    command: "asnmap -up"

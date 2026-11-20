@@ -3,69 +3,133 @@ tags: [active-directory, kerberos, pentest, exploitation, privilege-escalation, 
 
 actions:
   # === RECONNAISSANCE AND READING ===
-  - title: impacket-rbcd - Read RBCD status
-    desc: |
-      Reads the msDS-AllowedToActOnBehalfOfOtherIdentity attribute of a target computer account. 
-      This is the initial step to verify existing delegations or to confirm if a previous write operation was successful.
-      It helps identify if the target is already vulnerable or has been tampered with during an engagement.
-      You must have sufficient privileges to read the DACL of the target computer object.
+  - title:
+      en: impacket-rbcd - Read RBCD status
+      tr: impacket-rbcd - RBCD durumunu okuma
+    desc:
+      en: |
+        Reads the msDS-AllowedToActOnBehalfOfOtherIdentity attribute of a target computer account. 
+        This is the initial step to verify existing delegations or to confirm if a previous write operation was successful.
+        It helps identify if the target is already vulnerable or has been tampered with during an engagement.
+        You must have sufficient privileges to read the DACL of the target computer object.
+      tr: |
+        Hedef bilgisayar hesabının msDS-AllowedToActOnBehalfOfOtherIdentity özniteliğini okur.
+        Mevcut yetkilendirmeleri doğrulamak veya önceki bir yazma işleminin başarılı olduğunu teyit etmek için ilk adımdır.
+        Hedefin zaten savunmasız olup olmadığını veya test sırasında değiştirilip değiştirilmediğini belirlemeye yardımcı olur.
+        Hedef bilgisayar nesnesinin DACL'ini okumak için yeterli ayrıcalığa sahip olmalısınız.
     command: "impacket-rbcd -delegate-to {{target_computer}} -action read -dc-ip {{dc_ip}} {{domain}}/{{username}}:{{password}}"
 
   # === EXPLOITATION / WRITING ===
-  - title: impacket-rbcd - Grant delegation permission (Write)
-    desc: |
-      Configures Resource-Based Constrained Delegation by writing to the msDS-AllowedToActOnBehalfOfOtherIdentity attribute.
-      This command allows the 'delegate-from' account (usually an attacker-controlled machine account) to impersonate users against the 'delegate-to' target.
-      This is the core command used in the RBCD attack path once a machine account is created or compromised.
-      Note that this requires 'GenericWrite' or 'WriteProperty' permissions over the target computer object.
+  - title:
+      en: impacket-rbcd - Grant delegation permission (Write)
+      tr: impacket-rbcd - yetkilendirme izni verme (yazma)
+    desc:
+      en: |
+        Configures Resource-Based Constrained Delegation by writing to the msDS-AllowedToActOnBehalfOfOtherIdentity attribute.
+        This command allows the 'delegate-from' account (usually an attacker-controlled machine account) to impersonate users against the 'delegate-to' target.
+        This is the core command used in the RBCD attack path once a machine account is created or compromised.
+        Note that this requires 'GenericWrite' or 'WriteProperty' permissions over the target computer object.
+      tr: |
+        msDS-AllowedToActOnBehalfOfOtherIdentity özniteliğine yazarak Kaynak Tabanlı Kısıtlı Yetkilendirmeyi yapılandırır.
+        Bu komut, 'delegate-from' hesabının (genellikle saldırganın kontrolündeki makine hesabı) 'delegate-to' hedefine karşı kullanıcıları taklit etmesine olanak tanır.
+        Bir makine hesabı oluşturulduktan veya ele geçirildikten sonra RBCD saldırı yolunda kullanılan temel komuttur.
+        Bunun hedef bilgisayar nesnesi üzerinde 'GenericWrite' veya 'WriteProperty' izinleri gerektirdiğini unutmayın.
     command: "impacket-rbcd -delegate-to {{target_computer}} -delegate-from {{attacker_computer}} -action write -dc-ip {{dc_ip}} {{domain}}/{{username}}:{{password}}"
 
-  - title: impacket-rbcd - Write delegation using NTLM hashes
-    desc: |
-      Performs the RBCD write action using NTLM hashes for authentication instead of a plaintext password.
-      This is particularly useful when you have performed credential dumping and only possess the NT hash of a user.
-      The LM hash can be filled with zeroes if it is not available or disabled in the environment.
-      Always ensure the 'dc-ip' points to a valid Domain Controller reachable from your current network position.
+  - title:
+      en: impacket-rbcd - Write delegation using NTLM hashes
+      tr: impacket-rbcd - NTLM hash'leri ile yetkilendirme yazma
+    desc:
+      en: |
+        Performs the RBCD write action using NTLM hashes for authentication instead of a plaintext password.
+        This is particularly useful when you have performed credential dumping and only possess the NT hash of a user.
+        The LM hash can be filled with zeroes if it is not available or disabled in the environment.
+        Always ensure the 'dc-ip' points to a valid Domain Controller reachable from your current network position.
+      tr: |
+        RBCD yazma işlemini açık parola yerine kimlik doğrulamada NTLM hash'leri kullanarak gerçekleştirir.
+        Kimlik bilgisi dökümü yapıp yalnızca bir kullanıcının NT hash'ine sahip olduğunuzda özellikle faydalıdır.
+        LM hash'i mevcut değilse veya ortamda devre dışıysa sıfırlarla doldurulabilir.
+        'dc-ip' değerinin mevcut ağ konumunuzdan erişilebilen geçerli bir Etki Alanı Denetleyicisini gösterdiğinden daima emin olun.
     command: "impacket-rbcd -delegate-to {{target_computer}} -delegate-from {{attacker_computer}} -action write -hashes {{lmhash|00000000000000000000000000000000}}:{{nthash}} -dc-ip {{dc_ip}} {{domain}}/{{username}}"
 
-  - title: impacket-rbcd - Write delegation via LDAPS
-    desc: |
-      Executes the RBCD write operation over an encrypted LDAPS (LDAP over SSL) connection.
-      Many modern Domain Controllers enforce LDAP signing or require LDAPS for certain attribute modifications for security reasons.
-      Use the -use-ldaps flag to bypass issues related to "LDAP Signing Required" errors.
-      Ensure you are using the correct port (usually 636) or that the DC-IP provided supports SSL.
+  - title:
+      en: impacket-rbcd - Write delegation via LDAPS
+      tr: impacket-rbcd - LDAPS üzerinden yetkilendirme yazma
+    desc:
+      en: |
+        Executes the RBCD write operation over an encrypted LDAPS (LDAP over SSL) connection.
+        Many modern Domain Controllers enforce LDAP signing or require LDAPS for certain attribute modifications for security reasons.
+        Use the -use-ldaps flag to bypass issues related to "LDAP Signing Required" errors.
+        Ensure you are using the correct port (usually 636) or that the DC-IP provided supports SSL.
+      tr: |
+        RBCD yazma işlemini şifreli LDAPS (SSL üzerinden LDAP) bağlantısı ile gerçekleştirir.
+        Birçok modern Etki Alanı Denetleyicisi güvenlik nedeniyle LDAP imzalamayı zorunlu kılar veya belirli öznitelik değişiklikleri için LDAPS ister.
+        "LDAP Signing Required" hatalarıyla ilgili sorunları aşmak için -use-ldaps bayrağını kullanın.
+        Doğru portu (genellikle 636) kullandığınızdan veya verilen DC-IP'nin SSL'i desteklediğinden emin olun.
     command: "impacket-rbcd -delegate-to {{target_computer}} -delegate-from {{attacker_computer}} -action write -use-ldaps -dc-ip {{dc_ip}} {{domain}}/{{username}}:{{password}}"
 
   # === POST-EXPLOITATION / CLEANUP ===
-  - title: impacket-rbcd - Remove specific delegation
-    desc: |
-      Removes a specific attacker-controlled machine account from the target's delegation list.
-      This is used for surgical cleanup to remove only your specific entry while leaving other potential delegations intact.
-      It is a critical step in maintaining stealth and restoring the environment to its original configuration after testing.
-      This action requires the same write permissions as the initial delegation setup.
+  - title:
+      en: impacket-rbcd - Remove specific delegation
+      tr: impacket-rbcd - belirli bir yetkilendirmeyi kaldırma
+    desc:
+      en: |
+        Removes a specific attacker-controlled machine account from the target's delegation list.
+        This is used for surgical cleanup to remove only your specific entry while leaving other potential delegations intact.
+        It is a critical step in maintaining stealth and restoring the environment to its original configuration after testing.
+        This action requires the same write permissions as the initial delegation setup.
+      tr: |
+        Saldırganın kontrolündeki belirli bir makine hesabını hedefin yetkilendirme listesinden kaldırır.
+        Diğer olası yetkilendirmelere dokunmadan yalnızca kendi girdinizi silmek için yapılan hassas temizlikte kullanılır.
+        Gizliliği korumak ve test sonrası ortamı özgün yapılandırmasına döndürmek için kritik bir adımdır.
+        Bu işlem, ilk yetkilendirme kurulumundakiyle aynı yazma izinlerini gerektirir.
     command: "impacket-rbcd -delegate-to {{target_computer}} -delegate-from {{attacker_computer}} -action remove -dc-ip {{dc_ip}} {{domain}}/{{username}}:{{password}}"
 
-  - title: impacket-rbcd - Flush all delegations
-    desc: |
-      Completely clears the msDS-AllowedToActOnBehalfOfOtherIdentity attribute on the target computer.
-      Use this command to remove all configured RBCD entries at once, effectively resetting the attribute to null.
-      Be careful when using this in production environments, as it might remove legitimate delegations configured by admins.
-      It is the most thorough way to ensure no accounts can act on behalf of others for the specified target.
+  - title:
+      en: impacket-rbcd - Flush all delegations
+      tr: impacket-rbcd - tüm yetkilendirmeleri temizleme
+    desc:
+      en: |
+        Completely clears the msDS-AllowedToActOnBehalfOfOtherIdentity attribute on the target computer.
+        Use this command to remove all configured RBCD entries at once, effectively resetting the attribute to null.
+        Be careful when using this in production environments, as it might remove legitimate delegations configured by admins.
+        It is the most thorough way to ensure no accounts can act on behalf of others for the specified target.
+      tr: |
+        Hedef bilgisayardaki msDS-AllowedToActOnBehalfOfOtherIdentity özniteliğini tamamen temizler.
+        Yapılandırılmış tüm RBCD girdilerini bir seferde kaldırmak, yani özniteliği boşa sıfırlamak için bu komutu kullanın.
+        Yöneticiler tarafından yapılandırılmış meşru yetkilendirmeleri de silebileceğinden üretim ortamlarında dikkatli kullanın.
+        Belirtilen hedef için hiçbir hesabın başkası adına hareket edememesini sağlamanın en kapsamlı yoludur.
     command: "impacket-rbcd -delegate-to {{target_computer}} -action flush -dc-ip {{dc_ip}} {{domain}}/{{username}}:{{password}}"
 
   # === ADVANCED AUTHENTICATION ===
-  - title: impacket-rbcd - Kerberos authentication (Pass-the-Ticket)
-    desc: |
-      Uses Kerberos tickets for authentication instead of providing a password or hash on the command line.
-      This requires a valid Kerberos cache file (ccache) to be exported to the KRB5CCNAME environment variable.
-      The -k flag tells the tool to use Kerberos, and -no-pass prevents it from prompting for a password.
-      This is the preferred method when operating in environments with Kerberos enforcement or when using tools like Rubeus for ticket management.
+  - title:
+      en: impacket-rbcd - Kerberos authentication (Pass-the-Ticket)
+      tr: impacket-rbcd - Kerberos kimlik doğrulaması (Pass-the-Ticket)
+    desc:
+      en: |
+        Uses Kerberos tickets for authentication instead of providing a password or hash on the command line.
+        This requires a valid Kerberos cache file (ccache) to be exported to the KRB5CCNAME environment variable.
+        The -k flag tells the tool to use Kerberos, and -no-pass prevents it from prompting for a password.
+        This is the preferred method when operating in environments with Kerberos enforcement or when using tools like Rubeus for ticket management.
+      tr: |
+        Komut satırında parola veya hash vermek yerine kimlik doğrulama için Kerberos biletlerini kullanır.
+        Geçerli bir Kerberos önbellek (ccache) dosyasının KRB5CCNAME ortam değişkenine tanımlanmasını gerektirir.
+        -k bayrağı araca Kerberos kullanmasını söyler, -no-pass ise parola sormasını engeller.
+        Kerberos zorunluluğu olan ortamlarda veya Rubeus gibi bilet yönetim araçları kullanılırken tercih edilen yöntemdir.
     command: "impacket-rbcd -delegate-to {{target_computer|TARGET_SRV}} -delegate-from {{attacker_computer|EVIL_PC}} -action write -k -no-pass -dc-ip {{dc_ip}} {{domain}}/{{username}}"
 
-  - title: impacket-rbcd - Debugging and Timestamps
-    desc: |
-      Enables verbose debug output and adds timestamps to the logging information.
-      This is extremely helpful for troubleshooting connection issues, authentication failures, or LDAP errors.
-      The debug output reveals the underlying Impacket logic and precise error codes returned by the Domain Controller.
-      Use this when the tool fails silently or returns generic "Access Denied" messages to find the root cause.
+  - title:
+      en: impacket-rbcd - Debugging and Timestamps
+      tr: impacket-rbcd - hata ayıklama ve zaman damgaları
+    desc:
+      en: |
+        Enables verbose debug output and adds timestamps to the logging information.
+        This is extremely helpful for troubleshooting connection issues, authentication failures, or LDAP errors.
+        The debug output reveals the underlying Impacket logic and precise error codes returned by the Domain Controller.
+        Use this when the tool fails silently or returns generic "Access Denied" messages to find the root cause.
+      tr: |
+        Ayrıntılı hata ayıklama çıktısını etkinleştirir ve günlük bilgilerine zaman damgaları ekler.
+        Bağlantı sorunlarını, kimlik doğrulama hatalarını veya LDAP hatalarını gidermede son derece faydalıdır.
+        Hata ayıklama çıktısı, altta yatan Impacket mantığını ve Etki Alanı Denetleyicisinin döndürdüğü hata kodlarını gösterir.
+        Araç sessizce başarısız olduğunda veya genel "Access Denied" mesajları döndürdüğünde kök nedeni bulmak için bunu kullanın.
     command: "impacket-rbcd -delegate-to {{target_computer}} -action read -debug -ts -dc-ip {{dc_ip}} {{domain}}/{{username}}:{{password}}"

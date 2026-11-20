@@ -3,82 +3,159 @@ tags: [osint, reconnaissance, security, pentest, enumeration, subdomains, email-
 
 actions:
   # === BASIC RECONNAISSANCE ===
-  - title: theHarvester - basic domain search
-    desc: |
-      Perform a broad search against a target domain using all available default sources. 
-      This is the primary way to collect emails, subdomains, and hostnames for initial reconnaissance. 
-      It queries multiple search engines and public databases simultaneously to build a target profile.
+  - title:
+      en: theHarvester - basic domain search
+      tr: theHarvester - temel alan adı araması
+    desc:
+      en: |
+        Perform a broad search against a target domain using all available default sources. 
+        This is the primary way to collect emails, subdomains, and hostnames for initial reconnaissance. 
+        It queries multiple search engines and public databases simultaneously to build a target profile.
+      tr: |
+        Hedef alan adına karşı tüm varsayılan kaynakları kullanan geniş arama yapar.
+        İlk keşif için e-posta, alt alan adı ve makine adı toplamanın birincil yoludur.
+        Hedef profili oluşturmak için birden çok arama motorunu ve herkese açık veritabanını aynı anda sorgular.
     command: "theHarvester -d {{domain}} -b all"
 
-  - title: theHarvester - limit search results
-    desc: |
-      Restricts the number of results retrieved from the data sources to a specific integer. 
-      This is useful for reducing scan time or avoiding rate-limiting on search engines like Google or Bing. 
-      The default value is typically 500 if not specified by the user.
+  - title:
+      en: theHarvester - limit search results
+      tr: theHarvester - arama sonuçlarını sınırlama
+    desc:
+      en: |
+        Restricts the number of results retrieved from the data sources to a specific integer. 
+        This is useful for reducing scan time or avoiding rate-limiting on search engines like Google or Bing. 
+        The default value is typically 500 if not specified by the user.
+      tr: |
+        Veri kaynaklarından alınan sonuç sayısını belirli bir tamsayıyla sınırlar.
+        Google veya Bing gibi arama motorlarında tarama süresini kısaltmak veya hız sınırlamasına takılmamak için yararlıdır.
+        Kullanıcı belirtmezse varsayılan değer genelde 500'dür.
     command: "theHarvester -d {{domain}} -l {{limit|500}} -b all"
 
-  - title: theHarvester - search using specific source
-    desc: |
-      Focus the search on a single specific data source such as google, bing, crtsh, or shodan. 
-      This is highly effective when you want to target a specific platform or use a specific API key you have configured. 
-      Refer to the help menu for a full list of supported modules like 'duckduckgo', 'virustotal', or 'github-code'.
+  - title:
+      en: theHarvester - search using specific source
+      tr: theHarvester - belirli kaynakla arama
+    desc:
+      en: |
+        Focus the search on a single specific data source such as google, bing, crtsh, or shodan. 
+        This is highly effective when you want to target a specific platform or use a specific API key you have configured. 
+        Refer to the help menu for a full list of supported modules like 'duckduckgo', 'virustotal', or 'github-code'.
+      tr: |
+        Aramayı google, bing, crtsh veya shodan gibi tek bir veri kaynağına odaklar.
+        Belirli bir platformu veya yapılandırdığınız API anahtarını hedeflemek istediğinizde oldukça etkilidir.
+        'duckduckgo', 'virustotal' veya 'github-code' gibi tüm desteklenen modüller için yardım menüsüne bakın.
     command: "theHarvester -d {{domain}} -b {{source|google}}"
 
   # === ADVANCED ENUMERATION ===
-  - title: theHarvester - DNS brute force
-    desc: |
-      Enables DNS brute-forcing to discover subdomains that might not be indexed by search engines. 
-      The tool uses an internal wordlist to guess common hostnames under the target domain. 
-      Note that this generates significant DNS traffic and can be detected by security monitoring systems.
+  - title:
+      en: theHarvester - DNS brute force
+      tr: theHarvester - DNS kaba kuvveti
+    desc:
+      en: |
+        Enables DNS brute-forcing to discover subdomains that might not be indexed by search engines. 
+        The tool uses an internal wordlist to guess common hostnames under the target domain. 
+        Note that this generates significant DNS traffic and can be detected by security monitoring systems.
+      tr: |
+        Arama motorlarınca indekslenmemiş alt alan adlarını bulmak için DNS kaba kuvveti etkinleştirir.
+        Araç, hedef alan adı altında yaygın makine adlarını tahmin etmek için dahili bir wordlist kullanır.
+        Önemli DNS trafiği ürettiğini ve güvenlik izleme sistemlerince tespit edilebileceğini unutmayın.
     command: "theHarvester -d {{domain}} -c"
 
-  - title: theHarvester - virtual host discovery
-    desc: |
-      Verifies discovered hostnames via DNS resolution and searches for virtual hosts on the same IP. 
-      This helps identify if a single server is hosting multiple websites that weren't initially visible. 
-      It is a critical step for understanding the full infrastructure and potential side-loading attack vectors.
+  - title:
+      en: theHarvester - virtual host discovery
+      tr: theHarvester - sanal makine keşfi
+    desc:
+      en: |
+        Verifies discovered hostnames via DNS resolution and searches for virtual hosts on the same IP. 
+        This helps identify if a single server is hosting multiple websites that weren't initially visible. 
+        It is a critical step for understanding the full infrastructure and potential side-loading attack vectors.
+      tr: |
+        Keşfedilen makine adlarını DNS ile doğrulayıp aynı IP'deki sanal makineleri arar.
+        Tek bir sunucunun ilk bakışta görünmeyen birden çok web sitesi barındırıp barındırmadığını belirlemeye yardımcı olur.
+        Olası yan yükleme saldırı vektörlerini de kapsayan altyapıyı anlamada kritik bir adımdır.
     command: "theHarvester -d {{domain}} -v -b all"
 
-  - title: theHarvester - DNS resolution with custom resolvers
-    desc: |
-      Performs DNS resolution on all discovered subdomains using a specific list of DNS resolvers. 
-      This helps confirm which subdomains are currently active and reachable from the internet. 
-      Using custom resolvers can sometimes bypass local DNS filtering or provide more accurate results in different geographic regions.
+  - title:
+      en: theHarvester - DNS resolution with custom resolvers
+      tr: theHarvester - özel çözümleyicilerle DNS çözümleme
+    desc:
+      en: |
+        Performs DNS resolution on all discovered subdomains using a specific list of DNS resolvers. 
+        This helps confirm which subdomains are currently active and reachable from the internet. 
+        Using custom resolvers can sometimes bypass local DNS filtering or provide more accurate results in different geographic regions.
+      tr: |
+        Keşfedilen tüm alt alan adlarında belirli DNS çözümleyici listesiyle DNS çözümlemesi yapar.
+        Hangi alt alan adlarının internetten güncel olarak erişilebilir olduğunu doğrulamaya yardımcı olur.
+        Özel çözümleyiciler bazen yerel DNS filtrelemeyi aşabilir veya farklı coğrafyalarda daha doğru sonuç verebilir.
     command: "theHarvester -d {{domain}} -r {{resolver_list|/path/to/resolvers.txt}}"
 
   # === INFRASTRUCTURE & API ===
-  - title: theHarvester - Shodan integration
-    desc: |
-      Queries the Shodan database for any discovered hosts to find open ports and running services. 
-      This provides technical metadata such as server versions, technologies used, and potential vulnerabilities. 
-      A valid Shodan API key must be configured in the api-keys.yaml file for this feature to work.
+  - title:
+      en: theHarvester - Shodan integration
+      tr: theHarvester - Shodan entegrasyonu
+    desc:
+      en: |
+        Queries the Shodan database for any discovered hosts to find open ports and running services. 
+        This provides technical metadata such as server versions, technologies used, and potential vulnerabilities. 
+        A valid Shodan API key must be configured in the api-keys.yaml file for this feature to work.
+      tr: |
+        Keşfedilen makinelerde açık port ve çalışan servisleri bulmak için Shodan veritabanını sorgular.
+        Sunucu sürümleri, kullanılan teknolojiler ve olası zafiyetler gibi teknik üstveri sağlar.
+        Bu özelliğin çalışması için api-keys.yaml dosyasında geçerli bir Shodan API anahtarı yapılandırılmalıdır.
     command: "theHarvester -d {{domain}} -b all -s"
 
-  - title: theHarvester - API endpoint scanning
-    desc: |
-      Scans for common API endpoints related to the target domain using a wordlist. 
-      This is particularly useful for identifying shadow APIs or undocumented staging environments. 
-      You can provide a custom wordlist to tailor the search for specific technology stacks.
+  - title:
+      en: theHarvester - API endpoint scanning
+      tr: theHarvester - API uç noktası taraması
+    desc:
+      en: |
+        Scans for common API endpoints related to the target domain using a wordlist. 
+        This is particularly useful for identifying shadow APIs or undocumented staging environments. 
+        You can provide a custom wordlist to tailor the search for specific technology stacks.
+      tr: |
+        Hedef alan adıyla ilişkili yaygın API uç noktalarını wordlist ile tarar.
+        Gölge API'leri veya belgelenmemiş hazırlık ortamlarını belirlemede özellikle yararlıdır.
+        Belirli teknoloji yığınlarına göre aramayı özelleştirmek için kendi wordlist'inizi verebilirsiniz.
     command: "theHarvester -d {{domain}} -a -w {{wordlist|/usr/share/wordlists/api_list.txt}}"
 
   # === OUTPUT & VISUALIZATION ===
-  - title: theHarvester - save results to file
-    desc: |
-      Exports the findings into both XML and JSON formats for further processing or documentation. 
-      This is essential for integrating theHarvester into automated pipelines or generating professional reports. 
-      The tool will automatically append the correct file extensions to the filename provided.
+  - title:
+      en: theHarvester - save results to file
+      tr: theHarvester - sonuçları dosyaya kaydetme
+    desc:
+      en: |
+        Exports the findings into both XML and JSON formats for further processing or documentation. 
+        This is essential for integrating theHarvester into automated pipelines or generating professional reports. 
+        The tool will automatically append the correct file extensions to the filename provided.
+      tr: |
+        Bulguları ileri işlem veya belgeleme için hem XML hem JSON biçiminde dışa aktarır.
+        theHarvester'ı otomatik hatlara entegre etmek veya profesyonel rapor üretmek için gereklidir.
+        Araç verilen dosya adına otomatik olarak doğru uzantıları ekler.
     command: "theHarvester -d {{domain}} -b all -f {{filename|results_output}}"
 
-  - title: theHarvester - take screenshots of resolved domains
-    desc: |
-      Automatically captures screenshots of all subdomains that resolve to an active web service. 
-      The screenshots are saved in the directory specified by the user for visual inspection. 
-      This is an excellent way to quickly identify login pages, "under construction" sites, or exposed management panels.
+  - title:
+      en: theHarvester - take screenshots of resolved domains
+      tr: theHarvester - çözümlenen alanların ekran görüntüsünü alma
+    desc:
+      en: |
+        Automatically captures screenshots of all subdomains that resolve to an active web service. 
+        The screenshots are saved in the directory specified by the user for visual inspection. 
+        This is an excellent way to quickly identify login pages, "under construction" sites, or exposed management panels.
+      tr: |
+        Aktif web servisine çözümlenen tüm alt alan adlarının ekran görüntülerini otomatik alır.
+        Ekran görüntüleri görsel inceleme için kullanıcının belirttiği dizine kaydedilir.
+        Giriş sayfalarını, yapım aşamasındaki siteleri veya açık yönetim panellerini hızlı belirlemenin mükemmel yoludur.
     command: "theHarvester -d {{domain}} -b all --screenshot {{output_directory|screenshots}}"
 
-  - title: theHarvester - check for subdomain takeover
-    desc: |
-      Checks the discovered subdomains for potential takeover vulnerabilities (e.g., pointing to unused cloud services). 
-      This identifies if a subdomain's CNAME points to a service like AWS S3 or GitHub Pages that is no longer claimed. 
-      Takeover vulnerabilities are high-impact as they allow attackers to host malicious content on the target's legitimate domain.
+  - title:
+      en: theHarvester - check for subdomain takeover
+      tr: theHarvester - alt alan adı devralma denetimi
+    desc:
+      en: |
+        Checks the discovered subdomains for potential takeover vulnerabilities (e.g., pointing to unused cloud services). 
+        This identifies if a subdomain's CNAME points to a service like AWS S3 or GitHub Pages that is no longer claimed. 
+        Takeover vulnerabilities are high-impact as they allow attackers to host malicious content on the target's legitimate domain.
+      tr: |
+        Keşfedilen alt alan adlarında devralma zafiyetlerini denetler (örn. kullanılmayan bulut servislerine işaret etme).
+        Bir alt alan adının CNAME kaydının artık sahiplenilmeyen AWS S3 veya GitHub Pages gibi servise işaret edip etmediğini belirler.
+        Devralma zafiyetleri, saldırganın hedefe ait meşru alanda zararlı içerik barındırmasına olanak tanıdığından yüksek etkilidir.
     command: "theHarvester -d {{domain}} -t -b all"

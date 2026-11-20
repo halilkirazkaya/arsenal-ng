@@ -4,103 +4,194 @@ tags: [web, scanner, security, pentest, enumeration, fingerprinting, reconnaissa
 actions:
 # === TARGET SELECTION & BASIC SCANNING ===
 
- - title: whatweb - basic website fingerprinting
-   desc: |
-     Identify the technologies used by a specific web server using a single target.
-     This is the most common starting point for web reconnaissance to find CMS, web servers, and libraries.
-     It operates at the default stealthy aggression level (Level 1), making minimal requests.
+ - title:
+     en: whatweb - basic website fingerprinting
+     tr: whatweb - temel site parmak izi
+   desc:
+     en: |
+       Identify the technologies used by a specific web server using a single target.
+       This is the most common starting point for web reconnaissance to find CMS, web servers, and libraries.
+       It operates at the default stealthy aggression level (Level 1), making minimal requests.
+     tr: |
+       Tek bir hedef kullanarak belirli bir web sunucusunun kullandığı teknolojileri tespit eder.
+       Bu, CMS, web sunucuları ve kütüphaneleri bulmak için web keşfinin en yaygın başlangıç noktasıdır.
+       Minimum istek gönderen varsayılan gizli agresiflik düzeyinde (Düzey 1) çalışır.
    command: "whatweb {{target}}"
 
- - title: whatweb - scan multiple targets from file
-   desc: |
-     Read a list of URLs, hostnames, or IP addresses from a text file for batch processing.
-     This is highly efficient for scanning large scopes or lists generated from sub-domain discovery tools.
-     You can also pipe input directly from other tools by using -i /dev/stdin.
+ - title:
+     en: whatweb - scan multiple targets from file
+     tr: whatweb - dosyadan çoklu hedef tarama
+   desc:
+     en: |
+       Read a list of URLs, hostnames, or IP addresses from a text file for batch processing.
+       This is highly efficient for scanning large scopes or lists generated from sub-domain discovery tools.
+       You can also pipe input directly from other tools by using -i /dev/stdin.
+     tr: |
+       Toplu işlem için bir metin dosyasından URL, ana makine adı veya IP adresi listesi okur.
+       Bu, alt alan adı keşif araçlarından üretilen listeler gibi geniş kapsamları taramada oldukça verimlidir.
+       Girdiyi -i /dev/stdin ile diğer araçlardan da aktarabilirsiniz.
    command: "whatweb -i {{input_file}}"
 
- - title: whatweb - scan network range for web services
-   desc: |
-     Discover web servers across an entire IP range using CIDR notation.
-     This command automatically identifies which IPs have active web services and fingerprints them.
-     It is particularly useful during internal network penetration tests for asset discovery.
+ - title:
+     en: whatweb - scan network range for web services
+     tr: whatweb - ağ aralığında web servisi tarama
+   desc:
+     en: |
+       Discover web servers across an entire IP range using CIDR notation.
+       This command automatically identifies which IPs have active web services and fingerprints them.
+       It is particularly useful during internal network penetration tests for asset discovery.
+     tr: |
+       CIDR gösterimiyle tüm bir IP aralığındaki web sunucularını keşfeder.
+       Bu komut hangi IP'lerde aktif web servisleri olduğunu otomatik tespit edip parmak izini çıkarır.
+       Özellikle iç ağ sızma testlerinde varlık keşfi için kullanışlıdır.
    command: "whatweb --no-errors {{ip_range|192.168.1.0/24}}"
 
 # === AGGRESSION & DEPTH ===
 
- - title: whatweb - aggressive technology detection
-   desc: |
-     Perform a deeper scan by making additional requests if a technology is detected.
-     Level 3 is useful when you need to find exact versions of CMS or plugins that are not visible in the headers.
-     Be aware that this increases traffic and is more likely to be logged by Web Application Firewalls (WAFs).
+ - title:
+     en: whatweb - aggressive technology detection
+     tr: whatweb - agresif teknoloji tespiti
+   desc:
+     en: |
+       Perform a deeper scan by making additional requests if a technology is detected.
+       Level 3 is useful when you need to find exact versions of CMS or plugins that are not visible in the headers.
+       Be aware that this increases traffic and is more likely to be logged by Web Application Firewalls (WAFs).
+     tr: |
+       Bir teknoloji tespit edilirse ek istekler göndererek daha derin bir tarama yapar.
+       Düzey 3, başlıklarda görünmeyen CMS veya eklentilerin tam sürümlerini bulmanız gerektiğinde kullanışlıdır.
+       Trafiği artırdığını ve Web Uygulama Güvenlik Duvarları (WAF) tarafından günlüğe düşme olasılığının arttığını unutmayın.
    command: "whatweb -a 3 {{target}}"
 
- - title: whatweb - heavy footprinting
-   desc: |
-     Execute the most thorough scan level by attempting all plugin URLs against the target.
-     Level 4 makes a significant number of HTTP requests and is not stealthy at all.
-     Use this only when you have explicit permission and need exhaustive technology mapping.
+ - title:
+     en: whatweb - heavy footprinting
+     tr: whatweb - yoğun ayak izi çıkarma
+   desc:
+     en: |
+       Execute the most thorough scan level by attempting all plugin URLs against the target.
+       Level 4 makes a significant number of HTTP requests and is not stealthy at all.
+       Use this only when you have explicit permission and need exhaustive technology mapping.
+     tr: |
+       Hedefe karşı tüm eklenti URL'lerini deneyerek en kapsamlı tarama düzeyini uygular.
+       Düzey 4 çok sayıda HTTP isteği yapar ve hiç gizli değildir.
+       Bunu yalnızca açık izniniz olduğunda ve kapsamlı teknoloji haritalaması gerektiğinde kullanın.
    command: "whatweb -a 4 {{target}}"
 
 # === HTTP CONFIGURATION & AUTHENTICATION ===
 
- - title: whatweb - scan with custom headers and user-agent
-   desc: |
-     Modify the HTTP request headers to bypass basic security filters or impersonate a specific browser.
-     You can add any custom header like 'Authorization' or 'X-Forwarded-For' to test different server behaviors.
-     This helps in identifying how the server responds to different types of clients or mobile devices.
+ - title:
+     en: whatweb - scan with custom headers and user-agent
+     tr: whatweb - özel başlık ve kullanıcı aracısıyla tarama
+   desc:
+     en: |
+       Modify the HTTP request headers to bypass basic security filters or impersonate a specific browser.
+       You can add any custom header like 'Authorization' or 'X-Forwarded-For' to test different server behaviors.
+       This helps in identifying how the server responds to different types of clients or mobile devices.
+     tr: |
+       Temel güvenlik filtrelerini aşmak veya belirli bir tarayıcıyı taklit etmek için HTTP istek başlıklarını değiştirir.
+       'Authorization' veya 'X-Forwarded-For' gibi özel başlıklar ekleyerek farklı sunucu davranışlarını test edebilirsiniz.
+       Bu, sunucunun farklı istemci veya mobil cihaz türlerine nasıl yanıt verdiğini belirlemeye yardımcı olur.
    command: "whatweb --user-agent \"{{user_agent|Mozilla/5.0}}\" --header \"{{header_name|X-Custom-Header}}:{{header_value|value}}\" {{target}}"
 
- - title: whatweb - authenticated scan with cookies
-   desc: |
-     Provide session cookies or basic authentication credentials to scan pages behind a login wall.
-     This allows for fingerprinting administrative panels, internal dashboards, or authenticated application logic.
-     Use this carefully with basic auth as it might trigger account lockout policies if credentials are incorrect.
+ - title:
+     en: whatweb - authenticated scan with cookies
+     tr: whatweb - çerezli kimlik doğrulamalı tarama
+   desc:
+     en: |
+       Provide session cookies or basic authentication credentials to scan pages behind a login wall.
+       This allows for fingerprinting administrative panels, internal dashboards, or authenticated application logic.
+       Use this carefully with basic auth as it might trigger account lockout policies if credentials are incorrect.
+     tr: |
+       Giriş duvarı arkasındaki sayfaları taramak için oturum çerezleri veya temel kimlik doğrulama kimlik bilgileri verir.
+       Bu, yönetim panelleri, dahili panolar veya kimlik doğrulamalı uygulama mantığının parmak izini çıkarmaya olanak tanır.
+       Kimlik bilgileri yanlışsa hesap kilitleme politikalarını tetikleyebileceği için temel kimlik doğrulamada dikkatli kullanın.
    command: "whatweb --cookie \"{{cookies|session=123}}\" --user \"{{user_pass|admin:password}}\" {{target}}"
 
- - title: whatweb - scan through a proxy
-   desc: |
-     Route all WhatWeb traffic through a specified proxy server like Burp Suite or Tor.
-     This is useful for debugging requests or hiding the source IP of the scanner.
-     Ensure the proxy is active and reachable before running the command to avoid connection errors.
+ - title:
+     en: whatweb - scan through a proxy
+     tr: whatweb - proxy üzerinden tarama
+   desc:
+     en: |
+       Route all WhatWeb traffic through a specified proxy server like Burp Suite or Tor.
+       This is useful for debugging requests or hiding the source IP of the scanner.
+       Ensure the proxy is active and reachable before running the command to avoid connection errors.
+     tr: |
+       Tüm WhatWeb trafiğini Burp Suite veya Tor gibi belirtilen bir proxy sunucusu üzerinden yönlendirir.
+       Bu, isteklerde hata ayıklamak veya tarayıcının kaynak IP'sini gizlemek için kullanışlıdır.
+       Bağlantı hatalarından kaçınmak için komutu çalıştırmadan önce proxy'nin aktif ve erişilebilir olduğundan emin olun.
    command: "whatweb --proxy {{proxy_host|127.0.0.1:8080}} {{target}}"
 
 # === PLUGINS & FILTERING ===
 
- - title: whatweb - search for specific technology with grep
-   desc: |
-     Filter the output to show only results that match a specific string or regular expression.
-     This is perfect for identifying all servers in a large scan that run a specific software like WordPress or Apache.
-     It significantly reduces terminal noise when scanning large numbers of hosts.
+ - title:
+     en: whatweb - search for specific technology with grep
+     tr: whatweb - grep ile belirli teknoloji arama
+   desc:
+     en: |
+       Filter the output to show only results that match a specific string or regular expression.
+       This is perfect for identifying all servers in a large scan that run a specific software like WordPress or Apache.
+       It significantly reduces terminal noise when scanning large numbers of hosts.
+     tr: |
+       Çıktıyı belirli bir dizeyle veya düzenli ifadeyle eşleşen sonuçlarla sınırlayacak şekilde filtreler.
+       Bu, geniş bir taramada WordPress veya Apache gibi belirli bir yazılım çalıştıran tüm sunucuları belirlemek için idealdir.
+       Çok sayıda konağı tararken terminal gürültüsünü önemli ölçüde azaltır.
    command: "whatweb --grep \"{{regex|WordPress}}\" {{target}}"
 
- - title: whatweb - list and search plugins
-   desc: |
-     Search through the internal plugin database for a specific keyword or technology name.
-     This helps you understand what WhatWeb is capable of detecting before running a scan.
-     The search covers plugin names, descriptions, and categories.
+ - title:
+     en: whatweb - list and search plugins
+     tr: whatweb - eklentileri listeleme ve arama
+   desc:
+     en: |
+       Search through the internal plugin database for a specific keyword or technology name.
+       This helps you understand what WhatWeb is capable of detecting before running a scan.
+       The search covers plugin names, descriptions, and categories.
+     tr: |
+       Belirli bir anahtar kelime veya teknoloji adı için dahili eklenti veritabanında arama yapar.
+       Bu, tarama yapmadan önce WhatWeb'in neleri tespit edebildiğini anlamaya yardımcı olur.
+       Arama, eklenti adlarını, açıklamaları ve kategorileri kapsar.
    command: "whatweb --search-plugins {{keyword}}"
 
 # === OUTPUT & LOGGING ===
 
- - title: whatweb - save scan results to JSON
-   desc: |
-     Export the fingerprinting results into a JSON file for further programmatic analysis.
-     This format is ideal for integrating WhatWeb results with other automation tools or custom reporting scripts.
-     The JSON output contains detailed metadata about every detected plugin and version.
+ - title:
+     en: whatweb - save scan results to JSON
+     tr: whatweb - tarama sonuçlarını JSON kaydetme
+   desc:
+     en: |
+       Export the fingerprinting results into a JSON file for further programmatic analysis.
+       This format is ideal for integrating WhatWeb results with other automation tools or custom reporting scripts.
+       The JSON output contains detailed metadata about every detected plugin and version.
+     tr: |
+       Parmak izi sonuçlarını ileri programatik analiz için bir JSON dosyasına aktarır.
+       Bu biçim, WhatWeb sonuçlarını diğer otomasyon araçları veya özel raporlama betikleriyle bütünleştirmek için idealdir.
+       JSON çıktısı, tespit edilen her eklenti ve sürüm hakkında ayrıntılı meta veriler içerir.
    command: "whatweb --log-json={{output_file|results.json}} {{target}}"
 
- - title: whatweb - verbose output for detailed analysis
-   desc: |
-     Enable verbose output to see detailed descriptions of every detected plugin.
-     This provides more context on why a specific technology was flagged and which patterns were matched.
-     It is highly recommended for manual verification of findings.
+ - title:
+     en: whatweb - verbose output for detailed analysis
+     tr: whatweb - ayrıntılı analiz için verbose çıktı
+   desc:
+     en: |
+       Enable verbose output to see detailed descriptions of every detected plugin.
+       This provides more context on why a specific technology was flagged and which patterns were matched.
+       It is highly recommended for manual verification of findings.
+     tr: |
+       Tespit edilen her eklentinin ayrıntılı açıklamalarını görmek için ayrıntılı çıktıyı etkinleştirir.
+       Bu, belirli bir teknolojinin neden işaretlendiği ve hangi kalıpların eşleştiği konusunda daha fazla bağlam sağlar.
+       Bulguların manuel doğrulanması için önemle önerilir.
    command: "whatweb -v {{target}}"
 
 # === PERFORMANCE ===
 
- - title: whatweb - high speed multi-threaded scan
-   desc: |
-     Increase the number of simultaneous threads to speed up scans against multiple targets.
-     The default is 25, but you can increase it for faster processing of large network ranges.
-     Higher thread counts may increase the risk of being blocked by rate-limiting mechanisms.
+ - title:
+     en: whatweb - high speed multi-threaded scan
+     tr: whatweb - yüksek hızlı çok iş parçacıklı tarama
+   desc:
+     en: |
+       Increase the number of simultaneous threads to speed up scans against multiple targets.
+       The default is 25, but you can increase it for faster processing of large network ranges.
+       Higher thread counts may increase the risk of being blocked by rate-limiting mechanisms.
+     tr: |
+       Birden fazla hedefe karşı taramaları hızlandırmak için eşzamanlı iş parçacığı sayısını artırır.
+       Varsayılan 25'tir, ancak geniş ağ aralıklarının daha hızlı işlenmesi için artırabilirsiniz.
+       Yüksek iş parçacığı sayıları hız sınırlama mekanizmalarınca engellenme riskini artırabilir.
    command: "whatweb -t {{threads|50}} -i {{input_file}}"

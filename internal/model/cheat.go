@@ -22,10 +22,10 @@ type CheatFile struct {
 
 // Action represents a single command entry in a cheat file.
 type Action struct {
-	// Title is the display title.
-	Title string `yaml:"title"`
-	// Desc is the description.
-	Desc string `yaml:"desc,omitempty"`
+	// Title is the display title, optionally translated per language.
+	Title Text `yaml:"title"`
+	// Desc is the description, optionally translated per language.
+	Desc Text `yaml:"desc,omitempty"`
 	// Command is the actual command template.
 	Command string `yaml:"command"`
 }
@@ -41,10 +41,10 @@ type Cheat struct {
 	Tool string
 	// Tags inherits from the parent CheatFile.
 	Tags []string
-	// Title is the command title.
-	Title string
-	// Desc is the command description.
-	Desc string
+	// Title is the command title, optionally translated per language.
+	Title Text
+	// Desc is the command description, optionally translated per language.
+	Desc Text
 	// Command is the template with {{placeholders}}.
 	Command string
 	// Filename is the source file path, used for debugging.

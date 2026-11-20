@@ -3,85 +3,162 @@ tags: [cloud, security, pentest, aws, exploitation, enumeration, authentication]
 
 # === SESSION AND AUTHENTICATION ===
 actions:
- - title: pacu - create new session
-   desc: |
-     This command initializes a brand new session within the Pacu framework. 
-     Sessions are used to isolate data, logs, and credentials between different engagements or environments. 
-     It is highly recommended to use unique session names for every new project to avoid data corruption.
+ - title:
+     en: pacu - create new session
+     tr: pacu - yeni oturum oluştur
+   desc:
+     en: |
+       This command initializes a brand new session within the Pacu framework. 
+       Sessions are used to isolate data, logs, and credentials between different engagements or environments. 
+       It is highly recommended to use unique session names for every new project to avoid data corruption.
+     tr: |
+       Bu komut, Pacu çatısı (framework) içinde yepyeni bir oturum başlatır.
+       Oturumlar; verileri, günlükleri ve kimlik bilgilerini farklı çalışmalar veya ortamlar arasında yalıtmak için kullanılır.
+       Veri bozulmasını önlemek için her yeni projede benzersiz oturum adları kullanılması şiddetle önerilir.
    command: "pacu --new-session {{session_name}}"
 
- - title: pacu - set credentials manually
-   desc: |
-     This command allows you to manually input AWS credentials into the current session. 
-     You must provide an alias for the keys, the Access Key ID, the Secret Access Key, and optionally a Session Token. 
-     This is the most direct way to provide Pacu with the necessary permissions to interact with an AWS environment.
+ - title:
+     en: pacu - set credentials manually
+     tr: pacu - kimlik bilgilerini manuel ayarla
+   desc:
+     en: |
+       This command allows you to manually input AWS credentials into the current session. 
+       You must provide an alias for the keys, the Access Key ID, the Secret Access Key, and optionally a Session Token. 
+       This is the most direct way to provide Pacu with the necessary permissions to interact with an AWS environment.
+     tr: |
+       Bu komut, AWS kimlik bilgilerini geçerli oturuma manuel olarak girmenizi sağlar.
+       Anahtarlar için bir takma ad (alias), Erişim Anahtarı ID'si, Gizli Erişim Anahtarı ve isteğe bağlı olarak Oturum Jetonu sağlamalısınız.
+       Pacu'ya bir AWS ortamıyla etkileşim için gerekli izinleri vermenin en doğrudan yoludur.
    command: "pacu --set-keys {{alias}} {{access_key_id}} {{secret_access_key}} {{session_token|None}}"
 
- - title: pacu - import credentials from aws profile
-   desc: |
-     This command imports AWS credentials directly from your local AWS configuration files (~/.aws/credentials). 
-     It is useful when you have already configured profiles using the AWS CLI and want to use them within Pacu. 
-     Ensure the specified profile name exists in your local configuration before running this command.
+ - title:
+     en: pacu - import credentials from aws profile
+     tr: pacu - aws profilinden kimlik bilgisi içe aktar
+   desc:
+     en: |
+       This command imports AWS credentials directly from your local AWS configuration files (~/.aws/credentials). 
+       It is useful when you have already configured profiles using the AWS CLI and want to use them within Pacu. 
+       Ensure the specified profile name exists in your local configuration before running this command.
+     tr: |
+       Bu komut, AWS kimlik bilgilerini doğrudan yerel AWS yapılandırma dosyalarınızdan (~/.aws/credentials) içe aktarır.
+       Profilleri AWS CLI ile zaten yapılandırdıysanız ve Pacu içinde kullanmak istiyorsanız kullanışlıdır.
+       Bu komutu çalıştırmadan önce belirtilen profil adının yerel yapılandırmanızda bulunduğundan emin olun.
    command: "pacu --import-keys {{profile_name|default}}"
 
- - title: pacu - check current identity
-   desc: |
-     The whoami command displays details about the currently active IAM identity in the session. 
-     It verifies the credentials and returns the Account ID, User ARN, and the associated permissions if known. 
-     This should be the first command run after setting keys to ensure that the environment is reachable.
+ - title:
+     en: pacu - check current identity
+     tr: pacu - geçerli kimliği denetle
+   desc:
+     en: |
+       The whoami command displays details about the currently active IAM identity in the session. 
+       It verifies the credentials and returns the Account ID, User ARN, and the associated permissions if known. 
+       This should be the first command run after setting keys to ensure that the environment is reachable.
+     tr: |
+       whoami komutu, oturumdaki o anda aktif IAM kimliğine dair ayrıntıları görüntüler.
+       Kimlik bilgilerini doğrular; biliniyorsa Hesap ID'sini, Kullanıcı ARN'ini ve ilişkili izinleri döndürür.
+       Anahtarlar ayarlandıktan sonra ortamın erişilebilir olduğundan emin olmak için çalıştırılması gereken ilk komuttur.
    command: "pacu --whoami"
 
 # === ENUMERATION AND DISCOVERY ===
 
- - title: pacu - list all modules
-   desc: |
-     This command displays a complete list of all exploitation and enumeration modules available in Pacu. 
-     Modules are grouped by categories such as 'discovery', 'exploitation', 'persistence', and 'privesc'. 
-     Use this to find specific tools for the AWS services you are targeting during your assessment.
+ - title:
+     en: pacu - list all modules
+     tr: pacu - tüm modülleri listele
+   desc:
+     en: |
+       This command displays a complete list of all exploitation and enumeration modules available in Pacu. 
+       Modules are grouped by categories such as 'discovery', 'exploitation', 'persistence', and 'privesc'. 
+       Use this to find specific tools for the AWS services you are targeting during your assessment.
+     tr: |
+       Bu komut, Pacu'da bulunan tüm sömürü ve numaralandırma modüllerinin eksiksiz listesini görüntüler.
+       Modüller 'discovery', 'exploitation', 'persistence' ve 'privesc' gibi kategorilere göre gruplanır.
+       Değerlendirmeniz sırasında hedeflediğiniz AWS hizmetlerine yönelik belirli araçları bulmak için kullanın.
    command: "pacu --list-modules"
 
- - title: pacu - get module information
-   desc: |
-     This command provides detailed documentation and usage instructions for a specific Pacu module. 
-     It explains what the module does, what permissions are required to run it, and what arguments it accepts. 
-     Reviewing module info is critical before running destructive or loud modules in a production environment.
+ - title:
+     en: pacu - get module information
+     tr: pacu - modül bilgisini görüntüle
+   desc:
+     en: |
+       This command provides detailed documentation and usage instructions for a specific Pacu module. 
+       It explains what the module does, what permissions are required to run it, and what arguments it accepts. 
+       Reviewing module info is critical before running destructive or loud modules in a production environment.
+     tr: |
+       Bu komut, belirli bir Pacu modülü için ayrıntılı belge ve kullanım yönergeleri sağlar.
+       Modülün ne yaptığını, çalıştırmak için hangi izinlerin gerektiğini ve hangi argümanları kabul ettiğini açıklar.
+       Üretim ortamında yıkıcı veya gürültülü modülleri çalıştırmadan önce modül bilgisini incelemek kritiktir.
    command: "pacu --module-name {{module_name}} --module-info"
 
- - title: pacu - set target regions
-   desc: |
-     This command restricts or expands the scope of the current session to specific AWS regions. 
-     You can provide a space-separated list of regions or use 'all' to target every available AWS region. 
-     Limiting regions can significantly speed up enumeration modules and reduce the number of API calls made.
+ - title:
+     en: pacu - set target regions
+     tr: pacu - hedef bölgeleri ayarla
+   desc:
+     en: |
+       This command restricts or expands the scope of the current session to specific AWS regions. 
+       You can provide a space-separated list of regions or use 'all' to target every available AWS region. 
+       Limiting regions can significantly speed up enumeration modules and reduce the number of API calls made.
+     tr: |
+       Bu komut, geçerli oturumun kapsamını belirli AWS bölgeleriyle sınırlar veya genişletir.
+       Boşlukla ayrılmış bir bölge listesi verebilir ya da tüm kullanılabilir AWS bölgelerini hedeflemek için 'all' kullanabilirsiniz.
+       Bölgeleri sınırlamak, numaralandırma modüllerini ciddi ölçüde hızlandırır ve yapılan API çağrısı sayısını azaltır.
    command: "pacu --set-regions {{regions|all}}"
 
 # === MODULE EXECUTION ===
 
- - title: pacu - execute a module
-   desc: |
-     This command triggers the execution of a specific module within the active session. 
-     It will use the credentials and regions previously configured to perform its tasks. 
-     Note that executing modules may trigger AWS CloudTrail alerts, so ensure you have authorization for the target account.
+ - title:
+     en: pacu - execute a module
+     tr: pacu - modül çalıştır
+   desc:
+     en: |
+       This command triggers the execution of a specific module within the active session. 
+       It will use the credentials and regions previously configured to perform its tasks. 
+       Note that executing modules may trigger AWS CloudTrail alerts, so ensure you have authorization for the target account.
+     tr: |
+       Bu komut, aktif oturum içinde belirli bir modülün çalışmasını tetikler.
+       Görevlerini yerine getirmek için önceden yapılandırılmış kimlik bilgilerini ve bölgeleri kullanır.
+       Modülleri çalıştırmanın AWS CloudTrail uyarılarını tetikleyebileceğini unutmayın; hedef hesap için yetkiniz olduğundan emin olun.
    command: "pacu --module-name {{module_name}} --exec"
 
- - title: pacu - execute module with specific arguments
-   desc: |
-     This command executes a module while passing custom arguments to modify its behavior. 
-     Arguments are passed as a single string and typically include parameters like specific regions, usernames, or resource IDs. 
-     This is the standard way to fine-tune module performance or target specific AWS resources.
+ - title:
+     en: pacu - execute module with specific arguments
+     tr: pacu - modülü özel argümanlarla çalıştır
+   desc:
+     en: |
+       This command executes a module while passing custom arguments to modify its behavior. 
+       Arguments are passed as a single string and typically include parameters like specific regions, usernames, or resource IDs. 
+       This is the standard way to fine-tune module performance or target specific AWS resources.
+     tr: |
+       Bu komut, davranışını değiştirmek için özel argümanlar aktararak bir modülü çalıştırır.
+       Argümanlar tek bir dizgi olarak aktarılır ve genellikle belirli bölgeler, kullanıcı adları veya kaynak ID'leri gibi parametreleri içerir.
+       Modül performansını hassas ayarlamanın veya belirli AWS kaynaklarını hedeflemenin standart yoludur.
    command: "pacu --module-name {{module_name}} --module-args '{{args|--regions us-east-1}}' --exec"
 
- - title: pacu - run in quiet mode
-   desc: |
-     This command starts Pacu without displaying the large ASCII banner at startup. 
-     It is useful for cleaner terminal output or when running Pacu in automated scripts or restricted shells. 
-     The functionality of the tool remains identical, but the initial visual clutter is removed.
+ - title:
+     en: pacu - run in quiet mode
+     tr: pacu - sessiz modda çalıştır
+   desc:
+     en: |
+       This command starts Pacu without displaying the large ASCII banner at startup. 
+       It is useful for cleaner terminal output or when running Pacu in automated scripts or restricted shells. 
+       The functionality of the tool remains identical, but the initial visual clutter is removed.
+     tr: |
+       Bu komut, Pacu'yu başlatırken büyük ASCII başlığını göstermeden başlatır.
+       Daha temiz terminal çıktısı için veya Pacu otomatik betiklerde ya da kısıtlı kabuklarda çalıştırılırken kullanışlıdır.
+       Aracın işlevselliği aynı kalır; yalnızca başlangıçtaki görsel kalabalık kaldırılır.
    command: "pacu -q --session {{session_name}}"
 
 # === DATA MANAGEMENT ===
 
- - title: pacu - view session data
-   desc: |
-     This command retrieves and displays the data collected by modules for a specific AWS service. 
-     Pacu stores results in a local database, and this command allows you to query that database for previously found information. 
-     Use 'all' to see a summary of all data collected across all services in the current session.
+ - title:
+     en: pacu - view session data
+     tr: pacu - oturum verisini görüntüle
+   desc:
+     en: |
+       This command retrieves and displays the data collected by modules for a specific AWS service. 
+       Pacu stores results in a local database, and this command allows you to query that database for previously found information. 
+       Use 'all' to see a summary of all data collected across all services in the current session.
+     tr: |
+       Bu komut, belirli bir AWS hizmeti için modüllerin topladığı verileri alıp görüntüler.
+       Pacu sonuçları yerel bir veritabanında saklar; bu komut, önceden bulunan bilgiler için veritabanını sorgulamanızı sağlar.
+       Geçerli oturumda tüm hizmetlerde toplanan verilerin özetini görmek için 'all' kullanın.
    command: "pacu --data {{service_name|all}}"

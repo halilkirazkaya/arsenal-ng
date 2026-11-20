@@ -3,68 +3,132 @@ tags: [active-directory, pentest, enumeration, security, impacket, reconnaissanc
 
 actions:
   # === AUTHENTICATION METHODS ===
-  - title: impacket-GetADComputers - basic domain computer enumeration
-    desc: |
-      Performs a standard query against Active Directory to list all computer objects in the domain.
-      This is a fundamental step during internal reconnaissance to map out the network infrastructure.
-      It requires valid domain credentials and connects to the Domain Controller to pull LDAP data.
-      Be aware that large environments might return a significant number of results.
+  - title:
+      en: impacket-GetADComputers - basic domain computer enumeration
+      tr: impacket-GetADComputers - temel etki alanı bilgisayarı numaralandırma
+    desc:
+      en: |
+        Performs a standard query against Active Directory to list all computer objects in the domain.
+        This is a fundamental step during internal reconnaissance to map out the network infrastructure.
+        It requires valid domain credentials and connects to the Domain Controller to pull LDAP data.
+        Be aware that large environments might return a significant number of results.
+      tr: |
+        Etki alanındaki tüm bilgisayar nesnelerini listelemek için Active Directory'ye standart bir sorgu gönderir.
+        Ağ altyapısını haritalamak için iç keşif sırasında atılan temel bir adımdır.
+        Etki alanı denetleyicisinden LDAP verisi çekmek için geçerli etki alanı kimlik bilgileri gerekir.
+        Büyük ortamlarda çok fazla sonuç dönebileceğini unutmayın.
     command: "impacket-GetADComputers {{domain}}/{{username}}:{{password}}"
 
-  - title: impacket-GetADComputers - authenticate using NTLM hashes
-    desc: |
-      Uses Pass-the-Hash (PtH) to authenticate and query computer information from the domain.
-      This is extremely useful when cleartext passwords are unavailable but NTLM hashes have been recovered.
-      The hash must be provided in the LMHASH:NTHASH format; if the LM hash is empty, use the format :NTHASH.
-      This method allows for stealthier movements as it bypasses traditional password entry.
+  - title:
+      en: impacket-GetADComputers - authenticate using NTLM hashes
+      tr: impacket-GetADComputers - NTLM hash'leri ile kimlik doğrulama
+    desc:
+      en: |
+        Uses Pass-the-Hash (PtH) to authenticate and query computer information from the domain.
+        This is extremely useful when cleartext passwords are unavailable but NTLM hashes have been recovered.
+        The hash must be provided in the LMHASH:NTHASH format; if the LM hash is empty, use the format :NTHASH.
+        This method allows for stealthier movements as it bypasses traditional password entry.
+      tr: |
+        Etki alanından bilgisayar bilgisi sorgulamak için Pass-the-Hash (PtH) ile kimlik doğrulaması yapar.
+        Açık parola bulunamadığında ancak NTLM hash'leri ele geçirildiğinde son derece kullanışlıdır.
+        Hash, LMHASH:NTHASH biçiminde verilmeli; LM hash'i boşsa :NTHASH biçimini kullanın.
+        Bu yöntem, parola girişini atladığı için daha gizli hareket etmeyi sağlar.
     command: "impacket-GetADComputers -hashes {{hash}} {{domain}}/{{username}}"
 
-  - title: impacket-GetADComputers - use Kerberos authentication
-    desc: |
-      Authenticates using Kerberos tickets instead of a password or hash.
-      The tool will attempt to retrieve credentials from the ccache file pointed to by the KRB5CCNAME environment variable.
-      This is the preferred method in environments where Kerberos is strictly enforced or when performing Overpass-the-Hash.
-      Ensure the -no-pass flag is used if you do not want the tool to prompt for a password.
+  - title:
+      en: impacket-GetADComputers - use Kerberos authentication
+      tr: impacket-GetADComputers - Kerberos ile kimlik doğrulama
+    desc:
+      en: |
+        Authenticates using Kerberos tickets instead of a password or hash.
+        The tool will attempt to retrieve credentials from the ccache file pointed to by the KRB5CCNAME environment variable.
+        This is the preferred method in environments where Kerberos is strictly enforced or when performing Overpass-the-Hash.
+        Ensure the -no-pass flag is used if you do not want the tool to prompt for a password.
+      tr: |
+        Parola veya hash yerine Kerberos biletleriyle kimlik doğrulaması yapar.
+        Araç, kimlik bilgilerini KRB5CCNAME ortam değişkeninin gösterdiği ccache dosyasından almaya çalışır.
+        Kerberos'un sıkı uygulandığı ortamlarda veya Overpass-the-Hash yaparken tercih edilen yöntemdir.
+        Aracın parola sormasını istemiyorsanız -no-pass bayrağını kullandığınızdan emin olun.
     command: "impacket-GetADComputers -k -no-pass {{domain}}/{{username}}"
 
-  - title: impacket-GetADComputers - Kerberos authentication with AES key
-    desc: |
-      Utilizes a specific AES hex key (128 or 256 bits) for Kerberos authentication.
-      This is useful in scenarios where you have extracted the AES keys for a user or computer account.
-      Using AES keys is more robust than NTLM hashes in environments that have disabled NTLM.
-      Ensure the target parameter matches the principal associated with the AES key.
+  - title:
+      en: impacket-GetADComputers - Kerberos authentication with AES key
+      tr: impacket-GetADComputers - AES anahtarı ile Kerberos kimlik doğrulaması
+    desc:
+      en: |
+        Utilizes a specific AES hex key (128 or 256 bits) for Kerberos authentication.
+        This is useful in scenarios where you have extracted the AES keys for a user or computer account.
+        Using AES keys is more robust than NTLM hashes in environments that have disabled NTLM.
+        Ensure the target parameter matches the principal associated with the AES key.
+      tr: |
+        Kerberos kimlik doğrulaması için belirli bir AES hex anahtarı (128 veya 256 bit) kullanır.
+        Bir kullanıcı veya bilgisayar hesabına ait AES anahtarlarını ele geçirdiğiniz senaryolarda kullanışlıdır.
+        NTLM'nin devre dışı bırakıldığı ortamlarda AES anahtarları NTLM hash'lerinden daha sağlamdır.
+        Hedef parametrenin AES anahtarıyla ilişkili asıl (principal) ile eşleştiğinden emin olun.
     command: "impacket-GetADComputers -aesKey {{hex_key}} {{domain}}/{{username}}"
 
   # === CONNECTION AND RESOLUTION ===
-  - title: impacket-GetADComputers - specify Domain Controller IP
-    desc: |
-      Directs the tool to connect to a specific Domain Controller by its IP address.
-      This is necessary when the local machine cannot resolve the domain's FQDN via DNS.
-      It is also useful for targeting a specific DC in a complex forest or multi-site environment.
-      Using the IP directly can sometimes bypass certain DNS-based security monitoring.
+  - title:
+      en: impacket-GetADComputers - specify Domain Controller IP
+      tr: impacket-GetADComputers - Etki Alanı Denetleyicisi IP'si belirtme
+    desc:
+      en: |
+        Directs the tool to connect to a specific Domain Controller by its IP address.
+        This is necessary when the local machine cannot resolve the domain's FQDN via DNS.
+        It is also useful for targeting a specific DC in a complex forest or multi-site environment.
+        Using the IP directly can sometimes bypass certain DNS-based security monitoring.
+      tr: |
+        Araç, IP adresiyle belirtilen etki alanı denetleyicisine doğrudan bağlanır.
+        Yerel makine etki alanının FQDN adresini DNS ile çözümleyemediğinde bu gereklidir.
+        Karmaşık orman veya çok siteli ortamlarda belirli bir DC'yi hedeflemek için de kullanışlıdır.
+        IP'yi doğrudan kullanmak bazı DNS tabanlı güvenlik izlemelerini atlatabilir.
     command: "impacket-GetADComputers -dc-ip {{dc_ip}} {{domain}}/{{username}}:{{password}}"
 
-  - title: impacket-GetADComputers - enumerate and resolve computer IPs
-    desc: |
-      Queries computer objects and attempts to resolve their IP addresses using nslookup on the Domain Controller.
-      This helps link hostnames to actual network addresses, providing a clearer picture of the active network layout.
-      It is particularly useful for identifying which machines are currently online and reachable.
-      Resolution is performed server-side by the DC, reducing the amount of DNS traffic originating from your source IP.
+  - title:
+      en: impacket-GetADComputers - enumerate and resolve computer IPs
+      tr: impacket-GetADComputers - bilgisayar IP'lerini numaralandırma ve çözümleme
+    desc:
+      en: |
+        Queries computer objects and attempts to resolve their IP addresses using nslookup on the Domain Controller.
+        This helps link hostnames to actual network addresses, providing a clearer picture of the active network layout.
+        It is particularly useful for identifying which machines are currently online and reachable.
+        Resolution is performed server-side by the DC, reducing the amount of DNS traffic originating from your source IP.
+      tr: |
+        Bilgisayar nesnelerini sorgular ve Etki Alanı Denetleyicisi üzerinde nslookup ile IP adreslerini çözümlemeye çalışır.
+        Ana makine adlarını gerçek ağ adresleriyle eşleştirerek aktif ağ düzeninin daha net görünmesini sağlar.
+        Hangi makinelerin çevrimiçi ve erişilebilir olduğunu belirlemek için özellikle yararlıdır.
+        Çözümleme DC tarafında sunucu tarafından yapılır; kaynağınızdan çıkan DNS trafiğini azaltır.
     command: "impacket-GetADComputers -resolveIP {{domain}}/{{username}}:{{password}}"
 
   # === FILTERING AND DEBUGGING ===
-  - title: impacket-GetADComputers - filter computer objects by user
-    desc: |
-      Requests computer data that is specifically associated with a particular domain user.
-      This can help identify the primary workstations or servers a high-privilege user typically interacts with.
-      Note that this filter depends on how the 'managedBy' or similar attributes are populated in AD.
-      It is a targeted approach to finding high-value assets related to specific personas.
+  - title:
+      en: impacket-GetADComputers - filter computer objects by user
+      tr: impacket-GetADComputers - bilgisayar nesnelerini kullanıcıya göre filtreleme
+    desc:
+      en: |
+        Requests computer data that is specifically associated with a particular domain user.
+        This can help identify the primary workstations or servers a high-privilege user typically interacts with.
+        Note that this filter depends on how the 'managedBy' or similar attributes are populated in AD.
+        It is a targeted approach to finding high-value assets related to specific personas.
+      tr: |
+        Belirli bir etki alanı kullanıcısıyla ilişkili bilgisayar verilerini ister.
+        Yüksek yetkili bir kullanıcının genellikle kullandığı birincil iş istasyonlarını veya sunucuları bulmaya yardımcı olur.
+        Bu filtrenin çalışması, AD'deki 'managedBy' gibi özniteliklerin nasıl doldurulduğuna bağlıdır.
+        Belirli kişilere ait yüksek değerli varlıkları bulmaya yönelik hedefli bir yaklaşımdır.
     command: "impacket-GetADComputers -user {{target_user}} {{domain}}/{{username}}:{{password}}"
 
-  - title: impacket-GetADComputers - enable debug output and timestamps
-    desc: |
-      Runs the enumeration with verbose debug logging and timestamps for every output line.
-      Debug output is essential when troubleshooting connection issues, LDAP errors, or authentication failures.
-      Timestamps are helpful for documentation and correlating activities with server-side logs during an engagement.
-      Use this when the standard output does not provide enough information to understand why a query is failing.
+  - title:
+      en: impacket-GetADComputers - enable debug output and timestamps
+      tr: impacket-GetADComputers - hata ayıklama çıktısı ve zaman damgaları
+    desc:
+      en: |
+        Runs the enumeration with verbose debug logging and timestamps for every output line.
+        Debug output is essential when troubleshooting connection issues, LDAP errors, or authentication failures.
+        Timestamps are helpful for documentation and correlating activities with server-side logs during an engagement.
+        Use this when the standard output does not provide enough information to understand why a query is failing.
+      tr: |
+        Numaralandırmayı ayrıntılı hata ayıklama günlüğü ve her satırda zaman damgasıyla çalıştırır.
+        Bağlantı sorunları, LDAP hataları veya kimlik doğrulama hatalarını giderirken hata ayıklama çıktısı esastır.
+        Zaman damgaları, çalışma sırasında belgeleme ve sunucu tarafı günlüklerle ilişkilendirme için yararlıdır.
+        Sorgunun neden başarısız olduğunu standart çıktı açıklamıyorsa bunu kullanın.
     command: "impacket-GetADComputers -debug -ts {{domain}}/{{username}}:{{password}}"

@@ -3,126 +3,231 @@ tags: [subdomain, enumeration, reconnaissance, passive, osint, security, pentest
 
 actions:
   # === BASIC ENUMERATION ===
-  - title: subfinder - basic domain scan
-    desc: |
-      Performs a passive subdomain discovery for a single target domain.
-      This is the most common starting point for reconnaissance and attack surface mapping.
-      It queries various passive online sources without sending traffic directly to the target.
-      Results are displayed in the terminal with default formatting.
+  - title:
+      en: subfinder - basic domain scan
+      tr: subfinder - temel alan adı taraması
+    desc:
+      en: |
+        Performs a passive subdomain discovery for a single target domain.
+        This is the most common starting point for reconnaissance and attack surface mapping.
+        It queries various passive online sources without sending traffic directly to the target.
+        Results are displayed in the terminal with default formatting.
+      tr: |
+        Tek bir hedef alan adı için pasif alt alan adı keşfi yapar.
+        Keşif ve saldırı yüzeyi haritalamada en yaygın başlangıç noktasıdır.
+        Hedefe doğrudan trafik göndermeden çeşitli pasif çevrimiçi kaynakları sorgular.
     command: "subfinder -d {{domain}}"
 
-  - title: subfinder - multiple domain scan
-    desc: |
-      Discovers subdomains for multiple targets listed in a specific file.
-      Use this when you have a large scope of domains to analyze simultaneously.
-      The input file should contain one domain per line.
-      This approach is highly efficient for bug bounty hunters and enterprise security audits.
+  - title:
+      en: subfinder - multiple domain scan
+      tr: subfinder - birden çok alan adı taraması
+    desc:
+      en: |
+        Discovers subdomains for multiple targets listed in a specific file.
+        Use this when you have a large scope of domains to analyze simultaneously.
+        The input file should contain one domain per line.
+        This approach is highly efficient for bug bounty hunters and enterprise security audits.
+      tr: |
+        Belirli bir dosyada listelenen birden çok hedefte alt alan adı keşfeder.
+        Kapsamınızda çok sayıda alan adı varsa kullanın.
+        Girdi dosyası satır başına bir alan adı içermelidir.
     command: "subfinder -dL {{file|domains.txt}}"
 
-  - title: subfinder - active resolution
-    desc: |
-      Identifies subdomains and verifies if they are currently active.
-      The -active flag instructs the tool to resolve the found subdomains to ensure they point to an IP.
-      This helps filter out "stale" or non-existent DNS records from the passive results.
-      Note that this step involves active DNS queries, unlike the standard passive-only mode.
+  - title:
+      en: subfinder - active resolution
+      tr: subfinder - aktif çözümleme
+    desc:
+      en: |
+        Identifies subdomains and verifies if they are currently active.
+        The -active flag instructs the tool to resolve the found subdomains to ensure they point to an IP.
+        This helps filter out "stale" or non-existent DNS records from the passive results.
+        Note that this step involves active DNS queries, unlike the standard passive-only mode.
+      tr: |
+        Alt alan adlarını bulur ve güncel olarak aktif olup olmadıklarını doğrular.
+        -active flag'i bulunan alt alan adlarını çözümleyerek bir IP'ye işaret ettiklerini doğrular.
+        Pasif sonuçlardaki eski veya var olmayan DNS kayıtlarını elemeye yardımcı olur.
     command: "subfinder -d {{domain}} -active"
 
   # === SOURCE MANAGEMENT ===
-  - title: subfinder - list available sources
-    desc: |
-      Displays all the passive sources currently supported by subfinder.
-      Some sources require API keys to be configured in the provider-config.yaml file.
-      Checking this list helps you understand where the data is coming from.
-      It also indicates which sources are available for use without any additional setup.
+  - title:
+      en: subfinder - list available sources
+      tr: subfinder - kullanılabilir kaynakları listeleme
+    desc:
+      en: |
+        Displays all the passive sources currently supported by subfinder.
+        Some sources require API keys to be configured in the provider-config.yaml file.
+        Checking this list helps you understand where the data is coming from.
+        It also indicates which sources are available for use without any additional setup.
+      tr: |
+        subfinder'ın desteklediği tüm pasif kaynakları listeler.
+        Bazı kaynakların provider-config.yaml dosyasında API anahtarı gerektirdiğini unutmayın.
+        Verinin nereden geldiğini anlamanıza ve ek kurulum gerektirmeyen kaynakları görmenize yardımcı olur.
     command: "subfinder -ls -active"
 
-  - title: subfinder - use all sources
-    desc: |
-      Triggers a comprehensive scan using every available source in the library.
-      This mode is slower than the default scan because it waits for responses from all providers.
-      It is recommended when thoroughness is more important than speed.
-      Ensure your API keys are configured for maximum efficiency when using this flag.
+  - title:
+      en: subfinder - use all sources
+      tr: subfinder - tüm kaynakları kullanma
+    desc:
+      en: |
+        Triggers a comprehensive scan using every available source in the library.
+        This mode is slower than the default scan because it waits for responses from all providers.
+        It is recommended when thoroughness is more important than speed.
+        Ensure your API keys are configured for maximum efficiency when using this flag.
+      tr: |
+        Kütüphanedeki tüm kaynakları kullanarak kapsamlı tarama yapar.
+        Tüm sağlayıcılardan yanıt beklediğinden varsayılan taramadan yavaştır.
+        Hızdan çok kapsamlılık önemliyse önerilir.
     command: "subfinder -d {{domain}} -all"
 
-  - title: subfinder - specific source selection
-    desc: |
-      Limits the discovery process to a specific set of selected sources.
-      Use this to focus on highly reliable sources like crtsh or virustotal.
-      Multiple sources can be provided as a comma-separated list.
-      This is useful for bypassing slow sources or focusing on specific data types.
+  - title:
+      en: subfinder - specific source selection
+      tr: subfinder - belirli kaynak seçimi
+    desc:
+      en: |
+        Limits the discovery process to a specific set of selected sources.
+        Use this to focus on highly reliable sources like crtsh or virustotal.
+        Multiple sources can be provided as a comma-separated list.
+        This is useful for bypassing slow sources or focusing on specific data types.
+      tr: |
+        Keşif sürecini seçilen belirli kaynaklarla sınırlar.
+        crtsh veya virustotal gibi güvenilir kaynaklara odaklanmak için kullanın.
+        Birden çok kaynak virgülle ayrılmış liste olarak verilebilir.
     command: "subfinder -d {{domain}} -s {{sources|crtsh,github,censys}}"
 
-  - title: subfinder - exclude specific sources
-    desc: |
-      Runs a scan while ignoring specific sources that might be slow or unreliable in your region.
-      This helps in optimizing the scan time by removing problematic providers.
-      It is particularly useful if a certain source is currently down or rate-limiting your IP.
-      Provide the names of the sources to be skipped as a comma-separated string.
+  - title:
+      en: subfinder - exclude specific sources
+      tr: subfinder - belirli kaynakları hariç tutma
+    desc:
+      en: |
+        Runs a scan while ignoring specific sources that might be slow or unreliable in your region.
+        This helps in optimizing the scan time by removing problematic providers.
+        It is particularly useful if a certain source is currently down or rate-limiting your IP.
+        Provide the names of the sources to be skipped as a comma-separated string.
+      tr: |
+        Bölgenizde yavaş veya güvenilmez belirli kaynakları yok sayarak tarama yapar.
+        Sorunlu sağlayıcıları çıkararak tarama süresini iyileştirir.
+        Belirli bir kaynak kapalıyken veya IP'nizi hız sınırlamasına soktuğunda özellikle yararlıdır.
     command: "subfinder -d {{domain}} -es {{exclude_sources|google,bing}}"
 
   # === FILTERING & OUTPUT ===
-  - title: subfinder - silent output for piping
-    desc: |
-      Prints only the discovered subdomains to the console without any banners or metadata.
-      This is essential when piping the output to other tools like httpx, nuclei, or naabu.
-      It eliminates the need for manual cleanup of the tool's output.
-      Perfect for automation scripts and command-line one-liners.
+  - title:
+      en: subfinder - silent output for piping
+      tr: subfinder - aktarma için sessiz çıktı
+    desc:
+      en: |
+        Prints only the discovered subdomains to the console without any banners or metadata.
+        This is essential when piping the output to other tools like httpx, nuclei, or naabu.
+        It eliminates the need for manual cleanup of the tool's output.
+        Perfect for automation scripts and command-line one-liners.
+      tr: |
+        Banner veya üstveri olmadan yalnızca keşfedilen alt alan adlarını konsola yazdırır.
+        Çıktıyı httpx, nuclei veya naabu gibi araçlara aktarmak için gereklidir.
+        Araç çıktısını manuel temizleme ihtiyacını ortadan kaldırır.
     command: "subfinder -d {{domain}} -silent"
 
-  - title: subfinder - save output to file
-    desc: |
-      Writes the discovery results to a specific text file for later analysis.
-      This prevents the loss of data and allows for easy documentation of findings.
-      If the file doesn't exist, subfinder will create it automatically.
-      Useful for keeping a record of subdomains during different stages of a pentest.
+  - title:
+      en: subfinder - save output to file
+      tr: subfinder - çıktıyı dosyaya kaydetme
+    desc:
+      en: |
+        Writes the discovery results to a specific text file for later analysis.
+        This prevents the loss of data and allows for easy documentation of findings.
+        If the file doesn't exist, subfinder will create it automatically.
+        Useful for keeping a record of subdomains during different stages of a pentest.
+      tr: |
+        Keşif sonuçlarını daha sonra analiz etmek için belirli bir metin dosyasına yazar.
+        Veri kaybını önler ve bulguların kolay belgelenmesini sağlar.
+        Dosya yoksa subfinder otomatik oluşturur.
     command: "subfinder -d {{domain}} -o {{output|results.txt}}"
 
-  - title: subfinder - JSON format output
-    desc: |
-      Generates output in JSONL (JSON Lines) format which contains rich metadata.
-      The output includes not only the subdomain but also the sources that found it.
-      This is the preferred format for integrating subfinder with databases or custom parsers.
-      Use this if you need to perform complex data analysis on the results.
+  - title:
+      en: subfinder - JSON format output
+      tr: subfinder - JSON biçimli çıktı
+    desc:
+      en: |
+        Generates output in JSONL (JSON Lines) format which contains rich metadata.
+        The output includes not only the subdomain but also the sources that found it.
+        This is the preferred format for integrating subfinder with databases or custom parsers.
+        Use this if you need to perform complex data analysis on the results.
+      tr: |
+        Zengin üstveri içeren JSONL (JSON Satırları) biçiminde çıktı üretir.
+        Çıktı alt alan adının yanı sıra onu bulan kaynakları da içerir.
+        subfinder'ı veritabanları veya özel ayrıştırıcılarla entegre etmek için tercih edilen biçimdir.
     command: "subfinder -d {{domain}} -oJ"
 
-  - title: subfinder - include IP addresses
-    desc: |
-      Displays the IP addresses associated with the discovered subdomains.
-      This command automatically enables the -active flag because resolution is required to find IPs.
-      It provides a more complete picture of the target's infrastructure.
-      Only subdomains that successfully resolve to an IP will be included in the output.
+  - title:
+      en: subfinder - include IP addresses
+      tr: subfinder - IP adreslerini dahil etme
+    desc:
+      en: |
+        Displays the IP addresses associated with the discovered subdomains.
+        This command automatically enables the -active flag because resolution is required to find IPs.
+        It provides a more complete picture of the target's infrastructure.
+        Only subdomains that successfully resolve to an IP will be included in the output.
+      tr: |
+        Keşfedilen alt alan adlarıyla ilişkili IP adreslerini gösterir.
+        Çözümleme gerektiğinden bu komut -active flag'ini otomatik etkinleştirir.
+        Hedefin altyapısına dair daha eksiksiz bir resim verir.
     command: "subfinder -d {{domain}} -active -oI"
 
   # === PERFORMANCE & ADVANCED ===
-  - title: subfinder - rate limiting
-    desc: |
-      Controls the speed of the scan by limiting the number of HTTP requests sent per second.
-      This is important for avoiding rate-limiting or blocks from passive source providers.
-      If you are using many API keys, you might want to increase this value.
-      Conversely, decrease it if you are experiencing frequent timeouts or connection resets.
+  - title:
+      en: subfinder - rate limiting
+      tr: subfinder - hız sınırlama
+    desc:
+      en: |
+        Controls the speed of the scan by limiting the number of HTTP requests sent per second.
+        This is important for avoiding rate-limiting or blocks from passive source providers.
+        If you are using many API keys, you might want to increase this value.
+        Conversely, decrease it if you are experiencing frequent timeouts or connection resets.
+      tr: |
+        Saniyede gönderilen HTTP istek sayısını sınırlayarak tarama hızını denetler.
+        Pasif kaynak sağlayıcıların hız sınırlamasına takılmamak veya engellenmemek için önemlidir.
+        Çok sayıda API anahtarı kullanıyorsanız değeri artırabilirsiniz.
     command: "subfinder -d {{domain}} -rl {{limit|10}}"
 
-  - title: subfinder - custom resolvers
-    desc: |
-      Specifies a list of custom DNS resolvers to use for the -active resolution phase.
-      By default, subfinder uses system resolvers, but custom ones (like Google or Cloudflare) can be faster.
-      You can provide a single resolver or a file containing a list of resolvers.
-      This helps in bypassing local DNS restrictions and improving resolution accuracy.
+  - title:
+      en: subfinder - custom resolvers
+      tr: subfinder - özel çözümleyiciler
+    desc:
+      en: |
+        Specifies a list of custom DNS resolvers to use for the -active resolution phase.
+        By default, subfinder uses system resolvers, but custom ones (like Google or Cloudflare) can be faster.
+        You can provide a single resolver or a file containing a list of resolvers.
+        This helps in bypassing local DNS restrictions and improving resolution accuracy.
+      tr: |
+        -active çözümleme aşamasında kullanılacak özel DNS çözümleyici listesi belirtir.
+        Varsayılan sistem çözümleyiciler yerine Google veya Cloudflare gibi özel olanlar daha hızlı olabilir.
+        Yerel DNS kısıtlamalarını aşmaya ve çözümleme doğruluğunu artırmaya yardımcı olur.
     command: "subfinder -d {{domain}} -active -r {{resolvers|8.8.8.8,1.1.1.1}}"
 
-  - title: subfinder - recursive discovery
-    desc: |
-      Enables recursive subdomain discovery on sources that support it.
-      This allows the tool to find sub-subdomains (e.g., dev.api.example.com).
-      While more comprehensive, it may increase the scan time significantly.
-      Only a subset of sources handles recursive queries effectively.
+  - title:
+      en: subfinder - recursive discovery
+      tr: subfinder - özyinelemeli keşif
+    desc:
+      en: |
+        Enables recursive subdomain discovery on sources that support it.
+        This allows the tool to find sub-subdomains (e.g., dev.api.example.com).
+        While more comprehensive, it may increase the scan time significantly.
+        Only a subset of sources handles recursive queries effectively.
+      tr: |
+        Destekleyen kaynaklarda özyinelemeli alt alan adı keşfini etkinleştirir.
+        Alt-alt alan adlarını (örn. dev.api.example.com) bulmanızı sağlar.
+        Daha kapsamlı olsa da tarama süresini ciddi ölçüde artırabilir.
     command: "subfinder -d {{domain}} -recursive"
 
   # === SYSTEM ===
-  - title: subfinder - update tool
-    desc: |
-      Automatically checks for and installs the latest version of subfinder from GitHub.
-      Keeping the tool updated ensures you have the latest source providers and bug fixes.
-      This requires an active internet connection and write permissions to the binary path.
-      It is recommended to run this periodically to maintain tool efficiency.
+  - title:
+      en: subfinder - update tool
+      tr: subfinder - aracı güncelleme
+    desc:
+      en: |
+        Automatically checks for and installs the latest version of subfinder from GitHub.
+        Keeping the tool updated ensures you have the latest source providers and bug fixes.
+        This requires an active internet connection and write permissions to the binary path.
+        It is recommended to run this periodically to maintain tool efficiency.
+      tr: |
+        GitHub'dan subfinder'ın en son sürümünü otomatik denetler ve kurar.
+        Aracı güncel tutmak en yeni kaynak sağlayıcılara ve hata düzeltmelerine sahip olmanızı sağlar.
+        Etkin internet bağlantısı ve ikili dosya yoluna yazma izni gerektirir.
     command: "subfinder -up"

@@ -3,96 +3,187 @@ tags: [security, exploitation, pentest, vulnerability, exploit-db, reconnaissanc
 
 actions:
   # === SEARCHING OPERATIONS ===
-  - title: searchsploit - basic exploit search
-    desc: |
-      Search for exploits and shellcodes in the local Exploit-DB database using one or more keywords. 
-      This is the most common starting point for finding public proof-of-concept code for a target service. 
-      By default, the tool performs a case-insensitive search across both titles and file paths.
+  - title:
+      en: searchsploit - basic exploit search
+      tr: searchsploit - temel exploit araması
+    desc:
+      en: |
+        Search for exploits and shellcodes in the local Exploit-DB database using one or more keywords. 
+        This is the most common starting point for finding public proof-of-concept code for a target service. 
+        By default, the tool performs a case-insensitive search across both titles and file paths.
+      tr: |
+        Bir veya daha fazla anahtar sözcükle yerel Exploit-DB veritabanında exploit ve shellcode ara.
+        Hedef hizmete yönelik herkese açık kavram kanıtı (PoC) kodu bulmanın en yaygın başlangıç noktasıdır.
+        Varsayılan olarak araç hem başlıklarda hem de dosya yollarında büyük/küçük harfe duyarsız arama yapar.
     command: "searchsploit {{search_terms}}"
 
-  - title: searchsploit - search by exploit title only
-    desc: |
-      Perform a search restricted solely to the exploit titles, ignoring the file path. 
-      This is extremely useful for reducing false positives when searching for version numbers like "2.0". 
-      Folder names often contain numbers that can clutter results if path searching is enabled.
+  - title:
+      en: searchsploit - search by exploit title only
+      tr: searchsploit - yalnızca exploit başlığında arama
+    desc:
+      en: |
+        Perform a search restricted solely to the exploit titles, ignoring the file path. 
+        This is extremely useful for reducing false positives when searching for version numbers like "2.0". 
+        Folder names often contain numbers that can clutter results if path searching is enabled.
+      tr: |
+        Dosya yolunu yok sayarak aramayı yalnızca exploit başlıklarıyla kısıtla.
+        "2.0" gibi sürüm numaraları ararken yanlış pozitifleri azaltmak için son derece faydalıdır.
+        Klasör adları sıkça sayı içerir ve yol araması etkinse sonuçları kirletebilir.
     command: "searchsploit -t {{search_term}}"
 
-  - title: searchsploit - exact title match
-    desc: |
-      Perform an exact and order-sensitive match on the exploit title. 
-      Use this when you know the specific name of a vulnerability or software and want to avoid similar but irrelevant results. 
-      For example, searching for "WordPress 4.1" with this flag will not return "WordPress Core 4.1".
+  - title:
+      en: searchsploit - exact title match
+      tr: searchsploit - tam başlık eşleşmesi
+    desc:
+      en: |
+        Perform an exact and order-sensitive match on the exploit title. 
+        Use this when you know the specific name of a vulnerability or software and want to avoid similar but irrelevant results. 
+        For example, searching for "WordPress 4.1" with this flag will not return "WordPress Core 4.1".
+      tr: |
+        Exploit başlığında tam ve sıraya duyarlı eşleşme yap.
+        Bir zafiyetin veya yazılımın belirli adını bildiğinde ve benzer ancak alakasız sonuçları elemek istediğinde kullan.
+        Örneğin bu bayrakla "WordPress 4.1" aramak "WordPress Core 4.1" sonucunu döndürmez.
     command: "searchsploit -e {{exact_title}}"
 
-  - title: searchsploit - search using cve identifier
-    desc: |
-      Search the database for exploits associated with a specific Common Vulnerabilities and Exposures (CVE) ID. 
-      This is highly effective after running vulnerability scanners like Nessus or OpenVAS that provide CVE numbers. 
-      It directly links identified vulnerabilities to available exploitation scripts in the repository.
+  - title:
+      en: searchsploit - search using cve identifier
+      tr: searchsploit - CVE kimliğiyle arama
+    desc:
+      en: |
+        Search the database for exploits associated with a specific Common Vulnerabilities and Exposures (CVE) ID. 
+        This is highly effective after running vulnerability scanners like Nessus or OpenVAS that provide CVE numbers. 
+        It directly links identified vulnerabilities to available exploitation scripts in the repository.
+      tr: |
+        Belirli bir Yaygın Zafiyetler ve Etkilenmeler (CVE) kimliğiyle ilişkili exploitler için veritabanında ara.
+        Nessus veya OpenVAS gibi CVE numaraları veren zafiyet tarayıcıları çalıştırdıktan sonra oldukça etkilidir.
+        Belirlenen zafiyetleri depodaki mevcut istismar betiklerine doğrudan bağlar.
     command: "searchsploit --cve {{cve_id|2021-44228}}"
 
-  - title: searchsploit - case sensitive search
-    desc: |
-      Execute a search where the case of the letters in the search term matters. 
-      Standard searches are case-insensitive, but specific software names might require case sensitivity to filter results. 
-      This helps narrow down results when a common word is part of a specific product name.
+  - title:
+      en: searchsploit - case sensitive search
+      tr: searchsploit - büyük/küçük harfe duyarlı arama
+    desc:
+      en: |
+        Execute a search where the case of the letters in the search term matters. 
+        Standard searches are case-insensitive, but specific software names might require case sensitivity to filter results. 
+        This helps narrow down results when a common word is part of a specific product name.
+      tr: |
+        Arama terimindeki harflerin durumunun önemli olduğu bir arama çalıştır.
+        Standart aramalar büyük/küçük harfe duyarsızdır; ancak belirli yazılım adları sonuçları filtrelemek için harf duyarlılığı gerektirebilir.
+        Yaygın bir sözcük belirli bir ürün adının parçası olduğunda sonuçları daraltmaya yardımcı olur.
     command: "searchsploit -c {{search_term}}"
 
-  - title: searchsploit - exclude specific terms
-    desc: |
-      Filter out unwanted results from the search output by defining terms to exclude. 
-      You can chain multiple exclusion terms using the pipe symbol within the quotes. 
-      This is useful for removing "Denial of Service" (DoS) exploits or "PoC" files when looking for functional remote exploits.
+  - title:
+      en: searchsploit - exclude specific terms
+      tr: searchsploit - belirli terimleri hariç tutma
+    desc:
+      en: |
+        Filter out unwanted results from the search output by defining terms to exclude. 
+        You can chain multiple exclusion terms using the pipe symbol within the quotes. 
+        This is useful for removing "Denial of Service" (DoS) exploits or "PoC" files when looking for functional remote exploits.
+      tr: |
+        Hariç tutulacak terimleri tanımlayarak arama çıktısından istenmeyen sonuçları filtrele.
+        Tırnak içindeki pipe sembolüyle birden çok hariç tutma terimini zincirleyebilirsin.
+        İşlevsel uzak exploitler ararken "Denial of Service" (DoS) exploitlerini veya "PoC" dosyalarını elemek için faydalıdır.
     command: "searchsploit {{search_term}} --exclude={{exclude_pattern|'(PoC)|/dos/'}}"
 
   # === FILE & CONTENT OPERATIONS ===
-  - title: searchsploit - mirror exploit to current directory
-    desc: |
-      Copy a specific exploit file from the local repository directly to your current working directory. 
-      This eliminates the need to manually navigate the file system to find the script location. 
-      Once mirrored, you can easily modify, compile, or execute the exploit for your engagement.
+  - title:
+      en: searchsploit - mirror exploit to current directory
+      tr: searchsploit - exploit'i geçerli dizine yansıtma
+    desc:
+      en: |
+        Copy a specific exploit file from the local repository directly to your current working directory. 
+        This eliminates the need to manually navigate the file system to find the script location. 
+        Once mirrored, you can easily modify, compile, or execute the exploit for your engagement.
+      tr: |
+        Belirli bir exploit dosyasını yerel depodan doğrudan geçerli çalışma dizinine kopyalar.
+        Bu, betik konumunu bulmak için dosya sisteminde manuel gezinme ihtiyacını ortadan kaldırır.
+        Yansıtıldıktan sonra exploit'i çalışman için kolayca değiştirebilir, derleyebilir veya çalıştırabilirsin.
     command: "searchsploit -m {{edb_id}}"
 
-  - title: searchsploit - examine exploit content
-    desc: |
-      Open the source code of an exploit using the system's default pager (usually 'less'). 
-      This allows you to quickly inspect the exploit's requirements, usage instructions, and potential risks. 
-      Always examine exploit code before execution to ensure it does not contain malicious payloads or destructive behavior.
+  - title:
+      en: searchsploit - examine exploit content
+      tr: searchsploit - exploit içeriğini inceleme
+    desc:
+      en: |
+        Open the source code of an exploit using the system's default pager (usually 'less'). 
+        This allows you to quickly inspect the exploit's requirements, usage instructions, and potential risks. 
+        Always examine exploit code before execution to ensure it does not contain malicious payloads or destructive behavior.
+      tr: |
+        Sistemin varsayılan sayfalayıcısıyla (genellikle 'less') bir exploit'in kaynak kodunu açar.
+        Bu, exploit'in gereksinimlerini, kullanım talimatlarını ve potansiyel risklerini hızla incelemeni sağlar.
+        Kötü amaçlı yükler veya yıkıcı davranışlar içermediğinden emin olmak için exploit kodunu çalıştırmadan önce her zaman incele.
     command: "searchsploit -x {{edb_id}}"
 
-  - title: searchsploit - show exploit path and copy to clipboard
-    desc: |
-      Display the full absolute path of an exploit file on the local system. 
-      On supported systems, this command also attempts to copy the file path to the clipboard for easy pasting. 
-      It is useful when you need to provide the path to another tool or manual compiler.
+  - title:
+      en: searchsploit - show exploit path and copy to clipboard
+      tr: searchsploit - exploit yolunu gösterme ve panoya kopyalama
+    desc:
+      en: |
+        Display the full absolute path of an exploit file on the local system. 
+        On supported systems, this command also attempts to copy the file path to the clipboard for easy pasting. 
+        It is useful when you need to provide the path to another tool or manual compiler.
+      tr: |
+        Yerel sistemdeki bir exploit dosyasının tam mutlak yolunu görüntüler.
+        Desteklenen sistemlerde bu komut ayrıca kolay yapıştırma için dosya yolunu panoya kopyalamaya çalışır.
+        Yolu başka bir araca veya manuel derleyiciye vermen gerektiğinde faydalıdır.
     command: "searchsploit -p {{edb_id}}"
 
   # === OUTPUT FORMATTING ===
-  - title: searchsploit - display results as json
-    desc: |
-      Generate search results in JSON format instead of the standard tabular view. 
-      This is essential for automation scripts or when you need to pipe data into other tools like 'jq'. 
-      JSON output provides detailed metadata about each exploit entry including ID, title, and platform.
+  - title:
+      en: searchsploit - display results as json
+      tr: searchsploit - sonuçları JSON olarak görüntüleme
+    desc:
+      en: |
+        Generate search results in JSON format instead of the standard tabular view. 
+        This is essential for automation scripts or when you need to pipe data into other tools like 'jq'. 
+        JSON output provides detailed metadata about each exploit entry including ID, title, and platform.
+      tr: |
+        Arama sonuçlarını standart tablo görünümü yerine JSON biçiminde üretir.
+        Bu, otomasyon betikleri veya veriyi 'jq' gibi başka araçlara yönlendirmen gerektiğinde gereklidir.
+        JSON çıktısı, ID, başlık ve platform dahil her exploit kaydı hakkında ayrıntılı meta veri sağlar.
     command: "searchsploit -j {{search_term}}"
 
-  - title: searchsploit - show exploit-db urls
-    desc: |
-      Display the full web URLs to the Exploit-DB website for each search result instead of local file paths. 
-      This is helpful if you are working on a machine without the full database or need to share a link with a colleague. 
-      It allows for quick access to the online documentation and comments section for each exploit.
+  - title:
+      en: searchsploit - show exploit-db urls
+      tr: searchsploit - Exploit-DB URL'lerini gösterme
+    desc:
+      en: |
+        Display the full web URLs to the Exploit-DB website for each search result instead of local file paths. 
+        This is helpful if you are working on a machine without the full database or need to share a link with a colleague. 
+        It allows for quick access to the online documentation and comments section for each exploit.
+      tr: |
+        Her arama sonucu için yerel dosya yolları yerine Exploit-DB sitesine giden tam web URL'lerini görüntüler.
+        Tam veritabanı olmayan bir makinede çalışıyorsan veya bir meslektaşınla bağlantı paylaşman gerekiyorsa faydalıdır.
+        Her exploit için çevrimiçi belgelere ve yorumlar bölümüne hızlı erişim sağlar.
     command: "searchsploit -w {{search_term}}"
 
   # === AUTOMATION & MAINTENANCE ===
-  - title: searchsploit - analyze nmap xml output
-    desc: |
-      Read an Nmap XML scan file and automatically search for exploits for all detected service versions. 
-      This significantly speeds up the transition from scanning to the exploitation phase of a pentest. 
-      It checks the version strings identified by Nmap's service detection against the local exploit database.
+  - title:
+      en: searchsploit - analyze nmap xml output
+      tr: searchsploit - Nmap XML çıktısını analiz etme
+    desc:
+      en: |
+        Read an Nmap XML scan file and automatically search for exploits for all detected service versions. 
+        This significantly speeds up the transition from scanning to the exploitation phase of a pentest. 
+        It checks the version strings identified by Nmap's service detection against the local exploit database.
+      tr: |
+        Bir Nmap XML tarama dosyasını okur ve tespit edilen tüm hizmet sürümleri için otomatik olarak exploit arar.
+        Bu, sızma testinde taramadan sömürü aşamasına geçişi önemli ölçüde hızlandırır.
+        Nmap'in hizmet tespitiyle belirlediği sürüm dizgilerini yerel exploit veritabanıyla karşılaştırır.
     command: "searchsploit --nmap {{nmap_xml_file}}"
 
-  - title: searchsploit - update exploit database
-    desc: |
-      Update the local exploit-database repository to the latest available version. 
-      This command fetches new exploits and shellcodes from the central Git repository or package manager. 
-      Regular updates are critical to ensure you have access to the most recent public exploits for newly discovered vulnerabilities.
+  - title:
+      en: searchsploit - update exploit database
+      tr: searchsploit - exploit veritabanını güncelleme
+    desc:
+      en: |
+        Update the local exploit-database repository to the latest available version. 
+        This command fetches new exploits and shellcodes from the central Git repository or package manager. 
+        Regular updates are critical to ensure you have access to the most recent public exploits for newly discovered vulnerabilities.
+      tr: |
+        Yerel exploit-database deposunu mevcut en son sürüme günceller.
+        Bu komut yeni exploit ve shellcode'ları merkezi Git deposundan veya paket yöneticisinden getirir.
+        Yeni keşfedilen zafiyetlere yönelik en güncel herkese açık exploitlere erişmek için düzenli güncellemeler kritiktir.
     command: "searchsploit -u"

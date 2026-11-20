@@ -3,97 +3,188 @@ tags: [vulnerability-scanner, wordpress, security, pentest, enumeration, exploit
 
 actions:
 # === BASIC OPERATIONS ===
- - title: wpscan - basic scan
-   desc: |
-     Performs a non-intrusive basic scan of the target WordPress site. 
-     This command identifies the web server, headers, and basic WordPress version information. 
-     It is the standard starting point for any WordPress security assessment to gather initial reconnaissance data.
+ - title:
+     en: wpscan - basic scan
+     tr: wpscan - temel tarama
+   desc:
+     en: |
+       Performs a non-intrusive basic scan of the target WordPress site. 
+       This command identifies the web server, headers, and basic WordPress version information. 
+       It is the standard starting point for any WordPress security assessment to gather initial reconnaissance data.
+     tr: |
+       Hedef WordPress sitesinin göze batmayan temel bir taramasını gerçekleştirir.
+       Bu komut web sunucusunu, başlıkları ve temel WordPress sürüm bilgisini belirler.
+       Herhangi bir WordPress güvenlik değerlendirmesi için ilk keşif verisini toplamanın standart başlangıç noktasıdır.
    command: "wpscan --url {{url}}"
 
- - title: wpscan - update database
-   desc: |
-     Updates the local WPScan vulnerability database to the latest version.
-     Regular updates ensure that the scanner can detect the most recently discovered vulnerabilities in plugins and themes.
-     It is highly recommended to run this before starting any new penetration test.
+ - title:
+     en: wpscan - update database
+     tr: wpscan - veritabanını güncelleme
+   desc:
+     en: |
+       Updates the local WPScan vulnerability database to the latest version.
+       Regular updates ensure that the scanner can detect the most recently discovered vulnerabilities in plugins and themes.
+       It is highly recommended to run this before starting any new penetration test.
+     tr: |
+       Yerel WPScan zafiyet veritabanını en son sürüme günceller.
+       Düzenli güncellemeler tarayıcının eklenti ve temalardaki en yeni keşfedilen zafiyetleri tespit edebilmesini sağlar.
+       Her yeni sızma testine başlamadan önce bunu çalıştırmanız önemle önerilir.
    command: "wpscan --update"
 
 # === ENUMERATION ===
- - title: wpscan - enumerate vulnerable plugins
-   desc: |
-     Scans the target site specifically for plugins that have known security vulnerabilities.
-     This is more efficient than scanning for all plugins and focuses directly on potential entry points.
-     The tool checks the detected versions against its database to flag specific CVEs.
+ - title:
+     en: wpscan - enumerate vulnerable plugins
+     tr: wpscan - zafiyetli eklentileri numaralandırma
+   desc:
+     en: |
+       Scans the target site specifically for plugins that have known security vulnerabilities.
+       This is more efficient than scanning for all plugins and focuses directly on potential entry points.
+       The tool checks the detected versions against its database to flag specific CVEs.
+     tr: |
+       Hedef siteyi özellikle bilinen güvenlik zafiyeti bulunan eklentiler için tarar.
+       Bu, tüm eklentileri taramaktan daha verimlidir ve doğrudan potansiyel giriş noktalarına odaklanır.
+       Araç tespit edilen sürümleri veritabanına karşı denetleyerek belirli CVE'leri işaretler.
    command: "wpscan --url {{url}} -e vp"
 
- - title: wpscan - enumerate all plugins (aggressive)
-   desc: |
-     Attempts to discover all plugins installed on the target, not just vulnerable ones.
-     Using the aggressive detection mode will perform more requests to identify hidden or less common plugins.
-     Be aware that this may be louder in web server logs and could be blocked by WAFs.
+ - title:
+     en: wpscan - enumerate all plugins (aggressive)
+     tr: wpscan - tüm eklentileri numaralandırma (agresif)
+   desc:
+     en: |
+       Attempts to discover all plugins installed on the target, not just vulnerable ones.
+       Using the aggressive detection mode will perform more requests to identify hidden or less common plugins.
+       Be aware that this may be louder in web server logs and could be blocked by WAFs.
+     tr: |
+       Hedefte kurulu tüm eklentileri keşfetmeye çalışır, yalnızca zafiyetli olanları değil.
+       Agresif tespit modu, gizli veya az bilinen eklentileri bulmak için daha fazla istek gönderir.
+       Bunun web sunucusu günlüklerinde daha gürültülü olabileceğini ve WAF'larca engellenebileceğini unutmayın.
    command: "wpscan --url {{url}} -e ap --plugins-detection {{mode|aggressive}}"
 
- - title: wpscan - enumerate users
-   desc: |
-     Identifies valid WordPress usernames by scanning various author archives and API endpoints.
-     Knowing valid usernames is a critical prerequisite for performing targeted password attacks later.
-     By default, it checks a range of user IDs, usually starting from 1 to 10.
+ - title:
+     en: wpscan - enumerate users
+     tr: wpscan - kullanıcıları numaralandırma
+   desc:
+     en: |
+       Identifies valid WordPress usernames by scanning various author archives and API endpoints.
+       Knowing valid usernames is a critical prerequisite for performing targeted password attacks later.
+       By default, it checks a range of user IDs, usually starting from 1 to 10.
+     tr: |
+       Çeşitli yazar arşivlerini ve API uç noktalarını tarayarak geçerli WordPress kullanıcı adlarını belirler.
+       Geçerli kullanıcı adlarını bilmek daha sonra hedefli parola saldırılarının kritik ön koşuludur.
+       Varsayılan olarak genellikle 1'den 10'a kadar bir kullanıcı kimliği aralığını denetler.
    command: "wpscan --url {{url}} -e u"
 
- - title: wpscan - enumerate themes and backups
-   desc: |
-     Checks for vulnerable themes, timthumb files, and sensitive configuration backups.
-     Finding backup files (like wp-config.php.bak) can lead to full database credential disclosure.
-     This command combines multiple enumeration flags for a more comprehensive structural scan.
+ - title:
+     en: wpscan - enumerate themes and backups
+     tr: wpscan - tema ve yedekleri numaralandırma
+   desc:
+     en: |
+       Checks for vulnerable themes, timthumb files, and sensitive configuration backups.
+       Finding backup files (like wp-config.php.bak) can lead to full database credential disclosure.
+       This command combines multiple enumeration flags for a more comprehensive structural scan.
+     tr: |
+       Zafiyetli temaları, timthumb dosyalarını ve hassas yapılandırma yedeklerini denetler.
+       Yedek dosyaları (wp-config.php.bak gibi) bulmak tam veritabanı kimlik bilgisi ifşasına yol açabilir.
+       Bu komut daha kapsamlı bir yapısal tarama için birden fazla numaralandırma bayrağını birleştirir.
    command: "wpscan --url {{url}} -e vt,tt,cb,dbe"
 
 # === AUTHENTICATION ATTACKS ===
- - title: wpscan - password brute force
-   desc: |
-     Performs a password dictionary attack against the specified usernames.
-     You must provide a path to a wordlist containing potential passwords.
-     Note that frequent login attempts may trigger account lockouts or security plugin blocks (like Wordfence).
+ - title:
+     en: wpscan - password brute force
+     tr: wpscan - parola kaba kuvvet saldırısı
+   desc:
+     en: |
+       Performs a password dictionary attack against the specified usernames.
+       You must provide a path to a wordlist containing potential passwords.
+       Note that frequent login attempts may trigger account lockouts or security plugin blocks (like Wordfence).
+     tr: |
+       Belirtilen kullanıcı adlarına karşı sözlük tabanlı bir parola saldırısı gerçekleştirir.
+       Olası parolaları içeren bir kelime listesinin yolunu vermelisiniz.
+       Sık giriş denemelerinin hesap kilitlenmelerini veya güvenlik eklentisi (Wordfence gibi) engellerini tetikleyebileceğini unutmayın.
    command: "wpscan --url {{url}} -U {{usernames|admin}} -P {{wordlist_path|/usr/share/wordlists/rockyou.txt}}"
 
- - title: wpscan - xmlrpc multicall attack
-   desc: |
-     Uses the XML-RPC multicall method to attempt hundreds of password combinations in a single HTTP request.
-     This method is significantly faster than standard wp-login attacks and can often bypass simple rate limiting.
-     It only works if the target's xmlrpc.php file is enabled and not restricted.
+ - title:
+     en: wpscan - xmlrpc multicall attack
+     tr: wpscan - xmlrpc çoklu çağrı saldırısı
+   desc:
+     en: |
+       Uses the XML-RPC multicall method to attempt hundreds of password combinations in a single HTTP request.
+       This method is significantly faster than standard wp-login attacks and can often bypass simple rate limiting.
+       It only works if the target's xmlrpc.php file is enabled and not restricted.
+     tr: |
+       Tek bir HTTP isteğinde yüzlerce parola kombinasyonunu denemek için XML-RPC çoklu çağrı yöntemini kullanır.
+       Bu yöntem standart wp-login saldırılarından önemli ölçüde daha hızlıdır ve basit hız sınırlamalarını aşabilir.
+       Yalnızca hedefin xmlrpc.php dosyası etkinse ve kısıtlanmamışsa çalışır.
    command: "wpscan --url {{url}} --password-attack xmlrpc-multicall -U {{username|admin}} -P {{wordlist_path}}"
 
 # === ADVANCED CONFIGURATION ===
- - title: wpscan - scan with api token
-   desc: |
-     Executes a scan while utilizing a WPScan API token to show detailed vulnerability data.
-     Without an API token, the scanner will identify versions but won't provide specific vulnerability descriptions or links.
-     You can obtain a free or paid token from the official wpscan.com website.
+ - title:
+     en: wpscan - scan with api token
+     tr: wpscan - api jetonlu tarama
+   desc:
+     en: |
+       Executes a scan while utilizing a WPScan API token to show detailed vulnerability data.
+       Without an API token, the scanner will identify versions but won't provide specific vulnerability descriptions or links.
+       You can obtain a free or paid token from the official wpscan.com website.
+     tr: |
+       Ayrıntılı zafiyet verisini göstermek için bir WPScan API jetonu kullanarak tarama yürütür.
+       API jetonu olmadan tarayıcı sürümleri belirler ancak belirli zafiyet açıklamaları veya bağlantıları vermez.
+       Ücretsiz veya ücretli bir jetonu resmi wpscan.com web sitesinden edinebilirsiniz.
    command: "wpscan --url {{url}} --api-token {{your_api_token}}"
 
- - title: wpscan - stealthy scan
-   desc: |
-     Runs a scan using settings designed to minimize the footprint and avoid detection.
-     It uses a random user-agent and passive detection modes to stay under the radar of basic monitoring.
-     This is an alias for using several stealth-related flags simultaneously.
+ - title:
+     en: wpscan - stealthy scan
+     tr: wpscan - gizli tarama
+   desc:
+     en: |
+       Runs a scan using settings designed to minimize the footprint and avoid detection.
+       It uses a random user-agent and passive detection modes to stay under the radar of basic monitoring.
+       This is an alias for using several stealth-related flags simultaneously.
+     tr: |
+       İz bırakmamak ve tespit edilmekten kaçınmak için tasarlanmış ayarlarla tarama yapar.
+       Temel izlemeden gizlenmek için rastgele bir kullanıcı aracısı ve pasif tespit modları kullanır.
+       Bu, birkaç gizlilik odaklı bayrağı aynı anda kullanmanın kısayoludur.
    command: "wpscan --url {{url}} --stealthy"
 
- - title: wpscan - use proxy and custom headers
-   desc: |
-     Routes all scan traffic through a specified proxy server and adds custom HTTP headers.
-     This is useful for bypassing IP-based restrictions or testing the site from a specific geographical location.
-     Adding custom headers can also help in bypassing certain WAF configurations or identifying internal routes.
+ - title:
+     en: wpscan - use proxy and custom headers
+     tr: wpscan - proxy ve özel başlıklar kullanma
+   desc:
+     en: |
+       Routes all scan traffic through a specified proxy server and adds custom HTTP headers.
+       This is useful for bypassing IP-based restrictions or testing the site from a specific geographical location.
+       Adding custom headers can also help in bypassing certain WAF configurations or identifying internal routes.
+     tr: |
+       Tüm tarama trafiğini belirtilen bir proxy sunucusu üzerinden yönlendirir ve özel HTTP başlıkları ekler.
+       Bu, IP tabanlı kısıtlamaları aşmak veya siteyi belirli bir coğrafi konumdan test etmek için kullanışlıdır.
+       Özel başlıklar eklemek ayrıca belirli WAF yapılandırmalarını aşmaya veya dahili yolları belirlemeye yardımcı olabilir.
    command: "wpscan --url {{url}} --proxy {{proxy_proto_ip_port|http://127.0.0.1:8080}} --headers '{{header_name|X-Forwarded-For}}: {{header_value|127.0.0.1}}'"
 
- - title: wpscan - custom content directory
-   desc: |
-     Specifies custom paths for the wp-content or plugins directories if the target uses a non-standard structure.
-     Many security-conscious WordPress installations rename these folders to avoid automated discovery.
-     Manually providing these paths allows WPScan to function correctly on hardened targets.
+ - title:
+     en: wpscan - custom content directory
+     tr: wpscan - özel içerik dizini
+   desc:
+     en: |
+       Specifies custom paths for the wp-content or plugins directories if the target uses a non-standard structure.
+       Many security-conscious WordPress installations rename these folders to avoid automated discovery.
+       Manually providing these paths allows WPScan to function correctly on hardened targets.
+     tr: |
+       Hedef standart dışı bir yapı kullanıyorsa wp-content veya eklentiler dizinleri için özel yollar belirtir.
+       Güvenliğe önem veren birçok WordPress kurulumu otomatik keşfi engellemek için bu klasörleri yeniden adlandırır.
+       Bu yolları elle vermek WPScan'in güçlendirilmiş hedeflerde doğru çalışmasını sağlar.
    command: "wpscan --url {{url}} --wp-content-dir {{content_dir|wp-content}} --wp-plugins-dir {{plugins_dir|wp-content/plugins}}"
 
 # === OUTPUT ===
- - title: wpscan - save results to file
-   desc: |
-     Saves the entire scan output into a file for later analysis or reporting.
-     The JSON format is particularly useful if you intend to parse the results with other automated tools or scripts.
-     Standard CLI format is also available for human-readable reports.
+ - title:
+     en: wpscan - save results to file
+     tr: wpscan - sonuçları dosyaya kaydetme
+   desc:
+     en: |
+       Saves the entire scan output into a file for later analysis or reporting.
+       The JSON format is particularly useful if you intend to parse the results with other automated tools or scripts.
+       Standard CLI format is also available for human-readable reports.
+     tr: |
+       Daha sonra analiz veya raporlama için tüm tarama çıktısını bir dosyaya kaydeder.
+       JSON biçimi, sonuçları diğer otomatik araçlar veya betiklerle ayrıştırmayı düşünüyorsanız özellikle kullanışlıdır.
+       İnsan tarafından okunabilir raporlar için standart CLI biçimi de mevcuttur.
    command: "wpscan --url {{url}} -o {{output_file|results.json}} -f {{format|json}}"

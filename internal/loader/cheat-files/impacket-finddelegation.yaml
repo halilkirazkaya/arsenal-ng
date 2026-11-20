@@ -3,69 +3,125 @@ tags: [pentest, active-directory, security, enumeration, kerberos, delegation, i
 
 actions:
   # === BASIC ENUMERATION ===
-  - title: impacket-findDelegation - basic domain enumeration
-    desc: |
-      Performs a comprehensive scan of the target domain to identify all accounts with delegation rights.
-      This command identifies Unconstrained, Constrained, and Resource-Based Constrained Delegation (RBCD).
-      It is a critical reconnaissance step for finding lateral movement or privilege escalation paths.
-      The output includes the account name, the type of delegation, and the services they are allowed to delegate to.
+  - title:
+      en: impacket-findDelegation - basic domain enumeration
+      tr: impacket-findDelegation - temel alan numaralandırma
+    desc:
+      en: |
+        Performs a comprehensive scan of the target domain to identify all accounts with delegation rights.
+        This command identifies Unconstrained, Constrained, and Resource-Based Constrained Delegation (RBCD).
+        It is a critical reconnaissance step for finding lateral movement or privilege escalation paths.
+        The output includes the account name, the type of delegation, and the services they are allowed to delegate to.
+      tr: |
+        Yetki devri (delegation) hakkına sahip tüm hesaplar için hedef alanı kapsamlı tarar.
+        Sınırsız, Kısıtlı ve Kaynağa Dayalı Kısıtlı Yetki Devrini tespit eder.
+        Yatay hareket veya yetki yükseltme yollarını bulmada kritik keşif adımıdır.
     command: "impacket-findDelegation {{domain}}/{{username}}:{{password}}@{{dc_ip}}"
 
-  - title: impacket-findDelegation - enumeration with NTLM hashes
-    desc: |
-      Queries the domain for delegation relationships using NTLM hashes for authentication.
-      This is particularly useful in Pass-the-Hash (PtH) scenarios where the cleartext password is unknown.
-      The hash should be provided in the format LMHASH:NTHASH.
-      If you only have the NT hash, use the empty LM representation: aad3b435b51404eeaad3b435b51404ee:{{nt_hash}}.
+  - title:
+      en: impacket-findDelegation - enumeration with NTLM hashes
+      tr: impacket-findDelegation - NTLM hash ile numaralandırma
+    desc:
+      en: |
+        Queries the domain for delegation relationships using NTLM hashes for authentication.
+        This is particularly useful in Pass-the-Hash (PtH) scenarios where the cleartext password is unknown.
+        The hash should be provided in the format LMHASH:NTHASH.
+        If you only have the NT hash, use the empty LM representation: aad3b435b51404eeaad3b435b51404ee:{{nt_hash}}.
+      tr: |
+        Alan yetki devri ilişkilerini NTLM hash ile sorgular.
+        Açık parolanın bilinmediği Pass-the-Hash senaryolarında faydalıdır.
+        Format LMHASH:NTHASH'tir; yalnız NT varsa boş LM gösterimi kullanın.
     command: "impacket-findDelegation -hashes {{hash}} {{domain}}/{{username}}@{{dc_ip}}"
 
   # === ADVANCED FILTERING & SCOPING ===
-  - title: impacket-findDelegation - query specific user
-    desc: |
-      Targets a specific user or service account to check its delegation configuration.
-      Use this when you have identified a high-privilege account and want to verify if it can be exploited via delegation.
-      This narrows down the output, making it easier to parse in large environments with many delegated accounts.
-      It helps in verifying if manual changes to an account's delegation settings have been applied correctly.
+  - title:
+      en: impacket-findDelegation - query specific user
+      tr: impacket-findDelegation - belirli kullanıcıyı sorgulama
+    desc:
+      en: |
+        Targets a specific user or service account to check its delegation configuration.
+        Use this when you have identified a high-privilege account and want to verify if it can be exploited via delegation.
+        This narrows down the output, making it easier to parse in large environments with many delegated accounts.
+        It helps in verifying if manual changes to an account's delegation settings have been applied correctly.
+      tr: |
+        Yetki devri yapılandırmasını denetlemek için belirli kullanıcı/hizmet hesabını hedefler.
+        Yüksek yetkili hesabın devretme yoluyla sömürülebilirliğini doğrulamada kullanılır.
+        Geniş ortamlarda çıktıyı daraltarak ayrıştırmayı kolaylaştırır.
     command: "impacket-findDelegation -user {{target_user}} {{domain}}/{{username}}:{{password}}@{{dc_ip}}"
 
-  - title: impacket-findDelegation - include disabled accounts
-    desc: |
-      Forces the tool to include accounts that are marked as disabled in Active Directory.
-      By default, many tools skip disabled accounts, but these accounts might still have dangerous delegation rights.
-      An attacker who gains the ability to re-enable an account could leverage these pre-existing delegation settings.
-      This provides a more complete security audit of the domain's historical delegation configurations.
+  - title:
+      en: impacket-findDelegation - include disabled accounts
+      tr: impacket-findDelegation - devre dışı hesapları dahil et
+    desc:
+      en: |
+        Forces the tool to include accounts that are marked as disabled in Active Directory.
+        By default, many tools skip disabled accounts, but these accounts might still have dangerous delegation rights.
+        An attacker who gains the ability to re-enable an account could leverage these pre-existing delegation settings.
+        This provides a more complete security audit of the domain's historical delegation configurations.
+      tr: |
+        Active Directory'de devre dışı işaretli hesapları da sonuçlara dahil eder.
+        Devre dışı hesaplar yine de tehlikeli devretme hakkı taşıyabilir.
+        Hesabı yeniden etkinleştiren saldırgan bu ayarları sömürebilir; tam denetim sağlar.
     command: "impacket-findDelegation -disabled {{domain}}/{{username}}:{{password}}@{{dc_ip}}"
 
-  - title: impacket-findDelegation - cross-domain enumeration
-    desc: |
-      Queries a different domain than the one used for authentication by utilizing domain trusts.
-      The -target-domain parameter specifies which domain's delegation objects should be listed.
-      This is essential in multi-domain forest environments to identify cross-domain escalation paths.
-      Ensure the provided credentials have sufficient permissions to read LDAP objects in the target domain.
+  - title:
+      en: impacket-findDelegation - cross-domain enumeration
+      tr: impacket-findDelegation - alanlar arası numaralandırma
+    desc:
+      en: |
+        Queries a different domain than the one used for authentication by utilizing domain trusts.
+        The -target-domain parameter specifies which domain's delegation objects should be listed.
+        This is essential in multi-domain forest environments to identify cross-domain escalation paths.
+        Ensure the provided credentials have sufficient permissions to read LDAP objects in the target domain.
+      tr: |
+        Güven ilişkisiyle kimlik doğrulanan alandan farklı alanı sorgular.
+        -target-domain hangi alanın devretme nesnelerinin listeleneceğini belirtir.
+        Çok alanlı ormanlarda alanlar arası yükseltme yollarını bulmada gereklidir.
     command: "impacket-findDelegation -target-domain {{target_domain}} {{domain}}/{{username}}:{{password}}@{{dc_ip}}"
 
   # === AUTHENTICATION VARIANTS ===
-  - title: impacket-findDelegation - kerberos authentication
-    desc: |
-      Uses Kerberos tickets (CCACHE) for authentication instead of NTLM.
-      You must have a valid Kerberos ticket in your environment (defined by the KRB5CCNAME variable).
-      The -no-pass flag ensures the tool does not prompt for a password and relies solely on the ticket.
-      This method is stealthier and helps bypass environments where NTLM authentication is restricted or disabled.
+  - title:
+      en: impacket-findDelegation - kerberos authentication
+      tr: impacket-findDelegation - kerberos kimlik doğrulaması
+    desc:
+      en: |
+        Uses Kerberos tickets (CCACHE) for authentication instead of NTLM.
+        You must have a valid Kerberos ticket in your environment (defined by the KRB5CCNAME variable).
+        The -no-pass flag ensures the tool does not prompt for a password and relies solely on the ticket.
+        This method is stealthier and helps bypass environments where NTLM authentication is restricted or disabled.
+      tr: |
+        NTLM yerine Kerberos biletleriyle (CCACHE) kimlik doğrular.
+        Ortamda KRB5CCNAME ile geçerli bilet gerekir; -no-pass parola istemini kapatır.
+        NTLM'nin kısıtlı/izlenen ortamlarda daha gizli yöntemdir.
     command: "impacket-findDelegation -k -no-pass {{domain}}/{{username}}@{{dc_ip}}"
 
-  - title: impacket-findDelegation - authenticate with AES key
-    desc: |
-      Uses a specific AES hex key (128 or 256 bits) for Kerberos authentication.
-      This is an alternative to using passwords or NTLM hashes when performing Kerberos-based attacks.
-      It is often used when an AES key has been extracted from a domain controller or a compromised host.
-      This command bypasses the need for the original cleartext password while still utilizing modern encryption.
+  - title:
+      en: impacket-findDelegation - authenticate with AES key
+      tr: impacket-findDelegation - AES anahtarıyla kimlik doğrulama
+    desc:
+      en: |
+        Uses a specific AES hex key (128 or 256 bits) for Kerberos authentication.
+        This is an alternative to using passwords or NTLM hashes when performing Kerberos-based attacks.
+        It is often used when an AES key has been extracted from a domain controller or a compromised host.
+        This command bypasses the need for the original cleartext password while still utilizing modern encryption.
+      tr: |
+        Kerberos için belirli AES hex anahtarı (128/256 bit) kullanır.
+        Parola veya NTLM hash yerine Kerberos tabanlı saldırılarda alternatiftir.
+        Alan denetleyicisinden AES anahtarı çıkarıldığında modern şifrelemeyle çalışır.
     command: "impacket-findDelegation -aesKey {{hex_key}} {{domain}}/{{username}}@{{dc_ip}}"
 
   # === TROUBLESHOOTING ===
-  - title: impacket-findDelegation - debug mode with timestamps
-    desc: |
-      Executes the enumeration with verbose debug output and timestamps for every log entry.
-      This is helpful for troubleshooting connection issues, LDAP query failures, or authentication errors.
-      The timestamps help in correlating the tool's activity with domain controller logs or network captures.
-      Use this if the tool returns no results unexpectedly or if you encounter "Access Denied" errors.
+  - title:
+      en: impacket-findDelegation - debug mode with timestamps
+      tr: impacket-findDelegation - zaman damgalı hata ayıklama modu
+    desc:
+      en: |
+        Executes the enumeration with verbose debug output and timestamps for every log entry.
+        This is helpful for troubleshooting connection issues, LDAP query failures, or authentication errors.
+        The timestamps help in correlating the tool's activity with domain controller logs or network captures.
+        Use this if the tool returns no results unexpectedly or if you encounter "Access Denied" errors.
+      tr: |
+        Numaralandırmayı ayrıntılı hata ayıklama çıktısı ve zaman damgalarıyla çalıştırır.
+        Bağlantı, LDAP sorgu veya kimlik doğrulama hatalarında sorun gidermede faydalıdır.
+        Araç etkinliğini DC günlükleri veya ağ yakalamalarla ilişkilendirir.
     command: "impacket-findDelegation -debug -ts {{domain}}/{{username}}:{{password}}@{{dc_ip}}"

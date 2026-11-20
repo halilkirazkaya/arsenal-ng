@@ -5,6 +5,8 @@ package finder
 import (
 	"strings"
 	"testing"
+
+	"github.com/halilkirazkaya/arsenal-ng/internal/model"
 )
 
 // =============================================================================
@@ -62,10 +64,20 @@ func TestWidthClampsNarrowTerminal(t *testing.T) {
 // TestInfoBoxWrapsLongDesc verifies long descriptions wrap in InfoBox.
 func TestInfoBoxWrapsLongDesc(t *testing.T) {
 	c := testCheats()[0]
-	c.Desc = strings.Repeat("word ", 30)
-	box := InfoBox(c, 40)
+	c.Desc = model.NewText(strings.Repeat("word ", 30))
+	box := InfoBox(c, 40, "en")
 	// v2 styles always emit ANSI, splitting styled spans: assert parts.
 	if !strings.Contains(box, "word") || !strings.Contains(box, "nmap") {
 		t.Fatal("InfoBox must contain wrapped desc and command")
+	}
+}
+
+// TestHintsLanguageListsCodes verifies set language suggests each code.
+func TestHintsLanguageListsCodes(t *testing.T) {
+	got := Hints("set language", nil)
+	for _, code := range []string{"set language=en", "set language=tr"} {
+		if !strings.Contains(got, code) {
+			t.Errorf("language hints missing %q: %q", code, got)
+		}
 	}
 }
