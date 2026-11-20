@@ -3,140 +3,273 @@ tags: [containerization, devops, virtualization, infrastructure, security, orche
 
 actions:
 # === BASIC INFORMATION AND SETUP ===
- - title: docker - show version
-   desc: |
-     Display the version information for the Docker client and server. 
-     This is useful for verifying compatibility with specific features or APIs. 
-     It provides details about the Go version, Git commit, and OS/Arch.
+ - title:
+     en: docker - show version
+     tr: docker - sürüm bilgisini gösterme
+   desc:
+     en: |
+       Display the version information for the Docker client and server. 
+       This is useful for verifying compatibility with specific features or APIs. 
+       It provides details about the Go version, Git commit, and OS/Arch.
+     tr: |
+       Docker istemcisi ve sunucusu için sürüm bilgisini gösterir.
+       Belirli özellikler veya API'ler ile uyumluluğu doğrulamakta kullanışlıdır.
+       Go sürümü, Git commit ve işletim sistemi/mimari detaylarını sunar.
    command: "docker version"
 
- - title: docker - system information
-   desc: |
-     Display system-wide information regarding the Docker installation. 
-     This includes the number of containers (running, paused, stopped), images, and storage driver details. 
-     Use this command to troubleshoot daemon issues or check resource limits.
+ - title:
+     en: docker - system information
+     tr: docker - sistem bilgisi
+   desc:
+     en: |
+       Display system-wide information regarding the Docker installation. 
+       This includes the number of containers (running, paused, stopped), images, and storage driver details. 
+       Use this command to troubleshoot daemon issues or check resource limits.
+     tr: |
+       Docker kurulumuna ilişkin genel sistem bilgisini gösterir.
+       Konteyner sayılarını (çalışan, duraklatılmış, durdurulmuş), imajları ve depolama sürücüsü detaylarını içerir.
+       Daemon sorunlarını gidermek veya kaynak limitlerini kontrol etmek için bu komutu kullanın.
    command: "docker info"
 
- - title: docker - login to registry
-   desc: |
-     Authenticate the Docker client with a remote registry such as Docker Hub or a private repository. 
-     This allows you to push private images or pull images that require authorization. 
-     Be cautious as credentials may be stored in plain text in your home directory's config file.
+ - title:
+     en: docker - login to registry
+     tr: docker - kayıt defterine giriş
+   desc:
+     en: |
+       Authenticate the Docker client with a remote registry such as Docker Hub or a private repository. 
+       This allows you to push private images or pull images that require authorization. 
+       Be cautious as credentials may be stored in plain text in your home directory's config file.
+     tr: |
+       Docker istemcisini Docker Hub veya özel bir depo gibi uzak bir kayıt defteriyle kimlik doğrulayın.
+       Yetki gerektiren imajları çekmenize veya özel imajları göndermenize olanak tanır.
+       Kimlik bilgilerinin ev dizininizdeki yapılandırma dosyasında düz metin saklanabileceğini unutmayın.
    command: "docker login -u {{username}} -p {{password}} {{registry_url|index.docker.io/v1/}}"
 
 # === IMAGE MANAGEMENT ===
- - title: docker - pull image
-   desc: |
-     Download a specific image from a registry to your local machine. 
-     If no tag is specified, it defaults to downloading the 'latest' version. 
-     This is a prerequisite before you can run a container based on that image.
+ - title:
+     en: docker - pull image
+     tr: docker - imaj indirme
+   desc:
+     en: |
+       Download a specific image from a registry to your local machine. 
+       If no tag is specified, it defaults to downloading the 'latest' version. 
+       This is a prerequisite before you can run a container based on that image.
+     tr: |
+       Bir kayıt defterinden belirli bir imajı yerel makinenize indirin.
+       Etiket belirtilmezse varsayılan olarak 'latest' sürümü indirir.
+       Bu imajı temel alan bir konteyner çalıştırmadan önceki ön koşuldur.
    command: "docker pull {{image_name|ubuntu}}:{{tag|latest}}"
 
- - title: docker - build image
-   desc: |
-     Create a new container image from a Dockerfile located in the specified path. 
-     The tag option allows you to name the image for easier reference later. 
-     Ensure all necessary files are within the build context to avoid build failures.
+ - title:
+     en: docker - build image
+     tr: docker - imaj derleme
+   desc:
+     en: |
+       Create a new container image from a Dockerfile located in the specified path. 
+       The tag option allows you to name the image for easier reference later. 
+       Ensure all necessary files are within the build context to avoid build failures.
+     tr: |
+       Belirtilen yoldaki Dockerfile'dan yeni bir konteyner imajı oluşturun.
+       Tag seçeneği, imajı sonradan kolayca bulmak için isimlendirmenizi sağlar.
+       Derleme hatalarından kaçınmak için gerekli tüm dosyaların derleme bağlamında olduğundan emin olun.
    command: "docker build -t {{image_name}}:{{tag|latest}} {{path|.}}"
 
- - title: docker - list images
-   desc: |
-     List all top-level images available on your local system. 
-     The output includes the repository name, tag, image ID, and size. 
-     Use this frequently to manage local storage and identify unused images.
+ - title:
+     en: docker - list images
+     tr: docker - imajları listeleme
+   desc:
+     en: |
+       List all top-level images available on your local system. 
+       The output includes the repository name, tag, image ID, and size. 
+       Use this frequently to manage local storage and identify unused images.
+     tr: |
+       Yerel sisteminizdeki tüm üst düzey imajları listeleyin.
+       Çıktı; depo adı, etiket, imaj kimliği ve boyutu içerir.
+       Yerel depolamayı yönetmek ve kullanılmayan imajları tespit için sıkça kullanın.
    command: "docker images"
 
- - title: docker - remove image
-   desc: |
-     Remove one or more images from local storage. 
-     You cannot remove an image that is currently being used by a container (even a stopped one). 
-     Force removal with -f if necessary, but use it with caution to avoid losing data.
+ - title:
+     en: docker - remove image
+     tr: docker - imaj silme
+   desc:
+     en: |
+       Remove one or more images from local storage. 
+       You cannot remove an image that is currently being used by a container (even a stopped one). 
+       Force removal with -f if necessary, but use it with caution to avoid losing data.
+     tr: |
+       Yerel depolamadan bir veya daha fazla imajı silin.
+       Bir konteyner tarafından kullanılan (durdurulmuş olsa bile) bir imajı silemezsiniz.
+       Gerekirse -f ile zorla silin, ancak veri kaybını önlemek için dikkatli kullanın.
    command: "docker rmi {{image_id_or_name}}"
 
 # === CONTAINER LIFECYCLE ===
- - title: docker - run container in background
-   desc: |
-     Create and start a container in detached mode, meaning it runs in the background. 
-     This is the standard way to run services like web servers or databases. 
-     You can map host ports to container ports using the -p flag for external access.
+ - title:
+     en: docker - run container in background
+     tr: docker - konteyneri arka planda çalıştırma
+   desc:
+     en: |
+       Create and start a container in detached mode, meaning it runs in the background. 
+       This is the standard way to run services like web servers or databases. 
+       You can map host ports to container ports using the -p flag for external access.
+     tr: |
+       Ayrık (detached) modda, yani arka planda çalışan bir konteyner oluşturup başlatın.
+       Web sunucuları veya veritabanları gibi hizmetleri çalıştırmanın standart yoludur.
+       Dış erişim için -p bayrağıyla host portlarını konteyner portlarına eşleyebilirsiniz.
    command: "docker run -d --name {{container_name}} -p {{host_port|80}}:{{container_port|80}} {{image_name}}"
 
- - title: docker - run interactive container
-   desc: |
-     Launch a container and immediately attach an interactive terminal session to it. 
-     This is ideal for debugging, manual configuration, or exploring an image's filesystem. 
-     The --rm flag ensures the container is deleted automatically after you exit the shell.
+ - title:
+     en: docker - run interactive container
+     tr: docker - etkileşimli konteyner çalıştırma
+   desc:
+     en: |
+       Launch a container and immediately attach an interactive terminal session to it. 
+       This is ideal for debugging, manual configuration, or exploring an image's filesystem. 
+       The --rm flag ensures the container is deleted automatically after you exit the shell.
+     tr: |
+       Bir konteyner başlatıp hemen etkileşimli bir terminal oturumu bağlayın.
+       Hata ayıklama, elle yapılandırma veya bir imajın dosya sistemini keşfetmek için idealdir.
+       --rm bayrağı, kabuktan çıkınca konteynerin otomatik silinmesini sağlar.
    command: "docker run -it --rm {{image_name}} {{shell|/bin/bash}}"
 
- - title: docker - list containers
-   desc: |
-     Show a list of containers that are currently running on the system. 
-     Adding the -a flag will also show containers that have exited or stopped. 
-     It provides essential info like Container ID, Status, and Port mappings.
+ - title:
+     en: docker - list containers
+     tr: docker - konteynerleri listeleme
+   desc:
+     en: |
+       Show a list of containers that are currently running on the system. 
+       Adding the -a flag will also show containers that have exited or stopped. 
+       It provides essential info like Container ID, Status, and Port mappings.
+     tr: |
+       Sistemde o anda çalışan konteynerlerin listesini gösterir.
+       -a bayrağı eklenirse çıkmış veya durmuş konteynerler de gösterilir.
+       Konteyner kimliği, durum ve port eşlemeleri gibi temel bilgileri sunar.
    command: "docker ps {{flags|-a}}"
 
- - title: docker - stop container
-   desc: |
-     Gracefully stop a running container by sending a SIGTERM signal. 
-     If the container does not exit within a grace period, it will be forcefully killed. 
-     Stopped containers still reside on disk until they are explicitly removed.
+ - title:
+     en: docker - stop container
+     tr: docker - konteyneri durdurma
+   desc:
+     en: |
+       Gracefully stop a running container by sending a SIGTERM signal. 
+       If the container does not exit within a grace period, it will be forcefully killed. 
+       Stopped containers still reside on disk until they are explicitly removed.
+     tr: |
+       Çalışan bir konteynere SIGTERM sinyali göndererek düzgünce durdurun.
+       Konteyner bekleme süresi içinde çıkmazsa zorla sonlandırılır.
+       Durdurulan konteynerler açıkça silinene kadar diskte kalır.
    command: "docker stop {{container_id_or_name}}"
 
- - title: docker - remove container
-   desc: |
-     Permanently delete a stopped container from the local system. 
-     This frees up disk space and removes the container's metadata. 
-     To remove a running container, you must either stop it first or use the -f flag.
+ - title:
+     en: docker - remove container
+     tr: docker - konteyner silme
+   desc:
+     en: |
+       Permanently delete a stopped container from the local system. 
+       This frees up disk space and removes the container's metadata. 
+       To remove a running container, you must either stop it first or use the -f flag.
+     tr: |
+       Durmuş bir konteyneri yerel sistemden kalıcı olarak silin.
+       Bu, disk alanı açar ve konteynerin üst verisini kaldırır.
+       Çalışan bir konteyneri silmek için önce durdurmalı veya -f bayrağını kullanmalısınız.
    command: "docker rm {{container_id_or_name}}"
 
 # === INTERACTION AND INSPECTION ===
- - title: docker - execute command
-   desc: |
-     Run a new command inside an existing, running container. 
-     This is the most common way to get a shell into a live service without restarting it. 
-     Use the -it flags to maintain an interactive session for tools like bash.
+ - title:
+     en: docker - execute command
+     tr: docker - komut çalıştırma
+   desc:
+     en: |
+       Run a new command inside an existing, running container. 
+       This is the most common way to get a shell into a live service without restarting it. 
+       Use the -it flags to maintain an interactive session for tools like bash.
+     tr: |
+       Mevcut, çalışan bir konteynerin içinde yeni bir komut çalıştırın.
+       Canlı bir hizmete yeniden başlatmadan kabuk açmanın en yaygın yoludur.
+       bash gibi araçlar için etkileşimli oturumu sürdürmek üzere -it bayraklarını kullanın.
    command: "docker exec -it {{container_id_or_name}} {{command|sh}}"
 
- - title: docker - view logs
-   desc: |
-     Retrieve the logs produced by a container's main process (STDOUT and STDERR). 
-     The -f flag allows you to follow the log output in real-time as it is generated. 
-     This is a primary tool for troubleshooting application errors inside containers.
+ - title:
+     en: docker - view logs
+     tr: docker - kayıtları görüntüleme
+   desc:
+     en: |
+       Retrieve the logs produced by a container's main process (STDOUT and STDERR). 
+       The -f flag allows you to follow the log output in real-time as it is generated. 
+       This is a primary tool for troubleshooting application errors inside containers.
+     tr: |
+       Bir konteynerin ana işleminin ürettiği kayıtları (STDOUT ve STDERR) alın.
+       -f bayrağı, kayıt çıktısını üretildikçe gerçek zamanlı takip etmenizi sağlar.
+       Konteyner içindeki uygulama hatalarını gidermenin başlıca aracıdır.
    command: "docker logs -f {{container_id_or_name}}"
 
- - title: docker - inspect object
-   desc: |
-     Return low-level, JSON-formatted information on Docker objects like containers or images. 
-     It reveals detailed configuration such as IP addresses, volume mounts, and environment variables. 
-     Use the --format flag if you want to extract specific values from the JSON output.
+ - title:
+     en: docker - inspect object
+     tr: docker - nesneyi inceleme
+   desc:
+     en: |
+       Return low-level, JSON-formatted information on Docker objects like containers or images. 
+       It reveals detailed configuration such as IP addresses, volume mounts, and environment variables. 
+       Use the --format flag if you want to extract specific values from the JSON output.
+     tr: |
+       Konteyner veya imaj gibi Docker nesneleri hakkında düşük seviyeli, JSON biçimli bilgi döndürün.
+       IP adresleri, birim bağlamaları ve ortam değişkenleri gibi ayrıntılı yapılandırmayı ortaya çıkarır.
+       JSON çıktısından belirli değerleri çekmek için --format bayrağını kullanın.
    command: "docker inspect {{object_id_or_name}}"
 
- - title: docker - copy files
-   desc: |
-     Copy files or folders between a container and the local host filesystem. 
-     This works whether the container is running or stopped. 
-     It is extremely useful for extracting logs or injecting configuration files manually.
+ - title:
+     en: docker - copy files
+     tr: docker - dosya kopyalama
+   desc:
+     en: |
+       Copy files or folders between a container and the local host filesystem. 
+       This works whether the container is running or stopped. 
+       It is extremely useful for extracting logs or injecting configuration files manually.
+     tr: |
+       Bir konteyner ile yerel host dosya sistemi arasında dosya veya klasör kopyalayın.
+       Konteyner çalışıyor veya durmuş olsun fark etmez.
+       Kayıtları çıkarmak veya yapılandırma dosyalarını elle eklemek için son derece kullanışlıdır.
    command: "docker cp {{source_path}} {{target_path}}"
 
 # === RESOURCE MONITORING ===
- - title: docker - container stats
-   desc: |
-     Display a live streaming update of container resource usage statistics. 
-     This includes CPU percentage, memory usage, network I/O, and block I/O. 
-     Use this to identify containers that are consuming excessive resources on the host.
+ - title:
+     en: docker - container stats
+     tr: docker - konteyner istatistikleri
+   desc:
+     en: |
+       Display a live streaming update of container resource usage statistics. 
+       This includes CPU percentage, memory usage, network I/O, and block I/O. 
+       Use this to identify containers that are consuming excessive resources on the host.
+     tr: |
+       Konteyner kaynak kullanım istatistiklerinin canlı akan güncellemesini gösterir.
+       CPU yüzdesi, bellek kullanımı, ağ G/Ç ve blok G/Ç bilgilerini içerir.
+       Host üzerinde aşırı kaynak tüketen konteynerleri tespit etmek için kullanın.
    command: "docker stats"
 
- - title: docker - running processes
-   desc: |
-     List the processes currently running inside a specific container. 
-     It functions similarly to the 'top' command in Linux but scoped to the container's PID namespace. 
-     This helps in identifying runaway processes or checking if services started correctly.
+ - title:
+     en: docker - running processes
+     tr: docker - çalışan işlemler
+   desc:
+     en: |
+       List the processes currently running inside a specific container. 
+       It functions similarly to the 'top' command in Linux but scoped to the container's PID namespace. 
+       This helps in identifying runaway processes or checking if services started correctly.
+     tr: |
+       Belirli bir konteynerin içinde o anda çalışan işlemleri listeleyin.
+       Linux'taki 'top' komutuna benzer çalışır ancak konteynerin PID alanıyla sınırlıdır.
+       Kaçak işlemleri tespit etmeye veya hizmetlerin doğru başlayıp başlamadığını kontrol etmeye yardımcı olur.
    command: "docker top {{container_id_or_name}}"
 
 # === SYSTEM CLEANUP ===
- - title: docker - prune system
-   desc: |
-     Remove all unused containers, networks, images (dangling), and optionally volumes. 
-     This is a powerful cleanup command used to reclaim significant disk space. 
-     Be very careful as it will delete all data associated with stopped containers and unused networks.
+ - title:
+     en: docker - prune system
+     tr: docker - sistem temizliği
+   desc:
+     en: |
+       Remove all unused containers, networks, images (dangling), and optionally volumes. 
+       This is a powerful cleanup command used to reclaim significant disk space. 
+       Be very careful as it will delete all data associated with stopped containers and unused networks.
+     tr: |
+       Kullanılmayan tüm konteynerleri, ağları, imajları (sahipsiz) ve isteğe bağlı olarak birimleri kaldırın.
+       Önemli miktarda disk alanı kazanmak için kullanılan güçlü bir temizlik komutudur.
+       Durmuş konteynerler ve kullanılmayan ağlarla ilişkili tüm verileri sileceği için çok dikkatli olun.
    command: "docker system prune {{flags|-a}}"

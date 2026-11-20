@@ -3,96 +3,187 @@ tags: [recon, web-security, enumeration, urls, pentest, osint, scanning]
 
 actions:
   # === BASIC RECONNAISSANCE ===
-  - title: gau - basic url fetching
-    desc: |
-      Retrieve all known URLs for a single target domain from default providers.
-      This is the primary way to use gau for initial reconnaissance of a web application.
-      It queries providers like Wayback Machine, OTX, and Common Crawl to find historical endpoints.
+  - title:
+      en: gau - basic url fetching
+      tr: gau - temel URL toplama
+    desc:
+      en: |
+        Retrieve all known URLs for a single target domain from default providers.
+        This is the primary way to use gau for initial reconnaissance of a web application.
+        It queries providers like Wayback Machine, OTX, and Common Crawl to find historical endpoints.
+      tr: |
+        Tek bir hedef alan adı için bilinen tüm URL'leri varsayılan sağlayıcılardan alın.
+        Bir web uygulamasının ilk keşfi için gau kullanmanın birincil yoludur.
+        Geçmiş uç noktaları bulmak için Wayback Machine, OTX ve Common Crawl gibi sağlayıcıları sorgular.
     command: "gau {{domain}}"
 
-  - title: gau - fetch urls with subdomains
-    desc: |
-      Include subdomains of the target domain in the URL discovery process.
-      This expands the attack surface significantly by finding endpoints across all known sub-assets.
-      It is highly recommended for bug bounty hunting or large-scale organizational assessments.
+  - title:
+      en: gau - fetch urls with subdomains
+      tr: gau - subdomain'lerle URL toplama
+    desc:
+      en: |
+        Include subdomains of the target domain in the URL discovery process.
+        This expands the attack surface significantly by finding endpoints across all known sub-assets.
+        It is highly recommended for bug bounty hunting or large-scale organizational assessments.
+      tr: |
+        URL keşif işlemine hedef alan adının subdomain'lerini dahil edin.
+        Bilinen tüm alt varlıklardaki uç noktaları bularak saldırı yüzeyini ciddi ölçüde genişletir.
+        Hata ödülü avcılığı veya geniş ölçekli kurumsal değerlendirmeler için şiddetle önerilir.
     command: "gau --subs {{domain}}"
 
-  - title: gau - save results to file
-    desc: |
-      Write all discovered URLs to a specific text file for further processing.
-      Saving to a file is essential when dealing with thousands of results that need to be piped into other tools.
-      Ensure you have write permissions in the directory where you want to save the output.
+  - title:
+      en: gau - save results to file
+      tr: gau - sonuçları dosyaya kaydetme
+    desc:
+      en: |
+        Write all discovered URLs to a specific text file for further processing.
+        Saving to a file is essential when dealing with thousands of results that need to be piped into other tools.
+        Ensure you have write permissions in the directory where you want to save the output.
+      tr: |
+        Keşfedilen tüm URL'leri ileri işlem için belirli bir metin dosyasına yazın.
+        Başka araçlara aktarılması gereken binlerce sonuçla uğraşırken dosyaya kaydetmek gereklidir.
+        Çıktıyı kaydetmek istediğiniz dizinde yazma izniniz olduğundan emin olun.
     command: "gau --o {{output_file|urls.txt}} {{domain}}"
 
   # === FILTERING AND REFINEMENT ===
-  - title: gau - filter by status codes (match)
-    desc: |
-      Only display URLs that matched specific HTTP status codes during indexing.
-      This is useful for focusing on successful requests (200) or potential server-side errors (500).
-      Provide multiple status codes as a comma-separated list without spaces.
+  - title:
+      en: gau - filter by status codes (match)
+      tr: gau - durum kodlarına göre filtreleme (eşleşen)
+    desc:
+      en: |
+        Only display URLs that matched specific HTTP status codes during indexing.
+        This is useful for focusing on successful requests (200) or potential server-side errors (500).
+        Provide multiple status codes as a comma-separated list without spaces.
+      tr: |
+        Yalnızca dizine ekleme sırasında belirli HTTP durum kodlarıyla eşleşen URL'leri gösterin.
+        Başarılı isteklere (200) veya olası sunucu taraflı hatalara (500) odaklanmak için kullanışlıdır.
+        Birden çok durum kodunu boşluksuz virgülle ayrılmış liste olarak verin.
     command: "gau --mc {{status_codes|200,500}} {{domain}}"
 
-  - title: gau - filter by status codes (exclude)
-    desc: |
-      Exclude specific HTTP status codes from the results to reduce noise.
-      Commonly used to filter out 404 (Not Found) or 302 (Redirects) to focus on relevant content.
-      This helps in cleaning the data before passing it to vulnerability scanners.
+  - title:
+      en: gau - filter by status codes (exclude)
+      tr: gau - durum kodlarına göre filtreleme (hariç tutan)
+    desc:
+      en: |
+        Exclude specific HTTP status codes from the results to reduce noise.
+        Commonly used to filter out 404 (Not Found) or 302 (Redirects) to focus on relevant content.
+        This helps in cleaning the data before passing it to vulnerability scanners.
+      tr: |
+        Gürültüyü azaltmak için belirli HTTP durum kodlarını sonuçlardan hariç tutun.
+        İlgili içeriğe odaklanmak için 404 (Bulunamadı) veya 302 (Yönlendirme) elemede yaygın kullanılır.
+        Veriyi zafiyet tarayıcılarına aktarmadan önce temizlemeye yardımcı olur.
     command: "gau --fc {{status_codes|404,302}} {{domain}}"
 
-  - title: gau - blacklist file extensions
-    desc: |
-      Skip URLs that end with specific file extensions like images, fonts, or CSS.
-      This helps focus on functional web pages, scripts, and API endpoints rather than static assets.
-      Provide the extensions as a comma-separated list for the filter to work correctly.
+  - title:
+      en: gau - blacklist file extensions
+      tr: gau - dosya uzantılarını kara listeye alma
+    desc:
+      en: |
+        Skip URLs that end with specific file extensions like images, fonts, or CSS.
+        This helps focus on functional web pages, scripts, and API endpoints rather than static assets.
+        Provide the extensions as a comma-separated list for the filter to work correctly.
+      tr: |
+        Görsel, yazı tipi veya CSS gibi belirli dosya uzantılarıyla biten URL'leri atlayın.
+        Statik varlıklar yerine işlevsel web sayfalarına, betiklere ve API uç noktalarına odaklanmaya yardımcı olur.
+        Filtrenin doğru çalışması için uzantıları virgülle ayrılmış liste olarak verin.
     command: "gau --blacklist {{extensions|png,jpg,gif,svg,woff,css}} {{domain}}"
 
-  - title: gau - match specific mime-types
-    desc: |
-      Filter results to only include specific mime-types such as JSON or plain text.
-      This is particularly effective when hunting for API endpoints or sensitive configuration files.
-      Common mime-types to look for include 'application/json' and 'text/plain'.
+  - title:
+      en: gau - match specific mime-types
+      tr: gau - belirli MIME türlerini eşleştirme
+    desc:
+      en: |
+        Filter results to only include specific mime-types such as JSON or plain text.
+        This is particularly effective when hunting for API endpoints or sensitive configuration files.
+        Common mime-types to look for include 'application/json' and 'text/plain'.
+      tr: |
+        Sonuçları yalnızca JSON veya düz metin gibi belirli MIME türlerini içerecek şekilde filtreleyin.
+        API uç noktaları veya hassas yapılandırma dosyaları ararken özellikle etkilidir.
+        Aranacak yaygın MIME türleri arasında 'application/json' ve 'text/plain' bulunur.
     command: "gau --mt {{mime_types|application/json,text/plain}} {{domain}}"
 
-  - title: gau - remove duplicate parameters (fingerprint)
-    desc: |
-      Clean the output by removing different parameters belonging to the same endpoint.
-      This provides a unique list of endpoints, making it easier to understand the application structure.
-      Use this flag when you want to avoid redundancy in your URL list for manual analysis.
+  - title:
+      en: gau - remove duplicate parameters (fingerprint)
+      tr: gau - yinelenen parametreleri temizleme (parmak izi)
+    desc:
+      en: |
+        Clean the output by removing different parameters belonging to the same endpoint.
+        This provides a unique list of endpoints, making it easier to understand the application structure.
+        Use this flag when you want to avoid redundancy in your URL list for manual analysis.
+      tr: |
+        Aynı uç noktaya ait farklı parametreleri kaldırarak çıktıyı temizleyin.
+        Uygulama yapısını anlamayı kolaylaştıran benzersiz bir uç nokta listesi sunar.
+        Elle analiz için URL listenizde yinelemeden kaçınmak istediğinizde bu bayrağı kullanın.
     command: "gau --fp {{domain}}"
 
   # === ADVANCED CONFIGURATION ===
-  - title: gau - fetch urls within date range
-    desc: |
-      Retrieve URLs that were indexed between a specific start and end date.
-      The date format must be YYYYMM (e.g., 202101 for January 2021).
-      This is useful for time-based analysis or finding endpoints that were active during a specific period.
+  - title:
+      en: gau - fetch urls within date range
+      tr: gau - tarih aralığında URL toplama
+    desc:
+      en: |
+        Retrieve URLs that were indexed between a specific start and end date.
+        The date format must be YYYYMM (e.g., 202101 for January 2021).
+        This is useful for time-based analysis or finding endpoints that were active during a specific period.
+      tr: |
+        Belirli bir başlangıç ve bitiş tarihi arasında dizine eklenmiş URL'leri alın.
+        Tarih biçimi YYYYAA olmalıdır (örn. Ocak 2021 için 202101).
+        Zamana dayalı analiz veya belirli bir dönemde aktif olan uç noktaları bulmak için kullanışlıdır.
     command: "gau --from {{from_date|202101}} --to {{to_date|202201}} {{domain}}"
 
-  - title: gau - use specific providers
-    desc: |
-      Limit the URL search to specific data providers like wayback, otx, commoncrawl, or urlscan.
-      This can significantly speed up the discovery process if certain providers are slow or unreachable.
-      By default, gau uses all available providers to ensure maximum coverage.
+  - title:
+      en: gau - use specific providers
+      tr: gau - belirli sağlayıcıları kullanma
+    desc:
+      en: |
+        Limit the URL search to specific data providers like wayback, otx, commoncrawl, or urlscan.
+        This can significantly speed up the discovery process if certain providers are slow or unreachable.
+        By default, gau uses all available providers to ensure maximum coverage.
+      tr: |
+        URL aramasını wayback, otx, commoncrawl veya urlscan gibi belirli veri sağlayıcılarla sınırlayın.
+        Belirli sağlayıcılar yavaş veya erişilemezse keşif işlemini ciddi ölçüde hızlandırabilir.
+        Varsayılan olarak gau, en fazla kapsam için tüm mevcut sağlayıcıları kullanır.
     command: "gau --providers {{providers|wayback,otx}} {{domain}}"
 
-  - title: gau - use http proxy
-    desc: |
-      Route all gau requests through a specified HTTP or SOCKS5 proxy.
-      This is necessary for bypassing network restrictions or masking the source of your reconnaissance traffic.
-      Ensure the proxy URL is correctly formatted, including the protocol and port.
+  - title:
+      en: gau - use http proxy
+      tr: gau - HTTP vekili kullanma
+    desc:
+      en: |
+        Route all gau requests through a specified HTTP or SOCKS5 proxy.
+        This is necessary for bypassing network restrictions or masking the source of your reconnaissance traffic.
+        Ensure the proxy URL is correctly formatted, including the protocol and port.
+      tr: |
+        Tüm gau isteklerini belirtilen bir HTTP veya SOCKS5 vekilden geçirin.
+        Ağ kısıtlamalarını aşmak veya keşif trafiğinizin kaynağını gizlemek için gereklidir.
+        Vekil URL'sinin protokol ve port dahil doğru biçimlendirildiğinden emin olun.
     command: "gau --proxy {{proxy_url|http://127.0.0.1:8080}} {{domain}}"
 
   # === BULK PROCESSING ===
-  - title: gau - bulk processing with threads
-    desc: |
-      Read multiple domains from a file and process them using a specified number of worker threads.
-      Using multiple threads drastically reduces the time required to scan hundreds of domains.
-      Be careful not to set the thread count too high to avoid being rate-limited by the providers.
+  - title:
+      en: gau - bulk processing with threads
+      tr: gau - iş parçacıklarıyla toplu işleme
+    desc:
+      en: |
+        Read multiple domains from a file and process them using a specified number of worker threads.
+        Using multiple threads drastically reduces the time required to scan hundreds of domains.
+        Be careful not to set the thread count too high to avoid being rate-limited by the providers.
+      tr: |
+        Birden çok alan adını dosyadan okuyup belirtilen sayıda çalışan iş parçacığıyla işleyin.
+        Birden çok iş parçacığı kullanmak yüzlerce alan adını tarama süresini büyük ölçüde kısaltır.
+        Sağlayıcılarca hız sınırlamasına yakalanmamak için iş parçacığı sayısını çok yüksek ayarlamamaya dikkat edin.
     command: "cat {{domains_file}} | gau --threads {{threads|10}}"
 
-  - title: gau - output as json
-    desc: |
-      Format the output as JSON for easier integration with automated pipelines and custom scripts.
-      JSON output provides structured data that includes the URL and potentially other metadata.
-      Use this when building automated toolchains where the next tool expects JSON input.
+  - title:
+      en: gau - output as json
+      tr: gau - JSON olarak çıktı
+    desc:
+      en: |
+        Format the output as JSON for easier integration with automated pipelines and custom scripts.
+        JSON output provides structured data that includes the URL and potentially other metadata.
+        Use this when building automated toolchains where the next tool expects JSON input.
+      tr: |
+        Otomatik hatlar ve özel betiklerle kolay bütünleşme için çıktıyı JSON olarak biçimlendirin.
+        JSON çıktısı, URL'yi ve muhtemelen başka üst verileri içeren yapısal veri sunar.
+        Sonraki aracın JSON girdisi beklediği otomatik araç zincirleri kurarken bunu kullanın.
     command: "gau --json {{domain}}"

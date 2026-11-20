@@ -3,107 +3,209 @@ tags: [active-directory, pentest, kerberos, relay, delegation, impacket]
 
 actions:
 # === BASIC RELAY ===
- - title: krbrelayx - store tickets only
-   desc: |
-     Listens for Kerberos authentication without a target, storing captured tickets for later use.
-     Safe starting point to collect tickets before deciding on an attack path.
+ - title:
+     en: krbrelayx - store tickets only
+     tr: krbrelayx - yalnızca bilet saklama
+   desc:
+     en: |
+       Listens for Kerberos authentication without a target, storing captured tickets for later use.
+       Safe starting point to collect tickets before deciding on an attack path.
+     tr: |
+       Hedef olmadan Kerberos kimlik doğrulamasını dinler, yakalanan biletleri daha sonra kullanmak üzere saklar.
+       Saldırı yoluna karar vermeden önce bilet toplamak için güvenli başlangıç noktası.
    command: "krbrelayx.py"
 
- - title: krbrelayx - relay to smb target
-   desc: |
-     Relays captured Kerberos AP-REQ to an SMB target for command execution or hash dumping.
-     Target must be a hostname since Kerberos relies on SPNs, not raw IPs.
+ - title:
+     en: krbrelayx - relay to smb target
+     tr: krbrelayx - smb hedefine aktarma
+   desc:
+     en: |
+       Relays captured Kerberos AP-REQ to an SMB target for command execution or hash dumping.
+       Target must be a hostname since Kerberos relies on SPNs, not raw IPs.
+     tr: |
+       Yakalanan Kerberos AP-REQ'i komut çalıştırma veya karma dökümü için bir SMB hedefine aktarır.
+       Kerberos SPN'lere dayandığından hedef ham IP değil bir ana bilgisayar adı olmalıdır.
    command: "krbrelayx.py -t smb://{{target_host}}"
 
- - title: krbrelayx - relay to target list file
-   desc: |
-     Relays to multiple targets listed one per line in a file.
-     Use to spray relayed sessions across a subnet for lateral movement.
+ - title:
+     en: krbrelayx - relay to target list file
+     tr: krbrelayx - hedef liste dosyasına aktarma
+   desc:
+     en: |
+       Relays to multiple targets listed one per line in a file.
+       Use to spray relayed sessions across a subnet for lateral movement.
+     tr: |
+       Bir dosyada satır başına bir tane listelenen birden fazla hedefe aktarma yapar.
+       Yatay hareket için aktarılan oturumları bir alt ağa yaymakta kullanın.
    command: "krbrelayx.py -tf {{targets_file}}"
 
- - title: krbrelayx - smb exec command
-   desc: |
-     Executes a command on the relayed SMB target instead of dumping hashes.
-     Use for direct code execution once a privileged session is relayed.
+ - title:
+     en: krbrelayx - smb exec command
+     tr: krbrelayx - smb komut çalıştırma
+   desc:
+     en: |
+       Executes a command on the relayed SMB target instead of dumping hashes.
+       Use for direct code execution once a privileged session is relayed.
+     tr: |
+       Karma dökmek yerine aktarılan SMB hedefinde bir komut çalıştırır.
+       Ayrıcalıklı bir oturum aktarıldıktan sonra doğrudan kod çalıştırma için kullanın.
    command: "krbrelayx.py -t smb://{{target_host}} -c {{command|whoami}}"
 
- - title: krbrelayx - smb exec file
-   desc: |
-     Executes a script file on the relayed target via SMB.
-     Handy when the payload is too long for a single -c command string.
+ - title:
+     en: krbrelayx - smb exec file
+     tr: krbrelayx - smb dosya çalıştırma
+   desc:
+     en: |
+       Executes a script file on the relayed target via SMB.
+       Handy when the payload is too long for a single -c command string.
+     tr: |
+       SMB üzerinden aktarılan hedefte bir betik dosyası çalıştırır.
+       Yük tek bir -c komut dizesi için çok uzun olduğunda kullanışlıdır.
    command: "krbrelayx.py -t smb://{{target_host}} -e {{script_file}}"
 
- - title: krbrelayx - enum local admins
-   desc: |
-     Attempts SAMR lookup to enumerate local admins when the relayed user is not admin.
-     Only works against pre-Win10 Anniversary targets.
+ - title:
+     en: krbrelayx - enum local admins
+     tr: krbrelayx - yerel yöneticileri numaralandırma
+   desc:
+     en: |
+       Attempts SAMR lookup to enumerate local admins when the relayed user is not admin.
+       Only works against pre-Win10 Anniversary targets.
+     tr: |
+       Aktarılan kullanıcı yönetici değilken yerel yöneticileri numaralandırmak için SAMR sorgusu dener.
+       Yalnızca Win10 Anniversary öncesi hedeflere karşı çalışır.
    command: "krbrelayx.py -t smb://{{target_host}} --enum-local-admins"
 
 # === LDAP / PRIVESC ===
- - title: krbrelayx - ldap no dump
-   desc: |
-     Relays to LDAP while skipping the information dump phase.
-     Speeds up the attack when only privesc actions are needed.
+ - title:
+     en: krbrelayx - ldap no dump
+     tr: krbrelayx - dökümsüz ldap
+   desc:
+     en: |
+       Relays to LDAP while skipping the information dump phase.
+       Speeds up the attack when only privesc actions are needed.
+     tr: |
+       Bilgi dökümü aşamasını atlayarak LDAP'e aktarma yapar.
+       Yalnızca yetki yükseltme eylemleri gerektiğinde saldırıyı hızlandırır.
    command: "krbrelayx.py -t ldap://{{dc_host}} --no-dump"
 
- - title: krbrelayx - escalate user
-   desc: |
-     Escalates privileges of an existing user via ACL attack on relay.
-     Use when creating new users would trigger alerts.
+ - title:
+     en: krbrelayx - escalate user
+     tr: krbrelayx - kullanıcı yetkisi yükseltme
+   desc:
+     en: |
+       Escalates privileges of an existing user via ACL attack on relay.
+       Use when creating new users would trigger alerts.
+     tr: |
+       Aktarma üzerindeki ACL saldırısıyla mevcut bir kullanıcının yetkilerini yükseltir.
+       Yeni kullanıcı oluşturmak uyarıları tetikleyecekse kullanın.
    command: "krbrelayx.py -t ldap://{{dc_host}} --escalate-user {{target_user}}"
 
- - title: krbrelayx - add computer account
-   desc: |
-     Adds a new computer account through the relayed LDAP session.
-     Foundation step for Resource-Based Constrained Delegation attacks.
+ - title:
+     en: krbrelayx - add computer account
+     tr: krbrelayx - bilgisayar hesabı ekleme
+   desc:
+     en: |
+       Adds a new computer account through the relayed LDAP session.
+       Foundation step for Resource-Based Constrained Delegation attacks.
+     tr: |
+       Aktarılan LDAP oturumu üzerinden yeni bir bilgisayar hesabı ekler.
+       Kaynak Tabanlı Kısıtlı Temsil saldırılarının temel adımı.
    command: "krbrelayx.py -t ldap://{{dc_host}} --add-computer {{computer_name|NEWCOMP$}}"
 
- - title: krbrelayx - delegate access
-   desc: |
-     Grants the attacker's account delegation rights on the relayed computer object.
-     Enables impersonation of any user to that target afterwards.
+ - title:
+     en: krbrelayx - delegate access
+     tr: krbrelayx - temsil yetkisi verme
+   desc:
+     en: |
+       Grants the attacker's account delegation rights on the relayed computer object.
+       Enables impersonation of any user to that target afterwards.
+     tr: |
+       Saldırganın hesabına aktarılan bilgisayar nesnesi üzerinde temsil hakları verir.
+       Sonrasında o hedefe karşı herhangi bir kullanıcının taklit edilmesini sağlar.
    command: "krbrelayx.py -t ldap://{{dc_host}} --delegate-access --escalate-user {{attacker_user}}"
 
- - title: krbrelayx - dump laps and gmsa
-   desc: |
-     Dumps readable LAPS and gMSA passwords via the relayed LDAP session.
-     High-value loot often yielding local admin or service credentials.
+ - title:
+     en: krbrelayx - dump laps and gmsa
+     tr: krbrelayx - laps ve gmsa dökümü
+   desc:
+     en: |
+       Dumps readable LAPS and gMSA passwords via the relayed LDAP session.
+       High-value loot often yielding local admin or service credentials.
+     tr: |
+       Aktarılan LDAP oturumu üzerinden okunabilir LAPS ve gMSA parolalarını döker.
+       Genellikle yerel yönetici veya hizmet kimlik bilgileri veren yüksek değerli ganimet.
    command: "krbrelayx.py -t ldap://{{dc_host}} --dump-laps --dump-gmsa"
 
- - title: krbrelayx - dump adcs info
-   desc: |
-     Dumps AD CS enrollment services and certificate template info.
-     Recon step before launching ESC-based certificate attacks.
+ - title:
+     en: krbrelayx - dump adcs info
+     tr: krbrelayx - adcs bilgisi dökümü
+   desc:
+     en: |
+       Dumps AD CS enrollment services and certificate template info.
+       Recon step before launching ESC-based certificate attacks.
+     tr: |
+       AD CS kayıt hizmetleri ve sertifika şablonu bilgilerini döker.
+       ESC tabanlı sertifika saldırıları öncesi keşif adımı.
    command: "krbrelayx.py -t ldap://{{dc_host}} --dump-adcs"
 
 # === AD CS RELAY ===
- - title: krbrelayx - adcs relay with template
-   desc: |
-     Relays to an AD CS endpoint to request a certificate with the given template.
-     Use Machine/User templates matching the relayed account type, DomainController for DCs.
+ - title:
+     en: krbrelayx - adcs relay with template
+     tr: krbrelayx - şablonlu adcs aktarma
+   desc:
+     en: |
+       Relays to an AD CS endpoint to request a certificate with the given template.
+       Use Machine/User templates matching the relayed account type, DomainController for DCs.
+     tr: |
+       Verilen şablonla sertifika istemek için bir AD CS uç noktasına aktarma yapar.
+       Aktarılan hesap türüne uygun Machine/User şablonlarını, DC'ler için DomainController şablonunu kullanın.
    command: "krbrelayx.py -t https://{{ca_host}}/certsrv/certfnsh.asp --adcs --template {{template|Machine}}"
 
- - title: krbrelayx - adcs relay esc1 altname
-   desc: |
-     Performs ESC1/ESC6 by embedding a Subject Alternative Name in the request.
-     The UPN altname lets you impersonate a domain admin from a low-priv relay.
+ - title:
+     en: krbrelayx - adcs relay esc1 altname
+     tr: krbrelayx - altname ile adcs esc1 aktarma
+   desc:
+     en: |
+       Performs ESC1/ESC6 by embedding a Subject Alternative Name in the request.
+       The UPN altname lets you impersonate a domain admin from a low-priv relay.
+     tr: |
+       İsteğe Konu Alternatif Adı gömerek ESC1/ESC6 gerçekleştirir.
+       UPN altname, düşük yetkili bir aktarmadan etki alanı yöneticisini taklit etmenize olanak tanır.
    command: "krbrelayx.py -t https://{{ca_host}}/certsrv/certfnsh.asp --adcs --template {{template|User}} --altname {{alt_upn|administrator@domain.local}} -v {{victim|targetuser}}"
 
 # === AUTH / NETWORK ===
- - title: krbrelayx - unconstrained delegation keys
-   desc: |
-     Supplies your unconstrained-delegation account password for ticket decryption.
-     Required when relaying sessions that need your account's Kerberos keys.
+ - title:
+     en: krbrelayx - unconstrained delegation keys
+     tr: krbrelayx - kısıtsız temsil anahtarları
+   desc:
+     en: |
+       Supplies your unconstrained-delegation account password for ticket decryption.
+       Required when relaying sessions that need your account's Kerberos keys.
+     tr: |
+       Bilet şifre çözme için kısıtsız temsil hesabınızın parolasını sağlar.
+       Hesabınızın Kerberos anahtarlarını gerektiren oturumları aktarırken zorunludur.
    command: "krbrelayx.py -t smb://{{target_host}} -s {{username}} -p {{password}} -dc-ip {{dc_ip}}"
 
- - title: krbrelayx - pass the hash with aes key
-   desc: |
-     Authenticates with NTLM hashes or AES key instead of a password.
-     Use when only hashes were recovered from a prior compromise.
+ - title:
+     en: krbrelayx - pass the hash with aes key
+     tr: krbrelayx - aes anahtarıyla hash iletme
+   desc:
+     en: |
+       Authenticates with NTLM hashes or AES key instead of a password.
+       Use when only hashes were recovered from a prior compromise.
+     tr: |
+       Parola yerine NTLM karmaları veya AES anahtarıyla kimlik doğrular.
+       Önceki bir sızmadan yalnızca karmalar elde edildiğinde kullanın.
    command: "krbrelayx.py -t smb://{{target_host}} --hashes {{lm_hash|aad3b435b51404eeaad3b435b51404ee}}:{{nt_hash}} -aesKey {{aes_key}} -dc-ip {{dc_ip}}"
 
- - title: krbrelayx - wpad proxy attack
-   desc: |
-     Serves a WPAD file to coerce proxy authentication from victims.
-     Pair with interface IP so victims route traffic through your relay.
+ - title:
+     en: krbrelayx - wpad proxy attack
+     tr: krbrelayx - wpad proxy saldırısı
+   desc:
+     en: |
+       Serves a WPAD file to coerce proxy authentication from victims.
+       Pair with interface IP so victims route traffic through your relay.
+     tr: |
+       Kurbanlardan proxy kimlik doğrulaması koparmak için bir WPAD dosyası sunar.
+       Kurbanların trafiği aktarmanız üzerinden yönlendirmesi için arayüz IP'siyle eşleştirin.
    command: "krbrelayx.py -t smb://{{target_host}} -wh {{proxy_host|attacker-ip}} -ip {{interface_ip}}"

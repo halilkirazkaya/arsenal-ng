@@ -4,83 +4,160 @@ tags: [security, secrets-scanning, pentest, reconnaissance, credentials, git, de
 actions:
 # === REPOSITORY SCANNING ===
 
-  - title: trufflehog - basic git scan
-    desc: |
-      Scan a local or remote Git repository for secrets within the commit history. 
-      This is the most common use case for identifying accidentally committed credentials like API keys or passwords. 
-      The tool analyzes every commit to ensure no sensitive data is left in the version control system.
+  - title:
+      en: trufflehog - basic git scan
+      tr: trufflehog - temel git taraması
+    desc:
+      en: |
+        Scan a local or remote Git repository for secrets within the commit history. 
+        This is the most common use case for identifying accidentally committed credentials like API keys or passwords. 
+        The tool analyzes every commit to ensure no sensitive data is left in the version control system.
+      tr: |
+        İşleme geçmişindeki sırlar için yerel veya uzak bir Git deposunu tarar.
+        Bu, yanlışlıkla işlenmiş API anahtarları veya parolalar gibi kimlik bilgilerini tespit etmenin en yaygın kullanım şeklidir.
+        Araç, sürüm kontrol sisteminde hassas veri kalmadığından emin olmak için her işlemi inceler.
     command: "trufflehog git {{repo_url}}"
 
-  - title: trufflehog - github organization scan
-    desc: |
-      Scan all repositories belonging to a specific GitHub organization. 
-      This command requires a valid GitHub Personal Access Token to authenticate and list the repositories. 
-      It is an essential command for security teams to perform bulk audits across an entire company's codebase.
+  - title:
+      en: trufflehog - github organization scan
+      tr: trufflehog - github organizasyon taraması
+    desc:
+      en: |
+        Scan all repositories belonging to a specific GitHub organization. 
+        This command requires a valid GitHub Personal Access Token to authenticate and list the repositories. 
+        It is an essential command for security teams to perform bulk audits across an entire company's codebase.
+      tr: |
+        Belirli bir GitHub organizasyonuna ait tüm depoları tarar.
+        Bu komut, depoları listelemek için geçerli bir GitHub Personal Access Token gerektirir.
+        Tüm şirket kod tabanında toplu denetim yapan güvenlik ekipleri için vazgeçilmez bir komuttur.
     command: "trufflehog github --token={{github_token}} --org={{org_name}}"
 
-  - title: trufflehog - gitlab repository scan
-    desc: |
-      Search for secrets within a GitLab repository using a GitLab access token. 
-      This is useful for auditing internal GitLab instances or private projects that are not hosted on GitHub. 
-      Ensure the token provided has the necessary permissions to read the repository and its history.
+  - title:
+      en: trufflehog - gitlab repository scan
+      tr: trufflehog - gitlab depo taraması
+    desc:
+      en: |
+        Search for secrets within a GitLab repository using a GitLab access token. 
+        This is useful for auditing internal GitLab instances or private projects that are not hosted on GitHub. 
+        Ensure the token provided has the necessary permissions to read the repository and its history.
+      tr: |
+        Bir GitLab erişim jetonu kullanarak GitLab deposundaki sırları arar.
+        Bu, GitHub'da barındırılmayan şirket içi GitLab örneklerini veya özel projeleri denetlemek için kullanışlıdır.
+        Sağlanan jetonun depoyu ve geçmişini okumak için gerekli yetkilere sahip olduğundan emin olun.
     command: "trufflehog gitlab --token={{gitlab_token}} --repo={{repo_url}}"
 
 # === CLOUD AND INFRASTRUCTURE ===
 
-  - title: trufflehog - filesystem scan
-    desc: |
-      Scan a local directory or specific files for potential secrets outside of a Git context. 
-      This is ideal for checking configuration files, scripts, or backups on a local machine or server. 
-      It helps identify hardcoded secrets in environments that do not use version control or within ignored files.
+  - title:
+      en: trufflehog - filesystem scan
+      tr: trufflehog - dosya sistemi taraması
+    desc:
+      en: |
+        Scan a local directory or specific files for potential secrets outside of a Git context. 
+        This is ideal for checking configuration files, scripts, or backups on a local machine or server. 
+        It helps identify hardcoded secrets in environments that do not use version control or within ignored files.
+      tr: |
+        Git bağlamı dışında yerel bir dizini veya belirli dosyaları potansiyel sırlara karşı tarar.
+        Bu, yerel bir makine veya sunucudaki yapılandırma dosyalarını, betikleri veya yedekleri kontrol etmek için idealdir.
+        Sürüm kontrolü kullanmayan ortamlarda veya göz ardı edilen dosyalardaki sabit kodlanmış sırları bulmaya yardımcı olur.
     command: "trufflehog filesystem {{path|./}}"
 
-  - title: trufflehog - s3 bucket scan
-    desc: |
-      Scan Amazon S3 buckets for publicly accessible or misconfigured files containing credentials. 
-      This action is critical for cloud security assessments to prevent data breaches originating from open storage. 
-      The tool iterates through bucket objects and matches them against various secret detectors.
+  - title:
+      en: trufflehog - s3 bucket scan
+      tr: trufflehog - s3 kovası taraması
+    desc:
+      en: |
+        Scan Amazon S3 buckets for publicly accessible or misconfigured files containing credentials. 
+        This action is critical for cloud security assessments to prevent data breaches originating from open storage. 
+        The tool iterates through bucket objects and matches them against various secret detectors.
+      tr: |
+        Kimlik bilgileri içeren herkese açık veya yanlış yapılandırılmış dosyalar için Amazon S3 kovalarını tarar.
+        Bu işlem, açık depolamadan kaynaklanan veri ihlallerini önlemek için bulut güvenlik değerlendirmelerinde kritiktir.
+        Araç, kova nesnelerini dolaşır ve bunları çeşitli sır dedektörleriyle eşleştirir.
     command: "trufflehog s3 --bucket {{bucket_name}}"
 
-  - title: trufflehog - docker image scan
-    desc: |
-      Scan a Docker image to find secrets hidden within its filesystem layers. 
-      This is a vital step in DevSecOps to ensure that credentials are not baked into container images during the build process. 
-      It can identify sensitive information left in environment variables or configuration files within the container.
+  - title:
+      en: trufflehog - docker image scan
+      tr: trufflehog - docker imaj taraması
+    desc:
+      en: |
+        Scan a Docker image to find secrets hidden within its filesystem layers. 
+        This is a vital step in DevSecOps to ensure that credentials are not baked into container images during the build process. 
+        It can identify sensitive information left in environment variables or configuration files within the container.
+      tr: |
+        Dosya sistemi katmanlarına gizlenmiş sırları bulmak için bir Docker imajını tarar.
+        Bu, derleme sürecinde kimlik bilgilerinin konteyner imajlarına gömülmediğinden emin olmak için DevSecOps'ta hayati bir adımdır.
+        Konteyner içindeki ortam değişkenlerinde veya yapılandırma dosyalarında kalan hassas bilgileri tespit edebilir.
     command: "trufflehog docker --image {{image_name|ubuntu:latest}}"
 
 # === ADVANCED FILTERING AND OUTPUT ===
 
-  - title: trufflehog - json output for automation
-    desc: |
-      Generate scan results in a structured JSON format for automated processing. 
-      This format is highly recommended for integrating TruffleHog into custom security pipelines or SOC dashboards. 
-      It provides detailed metadata about the findings, including the detector type and the specific file location.
+  - title:
+      en: trufflehog - json output for automation
+      tr: trufflehog - otomasyon için json çıktısı
+    desc:
+      en: |
+        Generate scan results in a structured JSON format for automated processing. 
+        This format is highly recommended for integrating TruffleHog into custom security pipelines or SOC dashboards. 
+        It provides detailed metadata about the findings, including the detector type and the specific file location.
+      tr: |
+        Tarama sonuçlarını otomatik işleme için yapılandırılmış JSON biçiminde üretir.
+        Bu biçim, TruffleHog'u özel güvenlik hatlarına veya SOC panolarına bütünleştirmek için özellikle önerilir.
+        Dedektör türü ve dosya konumu gibi bulgular hakkında ayrıntılı meta veriler sağlar.
     command: "trufflehog git {{repo_url}} --json"
 
-  - title: trufflehog - scan with no verification
-    desc: |
-      Perform a scan without verifying the discovered credentials against their respective service APIs. 
-      Use this flag when scanning in an air-gapped environment or when you want to avoid making external network calls. 
-      Be aware that this may increase the number of false positives since the validity of the keys is not confirmed.
+  - title:
+      en: trufflehog - scan with no verification
+      tr: trufflehog - doğrulamasız tarama
+    desc:
+      en: |
+        Perform a scan without verifying the discovered credentials against their respective service APIs. 
+        Use this flag when scanning in an air-gapped environment or when you want to avoid making external network calls. 
+        Be aware that this may increase the number of false positives since the validity of the keys is not confirmed.
+      tr: |
+        Bulunan kimlik bilgilerini ilgili servis API'lerine karşı doğrulamadan tarama gerçekleştirir.
+        Hava boşluklu ortamlarda tararken veya dış ağ çağrılarından kaçınmak istediğinizde bu bayrağı kullanın.
+        Anahtarların geçerliliğinin doğrulanmaması nedeniyle yanlış pozitif sayısının artabileceğini unutmayın.
     command: "trufflehog git {{repo_url}} --no-verification"
 
-  - title: trufflehog - fail on results for CI/CD
-    desc: |
-      Force the tool to exit with a non-zero status code if any secrets are found during the scan. 
-      This is specifically used in CI/CD pipelines to automatically block pull requests or builds that contain leaked secrets. 
-      It serves as a hard gate to prevent sensitive information from reaching the main branch or production.
+  - title:
+      en: trufflehog - fail on results for CI/CD
+      tr: trufflehog - CI/CD için sonuçta hata verme
+    desc:
+      en: |
+        Force the tool to exit with a non-zero status code if any secrets are found during the scan. 
+        This is specifically used in CI/CD pipelines to automatically block pull requests or builds that contain leaked secrets. 
+        It serves as a hard gate to prevent sensitive information from reaching the main branch or production.
+      tr: |
+        Tarama sırasında sır bulunursa aracın sıfırdan farklı bir çıkış koduyla çıkmasını sağlar.
+        Bu, özellikle sızdırılmış sır içeren çekme isteklerini veya derlemeleri otomatik olarak engellemek için CI/CD hatlarında kullanılır.
+        Hassas bilgilerin ana dala veya üretime ulaşmasını engelleyen katı bir kapı görevi görür.
     command: "trufflehog git {{repo_url}} --fail"
 
-  - title: trufflehog - filter by specific detectors
-    desc: |
-      Limit the scan to specific types of secrets by including only certain detectors. 
-      This helps focus the scan on high-priority targets like AWS keys or SSH private keys, reducing scan time and noise. 
-      You can provide a comma-separated list of detector IDs or names to refine the search parameters.
+  - title:
+      en: trufflehog - filter by specific detectors
+      tr: trufflehog - belirli dedektörlerle filtreleme
+    desc:
+      en: |
+        Limit the scan to specific types of secrets by including only certain detectors. 
+        This helps focus the scan on high-priority targets like AWS keys or SSH private keys, reducing scan time and noise. 
+        You can provide a comma-separated list of detector IDs or names to refine the search parameters.
+      tr: |
+        Taramayı yalnızca belirli dedektörleri dahil ederek belirli sır türleriyle sınırlar.
+        Bu, taramayı AWS anahtarları veya SSH özel anahtarları gibi yüksek öncelikli hedeflere odaklar, tarama süresini ve gürültüyü azaltır.
+        Arama parametrelerini daraltmak için virgülle ayrılmış dedektör kimlikleri veya adları verebilirsiniz.
     command: "trufflehog git {{repo_url}} --include-detectors={{detectors|aws,ssh,github}}"
 
-  - title: trufflehog - scan from standard input
-    desc: |
-      Pipe data directly into TruffleHog to scan for secrets in real-time. 
-      This is useful for scanning the output of other commands or checking text snippets without saving them to a file. 
-      It is a flexible way to integrate secret detection into various command-line workflows.
+  - title:
+      en: trufflehog - scan from standard input
+      tr: trufflehog - standart girdiden tarama
+    desc:
+      en: |
+        Pipe data directly into TruffleHog to scan for secrets in real-time. 
+        This is useful for scanning the output of other commands or checking text snippets without saving them to a file. 
+        It is a flexible way to integrate secret detection into various command-line workflows.
+      tr: |
+        Sırları gerçek zamanlı olarak taramak için veriyi doğrudan TruffleHog'a aktarır.
+        Bu, diğer komutların çıktısını taramak veya metin parçacıklarını dosyaya kaydetmeden kontrol etmek için kullanışlıdır.
+        Sır tespitini çeşitli komut satırı iş akışlarına bütünleştirmenin esnek bir yoludur.
     command: "cat {{file_name}} | trufflehog stdin"

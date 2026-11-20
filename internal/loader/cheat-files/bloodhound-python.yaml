@@ -3,75 +3,145 @@ tags: [active-directory, enumeration, pentest, security, reconnaissance, windows
 
 actions:
   # === BASIC ENUMERATION ===
-  - title: bloodhound-python - basic domain enumeration
-    desc: |
-      Performs standard collection including Group, LocalAdmin, Session, and Trusts. 
-      This is the most common starting point when you have valid domain credentials. 
-      The resulting JSON files are generated in the current directory and can be uploaded to the BloodHound GUI.
+  - title:
+      en: bloodhound-python - basic domain enumeration
+      tr: bloodhound-python - temel etki alanı numaralandırma
+    desc:
+      en: |
+        Performs standard collection including Group, LocalAdmin, Session, and Trusts. 
+        This is the most common starting point when you have valid domain credentials. 
+        The resulting JSON files are generated in the current directory and can be uploaded to the BloodHound GUI.
+      tr: |
+        Grup, LocalAdmin, Session ve Trusts dahil standart toplama yapar.
+        Geçerli etki alanı kimlik bilgileriniz olduğunda en yaygın başlangıç noktasıdır.
+        Sonuç JSON dosyaları geçerli dizinde üretilir ve BloodHound arayüzüne yüklenebilir.
     command: "bloodhound-python -u {{username}} -p {{password}} -d {{domain}}  -dc {{dc_ip}}  -c Default"
 
-  - title: bloodhound-python - collect all data including ACLs
-    desc: |
-      Collects all available information including detailed Access Control Lists (ACLs). 
-      This method provides the most comprehensive view of the environment, enabling the discovery of complex attack paths like GenericAll or WriteDacl. 
-      Note that this produces larger files and takes more time than a default scan.
+  - title:
+      en: bloodhound-python - collect all data including ACLs
+      tr: bloodhound-python - ACL'ler dahil tüm veriyi toplama
+    desc:
+      en: |
+        Collects all available information including detailed Access Control Lists (ACLs). 
+        This method provides the most comprehensive view of the environment, enabling the discovery of complex attack paths like GenericAll or WriteDacl. 
+        Note that this produces larger files and takes more time than a default scan.
+      tr: |
+        Ayrıntılı Erişim Denetim Listeleri (ACL) dahil tüm mevcut bilgiyi toplar.
+        Bu yöntem ortamın en kapsamlı görünümünü vererek GenericAll veya WriteDacl gibi karmaşık saldırı yollarının keşfine olanak tanır.
+        Varsayılan taramadan daha büyük dosyalar üretip daha çok zaman aldığını unutmayın.
     command: "bloodhound-python -u {{username}} -p {{password}} -d {{domain}}  -c All"
 
-  - title: bloodhound-python - domain controller only collection
-    desc: |
-      Limits enumeration to only query the Domain Controller without connecting to individual computers. 
-      This is a stealthier and faster collection method that avoids triggering alerts on workstations. 
-      It is ideal for initial reconnaissance where speed and low visibility are prioritized over session data.
+  - title:
+      en: bloodhound-python - domain controller only collection
+      tr: bloodhound-python - yalnızca etki alanı denetleyicisi toplama
+    desc:
+      en: |
+        Limits enumeration to only query the Domain Controller without connecting to individual computers. 
+        This is a stealthier and faster collection method that avoids triggering alerts on workstations. 
+        It is ideal for initial reconnaissance where speed and low visibility are prioritized over session data.
+      tr: |
+        Numaralandırmayı tekil bilgisayarlara bağlanmadan yalnızca Etki Alanı Denetleyicisini sorgulayacak şekilde sınırlar.
+        Bu, iş istasyonlarında alarm tetiklemekten kaçınan daha gizli ve hızlı bir toplama yöntemidir.
+        Hız ve düşük görünürlüğün oturum verisinden öncelikli olduğu ilk keşif için idealdir.
     command: "bloodhound-python -u {{username}} -p {{password}} -d {{domain}}  -c DCOnly"
 
   # === AUTHENTICATION VARIATIONS ===
-  - title: bloodhound-python - enumeration with ntlm hashes
-    desc: |
-      Authenticates to the domain using NTLM hashes instead of a cleartext password. 
-      This is particularly useful in Pass-the-Hash scenarios or when you have extracted hashes from a local database. 
-      The hash should be provided in the format LM:NTLM or just the NTLM part preceded by a colon.
+  - title:
+      en: bloodhound-python - enumeration with ntlm hashes
+      tr: bloodhound-python - ntlm hash'leriyle numaralandırma
+    desc:
+      en: |
+        Authenticates to the domain using NTLM hashes instead of a cleartext password. 
+        This is particularly useful in Pass-the-Hash scenarios or when you have extracted hashes from a local database. 
+        The hash should be provided in the format LM:NTLM or just the NTLM part preceded by a colon.
+      tr: |
+        Etki alanına açık parola yerine NTLM hash'leriyle kimlik doğrular.
+        Bu, Pass-the-Hash senaryolarında veya yerel veritabanından hash çıkardığınızda özellikle yararlıdır.
+        Hash, LM:NTLM biçiminde veya iki nokta önekiyle yalnızca NTLM kısmı olarak verilmelidir.
     command: "bloodhound-python -u {{username}} --hashes {{ntlm_hash}} -d {{domain}}"
 
-  - title: bloodhound-python - authenticate via kerberos ticket
-    desc: |
-      Uses an existing Kerberos ticket (ccache file) for authentication. 
-      You must ensure the KRB5CCNAME environment variable points to your ticket file before running the command. 
-      This method is often preferred for lateral movement or when operating from a Linux machine joined to the realm via SSSD.
+  - title:
+      en: bloodhound-python - authenticate via kerberos ticket
+      tr: bloodhound-python - kerberos biletiyle kimlik doğrulama
+    desc:
+      en: |
+        Uses an existing Kerberos ticket (ccache file) for authentication. 
+        You must ensure the KRB5CCNAME environment variable points to your ticket file before running the command. 
+        This method is often preferred for lateral movement or when operating from a Linux machine joined to the realm via SSSD.
+      tr: |
+        Kimlik doğrulama için mevcut bir Kerberos biletini (ccache dosyası) kullanır.
+        Komutu çalıştırmadan önce KRB5CCNAME ortam değişkeninin bilet dosyanızı gösterdiğinden emin olmalısınız.
+        Bu yöntem yatay hareket için veya SSSD ile alana katılmış bir Linux makineden çalışırken sıkça tercih edilir.
     command: "bloodhound-python -k -no-pass -d {{domain}}  -dc {{dc_hostname}} "
 
-  - title: bloodhound-python - authenticate using AES keys
-    desc: |
-      Provides an AES key (128 or 256 bits) for Kerberos authentication. 
-      This is an alternative to using passwords or hashes when you have captured or calculated the user's secret keys. 
-      It helps in bypassing certain NTLM-only monitoring controls.
+  - title:
+      en: bloodhound-python - authenticate using AES keys
+      tr: bloodhound-python - AES anahtarlarıyla kimlik doğrulama
+    desc:
+      en: |
+        Provides an AES key (128 or 256 bits) for Kerberos authentication. 
+        This is an alternative to using passwords or hashes when you have captured or calculated the user's secret keys. 
+        It helps in bypassing certain NTLM-only monitoring controls.
+      tr: |
+        Kerberos kimlik doğrulaması için AES anahtarı (128 veya 256 bit) verir.
+        Bu, kullanıcının gizli anahtarlarını ele geçirdiğinizde veya hesapladığınızda parola ya da hash kullanmaya alternatiftir.
+        Yalnızca NTLM izleyen belirli denetimleri atlamaya yardımcı olur.
     command: "bloodhound-python -u {{username}} -aesKey {{hex_key}}  -d {{domain}} "
 
   # === ADVANCED COLLECTION & NETWORK ===
-  - title: bloodhound-python - collect logged on users
-    desc: |
-      Specifically attempts to collect session information from remote computers. 
-      This action typically requires local administrator privileges on the target machines to succeed. 
-      It is highly effective for identifying where Domain Admins or other high-privileged users are currently logged in.
+  - title:
+      en: bloodhound-python - collect logged on users
+      tr: bloodhound-python - oturum açmış kullanıcıları toplama
+    desc:
+      en: |
+        Specifically attempts to collect session information from remote computers. 
+        This action typically requires local administrator privileges on the target machines to succeed. 
+        It is highly effective for identifying where Domain Admins or other high-privileged users are currently logged in.
+      tr: |
+        Özellikle uzak bilgisayarlardan oturum bilgisi toplamaya çalışır.
+        Bu eylem başarılı olması için hedef makinelerde genellikle yerel yönetici yetkisi gerektirir.
+        Etki Alanı Yöneticilerinin veya diğer yüksek yetkili kullanıcıların o an nerede oturum açtığını belirlemede oldukça etkilidir.
     command: "bloodhound-python -u {{username}} -p {{password}} -d {{domain}}  -c LoggedOn"
 
-  - title: bloodhound-python - use LDAPS and custom nameserver
-    desc: |
-      Forces the ingestor to use LDAP over SSL/TLS (LDAPS) on port 636 and specifies a custom DNS server. 
-      Using LDAPS is necessary in environments where LDAP signing is enforced or cleartext LDAP is blocked. 
-      Specifying a nameserver ensures the tool can resolve internal domain names when your local DNS is not configured for the target.
+  - title:
+      en: bloodhound-python - use LDAPS and custom nameserver
+      tr: bloodhound-python - LDAPS ve özel ad sunucusu kullanma
+    desc:
+      en: |
+        Forces the ingestor to use LDAP over SSL/TLS (LDAPS) on port 636 and specifies a custom DNS server. 
+        Using LDAPS is necessary in environments where LDAP signing is enforced or cleartext LDAP is blocked. 
+        Specifying a nameserver ensures the tool can resolve internal domain names when your local DNS is not configured for the target.
+      tr: |
+        Toplayıcıyı 636. bağlantı noktasında SSL/TLS üzerinden LDAP (LDAPS) kullanmaya zorlar ve özel bir DNS sunucusu belirtir.
+        LDAP imzalamanın zorunlu olduğu veya açık LDAP'ın engellendiği ortamlarda LDAPS kullanmak gereklidir.
+        Ad sunucusu belirtmek, yerel DNS'iniz hedef için yapılandırılmadığında aracın iç alan adlarını çözümleyebilmesini sağlar.
     command: "bloodhound-python -u {{username}} -p {{password}} -d {{domain}}  --use-ldaps -ns {{dns_ip}} "
 
-  - title: bloodhound-python - define target computer list
-    desc: |
-      Specifies a text file containing a list of target computer FQDNs to enumerate. 
-      This allows you to scope the enumeration to a specific subset of machines rather than the entire domain. 
-      It is useful for staying within the boundaries of a specific engagement scope.
+  - title:
+      en: bloodhound-python - define target computer list
+      tr: bloodhound-python - hedef bilgisayar listesi tanımlama
+    desc:
+      en: |
+        Specifies a text file containing a list of target computer FQDNs to enumerate. 
+        This allows you to scope the enumeration to a specific subset of machines rather than the entire domain. 
+        It is useful for staying within the boundaries of a specific engagement scope.
+      tr: |
+        Numaralandırılacak hedef bilgisayar FQDN'lerinin listesini içeren bir metin dosyası belirtir.
+        Bu, numaralandırmayı tüm etki alanı yerine belirli bir makine alt kümesiyle sınırlamanıza olanak tanır.
+        Belirli bir çalışma kapsamının sınırları içinde kalmak için yararlıdır.
     command: "bloodhound-python -u {{username}} -p {{password}} -d {{domain}}  --computerfile {{file_path}} "
 
   # === PERFORMANCE & OUTPUT ===
-  - title: bloodhound-python - optimized collection with compression
-    desc: |
-      Increases the number of worker threads to speed up the enumeration process in large environments. 
-      The --zip flag automatically packages all generated JSON files into a single compressed archive for easy download. 
-      Adding an output prefix helps distinguish between results from different domains or different phases of a test.
+  - title:
+      en: bloodhound-python - optimized collection with compression
+      tr: bloodhound-python - sıkıştırmalı optimize toplama
+    desc:
+      en: |
+        Increases the number of worker threads to speed up the enumeration process in large environments. 
+        The --zip flag automatically packages all generated JSON files into a single compressed archive for easy download. 
+        Adding an output prefix helps distinguish between results from different domains or different phases of a test.
+      tr: |
+        Büyük ortamlarda numaralandırma sürecini hızlandırmak için çalışan iş parçacığı sayısını artırır.
+        --zip bayrağı üretilen tüm JSON dosyalarını kolay indirme için tek bir sıkıştırılmış arşivde otomatik paketler.
+        Çıktı öneki eklemek farklı alan adlarından veya testin farklı aşamalarından gelen sonuçları ayırt etmeye yardımcı olur.
     command: "bloodhound-python -u {{username}} -p {{password}} -d {{domain}}  -w {{workers|20}} --zip -op {{prefix_name}} "

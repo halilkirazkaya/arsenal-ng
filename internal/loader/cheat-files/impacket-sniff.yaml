@@ -4,46 +4,86 @@ tags: [network, sniffing, packets, impacket, security, pentest, traffic-analysis
 actions:
 # === BASIC CAPTURE ===
 
- - title: impacket-sniff - interactive interface selection
-   desc: |
-     Starts the tool in interactive mode to list available network interfaces. 
-     This is the most common way to start the tool when the interface index is unknown. 
-     The user will be prompted to select an interface (e.g., eth0, lo, docker0) by entering its corresponding number. 
-     Note that this functionality requires root or administrative privileges to access raw network sockets.
+ - title:
+    en: impacket-sniff - interactive interface selection
+    tr: impacket-sniff - etkileşimli arayüz seçimi
+   desc:
+     en: |
+       Starts the tool in interactive mode to list available network interfaces. 
+       This is the most common way to start the tool when the interface index is unknown. 
+       The user will be prompted to select an interface (e.g., eth0, lo, docker0) by entering its corresponding number. 
+       Note that this functionality requires root or administrative privileges to access raw network sockets.
+     tr: |
+       Kullanılabilir ağ arayüzlerini listelemek için aracı etkileşimli kipte başlatır.
+       Arayüz dizini bilinmediğinde aracı başlatmanın en yaygın yoludur.
+       Kullanıcıdan, karşıl gelen numarayı girerek bir arayüz (örn. eth0, lo, docker0) seçmesi istenir.
+       Bu işlevin ham ağ soketlerine erişmek için root veya yönetici ayrıcalıkları gerektirdiğini unutmayın.
    command: "impacket-sniff"
 
- - title: impacket-sniff - capture on specific interface
-   desc: |
-     Directly initiates packet sniffing on a specific interface identified by its index number. 
-     This bypasses the initial interactive prompt, making it suitable for automated scripts or repeated testing. 
-     The interface index usually matches the list provided by the tool's help or initial run (e.g., 0 for eth0). 
-     Ensure you have the correct permissions, as sniffing on network interfaces is restricted to privileged users.
+ - title:
+    en: impacket-sniff - capture on specific interface
+    tr: impacket-sniff - belirli arayüzde yakalama
+   desc:
+     en: |
+       Directly initiates packet sniffing on a specific interface identified by its index number. 
+       This bypasses the initial interactive prompt, making it suitable for automated scripts or repeated testing. 
+       The interface index usually matches the list provided by the tool's help or initial run (e.g., 0 for eth0). 
+       Ensure you have the correct permissions, as sniffing on network interfaces is restricted to privileged users.
+     tr: |
+       Dizin numarasıyla belirtilen belirli bir arayüzde paket dinlemeyi doğrudan başlatır.
+       İlk etkileşimli istemi atladığı için otomatik betikler veya tekrarlanan testler için uygundur.
+       Arayüz dizini genellikle aracın yardım çıktısının veya ilk çalıştırmasının verdiği listeyle eşleşir (örn. eth0 için 0).
+       Ağ arayüzlerinde dinleme ayrıcalıklı kullanıcılarla sınırlı olduğundan doğru izinlere sahip olduğunuzdan emin olun.
    command: "impacket-sniff -i {{interface_index|0}}"
 
 # === FILTERING AND LIMITS ===
 
- - title: impacket-sniff - capture with BPF filter
-   desc: |
-     Applies a Berkeley Packet Filter (BPF) to the capture session to isolate specific network traffic. 
-     This is essential for focusing on relevant protocols like SMB, HTTP, or specific IP addresses in noisy environments. 
-     Standard BPF syntax is used, such as "tcp port 445" or "host 192.168.1.1". 
-     Using filters significantly reduces the volume of data processed and displayed on the terminal.
+ - title:
+    en: impacket-sniff - capture with BPF filter
+    tr: impacket-sniff - BPF filtresi ile yakalama
+   desc:
+     en: |
+       Applies a Berkeley Packet Filter (BPF) to the capture session to isolate specific network traffic. 
+       This is essential for focusing on relevant protocols like SMB, HTTP, or specific IP addresses in noisy environments. 
+       Standard BPF syntax is used, such as "tcp port 445" or "host 192.168.1.1". 
+       Using filters significantly reduces the volume of data processed and displayed on the terminal.
+     tr: |
+       Belirli ağ trafiğini izole etmek için yakalama oturumuna Berkeley Paket Filtresi (BPF) uygular.
+       Gürültülü ortamlarda SMB, HTTP gibi ilgili protokollere veya belirli IP adreslerine odaklanmak için gereklidir.
+       "tcp port 445" veya "host 192.168.1.1" gibi standart BPF sözdizimi kullanılır.
+       Filtre kullanmak, işlenen ve terminalde gösterilen veri hacmini önemli ölçüde azaltır.
    command: "impacket-sniff -i {{interface_index|0}} -f \"{{bpf_filter|tcp port 445}}\""
 
- - title: impacket-sniff - limit captured packet count
-   desc: |
-     Restricts the sniffing session to a specific number of captured packets before exiting. 
-     This is useful for gathering a small sample of traffic for quick analysis without manually interrupting the process. 
-     Once the specified count is reached, the tool will automatically stop and return to the command prompt. 
-     It is a safe way to prevent logs or terminal output from growing uncontrollably during long sessions.
+ - title:
+    en: impacket-sniff - limit captured packet count
+    tr: impacket-sniff - yakalanan paket sayısını sınırlama
+   desc:
+     en: |
+       Restricts the sniffing session to a specific number of captured packets before exiting. 
+       This is useful for gathering a small sample of traffic for quick analysis without manually interrupting the process. 
+       Once the specified count is reached, the tool will automatically stop and return to the command prompt. 
+       It is a safe way to prevent logs or terminal output from growing uncontrollably during long sessions.
+     tr: |
+       Dinleme oturumunu çıkmadan önce yakalanan belirli sayıda paketle sınırlar.
+       Süreci elle kesmeden hızlı analiz için küçük bir trafik örneği toplamakta faydalıdır.
+       Belirtilen sayıya ulaşıldığında araç otomatik olarak durur ve komut istemine döner.
+       Uzun oturumlarda günlüklerin veya terminal çıktısının kontrolsüz büyümesini önlemenin güvenli bir yoludur.
    command: "impacket-sniff -i {{interface_index|0}} -c {{packet_count|100}}"
 
 # === ADVANCED USAGE ===
 
- - title: impacket-sniff - filtered capture with packet limit
-   desc: |
-     Combines both BPF filtering and packet count limits for a highly targeted capture session. 
-     This command is ideal for capturing a specific sequence of packets, such as a single handshake or a specific set of requests. 
-     It ensures that only relevant traffic is captured and that the tool stops once the necessary data is collected. 
-     Be aware that if the filter is too restrictive, the tool may take a long time to reach the specified packet count.
+ - title:
+    en: impacket-sniff - filtered capture with packet limit
+    tr: impacket-sniff - paket sınırlı filtreli yakalama
+   desc:
+     en: |
+       Combines both BPF filtering and packet count limits for a highly targeted capture session. 
+       This command is ideal for capturing a specific sequence of packets, such as a single handshake or a specific set of requests. 
+       It ensures that only relevant traffic is captured and that the tool stops once the necessary data is collected. 
+       Be aware that if the filter is too restrictive, the tool may take a long time to reach the specified packet count.
+     tr: |
+       Son derece hedefli bir yakalama oturumu için hem BPF filtrelemeyi hem de paket sayısı sınırlarını birleştirir.
+       Bu komut, tek bir el sıkışma veya belirli bir istek kümesi gibi belirli bir paket dizisini yakalamak için idealdir.
+       Yalnızca ilgili trafiğin yakalanmasını ve gerekli veri toplanınca aracın durmasını sağlar.
+       Filtre çok kısıtlayıcıysa aracın belirtilen paket sayısına ulaşmasının uzun sürebileceğini unutmayın.
    command: "impacket-sniff -i {{interface_index|0}} -f \"{{bpf_filter|port 80}}\" -c {{packet_count|50}}"

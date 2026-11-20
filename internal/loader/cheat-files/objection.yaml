@@ -4,140 +4,268 @@ tags: [mobile, security, android, ios, pentest, exploration, frida, hooking]
 actions:
   # === SETUP AND PATCHING ===
 
- - title: objection - patch android apk
-   desc: |
-     Patches a target Android APK with the Frida gadget library. This process is essential for performing
-     runtime analysis on non-rooted Android devices by embedding the frida-agent directly into the app.
-     The command decompiles the APK, injects the library, modifies the manifest to load the library, and rebuilds it.
-     Ensure you have the necessary dependencies like apktool and jarsigner installed in your path.
+ - title:
+     en: objection - patch android apk
+     tr: objection - android apk yamala
+   desc:
+     en: |
+       Patches a target Android APK with the Frida gadget library. This process is essential for performing
+       runtime analysis on non-rooted Android devices by embedding the frida-agent directly into the app.
+       The command decompiles the APK, injects the library, modifies the manifest to load the library, and rebuilds it.
+       Ensure you have the necessary dependencies like apktool and jarsigner installed in your path.
+     tr: |
+       Hedef Android APK dosyasını Frida gadget kütüphanesiyle yamalar. Bu işlem, frida-agent'ı
+       doğrudan uygulamaya gömerek rootsuz Android cihazlarda çalışma anı analizi yapmak için gereklidir.
+       Komut APK'yı çözümleyip kütüphaneyi enjekte eder, kütüphaneyi yükleyecek şekilde manifest dosyasını değiştirir ve yeniden paketler.
+       apktool ve jarsigner gibi gerekli bağımlılıkların yolunuzda (PATH) kurulu olduğundan emin olun.
    command: "objection patchapk --source {{apk_path|base.apk}}"
 
- - title: objection - patch ios ipa
-   desc: |
-     Patches an iOS IPA file with the FridaGadget dylib for instrumentation on non-jailbroken devices.
-     This command automates the process of unpacking the IPA, injecting the dylib, and providing instructions for resigning.
-     It is a critical step for black-box testing of iOS applications where jailbreaking is not an option.
-     Note that a valid mobileprovision and code-signing identity are required for the app to run on a physical device.
+ - title:
+     en: objection - patch ios ipa
+     tr: objection - ios ipa yamala
+   desc:
+     en: |
+       Patches an iOS IPA file with the FridaGadget dylib for instrumentation on non-jailbroken devices.
+       This command automates the process of unpacking the IPA, injecting the dylib, and providing instructions for resigning.
+       It is a critical step for black-box testing of iOS applications where jailbreaking is not an option.
+       Note that a valid mobileprovision and code-signing identity are required for the app to run on a physical device.
+     tr: |
+       Jailbreak yapılmamış cihazlarda inceleme için iOS IPA dosyasını FridaGadget dylib ile yamalar.
+       Bu komut IPA'yı açma, dylib'i enjekte etme ve yeniden imzalama yönergelerini sağlama işlemini otomatikleştirir.
+       Jailbreak seçeneğinin olmadığı iOS uygulamalarının black-box testinde kritik bir adımdır.
+       Uygulamanın fiziksel cihazda çalışması için geçerli bir mobileprovision ve kod imzalama kimliği gerektiğini unutmayın.
    command: "objection patchipa --source {{ipa_path|app.ipa}} --codesign-signature {{signature_id|ABC123XYZ}}"
 
  # === SESSION MANAGEMENT ===
 
- - title: objection - start exploration session
-   desc: |
-     Starts a new exploration session by connecting to a patched application running on a USB device.
-     This is the most common way to enter the interactive REPL where you can run various runtime commands.
-     If the application was patched with a specific name, use the -n flag to specify the target.
-     Execution of the application will typically be paused at startup until this command is executed.
+ - title:
+     en: objection - start exploration session
+     tr: objection - keşif oturumu başlat
+   desc:
+     en: |
+       Starts a new exploration session by connecting to a patched application running on a USB device.
+       This is the most common way to enter the interactive REPL where you can run various runtime commands.
+       If the application was patched with a specific name, use the -n flag to specify the target.
+       Execution of the application will typically be paused at startup until this command is executed.
+     tr: |
+       USB cihazda çalışan yamalanmış uygulamaya bağlanarak yeni bir keşif oturumu başlatır.
+       Çeşitli çalışma anı komutlarını çalıştırabileceğiniz etkileşimli REPL'e girmenin en yaygın yoludur.
+       Uygulama belirli bir adla yamalandıysa hedefi belirtmek için -n bayrağını kullanın.
+       Bu komut çalıştırılana kadar uygulamanın çalışması genellikle başlangıçta duraklatılır.
    command: "objection -n {{gadget_name|Gadget}} start"
 
- - title: objection - connect to remote device
-   desc: |
-     Connects to an objection session over a network connection instead of the default USB.
-     This is useful when the mobile device is reachable via IP, such as over Wi-Fi or within a lab environment.
-     By default, it tries to connect to 127.0.0.1:27042 unless a custom host and port are provided.
-     Ensure that the frida-server or gadget is configured to listen on the specified network interface.
+ - title:
+     en: objection - connect to remote device
+     tr: objection - uzak cihaza bağlan
+   desc:
+     en: |
+       Connects to an objection session over a network connection instead of the default USB.
+       This is useful when the mobile device is reachable via IP, such as over Wi-Fi or within a lab environment.
+       By default, it tries to connect to 127.0.0.1:27042 unless a custom host and port are provided.
+       Ensure that the frida-server or gadget is configured to listen on the specified network interface.
+     tr: |
+       Varsayılan USB yerine bir ağ bağlantısı üzerinden objection oturumuna bağlanır.
+       Mobil cihaza IP ile erişilebildiğinde (örneğin Wi-Fi üzerinden veya laboratuvar ortamında) kullanışlıdır.
+       Özel bir host ve port verilmedikçe varsayılan olarak 127.0.0.1:27042 adresine bağlanmayı dener.
+       frida-server veya gadget'ın belirtilen ağ arayüzünü dinleyecek şekilde yapılandırıldığından emin olun.
    command: "objection --network --host {{ip_address}} --port {{port|27042}} explore"
 
- - title: objection - spawn application
-   desc: |
-     Spawns the target application instead of attaching to an already running process.
-     Spawning is necessary when you need to instrument the application from the very first instruction,
-     such as bypassing early-stage jailbreak detection or SSL pinning checks.
-     The --no-pause flag can be added if you don't want the process to wait for your manual resume command.
+ - title:
+     en: objection - spawn application
+     tr: objection - uygulama başlat (spawn)
+   desc:
+     en: |
+       Spawns the target application instead of attaching to an already running process.
+       Spawning is necessary when you need to instrument the application from the very first instruction,
+       such as bypassing early-stage jailbreak detection or SSL pinning checks.
+       The --no-pause flag can be added if you don't want the process to wait for your manual resume command.
+     tr: |
+       Hedef uygulamayı, zaten çalışan bir işleme bağlanmak yerine sıfırdan başlatır.
+       Uygulamayı ilk komuttan itibaren izlemeniz gerektiğinde (örneğin erken aşama jailbreak tespiti
+       veya SSL sabitleme (SSL pinning) kontrollerini atlatmak için) bu gereklidir.
+       İşlemin devam komutunuzu beklemesini istemiyorsanız --no-pause bayrağını ekleyebilirsiniz.
    command: "objection -g {{package_name}} explore --spawn"
 
  # === FILESYSTEM AND ENVIRONMENT ===
 
- - title: objection - list environment information
-   desc: |
-     Displays the application's environment variables and important directory paths.
-     On iOS, this shows paths like the Documents, Library, and Caches directories within the app sandbox.
-     On Android, it reveals the files directory, cache directory, and external storage paths.
-     This is a fundamental reconnaissance step to locate where the application stores sensitive data or configuration files.
+ - title:
+     en: objection - list environment information
+     tr: objection - ortam bilgilerini listele
+   desc:
+     en: |
+       Displays the application's environment variables and important directory paths.
+       On iOS, this shows paths like the Documents, Library, and Caches directories within the app sandbox.
+       On Android, it reveals the files directory, cache directory, and external storage paths.
+       This is a fundamental reconnaissance step to locate where the application stores sensitive data or configuration files.
+     tr: |
+       Uygulamanın ortam değişkenlerini ve önemli dizin yollarını görüntüler.
+       iOS'te uygulama sandbox'ı içindeki Documents, Library ve Caches gibi dizinlerin yollarını gösterir.
+       Android'de files dizinini, önbellek dizinini ve harici depolama yollarını ortaya çıkarır.
+       Uygulamanın hassas verileri veya yapılandırma dosyalarını nerede sakladığını bulmak için temel bir keşif adımıdır.
    command: "env"
 
- - title: objection - browse filesystem
-   desc: |
-     Lists the files and directories in the current working directory of the application sandbox.
-     It provides metadata such as permissions, file sizes, and ownership details, similar to a standard Unix ls command.
-     This command is used to navigate the app's internal storage and identify interesting files for extraction.
-     You can use 'cd' to move between directories discovered via this command.
+ - title:
+     en: objection - browse filesystem
+     tr: objection - dosya sistemine göz at
+   desc:
+     en: |
+       Lists the files and directories in the current working directory of the application sandbox.
+       It provides metadata such as permissions, file sizes, and ownership details, similar to a standard Unix ls command.
+       This command is used to navigate the app's internal storage and identify interesting files for extraction.
+       You can use 'cd' to move between directories discovered via this command.
+     tr: |
+       Uygulama sandbox'ındaki çalışma dizininde bulunan dosya ve dizinleri listeler.
+       İzinler, dosya boyutları ve sahiplik bilgileri gibi üstverileri gösterir; standart Unix ls komutuna benzer.
+       Uygulamanın dahili depolamasında gezinmek ve dışa aktarılacak ilginç dosyaları belirlemek için kullanılır.
+       Bu komutla keşfedilen dizinler arasında 'cd' ile geçiş yapabilirsiniz.
    command: "ls"
 
- - title: objection - download file
-   desc: |
-     Downloads a file from the mobile device's filesystem to your local machine for offline analysis.
-     This is commonly used to extract SQLite databases, Plist configuration files, or cached images.
-     The first argument is the remote file path on the device, and the second is the local destination name.
-     Ensure you have read permissions for the target file within the application's sandbox context.
+ - title:
+     en: objection - download file
+     tr: objection - dosya indir
+   desc:
+     en: |
+       Downloads a file from the mobile device's filesystem to your local machine for offline analysis.
+       This is commonly used to extract SQLite databases, Plist configuration files, or cached images.
+       The first argument is the remote file path on the device, and the second is the local destination name.
+       Ensure you have read permissions for the target file within the application's sandbox context.
+     tr: |
+       Çevrimdışı analiz için mobil cihazın dosya sisteminden yerel makinenize dosya indirir.
+       SQLite veritabanlarını, Plist yapılandırma dosyalarını veya önbelleğe alınmış görüntüleri çıkarmak için yaygın olarak kullanılır.
+       İlk argüman cihazdaki uzak dosya yoludur, ikincisi ise yerel hedef addır.
+       Uygulamanın sandbox bağlamında hedef dosya için okuma izniniz olduğundan emin olun.
    command: "filesystem download {{remote_file}} {{local_destination}}"
 
  # === IOS SPECIFIC ACTIONS ===
 
- - title: objection - read ios plist
-   desc: |
-     Parses and displays the contents of an iOS Property List (Plist) file directly in the REPL.
-     Plists are frequently used on iOS to store application settings, user preferences, and sometimes sensitive credentials.
-     This command saves the step of downloading the file and using an external viewer to see its contents.
-     It can handle both XML and Binary Plist formats automatically.
+ - title:
+     en: objection - read ios plist
+     tr: objection - ios plist oku
+   desc:
+     en: |
+       Parses and displays the contents of an iOS Property List (Plist) file directly in the REPL.
+       Plists are frequently used on iOS to store application settings, user preferences, and sometimes sensitive credentials.
+       This command saves the step of downloading the file and using an external viewer to see its contents.
+       It can handle both XML and Binary Plist formats automatically.
+     tr: |
+       iOS Özellik Listesi (Plist) dosyasının içeriğini doğrudan REPL içinde ayrıştırıp gösterir.
+       Plist dosyaları iOS'te uygulama ayarlarını, kullanıcı tercihlerini ve bazen hassas kimlik bilgilerini saklamak için sıkça kullanılır.
+       Bu komut, dosyayı indirip harici bir görüntüleyici kullanma adımını ortadan kaldırır.
+       XML ve Binary Plist biçimlerini otomatik olarak işleyebilir.
    command: "ios plist cat {{plist_file|Info.plist}}"
 
- - title: objection - bypass ios ssl pinning
-   desc: |
-     Attempts to disable SSL pinning on iOS by hooking common networking libraries like Alamofire or AFNetworking.
-     This is a vital command for intercepting HTTPS traffic using tools like Burp Suite or OWASP ZAP.
-     It works by dynamically modifying the return values of certificate validation methods at runtime.
-     Note that custom pinning implementations might require manual hooking if this automated script fails.
+ - title:
+     en: objection - bypass ios ssl pinning
+     tr: objection - ios SSL sabitlemesini atlat
+   desc:
+     en: |
+       Attempts to disable SSL pinning on iOS by hooking common networking libraries like Alamofire or AFNetworking.
+       This is a vital command for intercepting HTTPS traffic using tools like Burp Suite or OWASP ZAP.
+       It works by dynamically modifying the return values of certificate validation methods at runtime.
+       Note that custom pinning implementations might require manual hooking if this automated script fails.
+     tr: |
+       Alamofire veya AFNetworking gibi yaygın ağ kütüphanelerine kanca atarak iOS'te SSL sabitlemeyi (SSL pinning) devre dışı bırakmayı dener.
+       Burp Suite veya OWASP ZAP gibi araçlarla HTTPS trafiğini yakalamak için hayati bir komuttur.
+       Sertifika doğrulama yöntemlerinin dönüş değerlerini çalışma anında değiştirerek çalışır.
+       Bu otomatik betik başarısız olursa özel sabitleme uygulamalarının manuel kanca atmayı gerektirebileceğini unutmayın.
    command: "ios sslpinning disable"
 
- - title: objection - dump ios keychain
-   desc: |
-     Dumps the contents of the iOS Keychain that the application has access to.
-     The Keychain is the standard secure storage for passwords, keys, and certificates on Apple devices.
-     This command allows you to see what secrets the app is persisting between sessions or sharing across the ecosystem.
-     Be aware that this only shows entries accessible to the specific application's entitlement group.
+ - title:
+     en: objection - dump ios keychain
+     tr: objection - ios anahtar zincirini dök
+   desc:
+     en: |
+       Dumps the contents of the iOS Keychain that the application has access to.
+       The Keychain is the standard secure storage for passwords, keys, and certificates on Apple devices.
+       This command allows you to see what secrets the app is persisting between sessions or sharing across the ecosystem.
+       Be aware that this only shows entries accessible to the specific application's entitlement group.
+     tr: |
+       Uygulamanın erişebildiği iOS Anahtar Zinciri (Keychain) içeriğini döker.
+       Anahtar Zinciri, Apple cihazlarda parolalar, anahtarlar ve sertifikalar için standart güvenli depolamadır.
+       Bu komut, uygulamanın oturumlar arasında hangi gizli verileri sakladığını veya ekosistemde paylaştığını görmenizi sağlar.
+       Bunun yalnızca ilgili uygulamanın yetki grubunun erişebildiği kayıtları gösterdiğini unutmayın.
    command: "ios keychain dump"
 
  # === ANDROID SPECIFIC ACTIONS ===
 
- - title: objection - list android activities
-   desc: |
-     Enumerates all of the Activities declared in the Android application's manifest.
-     Activities represent the different screens or entry points within an Android app.
-     Finding unexported or hidden activities can lead to the discovery of administrative panels or bypassed authentication logic.
-     The output provides the full class names required for launching intents or setting hooks.
+ - title:
+     en: objection - list android activities
+     tr: objection - android activity'leri listele
+   desc:
+     en: |
+       Enumerates all of the Activities declared in the Android application's manifest.
+       Activities represent the different screens or entry points within an Android app.
+       Finding unexported or hidden activities can lead to the discovery of administrative panels or bypassed authentication logic.
+       The output provides the full class names required for launching intents or setting hooks.
+     tr: |
+       Android uygulamasının manifest dosyasında tanımlı tüm Activity'leri numaralandırır.
+       Activity'ler bir Android uygulaması içindeki farklı ekranları veya giriş noktalarını temsil eder.
+       Dışa aktarılmamış veya gizli activity'leri bulmak, yönetim panellerinin keşfine veya atlatılmış kimlik doğrulama mantığına götürebilir.
+       Çıktı, intent başlatmak veya kanca kurmak için gereken tam sınıf adlarını verir.
    command: "android hooking list activities"
 
- - title: objection - launch android activity
-   desc: |
-     Forces the application to launch a specific Activity using an Android Intent.
-     This can be used to access screens that are otherwise locked behind login screens or complex workflows.
-     It is a powerful technique for testing how an Activity handles unexpected states or malformed intent data.
-     Use the full class name obtained from the 'list activities' command as the target.
+ - title:
+     en: objection - launch android activity
+     tr: objection - android activity başlat
+   desc:
+     en: |
+       Forces the application to launch a specific Activity using an Android Intent.
+       This can be used to access screens that are otherwise locked behind login screens or complex workflows.
+       It is a powerful technique for testing how an Activity handles unexpected states or malformed intent data.
+       Use the full class name obtained from the 'list activities' command as the target.
+     tr: |
+       Bir Android Intent kullanarak uygulamayı belirli bir Activity'yi başlatmaya zorlar.
+       Oturum açma ekranlarının veya karmaşık iş akışlarının arkasında kilitli ekranlara erişmek için kullanılabilir.
+       Bir Activity'nin beklenmedik durumları veya bozuk intent verisini nasıl işlediğini test etmek için güçlü bir tekniktir.
+       Hedef olarak 'list activities' komutundan alınan tam sınıf adını kullanın.
    command: "android intent launch_activity {{activity_class}}"
 
- - title: objection - bypass android ssl pinning
-   desc: |
-     Injects a script to disable various SSL pinning implementations on Android.
-     It targets common libraries such as OkHttp3, trust managers, and several vendor-specific classes.
-     This allows the tester to proxy the application's network traffic through a local intercepting proxy.
-     Successful bypass usually requires the device to have a trusted CA certificate from the proxy installed in its user store.
+ - title:
+     en: objection - bypass android ssl pinning
+     tr: objection - android SSL sabitlemesini atlat
+   desc:
+     en: |
+       Injects a script to disable various SSL pinning implementations on Android.
+       It targets common libraries such as OkHttp3, trust managers, and several vendor-specific classes.
+       This allows the tester to proxy the application's network traffic through a local intercepting proxy.
+       Successful bypass usually requires the device to have a trusted CA certificate from the proxy installed in its user store.
+     tr: |
+       Android'de çeşitli SSL sabitleme (SSL pinning) uygulamalarını devre dışı bırakan bir betik enjekte eder.
+       OkHttp3, trust manager sınıfları ve çeşitli üreticiye özel sınıflar gibi yaygın kütüphaneleri hedefler.
+       Test uzmanının uygulama ağ trafiğini yerel bir yakalama vekil sunucusu (proxy) üzerinden geçirmesini sağlar.
+       Başarılı bir atlatma için genellikle cihazın kullanıcı deposunda vekil sunucunun güvenilir CA sertifikasının kurulu olması gerekir.
    command: "android sslpinning disable"
 
  # === DATABASE ANALYSIS ===
 
- - title: objection - connect to sqlite database
-   desc: |
-     Connects to a SQLite database file found within the application's filesystem.
-     Once connected, objection provides a subset of SQL commands to explore the database structure and data.
-     It actually downloads a temporary copy of the database to perform queries, making it safe for the live file.
-     This is highly effective for auditing local data storage and finding sensitive user information.
+ - title:
+     en: objection - connect to sqlite database
+     tr: objection - sqlite veritabanına bağlan
+   desc:
+     en: |
+       Connects to a SQLite database file found within the application's filesystem.
+       Once connected, objection provides a subset of SQL commands to explore the database structure and data.
+       It actually downloads a temporary copy of the database to perform queries, making it safe for the live file.
+       This is highly effective for auditing local data storage and finding sensitive user information.
+     tr: |
+       Uygulamanın dosya sisteminde bulunan bir SQLite veritabanı dosyasına bağlanır.
+       Bağlantı kurulduğunda objection, veritabanı yapısını ve verisini keşfetmek için bir dizi SQL komutu sunar.
+       Sorguları veritabanının geçici bir kopyası üzerinde çalıştırır; bu sayede canlı dosya için güvenlidir.
+       Yerel veri depolamayı denetlemek ve hassas kullanıcı bilgilerini bulmak için oldukça etkilidir.
    command: "sqlite connect {{database_file|data.sqlite}}"
 
- - title: objection - execute sqlite query
-   desc: |
-     Executes a raw SQL query against the currently connected SQLite database.
-     You must first run the 'sqlite connect' command before this feature becomes available in the session.
-     It is used to dump table contents, filter for specific records, or analyze the database schema.
-     Be careful when performing write operations as they may not be reflected back to the device depending on the session state.
+ - title:
+     en: objection - execute sqlite query
+     tr: objection - sqlite sorgusu çalıştır
+   desc:
+     en: |
+       Executes a raw SQL query against the currently connected SQLite database.
+       You must first run the 'sqlite connect' command before this feature becomes available in the session.
+       It is used to dump table contents, filter for specific records, or analyze the database schema.
+       Be careful when performing write operations as they may not be reflected back to the device depending on the session state.
+     tr: |
+       O anda bağlı olan SQLite veritabanına ham SQL sorgusu çalıştırır.
+       Bu özellik oturumda kullanılabilir olmadan önce 'sqlite connect' komutunu çalıştırmalısınız.
+       Tablo içeriklerini dökmek, belirli kayıtları filtrelemek veya veritabanı şemasını analiz etmek için kullanılır.
+       Oturum durumuna bağlı olarak yazma işlemleri cihaza yansımayabileceğinden dikkatli olun.
    command: "sqlite execute query {{sql_query|select * from users;}}"

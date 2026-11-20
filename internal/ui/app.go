@@ -11,6 +11,7 @@ import (
 	tea "charm.land/bubbletea/v2"
 
 	"github.com/halilkirazkaya/arsenal-ng/internal/config"
+	"github.com/halilkirazkaya/arsenal-ng/internal/language"
 	"github.com/halilkirazkaya/arsenal-ng/internal/model"
 	"github.com/halilkirazkaya/arsenal-ng/internal/ui/finder"
 	"github.com/halilkirazkaya/arsenal-ng/internal/variables"
@@ -28,14 +29,25 @@ func New(cheats []*model.Cheat) App {
 		log.Printf("WARNING: Failed to load global variables, continuing with empty store: %v", err)
 		globals = variables.Empty()
 	}
+	// The saved language decides which translations render; same fallback.
+	lang := config.DefaultLanguage
+	langs, err := language.New()
+	if err != nil {
+		log.Printf("WARNING: Failed to load language, continuing with default: %v", err)
+		langs = language.Empty()
+	} else {
+		lang = langs.Get()
+	}
 
 	return App{
 		view:    viewSearch,
 		cheats:  cheats,
 		globals: globals,
+		langs:   langs,
+		lang:    lang,
 		width:   config.DefaultWidth,
 		height:  config.DefaultHeight,
-		search:  finder.New(cheats),
+		search:  finder.New(cheats).SetLang(lang),
 	}
 }
 

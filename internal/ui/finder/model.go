@@ -31,11 +31,13 @@ type Model struct {
 	width int
 	// Terminal height for layout calculation.
 	height int
-
 	// Status message for user feedback.
 	StatusMsg string
 	// Whether the status message is an error.
 	StatusIsError bool
+
+	// lang selects the title/description translations.
+	lang string
 }
 
 // =============================================================================
@@ -60,6 +62,7 @@ func New(cheats []*model.Cheat) Model {
 		Cursor:   -1,
 		width:    config.DefaultWidth,
 		height:   config.DefaultHeight,
+		lang:     config.DefaultLanguage,
 	}
 }
 
@@ -89,4 +92,15 @@ func (m Model) ResetList(cheats []*model.Cheat) Model {
 	m.Cursor = -1
 	m.Offset = 0
 	return m
+}
+
+// SetLang selects the title/description translations.
+func (m Model) SetLang(lang string) Model {
+	m.lang = lang
+	return m
+}
+
+// Lang returns the active translation language.
+func (m Model) Lang() string {
+	return m.lang
 }

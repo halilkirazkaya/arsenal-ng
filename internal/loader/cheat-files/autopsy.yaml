@@ -4,48 +4,88 @@ tags: [forensics, digital-forensics, tsk, incident-response, security, analysis]
 # === STARTUP AND CONFIGURATION ===
 
 actions:
-  - title: autopsy - basic startup
-    desc: |
-      Launch the Autopsy Forensic Browser with default configuration settings. This command initializes the local web server on port 9999 and restricts access to the localhost. It is the standard way to begin a digital forensics investigation on a local workstation.
+  - title:
+      en: autopsy - basic startup
+      tr: autopsy - temel başlatma
+    desc:
+      en: |
+        Launch the Autopsy Forensic Browser with default configuration settings. This command initializes the local web server on port 9999 and restricts access to the localhost. It is the standard way to begin a digital forensics investigation on a local workstation.
+      tr: |
+        Autopsy Adli Tarayıcıyı varsayılan yapılandırma ayarlarıyla başlatır. Bu komut, yerel web sunucusunu 9999. bağlantı noktasında başlatır ve erişimi localhost ile sınırlar. Yerel iş istasyonunda adli bilişim incelemesine başlamanın standart yoludur.
     command: "autopsy"
 
-  - title: autopsy - custom port
-    desc: |
-      Start the Autopsy web interface on a specific network port. This is useful when the default port 9999 is already occupied by another service or when following specific network policies. Ensure that the chosen port is not blocked by local firewall rules to allow browser access.
+  - title:
+      en: autopsy - custom port
+      tr: autopsy - özel bağlantı noktası
+    desc:
+      en: |
+        Start the Autopsy web interface on a specific network port. This is useful when the default port 9999 is already occupied by another service or when following specific network policies. Ensure that the chosen port is not blocked by local firewall rules to allow browser access.
+      tr: |
+        Autopsy web arayüzünü belirli bir ağ bağlantı noktasında başlatır. Varsayılan 9999. bağlantı noktası başka bir hizmetçe kullanılıyorsa veya belirli ağ ilkeleri izleniyorsa yararlıdır. Tarayıcı erişimine izin için seçilen bağlantı noktasının yerel güvenlik duvarı kurallarıyla engellenmediğinden emin olun.
     command: "autopsy -p {{port|8080}}"
 
-  - title: autopsy - evidence locker
-    desc: |
-      Specify the directory used as the evidence locker for storing case metadata and configurations. This directory acts as the central repository for all forensic projects created within the tool. Using a dedicated, high-capacity drive for the evidence locker is recommended for large investigations.
+  - title:
+      en: autopsy - evidence locker
+      tr: autopsy - kanıt dolabı
+    desc:
+      en: |
+        Specify the directory used as the evidence locker for storing case metadata and configurations. This directory acts as the central repository for all forensic projects created within the tool. Using a dedicated, high-capacity drive for the evidence locker is recommended for large investigations.
+      tr: |
+        Vaka üstverisi ve yapılandırmalarını saklamak için kanıt dolabı olarak kullanılan dizini belirtir. Bu dizin, araçta oluşturulan tüm adli projeler için merkezi depo görevi görür. Büyük incelemelerde kanıt dolabı için ayrılmış, yüksek kapasiteli sürücü kullanılması önerilir.
     command: "autopsy -d {{evidence_locker_path}}"
 
-  - title: autopsy - remote access
-    desc: |
-      Start the server and permit a specific remote IP address to connect to the forensic browser interface. This allows an investigator to run the backend on a powerful server while accessing the GUI from a separate workstation. By default, Autopsy only allows connections from the local machine for security purposes.
+  - title:
+      en: autopsy - remote access
+      tr: autopsy - uzak erişim
+    desc:
+      en: |
+        Start the server and permit a specific remote IP address to connect to the forensic browser interface. This allows an investigator to run the backend on a powerful server while accessing the GUI from a separate workstation. By default, Autopsy only allows connections from the local machine for security purposes.
+      tr: |
+        Sunucuyu başlatıp belirli bir uzak IP adresinin adli tarayıcı arayüzüne bağlanmasına izin verir. Bu, araştırmacının arka ucu güçlü bir sunucuda çalıştırırken GUI'ye ayrı bir iş istasyonundan erişmesine olanak tanır. Autopsy güvenlik amacıyla varsayılan olarak yalnızca yerel makineden bağlantılara izin verir.
     command: "autopsy {{remote_ip}}"
 
 # === SECURITY AND SESSION MANAGEMENT ===
 
-  - title: autopsy - force cookie
-    desc: |
-      Enable the enforcement of cookies within the URL for session management. This security feature helps prevent certain types of session hijacking or unauthorized access to the forensic data via the web interface. It is highly recommended when running Autopsy in an environment where the network might be shared.
+  - title:
+      en: autopsy - force cookie
+      tr: autopsy - çerezi zorla
+    desc:
+      en: |
+        Enable the enforcement of cookies within the URL for session management. This security feature helps prevent certain types of session hijacking or unauthorized access to the forensic data via the web interface. It is highly recommended when running Autopsy in an environment where the network might be shared.
+      tr: |
+        Oturum yönetimi için URL içinde çerez kullanımını zorunlu kılar. Bu güvenlik özelliği, web arayüzü üzerinden adli verilere belirli oturum gaspı veya yetkisiz erişim türlerini önlemeye yardımcı olur. Autopsy ağın paylaşımlı olabileceği bir ortamda çalıştırılırken şiddetle önerilir.
     command: "autopsy -c"
 
-  - title: autopsy - disable cookies
-    desc: |
-      Force the Autopsy server to operate without requiring cookies in the URL. This may be used in specific troubleshooting scenarios where the browser environment fails to handle the generated cookies correctly. Note that disabling cookies can decrease the security of the forensic session.
+  - title:
+      en: autopsy - disable cookies
+      tr: autopsy - çerezleri devre dışı bırak
+    desc:
+      en: |
+        Force the Autopsy server to operate without requiring cookies in the URL. This may be used in specific troubleshooting scenarios where the browser environment fails to handle the generated cookies correctly. Note that disabling cookies can decrease the security of the forensic session.
+      tr: |
+        Autopsy sunucusunu URL'de çerez gerektirmeden çalışmaya zorlar. Bu, tarayıcı ortamının üretilen çerezleri doğru işleyemediği belirli sorun giderme senaryolarında kullanılabilir. Çerezleri devre dışı bırakmanın adli oturumun güvenliğini azaltabileceğini unutmayın.
     command: "autopsy -C"
 
 # === LIVE ANALYSIS ===
 
-  - title: autopsy - live analysis mode
-    desc: |
-      Configure Autopsy to perform live analysis on a specific device and filesystem. You must provide the path to the device, the type of filesystem, and the mount point where the device is currently attached. This mode is essential for triaging a running system without creating a full forensic image first.
+  - title:
+      en: autopsy - live analysis mode
+      tr: autopsy - canlı analiz kipi
+    desc:
+      en: |
+        Configure Autopsy to perform live analysis on a specific device and filesystem. You must provide the path to the device, the type of filesystem, and the mount point where the device is currently attached. This mode is essential for triaging a running system without creating a full forensic image first.
+      tr: |
+        Autopsy'yi belirli bir cihaz ve dosya sisteminde canlı analiz yapacak şekilde yapılandırır. Cihazın yolunu, dosya sistemi türünü ve cihazın bağlı olduğu bağlama noktasını vermelisiniz. Bu kip, önce tam adli imaj oluşturmadan çalışan bir sistemi triyajlamak için gereklidir.
     command: "autopsy -i {{device|/dev/sdb1}} {{filesystem|ext4}} {{mount_point|/mnt/analysis}}"
 
 # === ADVANCED COMBO ===
 
-  - title: autopsy - secure remote session
-    desc: |
-      Launch a secured remote session using a custom evidence locker and a specific port while forcing cookie authentication. This configuration is ideal for professional forensic environments where the server is hosted remotely. It combines storage management, accessibility, and session security in a single command.
+  - title:
+      en: autopsy - secure remote session
+      tr: autopsy - güvenli uzak oturum
+    desc:
+      en: |
+        Launch a secured remote session using a custom evidence locker and a specific port while forcing cookie authentication. This configuration is ideal for professional forensic environments where the server is hosted remotely. It combines storage management, accessibility, and session security in a single command.
+      tr: |
+        Özel kanıt dolabı ve belirli bir bağlantı noktası kullanarak çerez kimlik doğrulamasını zorlayan güvenli bir uzak oturum başlatır. Bu yapılandırma, sunucunun uzakta barındırıldığı profesyonel adli ortamlarda idealdir. Depolama yönetimi, erişilebilirlik ve oturum güvenliğini tek komutta birleştirir.
     command: "autopsy -d {{evidence_locker_path}} -p {{port|9999}} -c {{remote_ip}}"

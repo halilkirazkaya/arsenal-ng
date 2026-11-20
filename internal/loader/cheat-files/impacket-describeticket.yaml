@@ -4,57 +4,106 @@ tags: [kerberos, active-directory, security, pentest, impacket, enumeration]
 actions:
 # === BASIC PARSING ===
 
- - title: impacket-describeTicket - basic ticket parsing
-   desc: |
-     Parse a Kerberos ticket file in .ccache format without decryption. This command is the primary starting point to inspect a captured ticket's metadata.
-     It displays basic fields such as the Client Name, Server Name, Ticket Flags, and start/end times.
-     Note that without providing keys or passwords, the encrypted part of the ticket and the PAC (Privilege Attribute Certificate) will remain hidden.
+ - title:
+     en: impacket-describeTicket - basic ticket parsing
+     tr: impacket-describeTicket - temel bilet ayrıştırma
+   desc:
+     en: |
+       Parse a Kerberos ticket file in .ccache format without decryption. This command is the primary starting point to inspect a captured ticket's metadata.
+       It displays basic fields such as the Client Name, Server Name, Ticket Flags, and start/end times.
+       Note that without providing keys or passwords, the encrypted part of the ticket and the PAC (Privilege Attribute Certificate) will remain hidden.
+     tr: |
+       Kerberos bilet dosyasını (.ccache) şifre çözmeden ayrıştırır; yakalanan biletin meta verisini incelemenin ilk adımıdır.
+       İstemci Adı, Sunucu Adı, Bilet Bayrakları ile başlangıç/bitiş zamanları gibi alanları gösterir.
+       Anahtar/parola verilmeden biletin şifreli kısmı ve PAC gizli kalır.
    command: "impacket-describeTicket {{ticket_path}}"
 
 # === DECRYPTION & PAC ANALYSIS ===
 
- - title: impacket-describeTicket - decrypt ticket with cleartext password
-   desc: |
-     Decrypt the encrypted part of the ticket and parse the PAC using a cleartext password. This is used when you have the credentials of the service account for which the ticket was issued.
-     For example, if the ticket is for 'cifs/server.domain.com', you need the 'server$' machine account password or its equivalent.
-     Successfully decrypting the ticket reveals detailed group memberships, SIDs, and account information contained within the PAC.
+ - title:
+     en: impacket-describeTicket - decrypt ticket with cleartext password
+     tr: impacket-describeTicket - açık parolayla bilet şifresi çözme
+   desc:
+     en: |
+       Decrypt the encrypted part of the ticket and parse the PAC using a cleartext password. This is used when you have the credentials of the service account for which the ticket was issued.
+       For example, if the ticket is for 'cifs/server.domain.com', you need the 'server$' machine account password or its equivalent.
+       Successfully decrypting the ticket reveals detailed group memberships, SIDs, and account information contained within the PAC.
+     tr: |
+       Biletin şifreli kısmını ve PAC'i açık parola ile çözüp ayrıştırır.
+       Biletin düzenlendiği hizmet hesabının kimliği gerektiğinde kullanılır.
+       Başarılı çözüm grup üyelikleri, SID'ler ve hesap bilgilerini ortaya çıkarır.
    command: "impacket-describeTicket -u {{user}} -p {{password}} -d {{domain}} {{ticket_path}}"
 
- - title: impacket-describeTicket - decrypt ticket with RC4 key (NT Hash)
-   desc: |
-     Decrypt the ticket using the RC4 key (NT hash) of the target service account. This is a common technique in post-exploitation scenarios where hashes have been dumped via NTDS.dit or LSASS.
-     The tool will use the provided hash to derive the necessary session keys to read the encrypted ticket contents.
-     Be aware that RC4 might be disabled in strictly hardened modern Active Directory environments in favor of AES.
+ - title:
+     en: impacket-describeTicket - decrypt ticket with RC4 key (NT Hash)
+     tr: impacket-describeTicket - RC4 anahtarıyla (NT Hash) çözme
+   desc:
+     en: |
+       Decrypt the ticket using the RC4 key (NT hash) of the target service account. This is a common technique in post-exploitation scenarios where hashes have been dumped via NTDS.dit or LSASS.
+       The tool will use the provided hash to derive the necessary session keys to read the encrypted ticket contents.
+       Be aware that RC4 might be disabled in strictly hardened modern Active Directory environments in favor of AES.
+     tr: |
+       Bileti hedef hizmet hesabının RC4 anahtarı (NT hash) ile çözer.
+       NTDS.dit veya LSASS'ten hash dökülen sömürü sonrası senaryolarda yaygın tekniktir.
+       Modern sertleştirilmiş ortamlarda RC4 devre dışı olabilir; AES tercih edilir.
    command: "impacket-describeTicket -u {{user}} --rc4 {{nt_hash}} -d {{domain}} {{ticket_path}}"
 
- - title: impacket-describeTicket - decrypt ticket with AES key
-   desc: |
-     Decrypt the ticket using a provided AES128 or AES256 key. Modern Windows environments (Server 2008 and later) prefer AES for Kerberos authentication.
-     This command is essential when RC4 is disabled or when you have specifically extracted AES keys from a domain controller.
-     The key should be provided as a hex string representing the Kerberos long-term key.
+ - title:
+     en: impacket-describeTicket - decrypt ticket with AES key
+     tr: impacket-describeTicket - AES anahtarıyla çözme
+   desc:
+     en: |
+       Decrypt the ticket using a provided AES128 or AES256 key. Modern Windows environments (Server 2008 and later) prefer AES for Kerberos authentication.
+       This command is essential when RC4 is disabled or when you have specifically extracted AES keys from a domain controller.
+       The key should be provided as a hex string representing the Kerberos long-term key.
+     tr: |
+       Bileti AES128/256 anahtarıyla çözer; modern Windows (2008+) Kerberos'ta AES tercih eder.
+       RC4 kapalıyken veya alan denetleyicisinden AES anahtarı çıkarıldığında gereklidir.
+       Anahtar Kerberos uzun süreli anahtarını temsil eden hex dize olarak verilir.
    command: "impacket-describeTicket -u {{user}} --aes {{aes_key}} -d {{domain}} {{ticket_path}}"
 
 # === ADVANCED TECHNIQUES ===
 
- - title: impacket-describeTicket - UnPAC-the-Hash
-   desc: |
-     Extract NT and LM hashes from the PAC Credentials structure using the AS-REP key. This implements the 'UnPAC-the-hash' primitive, which is highly effective when users authenticate via PKINIT (Smart Cards).
-     The PAC Credentials section often contains the user's secret material encrypted with the AS reply key.
-     This technique allows an attacker to recover the original NT hash of a user who has logged in via certificate-based authentication.
+ - title:
+     en: impacket-describeTicket - UnPAC-the-Hash
+     tr: impacket-describeTicket - UnPAC-the-Hash
+   desc:
+     en: |
+       Extract NT and LM hashes from the PAC Credentials structure using the AS-REP key. This implements the 'UnPAC-the-hash' primitive, which is highly effective when users authenticate via PKINIT (Smart Cards).
+       The PAC Credentials section often contains the user's secret material encrypted with the AS reply key.
+       This technique allows an attacker to recover the original NT hash of a user who has logged in via certificate-based authentication.
+     tr: |
+       AS-REP anahtarıyla PAC Kimlik Bilgileri yapısından NT ve LM hash çıkarır.
+       Kullanıcılar PKINIT (akıllı kart) ile giriş yaptığında etkili UnPAC-the-hash tekniğidir.
+       PAC Kimlik Bilgileri kısmı AS yanıt anahtarıyla şifrelenmiş kullanıcı sırrını içerir.
    command: "impacket-describeTicket -u {{user}} --asrep-key {{as_reply_key}} {{ticket_path}}"
 
- - title: impacket-describeTicket - decrypt with custom salt
-   desc: |
-     Specify a custom salt for key calculation during the decryption process. This is often necessary for computer accounts or users with non-standard naming conventions where the default salt derivation might fail.
-     The salt for a user is typically 'DOMAIN.LOCALUsername', while for computer accounts it is 'DOMAIN.LOCALhostMachineName.domain.local'.
-     Providing the correct salt ensures that the tool generates the correct encryption keys from the provided password.
+ - title:
+     en: impacket-describeTicket - decrypt with custom salt
+     tr: impacket-describeTicket - özel salt ile çözme
+   desc:
+     en: |
+       Specify a custom salt for key calculation during the decryption process. This is often necessary for computer accounts or users with non-standard naming conventions where the default salt derivation might fail.
+       The salt for a user is typically 'DOMAIN.LOCALUsername', while for computer accounts it is 'DOMAIN.LOCALhostMachineName.domain.local'.
+       Providing the correct salt ensures that the tool generates the correct encryption keys from the provided password.
+     tr: |
+       Anahtar türetmede özel salt belirterek şifre çözme yapar.
+       Standart dışı adlandırmalı hesap veya makinelerde varsayılan salt türetmesi başarısız olursa gerekir.
+       Doğru salt sağlanınca araç paroladan doğru şifreleme anahtarını üretir.
    command: "impacket-describeTicket -u {{user}} -p {{password}} -s {{salt}} {{ticket_path}}"
 
 # === TROUBLESHOOTING ===
 
- - title: impacket-describeTicket - verbose debug output
-   desc: |
-     Enable debug logging and timestamps for the ticket parsing process. This is extremely useful for troubleshooting failed decryption attempts or identifying malformed ticket structures.
-     The debug output shows internal Impacket library logs, which can reveal exactly where the decryption or parsing logic encountered an error.
-     Use this when the tool fails to parse a ticket that you believe should be valid.
+ - title:
+     en: impacket-describeTicket - verbose debug output
+     tr: impacket-describeTicket - ayrıntılı hata ayıklama çıktısı
+   desc:
+     en: |
+       Enable debug logging and timestamps for the ticket parsing process. This is extremely useful for troubleshooting failed decryption attempts or identifying malformed ticket structures.
+       The debug output shows internal Impacket library logs, which can reveal exactly where the decryption or parsing logic encountered an error.
+       Use this when the tool fails to parse a ticket that you believe should be valid.
+     tr: |
+       Bilet ayrıştırma sürecinde hata ayıklama günlüğü ve zaman damgalarını etkinleştirir.
+       Başarısız çözüm veya bozuk bilet yapılarında sorun gidermede çok faydalıdır.
+       Araç geçerli görünen bileti ayrıştıramadığında kullanın.
    command: "impacket-describeTicket -debug -ts {{ticket_path}}"

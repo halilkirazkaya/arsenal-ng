@@ -4,62 +4,118 @@ tags: [pentest, network, security, enumeration, active-directory, impacket, reco
 # === AUTHENTICATION METHODS ===
 
 actions:
- - title: impacket-machine_role - basic password authentication
-   desc: |
-     Retrieve the host's role and primary domain details using standard username and password authentication.
-     This command is the standard way to identify whether a target is a Domain Controller, a member server, or a workstation.
-     It is essential for initial reconnaissance to map out the Active Directory environment architecture.
-     Be aware that multiple failed login attempts may trigger account lockout policies.
+ - title:
+     en: impacket-machine_role - basic password authentication
+     tr: impacket-machine_role - temel parola kimlik doğrulaması
+   desc:
+     en: |
+       Retrieve the host's role and primary domain details using standard username and password authentication.
+       This command is the standard way to identify whether a target is a Domain Controller, a member server, or a workstation.
+       It is essential for initial reconnaissance to map out the Active Directory environment architecture.
+       Be aware that multiple failed login attempts may trigger account lockout policies.
+     tr: |
+       Standart kullanıcı adı ve parola kimlik doğrulamasıyla makinenin rolünü ve birincil etki alanı ayrıntılarını alır.
+       Hedefin Etki Alanı Denetleyicisi mi, üye sunucu mu yoksa iş istasyonu mu olduğunu belirlemenin standart yoludur.
+       Active Directory ortam mimarisini haritalamak için ilk keşifte esastır.
+       Birden çok başarısız giriş denemesinin hesap kilitleme ilkelerini tetikleyebileceğini unutmayın.
    command: "impacket-machine_role {{domain/username|CONTOSO/Administrator}}:{{password}}@{{target_ip}}"
 
- - title: impacket-machine_role - pass-the-hash authentication
-   desc: |
-     Perform host role enumeration using NTLM hashes instead of a cleartext password.
-     This is particularly useful during lateral movement when you have acquired a user's hash but not their password.
-     The hash must be provided in the LMHASH:NTHASH format; if you only have the NT hash, prefix it with an empty LM hash.
-     This method bypasses the need for interactive login credentials.
+ - title:
+     en: impacket-machine_role - pass-the-hash authentication
+     tr: impacket-machine_role - hash ile (pass-the-hash) kimlik doğrulama
+   desc:
+     en: |
+       Perform host role enumeration using NTLM hashes instead of a cleartext password.
+       This is particularly useful during lateral movement when you have acquired a user's hash but not their password.
+       The hash must be provided in the LMHASH:NTHASH format; if you only have the NT hash, prefix it with an empty LM hash.
+       This method bypasses the need for interactive login credentials.
+     tr: |
+       Açık parola yerine NTLM hash'leriyle makine rolü numaralandırması yapar.
+       Kullanıcının hash'ini ele geçirip parolasını bilmediğinizde yanal hareket sırasında özellikle kullanışlıdır.
+       Hash, LMHASH:NTHASH biçiminde verilmeli; yalnızca NT hash'i varsa başına boş LM hash'i ekleyin.
+       Bu yöntem etkileşimli giriş kimlik bilgilerine ihtiyacı ortadan kaldırır.
    command: "impacket-machine_role -hashes {{hash}} {{domain/username|CONTOSO/Administrator}}@{{target_ip}}"
 
- - title: impacket-machine_role - kerberos authentication
-   desc: |
-     Authenticate using Kerberos tickets stored in a ccache file.
-     This requires the KRB5CCNAME environment variable to be set to the path of your valid Kerberos ticket.
-     Use the -no-pass flag to ensure the tool uses the ticket instead of prompting for a password.
-     This is a stealthier method often used in environments where NTLM is disabled or heavily monitored.
+ - title:
+     en: impacket-machine_role - kerberos authentication
+     tr: impacket-machine_role - Kerberos ile kimlik doğrulama
+   desc:
+     en: |
+       Authenticate using Kerberos tickets stored in a ccache file.
+       This requires the KRB5CCNAME environment variable to be set to the path of your valid Kerberos ticket.
+       Use the -no-pass flag to ensure the tool uses the ticket instead of prompting for a password.
+       This is a stealthier method often used in environments where NTLM is disabled or heavily monitored.
+     tr: |
+       Ccache dosyasındaki Kerberos biletleriyle kimlik doğrulaması yapar.
+       KRB5CCNAME ortam değişkeninin geçerli Kerberos biletinizin yoluna ayarlanması gerekir.
+       Aracın parola sormak yerine bileti kullanması için -no-pass bayrağını kullanın.
+       NTLM'nin devre dışı veya yoğun izlendiği ortamlarda sıkça kullanılan daha gizli bir yöntemdir.
    command: "impacket-machine_role -k -no-pass {{domain/username|CONTOSO/Administrator}}@{{target_name}}"
 
- - title: impacket-machine_role - kerberos with aes key
-   desc: |
-     Authenticate via Kerberos using a specific AES hex key (128 or 256 bits).
-     This provides a way to use Kerberos authentication without a password or a pre-existing ticket file.
-     It is highly effective for testing or bypassing certain security controls that monitor ticket requests.
-     Ensure the -k flag is included to signal the use of Kerberos.
+ - title:
+     en: impacket-machine_role - kerberos with aes key
+     tr: impacket-machine_role - AES anahtarıyla Kerberos
+   desc:
+     en: |
+       Authenticate via Kerberos using a specific AES hex key (128 or 256 bits).
+       This provides a way to use Kerberos authentication without a password or a pre-existing ticket file.
+       It is highly effective for testing or bypassing certain security controls that monitor ticket requests.
+       Ensure the -k flag is included to signal the use of Kerberos.
+     tr: |
+       Belirli bir AES onaltılık anahtarla (128 veya 256 bit) Kerberos ile kimlik doğrulaması yapar.
+       Parola veya önceden var olan bilet dosyası olmadan Kerberos kimlik doğrulaması kullanmanın bir yolunu sağlar.
+       Bilet isteklerini izleyen belirli güvenlik denetimlerini test etmek veya atlatmak için oldukça etkilidir.
+       Kerberos kullanımını belirtmek için -k bayrağının eklendiğinden emin olun.
    command: "impacket-machine_role -k -aesKey {{aes_key}} {{domain/username}}@{{target_name}}"
 
 # === CONNECTION AND NETWORK OPTIONS ===
 
- - title: impacket-machine_role - custom smb port
-   desc: |
-     Connect to the target using a non-standard SMB port.
-     This is useful when targets are behind port forwards or when SMB is bound to a custom port for obfuscation.
-     By default, the tool attempts to connect to port 445.
-     Changing the port can help bypass simple firewall rules that only block standard ports.
+ - title:
+     en: impacket-machine_role - custom smb port
+     tr: impacket-machine_role - özel SMB portu
+   desc:
+     en: |
+       Connect to the target using a non-standard SMB port.
+       This is useful when targets are behind port forwards or when SMB is bound to a custom port for obfuscation.
+       By default, the tool attempts to connect to port 445.
+       Changing the port can help bypass simple firewall rules that only block standard ports.
+     tr: |
+       Standart dışı bir SMB portuyla hedefe bağlanır.
+       Hedefler port yönlendirme arkasındayken veya SMB gizleme için özel porta bağlandığında kullanışlıdır.
+       Araç varsayılan olarak 445 portuna bağlanmaya çalışır.
+       Portu değiştirmek yalnızca standart portları engelleyen basit güvenlik duvarı kurallarını atlatmaya yardımcı olabilir.
    command: "impacket-machine_role -port {{port|445}} {{domain/username}}:{{password}}@{{target_ip}}"
 
- - title: impacket-machine_role - specify target ip and dc ip
-   desc: |
-     Explicitly define both the target IP and the Domain Controller IP address.
-     The -target-ip flag is useful when the target name provided in the connection string cannot be resolved by DNS.
-     The -dc-ip flag ensures that Kerberos or domain-related queries are sent to the correct Domain Controller.
-     This is often necessary in complex or isolated networking environments.
+ - title:
+     en: impacket-machine_role - specify target ip and dc ip
+     tr: impacket-machine_role - hedef IP ve DC IP belirtme
+   desc:
+     en: |
+       Explicitly define both the target IP and the Domain Controller IP address.
+       The -target-ip flag is useful when the target name provided in the connection string cannot be resolved by DNS.
+       The -dc-ip flag ensures that Kerberos or domain-related queries are sent to the correct Domain Controller.
+       This is often necessary in complex or isolated networking environments.
+     tr: |
+       Hem hedef IP'yi hem Etki Alanı Denetleyicisi IP adresini açıkça tanımlar.
+       -target-ip bayrağı, bağlantı dizesindeki hedef adı DNS ile çözülemediğinde kullanışlıdır.
+       -dc-ip bayrağı, Kerberos veya etki alanıyla ilgili sorguların doğru Etki Alanı Denetleyicisine gönderilmesini sağlar.
+       Bu, karmaşık veya yalıtılmış ağ ortamlarında sıkça gereklidir.
    command: "impacket-machine_role -target-ip {{target_ip}} -dc-ip {{dc_ip}} {{domain/username}}:{{password}}@{{hostname}}"
 
 # === LOGGING AND TROUBLESHOOTING ===
 
- - title: impacket-machine_role - debug and timestamps
-   desc: |
-     Run the tool with debug mode enabled and timestamps added to every output line.
-     Debug mode provides a verbose log of the underlying RPC calls and SMB negotiations, which is vital for troubleshooting.
-     Timestamps help in documenting the exact time of actions for reporting and correlation with server-side logs.
-     Use this when the tool fails silently or returns unexpected errors.
+ - title:
+     en: impacket-machine_role - debug and timestamps
+     tr: impacket-machine_role - hata ayıklama ve zaman damgaları
+   desc:
+     en: |
+       Run the tool with debug mode enabled and timestamps added to every output line.
+       Debug mode provides a verbose log of the underlying RPC calls and SMB negotiations, which is vital for troubleshooting.
+       Timestamps help in documenting the exact time of actions for reporting and correlation with server-side logs.
+       Use this when the tool fails silently or returns unexpected errors.
+     tr: |
+       Aracı hata ayıklama modu etkin ve her çıktı satırında zaman damgasıyla çalıştırır.
+       Hata ayıklama modu, sorun gidermede hayati temel RPC çağrıları ve SMB anlaşmalarının ayrıntılı günlüğünü verir.
+       Zaman damgaları, raporlama için eylemlerin tam zamanını belgelemeye ve sunucu tarafı günlüklerle ilişkilendirmeye yardımcı olur.
+       Araç sessizce başarısız olduğunda veya beklenmedik hatalar döndürdüğünde kullanın.
    command: "impacket-machine_role -debug -ts {{domain/username}}:{{password}}@{{target_ip}}"

@@ -3,118 +3,230 @@ tags: [wordpress, cms, management, security, pentest, administration, automation
 
 actions:
 # === CORE & CONFIGURATION ===
- - title: wp - download wordpress core
-   desc: |
-     Download the WordPress core files to the current directory or a specified path. 
-     This is the first step in setting up a new installation from the command line. 
-     You can specify a version number or use the latest stable release.
+ - title:
+     en: wp - download wordpress core
+     tr: wp - wordpress çekirdeği indirme
+   desc:
+     en: |
+       Download the WordPress core files to the current directory or a specified path. 
+       This is the first step in setting up a new installation from the command line. 
+       You can specify a version number or use the latest stable release.
+     tr: |
+       WordPress çekirdek dosyalarını mevcut dizine veya belirtilen bir yola indirir.
+       Bu, komut satırından yeni kurulum yapmanın ilk adımıdır.
+       Bir sürüm numarası belirtebilir veya en son kararlı sürümü kullanabilirsiniz.
    command: "wp core download --version={{version|latest}} --path={{path|.}}"
 
- - title: wp - install wordpress
-   desc: |
-     Run the WordPress installation script to set up the database and initial admin user. 
-     This replaces the web-based installation process and requires an existing database configuration. 
-     Ensure you provide a strong admin password to prevent unauthorized access.
+ - title:
+     en: wp - install wordpress
+     tr: wp - wordpress kurulumu
+   desc:
+     en: |
+       Run the WordPress installation script to set up the database and initial admin user. 
+       This replaces the web-based installation process and requires an existing database configuration. 
+       Ensure you provide a strong admin password to prevent unauthorized access.
+     tr: |
+       Veritabanını ve ilk yönetici kullanıcıyı ayarlamak için WordPress kurulum betiğini çalıştırır.
+       Bu, web tabanlı kurulum sürecinin yerini alır ve mevcut bir veritabanı yapılandırması gerektirir.
+       Yetkisiz erişimi önlemek için güçlü bir yönetici parolası verdiğinizden emin olun.
    command: "wp core install --url={{url}} --title={{site_title|WordPress Site}} --admin_user={{admin_user|admin}} --admin_password={{admin_password}} --admin_email={{admin_email}}"
 
- - title: wp - generate config file
-   desc: |
-     Generate a new wp-config.php file with database credentials. 
-     This command is used during setup to link the WordPress files to the SQL database. 
-     Make sure the database and user are already created in your SQL server before running this.
+ - title:
+     en: wp - generate config file
+     tr: wp - yapılandırma dosyası üretme
+   desc:
+     en: |
+       Generate a new wp-config.php file with database credentials. 
+       This command is used during setup to link the WordPress files to the SQL database. 
+       Make sure the database and user are already created in your SQL server before running this.
+     tr: |
+       Veritabanı kimlik bilgileriyle yeni bir wp-config.php dosyası üretir.
+       Bu komut kurulum sırasında WordPress dosyalarını SQL veritabanına bağlamak için kullanılır.
+       Bunu çalıştırmadan önce veritabanı ve kullanıcının SQL sunucusunda oluşturulduğundan emin olun.
    command: "wp config create --dbname={{db_name}} --dbuser={{db_user}} --dbpass={{db_password}} --dbhost={{db_host|localhost}}"
 
 # === DATABASE OPERATIONS ===
- - title: wp - export database
-   desc: |
-     Export the WordPress database to a SQL file for backup or migration purposes. 
-     It uses the credentials stored in the wp-config.php file to connect to the database. 
-     This is a critical step before performing any major site updates or search-and-replace operations.
+ - title:
+     en: wp - export database
+     tr: wp - veritabanı dışa aktarma
+   desc:
+     en: |
+       Export the WordPress database to a SQL file for backup or migration purposes. 
+       It uses the credentials stored in the wp-config.php file to connect to the database. 
+       This is a critical step before performing any major site updates or search-and-replace operations.
+     tr: |
+       WordPress veritabanını yedekleme veya taşıma amacıyla bir SQL dosyasına aktarır.
+       Veritabanına bağlanmak için wp-config.php dosyasındaki kimlik bilgilerini kullanır.
+       Bu, büyük site güncellemeleri veya arama-değiştirme işlemlerinden önce kritik bir adımdır.
    command: "wp db export {{filename|backup.sql}}"
 
- - title: wp - search and replace strings
-   desc: |
-     Search for a string and replace it with another across the entire database. 
-     This is specifically designed to handle serialized PHP data correctly, which is vital for WordPress migrations. 
-     It is highly recommended to use the --dry-run flag first to verify changes before they are written.
+ - title:
+     en: wp - search and replace strings
+     tr: wp - dize arama ve değiştirme
+   desc:
+     en: |
+       Search for a string and replace it with another across the entire database. 
+       This is specifically designed to handle serialized PHP data correctly, which is vital for WordPress migrations. 
+       It is highly recommended to use the --dry-run flag first to verify changes before they are written.
+     tr: |
+       Bir dizeyi arayıp tüm veritabanında başka bir dizeyle değiştirir.
+       Bu, WordPress taşımaları için hayati olan serileştirilmiş PHP verisini doğru işlemek üzere özel tasarlanmıştır.
+       Değişiklikler yazılmadan önce kontrol için --dry-run bayrağını kullanmanız önemle önerilir.
    command: "wp search-replace {{old_string}} {{new_string}} --dry-run"
 
- - title: wp - execute sql query
-   desc: |
-     Run arbitrary SQL queries directly against the WordPress database. 
-     This provides a quick way to inspect tables or modify data without entering a MySQL shell. 
-     Use caution as direct database manipulation can bypass WordPress safety checks.
+ - title:
+     en: wp - execute sql query
+     tr: wp - sql sorgusu çalıştırma
+   desc:
+     en: |
+       Run arbitrary SQL queries directly against the WordPress database. 
+       This provides a quick way to inspect tables or modify data without entering a MySQL shell. 
+       Use caution as direct database manipulation can bypass WordPress safety checks.
+     tr: |
+       Doğrudan WordPress veritabanına karşı rastgele SQL sorguları çalıştırır.
+       Bu, MySQL kabuğuna girmeden tabloları incelemenin veya veriyi değiştirmenin hızlı bir yolunu sunar.
+       Doğrudan veritabanı müdahalesi WordPress güvenlik denetimlerini atlayabileceğinden dikkatli kullanın.
    command: "wp db query '{{sql_query|SELECT * FROM wp_users LIMIT 5;}}'"
 
 # === USER MANAGEMENT ===
- - title: wp - create user
-   desc: |
-     Create a new user account with a specified role and password. 
-     This is useful for adding team members or creating service accounts without dashboard access. 
-     Available roles typically include administrator, editor, author, contributor, and subscriber.
+ - title:
+     en: wp - create user
+     tr: wp - kullanıcı oluşturma
+   desc:
+     en: |
+       Create a new user account with a specified role and password. 
+       This is useful for adding team members or creating service accounts without dashboard access. 
+       Available roles typically include administrator, editor, author, contributor, and subscriber.
+     tr: |
+       Belirli bir rol ve parolayla yeni bir kullanıcı hesabı oluşturur.
+       Bu, pano erişimi olmadan ekip üyeleri veya servis hesapları eklemek için kullanışlıdır.
+       Mevcut roller genellikle yönetici, editör, yazar, katkı sağlayan ve abone içerir.
    command: "wp user create {{username}} {{email}} --role={{role|administrator}} --user_pass={{password}}"
 
- - title: wp - update user password
-   desc: |
-     Reset the password for an existing WordPress user account. 
-     This is often used to regain access to a site when the administrator password is lost or compromised. 
-     The user can be identified by their ID, username, or email address.
+ - title:
+     en: wp - update user password
+     tr: wp - kullanıcı parolası güncelleme
+   desc:
+     en: |
+       Reset the password for an existing WordPress user account. 
+       This is often used to regain access to a site when the administrator password is lost or compromised. 
+       The user can be identified by their ID, username, or email address.
+     tr: |
+       Mevcut bir WordPress kullanıcı hesabının parolasını sıfırlar.
+       Bu, genellikle yönetici parolası kaybolduğunda veya ele geçirildiğinde siteye yeniden erişim için kullanılır.
+       Kullanıcı kimliği, kullanıcı adı veya e-posta adresiyle belirtilebilir.
    command: "wp user update {{user_identifier|1}} --user_pass={{new_password}}"
 
- - title: wp - list all users
-   desc: |
-     Display a list of all users registered on the WordPress site. 
-     The output includes user IDs, login names, display names, emails, and roles. 
-     This is a standard enumeration step for security audits to identify accounts with high privileges.
+ - title:
+     en: wp - list all users
+     tr: wp - tüm kullanıcıları listeleme
+   desc:
+     en: |
+       Display a list of all users registered on the WordPress site. 
+       The output includes user IDs, login names, display names, emails, and roles. 
+       This is a standard enumeration step for security audits to identify accounts with high privileges.
+     tr: |
+       WordPress sitesine kayıtlı tüm kullanıcıların listesini gösterir.
+       Çıktı kullanıcı kimlikleri, giriş adları, görünen adlar, e-postalar ve rolleri içerir.
+       Bu, yüksek ayrıcalıklı hesapları belirlemek için güvenlik denetimlerinde standart bir numaralandırma adımıdır.
    command: "wp user list --fields={{fields|ID,user_login,roles}}"
 
 # === PLUGIN & THEME MANAGEMENT ===
- - title: wp - list and filter plugins
-   desc: |
-     List all installed plugins and show their status (active, inactive, update available). 
-     This helps administrators quickly audit what is running on the site. 
-     You can filter the list to show only active or inactive plugins to streamline management.
+ - title:
+     en: wp - list and filter plugins
+     tr: wp - eklentileri listeleme ve filtreleme
+   desc:
+     en: |
+       List all installed plugins and show their status (active, inactive, update available). 
+       This helps administrators quickly audit what is running on the site. 
+       You can filter the list to show only active or inactive plugins to streamline management.
+     tr: |
+       Kurulu tüm eklentileri listeler ve durumlarını (aktif, pasif, güncelleme mevcut) gösterir.
+       Bu, sitede nelerin çalıştığını hızla denetlemek için yöneticilere yardımcı olur.
+       Yönetimi kolaylaştırmak için listeyi yalnızca aktif veya pasif eklentileri gösterecek şekilde filtreleyebilirsiniz.
    command: "wp plugin list --status={{status|active}}"
 
- - title: wp - install and activate plugin
-   desc: |
-     Download, install, and activate a plugin from the WordPress.org repository. 
-     You can specify a plugin slug, a URL to a ZIP file, or a local file path. 
-     This is an efficient way to set up standard security or performance tools across multiple sites.
+ - title:
+     en: wp - install and activate plugin
+     tr: wp - eklenti kurma ve etkinleştirme
+   desc:
+     en: |
+       Download, install, and activate a plugin from the WordPress.org repository. 
+       You can specify a plugin slug, a URL to a ZIP file, or a local file path. 
+       This is an efficient way to set up standard security or performance tools across multiple sites.
+     tr: |
+       WordPress.org deposundan bir eklentiyi indirir, kurar ve etkinleştirir.
+       Bir eklenti kısaltması, ZIP dosyası URL'si veya yerel dosya yolu belirtebilirsiniz.
+       Bu, standart güvenlik veya performans araçlarını birden çok siteye kurmanın verimli bir yoludur.
    command: "wp plugin install {{plugin_slug}} --activate"
 
- - title: wp - update all plugins
-   desc: |
-     Update all currently installed plugins to their latest versions. 
-     Keeping plugins updated is the most important step in maintaining WordPress security. 
-     Always ensure you have a fresh database backup before running bulk updates.
+ - title:
+     en: wp - update all plugins
+     tr: wp - tüm eklentileri güncelleme
+   desc:
+     en: |
+       Update all currently installed plugins to their latest versions. 
+       Keeping plugins updated is the most important step in maintaining WordPress security. 
+       Always ensure you have a fresh database backup before running bulk updates.
+     tr: |
+       Kurulu tüm eklentileri en son sürümlerine günceller.
+       Eklentileri güncel tutmak WordPress güvenliğini sağlamada en önemli adımdır.
+       Toplu güncellemeler yapmadan önce mutlaka güncel bir veritabanı yedeği alın.
    command: "wp plugin update --all"
 
- - title: wp - activate a theme
-   desc: |
-     Switch the site's active theme to a different installed theme. 
-     This is useful for troubleshooting site-wide display issues or performing design refreshes. 
-     The theme must already be installed on the server for this command to succeed.
+ - title:
+     en: wp - activate a theme
+     tr: wp - tema etkinleştirme
+   desc:
+     en: |
+       Switch the site's active theme to a different installed theme. 
+       This is useful for troubleshooting site-wide display issues or performing design refreshes. 
+       The theme must already be installed on the server for this command to succeed.
+     tr: |
+       Sitenin aktif temasını kurulu başka bir temayla değiştirir.
+       Bu, site genelindeki görünüm sorunlarını gidermek veya tasarım yenilemeleri için kullanışlıdır.
+       Bu komutun başarılı olması için temanın sunucuda kurulu olması gerekir.
    command: "wp theme activate {{theme_name}}"
 
 # === MAINTENANCE & SHELL ===
- - title: wp - toggle maintenance mode
-   desc: |
-     Activate or deactivate the built-in WordPress maintenance mode. 
-     When active, visitors will see a notification that the site is temporarily down for maintenance. 
-     This is useful during file migrations or when making significant structural changes to the site.
+ - title:
+     en: wp - toggle maintenance mode
+     tr: wp - bakım modunu açma/kapama
+   desc:
+     en: |
+       Activate or deactivate the built-in WordPress maintenance mode. 
+       When active, visitors will see a notification that the site is temporarily down for maintenance. 
+       This is useful during file migrations or when making significant structural changes to the site.
+     tr: |
+       Yerleşik WordPress bakım modunu etkinleştirir veya devre dışı bırakır.
+       Etkin olduğunda ziyaretçiler sitenin geçici olarak bakımda olduğuna dair bir bildirim görür.
+       Bu, dosya taşımaları sırasında veya sitede önemli yapısal değişiklikler yaparken kullanışlıdır.
    command: "wp maintenance-mode {{action|activate}}"
 
- - title: wp - interactive php shell
-   desc: |
-     Open an interactive PHP shell (REPL) within the context of the WordPress environment. 
-     This allows you to run WordPress functions, test code snippets, or inspect variables in real-time. 
-     It is an invaluable tool for developers debugging plugin or theme logic.
+ - title:
+     en: wp - interactive php shell
+     tr: wp - etkileşimli php kabuğu
+   desc:
+     en: |
+       Open an interactive PHP shell (REPL) within the context of the WordPress environment. 
+       This allows you to run WordPress functions, test code snippets, or inspect variables in real-time. 
+       It is an invaluable tool for developers debugging plugin or theme logic.
+     tr: |
+       WordPress ortamı bağlamında etkileşimli bir PHP kabuğu (REPL) açar.
+       Bu, WordPress işlevlerini çalıştırmanıza, kod parçacıklarını test etmenize veya değişkenleri gerçek zamanlı incelemenize olanak tanır.
+       Eklenti veya tema mantığında hata ayıklayan geliştiriciler için paha biçilmez bir araçtır.
    command: "wp shell"
 
- - title: wp - evaluate php code
-   desc: |
-     Execute a string of PHP code after loading the WordPress environment. 
-     This is useful for quick one-off tasks like checking a specific option or triggering a hook. 
-     Be careful with the code provided, as it has full execution privileges over the site.
+ - title:
+     en: wp - evaluate php code
+     tr: wp - php kodu değerlendirme
+   desc:
+     en: |
+       Execute a string of PHP code after loading the WordPress environment. 
+       This is useful for quick one-off tasks like checking a specific option or triggering a hook. 
+       Be careful with the code provided, as it has full execution privileges over the site.
+     tr: |
+       WordPress ortamı yüklendikten sonra bir PHP kod dizesi çalıştırır.
+       Bu, belirli bir seçeneği denetlemek veya bir kancayı tetiklemek gibi hızlı tek seferlik görevler için kullanışlıdır.
+       Verilen kodun site üzerinde tam yürütme yetkisi olduğundan dikkatli olun.
    command: "wp eval '{{php_code|var_dump(get_option(\"siteurl\"));}}'"

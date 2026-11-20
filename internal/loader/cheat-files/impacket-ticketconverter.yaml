@@ -4,36 +4,68 @@ tags: [pentest, security, kerberos, active-directory, exploitation, authenticati
 actions:
 # === TICKET CONVERSION ACTIONS ===
 
- - title: impacket-ticketConverter - convert kirbi to ccache
-   desc: |
-     Converts a Windows-native Kerberos ticket (Kirbi/KRB-CRED format) into a Linux-compatible ccache format. 
-     This is a critical step when you have exported tickets from a Windows machine using tools like Mimikatz or Rubeus and intend to use them on a Linux-based attack platform. 
-     Once the ticket is converted to ccache, you can export it to your environment using 'export KRB5CCNAME=ticket.ccache' to use it with other Impacket tools like psexec or smbclient. 
-     The tool automatically handles the parsing of the KRB-CRED structure to ensure compatibility with MIT Kerberos implementations.
+ - title:
+    en: impacket-ticketConverter - convert kirbi to ccache
+    tr: impacket-ticketConverter - kirbi'yi ccache'e dönüştürme
+   desc:
+     en: |
+       Converts a Windows-native Kerberos ticket (Kirbi/KRB-CRED format) into a Linux-compatible ccache format. 
+       This is a critical step when you have exported tickets from a Windows machine using tools like Mimikatz or Rubeus and intend to use them on a Linux-based attack platform. 
+       Once the ticket is converted to ccache, you can export it to your environment using 'export KRB5CCNAME=ticket.ccache' to use it with other Impacket tools like psexec or smbclient. 
+       The tool automatically handles the parsing of the KRB-CRED structure to ensure compatibility with MIT Kerberos implementations.
+     tr: |
+       Windows'a özgü bir Kerberos biletini (Kirbi/KRB-CRED biçimi) Linux uyumlu ccache biçimine dönüştürür.
+       Mimikatz veya Rubeus gibi araçlarla bir Windows makinesinden bilet çıkarıp Linux tabanlı bir saldırı platformunda kullanmayı planladığınızda kritik bir adımdır.
+       Bilet ccache'e dönüştürüldükten sonra 'export KRB5CCNAME=ticket.ccache' ile ortamınıza tanımlayıp psexec veya smbclient gibi diğer Impacket araçlarıyla kullanabilirsiniz.
+       Araç, MIT Kerberos uygulamalarıyla uyumluluğu sağlamak için KRB-CRED yapısının çözümlemesini otomatik olarak halleder.
    command: "impacket-ticketConverter {{input_ticket.kirbi}} {{output_ticket.ccache}}"
 
- - title: impacket-ticketConverter - convert ccache to kirbi
-   desc: |
-     Converts a Linux MIT Kerberos cache (ccache) file into a Windows-compatible Kirbi (KRB-CRED) format. 
-     This procedure is frequently used when a penetration tester obtains a Kerberos ticket on a Linux system and needs to move it to a Windows environment for lateral movement. 
-     The resulting Kirbi file can be injected directly into the Windows LSASS memory space using tools like Mimikatz (via 'kerberos::ptt') or Rubeus. 
-     It is important to ensure the ticket is still within its validity period, as converting an expired ticket will not make it functional on the target Windows host.
+ - title:
+    en: impacket-ticketConverter - convert ccache to kirbi
+    tr: impacket-ticketConverter - ccache'i kirbi'ye dönüştürme
+   desc:
+     en: |
+       Converts a Linux MIT Kerberos cache (ccache) file into a Windows-compatible Kirbi (KRB-CRED) format. 
+       This procedure is frequently used when a penetration tester obtains a Kerberos ticket on a Linux system and needs to move it to a Windows environment for lateral movement. 
+       The resulting Kirbi file can be injected directly into the Windows LSASS memory space using tools like Mimikatz (via 'kerberos::ptt') or Rubeus. 
+       It is important to ensure the ticket is still within its validity period, as converting an expired ticket will not make it functional on the target Windows host.
+     tr: |
+       Bir Linux MIT Kerberos önbellek (ccache) dosyasını Windows uyumlu Kirbi (KRB-CRED) biçimine dönüştürür.
+       Bir sızma testçisi Linux sisteminde bir Kerberos bileti elde edip yatay hareket için Windows ortamına taşıması gerektiğinde sıkça kullanılır.
+       Oluşan Kirbi dosyası, Mimikatz ('kerberos::ptt' ile) veya Rubeus gibi araçlarla doğrudan Windows LSASS bellek alanına enjekte edilebilir.
+       Süresi dolmuş bir bileti dönüştürmek hedef Windows makinede çalışır hale getirmeyeceğinden biletin hâlâ geçerlilik süresi içinde olduğundan emin olmak önemlidir.
    command: "impacket-ticketConverter {{input_ticket.ccache}} {{output_ticket.kirbi}}"
 
 # === PRACTICAL USAGE SCENARIOS ===
 
- - title: impacket-ticketConverter - prepare harvested ticket for impacket tools
-   desc: |
-     This command facilitates the transition from a credential harvesting phase to an active exploitation phase. 
-     After successfully dumping tickets from a compromised Windows workstation, use this command to transform the .kirbi files into .ccache files. 
-     This allows the attacker to perform Pass-the-Ticket attacks from a remote Linux machine without needing to interact further with the Windows UI. 
-     Be mindful of the file paths, as providing an incorrect input path will result in a file-not-found error.
+ - title:
+    en: impacket-ticketConverter - prepare harvested ticket for impacket tools
+    tr: impacket-ticketConverter - toplanan bileti impacket araçlarına hazırlama
+   desc:
+     en: |
+       This command facilitates the transition from a credential harvesting phase to an active exploitation phase. 
+       After successfully dumping tickets from a compromised Windows workstation, use this command to transform the .kirbi files into .ccache files. 
+       This allows the attacker to perform Pass-the-Ticket attacks from a remote Linux machine without needing to interact further with the Windows UI. 
+       Be mindful of the file paths, as providing an incorrect input path will result in a file-not-found error.
+     tr: |
+       Bu komut, kimlik bilgisi toplama aşamasından aktif istismar aşamasına geçişi kolaylaştırır.
+       Ele geçirilmiş bir Windows iş istasyonundan biletleri başarıyla döktükten sonra .kirbi dosyalarını .ccache dosyalarına dönüştürmek için bu komutu kullanın.
+       Böylece saldırgan, Windows arayüzüyle daha fazla etkileşime gerek kalmadan uzak bir Linux makineden Pass-the-Ticket saldırıları yapabilir.
+       Yanlış bir girdi yolu dosya bulunamadı hatasına yol açacağından dosya yollarına dikkat edin.
    command: "impacket-ticketConverter {{harvested_mimikatz.kirbi}} {{ready_to_use.ccache}}"
 
- - title: impacket-ticketConverter - convert rubeus dump to linux format
-   desc: |
-     Converts a base64-decoded Rubeus ticket dump that has been saved to a file into a format usable by Linux tools. 
-     Rubeus often outputs tickets in base64 format; once decoded and saved as a binary file, this tool provides the bridge to the Impacket ecosystem. 
-     This is particularly useful in complex Active Directory environments where different segments of the network are accessed via different operating systems. 
-     Ensure the output filename has a clear .ccache extension to avoid confusion during multi-stage engagements.
+ - title:
+    en: impacket-ticketConverter - convert rubeus dump to linux format
+    tr: impacket-ticketConverter - rubeus dökümünü linux biçimine dönüştürme
+   desc:
+     en: |
+       Converts a base64-decoded Rubeus ticket dump that has been saved to a file into a format usable by Linux tools. 
+       Rubeus often outputs tickets in base64 format; once decoded and saved as a binary file, this tool provides the bridge to the Impacket ecosystem. 
+       This is particularly useful in complex Active Directory environments where different segments of the network are accessed via different operating systems. 
+       Ensure the output filename has a clear .ccache extension to avoid confusion during multi-stage engagements.
+     tr: |
+       Dosyaya kaydedilmiş, base64 çözülmüş bir Rubeus bilet dökümünü Linux araçlarının kullanabileceği biçime dönüştürür.
+       Rubeus biletleri sıkça base64 biçiminde çıktılar; çözülüp ikili dosya olarak kaydedildikten sonra bu araç Impacket ekosistemine köprü kurar.
+       Ağın farklı kesimlerine farklı işletim sistemleriyle erişilen karmaşık Active Directory ortamlarında özellikle faydalıdır.
+       Çok aşamalı testlerde karışıklığı önlemek için çıktı dosya adının açık bir .ccache uzantısı taşıdığından emin olun.
    command: "impacket-ticketConverter {{rubeus_dump.kirbi}} {{linux_compatible.ccache}}"

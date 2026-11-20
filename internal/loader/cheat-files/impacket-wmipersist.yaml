@@ -4,54 +4,102 @@ tags: [pentest, persistence, wmi, windows, impacket, exploitation, red-team]
 actions:
   # === INSTALLATION ACTIONS ===
 
-  - title: impacket-wmipersist - install persistence with password
-    desc: |
-      Installs a WMI Event Consumer and Filter on a remote target using cleartext credentials. 
-      This is a common method for establishing long-term persistence by executing a VBScript when a specific WMI event occurs. 
-      The VQL filter defines the trigger condition, such as a specific time or a system event. 
-      Be aware that this requires administrative privileges and will leave permanent WMI objects on the target system.
+  - title:
+      en: impacket-wmipersist - install persistence with password
+      tr: impacket-wmipersist - parola ile kalıcılık kurma
+    desc:
+      en: |
+        Installs a WMI Event Consumer and Filter on a remote target using cleartext credentials. 
+        This is a common method for establishing long-term persistence by executing a VBScript when a specific WMI event occurs. 
+        The VQL filter defines the trigger condition, such as a specific time or a system event. 
+        Be aware that this requires administrative privileges and will leave permanent WMI objects on the target system.
+      tr: |
+        Açık kimlik bilgileriyle uzak bir hedefe WMI Olay Tüketicisi (Event Consumer) ve Filtresi kurar.
+        Belirli bir WMI olayı gerçekleştiğinde bir VBScript çalıştırarak uzun vadeli kalıcılık sağlamanın yaygın bir yöntemidir.
+        VQL filtresi, belirli bir zaman veya sistem olayı gibi tetikleme koşulunu tanımlar.
+        Bunun yönetici ayrıcalıkları gerektirdiğini ve hedef sistemde kalıcı WMI nesneleri bırakacağını unutmayın.
     command: "impacket-wmipersist {{domain}}/{{username}}:{{password}}@{{target_ip}} install -name {{persistence_name|BackupSync}} -vbs {{vbs_file_path}} -filter \"{{wql_filter|SELECT * FROM __InstanceModificationEvent WITHIN 60 WHERE TargetInstance ISA 'Win32_LocalTime' AND TargetInstance.Hour = 12}}\""
 
-  - title: impacket-wmipersist - install persistence using NTLM hashes
-    desc: |
-      Establishes WMI persistence using Pass-the-Hash (PtH) authentication instead of a cleartext password. 
-      This is highly effective when you have extracted NTLM hashes from memory or a SAM database but cannot crack them. 
-      The tool creates a subscription that links an event filter to a script consumer. 
-      Ensure the VBScript provided is reachable or its content is correctly handled by the tool for remote execution.
+  - title:
+      en: impacket-wmipersist - install persistence using NTLM hashes
+      tr: impacket-wmipersist - NTLM hash'leri ile kalıcılık kurma
+    desc:
+      en: |
+        Establishes WMI persistence using Pass-the-Hash (PtH) authentication instead of a cleartext password. 
+        This is highly effective when you have extracted NTLM hashes from memory or a SAM database but cannot crack them. 
+        The tool creates a subscription that links an event filter to a script consumer. 
+        Ensure the VBScript provided is reachable or its content is correctly handled by the tool for remote execution.
+      tr: |
+        Açık parola yerine Pass-the-Hash (PtH) kimlik doğrulamasıyla WMI kalıcılığı kurar.
+        Bellekten veya SAM veritabanından NTLM hash'lerini çıkarıp kıramadığınızda oldukça etkilidir.
+        Araç, bir olay filtresini bir betik tüketicisine bağlayan bir abonelik oluşturur.
+        Verilen VBScript'in erişilebilir olduğundan veya içeriğinin uzak çalıştırma için araçça doğru işlendiğinden emin olun.
     command: "impacket-wmipersist {{domain}}/{{username}}@{{target_ip}} -hashes {{hash}} install -name {{persistence_name|SystemUpdate}} -vbs {{vbs_file_path}} -filter \"{{wql_filter}}\""
 
-  - title: impacket-wmipersist - install with timer-based trigger
-    desc: |
-      Configures persistence to trigger based on a simple timer interval rather than a complex WQL filter. 
-      This is useful for periodic execution of a payload (e.g., a beacon or reverse shell) every few minutes or hours. 
-      The interval is typically specified in milliseconds. 
-      It creates a `__TimerInstruction` object in the WMI repository to manage the timing.
+  - title:
+      en: impacket-wmipersist - install with timer-based trigger
+      tr: impacket-wmipersist - zamanlayıcı tetikleyicili kurulum
+    desc:
+      en: |
+        Configures persistence to trigger based on a simple timer interval rather than a complex WQL filter. 
+        This is useful for periodic execution of a payload (e.g., a beacon or reverse shell) every few minutes or hours. 
+        The interval is typically specified in milliseconds. 
+        It creates a `__TimerInstruction` object in the WMI repository to manage the timing.
+      tr: |
+        Kalıcılığı karmaşık bir WQL filtresi yerine basit bir zamanlayıcı aralığına göre tetiklenecek şekilde yapılandırır.
+        Bir yükün (örn. bir beacon veya ters kabuk) birkaç dakikada veya saatte bir periyodik çalıştırılması için faydalıdır.
+        Aralık genellikle milisaniye cinsinden belirtilir.
+        Zamanlamayı yönetmek için WMI deposunda bir `__TimerInstruction` nesnesi oluşturur.
     command: "impacket-wmipersist {{domain}}/{{username}}:{{password}}@{{target_ip}} install -name {{persistence_name|PeriodicTask}} -vbs {{vbs_file_path}} -timer {{interval_ms|300000}}"
 
   # === ADVANCED AUTHENTICATION ===
 
-  - title: impacket-wmipersist - persistence using Kerberos authentication
-    desc: |
-      Performs the persistence installation using Kerberos tickets, which is useful in environments where NTLM is restricted. 
-      The `-k` flag tells the tool to look for a valid Kerberos ticket in the path specified by the `KRB5CCNAME` environment variable. 
-      You must use the FQDN of the target instead of an IP address for Kerberos to function correctly. 
-      The `-dc-ip` flag is often necessary to point the tool to the Domain Controller for ticket validation.
+  - title:
+      en: impacket-wmipersist - persistence using Kerberos authentication
+      tr: impacket-wmipersist - Kerberos kimlik doğrulamalı kalıcılık
+    desc:
+      en: |
+        Performs the persistence installation using Kerberos tickets, which is useful in environments where NTLM is restricted. 
+        The `-k` flag tells the tool to look for a valid Kerberos ticket in the path specified by the `KRB5CCNAME` environment variable. 
+        You must use the FQDN of the target instead of an IP address for Kerberos to function correctly. 
+        The `-dc-ip` flag is often necessary to point the tool to the Domain Controller for ticket validation.
+      tr: |
+        Kalıcılık kurulumunu NTLM'in kısıtlı olduğu ortamlarda faydalı olan Kerberos biletleriyle gerçekleştirir.
+        `-k` bayrağı araca `KRB5CCNAME` ortam değişkeniyle belirtilen yolda geçerli bir Kerberos bileti aramasını söyler.
+        Kerberos'un doğru çalışması için IP adresi yerine hedefin FQDN'ini kullanmalısınız.
+        Bilet doğrulama için aracı Etki Alanı Denetleyicisine yönlendirmek amacıyla `-dc-ip` bayrağı genellikle gereklidir.
     command: "impacket-wmipersist {{domain}}/{{username}}@{{target_fqdn}} -k -no-pass -dc-ip {{dc_ip}} install -name {{persistence_name}} -vbs {{vbs_file_path}} -filter \"{{wql_filter}}\""
 
   # === MAINTENANCE AND CLEANUP ===
 
-  - title: impacket-wmipersist - remove WMI persistence
-    desc: |
-      Removes the previously installed WMI Event Consumer, Filter, and the Binding between them. 
-      This command is essential for cleanup after a penetration test or red team engagement to avoid leaving backdoors. 
-      You must provide the exact same name used during the installation phase. 
-      Failure to remove these objects can lead to detection by security software or blue teams monitoring WMI repository changes.
+  - title:
+      en: impacket-wmipersist - remove WMI persistence
+      tr: impacket-wmipersist - WMI kalıcılığını kaldırma
+    desc:
+      en: |
+        Removes the previously installed WMI Event Consumer, Filter, and the Binding between them. 
+        This command is essential for cleanup after a penetration test or red team engagement to avoid leaving backdoors. 
+        You must provide the exact same name used during the installation phase. 
+        Failure to remove these objects can lead to detection by security software or blue teams monitoring WMI repository changes.
+      tr: |
+        Önceden kurulan WMI Olay Tüketicisini, Filtreyi ve bunlar arasındaki Bağlantıyı kaldırır.
+        Arka kapı bırakmamak için sızma testi veya kırmızı ekip çalışması sonrası temizlikte bu komut gereklidir.
+        Kurulum aşamasında kullanılan adın birebir aynısını vermelisiniz.
+        Bu nesneleri kaldırmamak, güvenlik yazılımları veya WMI deposu değişikliklerini izleyen mavi ekipler tarafından tespit edilmeye yol açabilir.
     command: "impacket-wmipersist {{domain}}/{{username}}:{{password}}@{{target_ip}} remove -name {{persistence_name|BackupSync}}"
 
-  - title: impacket-wmipersist - debug and troubleshoot connection
-    desc: |
-      Runs the tool with the debug flag enabled to troubleshoot connection issues or RPC/DCOM errors. 
-      This provides verbose output regarding the authentication handshake and WMI object creation process. 
-      It is particularly helpful when encountering "Access Denied" errors or firewall restrictions. 
-      The timestamps help in correlating the tool's actions with server-side logs.
+  - title:
+      en: impacket-wmipersist - debug and troubleshoot connection
+      tr: impacket-wmipersist - bağlantıda hata ayıklama ve sorun giderme
+    desc:
+      en: |
+        Runs the tool with the debug flag enabled to troubleshoot connection issues or RPC/DCOM errors. 
+        This provides verbose output regarding the authentication handshake and WMI object creation process. 
+        It is particularly helpful when encountering "Access Denied" errors or firewall restrictions. 
+        The timestamps help in correlating the tool's actions with server-side logs.
+      tr: |
+        Bağlantı sorunlarını veya RPC/DCOM hatalarını gidermek için aracı hata ayıklama bayrağı etkin şekilde çalıştırır.
+        Kimlik doğrulama el sıkışması ve WMI nesnesi oluşturma süreci hakkında ayrıntılı çıktı sağlar.
+        "Access Denied" hataları veya güvenlik duvarı kısıtlamalarıyla karşılaşıldığında özellikle yardımcı olur.
+        Zaman damgaları, aracın işlemlerini sunucu tarafı günlüklerle ilişkilendirmeye yardımcı olur.
     command: "impacket-wmipersist -debug -ts {{domain}}/{{username}}:{{password}}@{{target_ip}} install -name {{persistence_name}} -vbs {{vbs_file_path}} -filter \"{{wql_filter}}\""

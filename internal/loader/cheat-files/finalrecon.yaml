@@ -3,70 +3,135 @@ tags: [reconnaissance, web, security, pentest, enumeration, osint, scanner]
 
 actions:
   # === BASIC RECONNAISSANCE ===
-  - title: finalrecon - header information
-    desc: |
-      Extracts HTTP header information from the target URL. This action is useful for identifying server versions, security headers, and potential technologies used by the web server. It provides a quick look at the server-side configuration and possible vulnerabilities like missing security headers.
+  - title:
+      en: finalrecon - header information
+      tr: finalrecon - başlık bilgisi
+    desc:
+      en: |
+        Extracts HTTP header information from the target URL. This action is useful for identifying server versions, security headers, and potential technologies used by the web server. It provides a quick look at the server-side configuration and possible vulnerabilities like missing security headers.
+      tr: |
+        Hedef URL'den HTTP başlık bilgisini çıkarır. Bu işlem; sunucu sürümlerini, güvenlik başlıklarını ve web sunucusunun kullandığı olası teknolojileri belirlemek için kullanışlıdır. Sunucu taraflı yapılandırmaya ve eksik güvenlik başlıkları gibi olası zafiyetlere hızlı bir bakış sağlar.
     command: "finalrecon --url {{target_url}} --headers"
 
-  - title: finalrecon - ssl/tls certificate info
-    desc: |
-      Retrieves detailed SSL/TLS certificate information for the target. It displays validity dates, issuer details, subject names, and cipher suites supported by the server. Use this to verify certificate authenticity or check for expired and weak configurations that could lead to man-in-the-middle attacks.
+  - title:
+      en: finalrecon - ssl/tls certificate info
+      tr: finalrecon - SSL/TLS sertifika bilgisi
+    desc:
+      en: |
+        Retrieves detailed SSL/TLS certificate information for the target. It displays validity dates, issuer details, subject names, and cipher suites supported by the server. Use this to verify certificate authenticity or check for expired and weak configurations that could lead to man-in-the-middle attacks.
+      tr: |
+        Hedef için ayrıntılı SSL/TLS sertifika bilgisini alır. Geçerlilik tarihlerini, veren bilgilerini, konu adlarını ve sunucunun desteklediği şifre paketlerini gösterir. Sertifika gerçekliğini doğrulamak veya ortadaki adam saldırılarına yol açabilecek süresi dolmuş ve zayıf yapılandırmaları denetlemek için kullanın.
     command: "finalrecon --url {{target_url}} --sslinfo"
 
-  - title: finalrecon - whois lookup
-    desc: |
-      Performs a WHOIS lookup for the target domain to gather administrative and registration data. This identifies domain owners, registration dates, expiry dates, and name server information. It is a fundamental step in OSINT for mapping the target's organizational structure and contact points.
+  - title:
+      en: finalrecon - whois lookup
+      tr: finalrecon - whois sorgusu
+    desc:
+      en: |
+        Performs a WHOIS lookup for the target domain to gather administrative and registration data. This identifies domain owners, registration dates, expiry dates, and name server information. It is a fundamental step in OSINT for mapping the target's organizational structure and contact points.
+      tr: |
+        Yönetimsel ve kayıt verilerini toplamak için hedef alan adına WHOIS sorgusu yapar. Alan adı sahiplerini, kayıt tarihlerini, bitiş tarihlerini ve isim sunucusu bilgilerini belirler. Hedefin kurumsal yapısını ve iletişim noktalarını haritalamak için OSINT'te temel bir adımdır.
     command: "finalrecon --url {{target_url}} --whois"
 
   # === ENUMERATION & DISCOVERY ===
-  - title: finalrecon - dns enumeration
-    desc: |
-      Executes DNS enumeration to discover various DNS records associated with the target domain. It attempts to fetch A, AAAA, MX, TXT, and NS records to map out the target's infrastructure. This is critical for identifying mail servers, third-party service integrations, and IP ranges.
+  - title:
+      en: finalrecon - dns enumeration
+      tr: finalrecon - DNS numaralandırması
+    desc:
+      en: |
+        Executes DNS enumeration to discover various DNS records associated with the target domain. It attempts to fetch A, AAAA, MX, TXT, and NS records to map out the target's infrastructure. This is critical for identifying mail servers, third-party service integrations, and IP ranges.
+      tr: |
+        Hedef alan adıyla ilişkili çeşitli DNS kayıtlarını keşfetmek için DNS numaralandırması yapar. Hedefin altyapısını haritalamak için A, AAAA, MX, TXT ve NS kayıtlarını çekmeye çalışır. Posta sunucularını, üçüncü taraf hizmet entegrasyonlarını ve IP aralıklarını belirlemek için kritiktir.
     command: "finalrecon --url {{target_url}} --dns"
 
-  - title: finalrecon - subdomain enumeration
-    desc: |
-      Searches for subdomains associated with the main target domain using multiple sources. This expands the attack surface by identifying forgotten dev environments, staging servers, or administrative panels. Note that this process may take time depending on the number of passive sources being queried.
+  - title:
+      en: finalrecon - subdomain enumeration
+      tr: finalrecon - subdomain numaralandırması
+    desc:
+      en: |
+        Searches for subdomains associated with the main target domain using multiple sources. This expands the attack surface by identifying forgotten dev environments, staging servers, or administrative panels. Note that this process may take time depending on the number of passive sources being queried.
+      tr: |
+        Birden çok kaynak kullanarak ana hedef alan adıyla ilişkili subdomain'leri arar. Unutulmuş geliştirme ortamlarını, test sunucularını veya yönetim panellerini tespit ederek saldırı yüzeyini genişletir. Sorgulanan pasif kaynak sayısına bağlı olarak bu işlemin zaman alabileceğini unutmayın.
     command: "finalrecon --url {{target_url}} --sub"
 
-  - title: finalrecon - directory search
-    desc: |
-      Brute-forces directories and files on the target web server using a specified wordlist. This helps in discovering hidden paths, sensitive configuration files, or unlinked backup folders. You can increase the thread count with the -dt flag to speed up the discovery process on robust targets.
+  - title:
+      en: finalrecon - directory search
+      tr: finalrecon - dizin arama
+    desc:
+      en: |
+        Brute-forces directories and files on the target web server using a specified wordlist. This helps in discovering hidden paths, sensitive configuration files, or unlinked backup folders. You can increase the thread count with the -dt flag to speed up the discovery process on robust targets.
+      tr: |
+        Belirtilen wordlist ile hedef web sunucusundaki dizin ve dosyalara kaba kuvvet uygular. Gizli yolları, hassas yapılandırma dosyalarını veya bağlantısız yedek klasörleri keşfetmeye yardımcı olur. Güçlü hedeflerde keşif işlemini hızlandırmak için -dt bayrağıyla iş parçacığı sayısını artırabilirsiniz.
     command: "finalrecon --url {{target_url}} --dir -w {{wordlist|/usr/share/wordlists/dirb/common.txt}} -dt {{threads|30}}"
 
-  - title: finalrecon - directory search with extensions
-    desc: |
-      Performs a directory search while specifically looking for files with certain extensions. This is highly effective when searching for specific file types like .php, .txt, or .bak files that might contain source code or credentials. Ensure you provide a comma-separated list of extensions without leading dots.
+  - title:
+      en: finalrecon - directory search with extensions
+      tr: finalrecon - uzantılarla dizin arama
+    desc:
+      en: |
+        Performs a directory search while specifically looking for files with certain extensions. This is highly effective when searching for specific file types like .php, .txt, or .bak files that might contain source code or credentials. Ensure you provide a comma-separated list of extensions without leading dots.
+      tr: |
+        Belirli uzantılara sahip dosyaları özellikle arayarak dizin araması yapar. Kaynak kodu veya kimlik bilgisi içerebilecek .php, .txt veya .bak gibi dosya türlerini ararken oldukça etkilidir. Baştaki noktalar olmadan virgülle ayrılmış bir uzantı listesi verdiğinizden emin olun.
     command: "finalrecon --url {{target_url}} --dir -e {{extensions|php,txt,xml,zip,bak}}"
 
-  - title: finalrecon - web crawling
-    desc: |
-      Crawls the target website to extract internal and external links found within the HTML. This helps map the site structure and discover potentially interesting endpoints or assets that are not immediately visible. It is an essential step for deeper manual analysis of the application logic.
+  - title:
+      en: finalrecon - web crawling
+      tr: finalrecon - web taraması
+    desc:
+      en: |
+        Crawls the target website to extract internal and external links found within the HTML. This helps map the site structure and discover potentially interesting endpoints or assets that are not immediately visible. It is an essential step for deeper manual analysis of the application logic.
+      tr: |
+        HTML içinde bulunan iç ve dış bağlantıları çıkarmak için hedef siteyi tarar. Site yapısını haritalamaya ve hemen görünmeyen ilginç uç noktaları veya varlıkları keşfetmeye yardımcı olur. Uygulama mantığının daha derin elle analizi için gerekli bir adımdır.
     command: "finalrecon --url {{target_url}} --crawl"
 
-  - title: finalrecon - wayback machine urls
-    desc: |
-      Fetches archived URLs from the Wayback Machine for the specified target. This allows researchers to find old files, removed pages, and historical data that might still reside on the server or provide clues about past vulnerabilities. It is a non-intrusive way to perform extensive URL discovery.
+  - title:
+      en: finalrecon - wayback machine urls
+      tr: finalrecon - wayback machine URL'leri
+    desc:
+      en: |
+        Fetches archived URLs from the Wayback Machine for the specified target. This allows researchers to find old files, removed pages, and historical data that might still reside on the server or provide clues about past vulnerabilities. It is a non-intrusive way to perform extensive URL discovery.
+      tr: |
+        Belirtilen hedef için Wayback Machine'den arşivlenmiş URL'leri çeker. Araştırmacıların sunucuda hâlâ bulunabilecek eski dosyaları, kaldırılmış sayfaları ve geçmiş zafiyetlere dair ipuçları verebilecek tarihsel verileri bulmasını sağlar. Kapsamlı URL keşfi yapmanın müdahalesiz bir yoludur.
     command: "finalrecon --url {{target_url}} --wayback"
 
   # === INFRASTRUCTURE & FULL SCAN ===
-  - title: finalrecon - fast port scan
-    desc: |
-      Performs a quick port scan on the target host to identify common open ports and services. This is useful for gaining a rapid overview of the target's network exposure before performing more detailed scans. Note that this is a basic scanner and may not replace specialized tools like Nmap for complex network environments.
+  - title:
+      en: finalrecon - fast port scan
+      tr: finalrecon - hızlı port taraması
+    desc:
+      en: |
+        Performs a quick port scan on the target host to identify common open ports and services. This is useful for gaining a rapid overview of the target's network exposure before performing more detailed scans. Note that this is a basic scanner and may not replace specialized tools like Nmap for complex network environments.
+      tr: |
+        Yaygın açık port ve hizmetleri belirlemek için hedef hostta hızlı port taraması yapar. Daha ayrıntılı taramalardan önce hedefin ağ görünürlüğüne hızlıca hakim olmak için kullanışlıdır. Bunun temel bir tarayıcı olduğunu ve karmaşık ağ ortamlarında Nmap gibi uzman araçların yerini tutmayabileceğini unutmayın.
     command: "finalrecon --url {{target_url}} --ps -pt {{threads|50}}"
 
-  - title: finalrecon - full reconnaissance
-    desc: |
-      Runs all available reconnaissance modules against the target in a single execution. This includes headers, SSL, WHOIS, DNS, subdomains, crawling, and directory searching. Use this when you want a comprehensive report on the target but be aware that it generates significant traffic and may trigger security alerts.
+  - title:
+      en: finalrecon - full reconnaissance
+      tr: finalrecon - tam keşif
+    desc:
+      en: |
+        Runs all available reconnaissance modules against the target in a single execution. This includes headers, SSL, WHOIS, DNS, subdomains, crawling, and directory searching. Use this when you want a comprehensive report on the target but be aware that it generates significant traffic and may trigger security alerts.
+      tr: |
+        Hedefe karşı mevcut tüm keşif modüllerini tek çalıştırmada yürütür. Buna başlıklar, SSL, WHOIS, DNS, subdomain'ler, tarama ve dizin arama dahildir. Hedef hakkında kapsamlı bir rapor istediğinizde kullanın ancak ciddi trafik ürettiğini ve güvenlik uyarılarını tetikleyebileceğini unutmayın.
     command: "finalrecon --url {{target_url}} --full"
 
   # === ADVANCED CONFIGURATIONS ===
-  - title: finalrecon - authenticated/api scan
-    desc: |
-      Runs reconnaissance modules while providing an API key for services that require authentication, such as Shodan. Adding an API key improves the depth and accuracy of the results for modules that rely on third-party data. Use the format 'service@key' to specify the provider and the token.
+  - title:
+      en: finalrecon - authenticated/api scan
+      tr: finalrecon - kimlik doğrulamalı/API taraması
+    desc:
+      en: |
+        Runs reconnaissance modules while providing an API key for services that require authentication, such as Shodan. Adding an API key improves the depth and accuracy of the results for modules that rely on third-party data. Use the format 'service@key' to specify the provider and the token.
+      tr: |
+        Shodan gibi kimlik doğrulama gerektiren hizmetler için API anahtarı vererek keşif modüllerini çalıştırır. API anahtarı eklemek, üçüncü taraf veriye dayanan modüllerin sonuç derinliğini ve doğruluğunu artırır. Sağlayıcı ve jetonu belirtmek için 'hizmet@anahtar' biçimini kullanın.
     command: "finalrecon --url {{target_url}} --full -k {{api_key|shodan@YOUR_KEY_HERE}}"
 
-  - title: finalrecon - export results to file
-    desc: |
-      Executes a scan and exports the gathered information into a specific format for reporting. The default export format is 'txt', but other formats may be supported depending on the tool version. This is crucial for documentation and sharing findings with stakeholders or during a penetration testing engagement.
+  - title:
+      en: finalrecon - export results to file
+      tr: finalrecon - sonuçları dosyaya aktarma
+    desc:
+      en: |
+        Executes a scan and exports the gathered information into a specific format for reporting. The default export format is 'txt', but other formats may be supported depending on the tool version. This is crucial for documentation and sharing findings with stakeholders or during a penetration testing engagement.
+      tr: |
+        Tarama yapar ve toplanan bilgiyi raporlama için belirli bir biçimde dışa aktarır. Varsayılan dışa aktarma biçimi 'txt'tir ancak araç sürümüne göre başka biçimler de desteklenebilir. Bu, belgeleme ve bulguları paydaşlarla veya sızma testi çalışması sırasında paylaşma açısından kritiktir.
     command: "finalrecon --url {{target_url}} --full -o {{format|txt}} -cd {{output_dir|./recon_results}}"

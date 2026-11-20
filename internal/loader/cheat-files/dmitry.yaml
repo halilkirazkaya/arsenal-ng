@@ -3,83 +3,159 @@ tags: [information-gathering, reconnaissance, pentest, network, whois, enumerati
 
 actions:
   # === RECONNAISSANCE & DOMAIN ENUMERATION ===
-  - title: dmitry - Whois lookup on IP address
-    desc: |
-      Perform a Whois lookup on the specific IP address of a target host. This helps identify the 
-      owner of the network block and related contact information. It is useful during the early 
-      stages of reconnaissance to determine the scope of the target's infrastructure.
+  - title:
+      en: dmitry - Whois lookup on IP address
+      tr: dmitry - IP adresinde Whois sorgulama
+    desc:
+      en: |
+        Perform a Whois lookup on the specific IP address of a target host. This helps identify the 
+        owner of the network block and related contact information. It is useful during the early 
+        stages of reconnaissance to determine the scope of the target's infrastructure.
+      tr: |
+        Hedef makinenin belirli IP adresi için Whois sorgusu yapar. Bu sorgu, ağ bloğunun sahibini
+        ve ilgili iletişim bilgilerini ortaya çıkarır. Hedef altyapının kapsamını belirlemek
+        amacıyla keşfin ilk aşamalarında yararlıdır.
     command: "dmitry -i {{target_host}}"
 
-  - title: dmitry - Whois lookup on domain name
-    desc: |
-      Perform a Whois lookup on the domain name of the target. This provides information regarding 
-      registration dates, name servers, and registrar details. It is a standard procedure for 
-      identifying domain ownership and potential administrative contacts for the organization.
+  - title:
+      en: dmitry - Whois lookup on domain name
+      tr: dmitry - Alan adında Whois sorgulama
+    desc:
+      en: |
+        Perform a Whois lookup on the domain name of the target. This provides information regarding 
+        registration dates, name servers, and registrar details. It is a standard procedure for 
+        identifying domain ownership and potential administrative contacts for the organization.
+      tr: |
+        Hedefin alan adı için Whois sorgusu yapar. Kayıt tarihleri, ad sunucuları ve kayıt kuruluşu
+        ayrıntıları gibi bilgilere ulaşmayı sağlar. Alan adı sahipliğini ve kuruma ait olası
+        yönetici iletişimlerini belirlemek için uygulanan standart bir işlemdir.
     command: "dmitry -w {{target_domain}}"
 
-  - title: dmitry - Retrieve Netcraft information
-    desc: |
-      Retrieve information about a host from Netcraft.com to identify server details. This can 
-      reveal details about the operating system, web server software, and the hosting history 
-      of the domain. It is particularly useful for identifying the underlying technology stack 
-      of a web-based target without active scanning.
+  - title:
+      en: dmitry - Retrieve Netcraft information
+      tr: dmitry - Netcraft bilgisi toplama
+    desc:
+      en: |
+        Retrieve information about a host from Netcraft.com to identify server details. This can 
+        reveal details about the operating system, web server software, and the hosting history 
+        of the domain. It is particularly useful for identifying the underlying technology stack 
+        of a web-based target without active scanning.
+      tr: |
+        Sunucu ayrıntılarını belirlemek amacıyla Netcraft.com üzerindeki ana bilgisayar kaydını
+        sorgular. İşletim sistemi, web sunucusu yazılımı ve alan adının barındırma geçmişi gibi
+        ayrıntılar ortaya çıkabilir. Etkin tarama yapmadan web tabanlı hedefin teknoloji yığınını
+        tanımak için özellikle yararlıdır.
     command: "dmitry -n {{target_host}}"
 
-  - title: dmitry - Search for subdomains
-    desc: |
-      Search for possible subdomains associated with the target domain. Identifying subdomains 
-      is crucial for expanding the attack surface and finding less secure staging or internal 
-      environments. This module queries public records and search engines to find valid hostnames 
-      belonging to the target.
+  - title:
+      en: dmitry - Search for subdomains
+      tr: dmitry - Alt alan adı arama
+    desc:
+      en: |
+        Search for possible subdomains associated with the target domain. Identifying subdomains 
+        is crucial for expanding the attack surface and finding less secure staging or internal 
+        environments. This module queries public records and search engines to find valid hostnames 
+        belonging to the target.
+      tr: |
+        Hedef alan adına bağlı olası alt alan adlarını arar. Alt alan adlarını bulmak saldırı
+        yüzeyini genişletir; güvenliği zayıf hazırlık ya da dahili ortamların yakalanmasını sağlar.
+        Bu modül, hedefe ait geçerli makine adlarını herkese açık kayıtlardan ve arama motorlarından
+        derler.
     command: "dmitry -s {{target_domain}}"
 
-  - title: dmitry - Search for email addresses
-    desc: |
-      Search for possible email addresses related to the target domain through public sources. 
-      This can be used for social engineering assessments or identifying key personnel within 
-      an organization. It aggregates results found through various search methods and displays 
-      them in a simple list.
+  - title:
+      en: dmitry - Search for email addresses
+      tr: dmitry - E-posta adresi arama
+    desc:
+      en: |
+        Search for possible email addresses related to the target domain through public sources. 
+        This can be used for social engineering assessments or identifying key personnel within 
+        an organization. It aggregates results found through various search methods and displays 
+        them in a simple list.
+      tr: |
+        Hedef alan adıyla ilişkili olası e-posta adreslerini herkese açık kaynaklardan arar. Sosyal
+        mühendislik değerlendirmelerinde ya da kurumdaki kilit personeli belirlemede kullanılabilir.
+        Çeşitli arama yöntemleriyle bulunan sonuçları yalın bir liste halinde gösterir.
     command: "dmitry -e {{target_domain}}"
 
   # === PORT SCANNING ===
-  - title: dmitry - Standard TCP port scan
-    desc: |
-      Perform a basic TCP port scan on the target host to identify open services. This is a 
-      lightweight scanning method used to quickly find active services on a remote machine. 
-      Note that this is not as stealthy or comprehensive as Nmap but serves well for a 
-      fast, integrated discovery phase.
+  - title:
+      en: dmitry - Standard TCP port scan
+      tr: dmitry - Standart TCP port taraması
+    desc:
+      en: |
+        Perform a basic TCP port scan on the target host to identify open services. This is a 
+        lightweight scanning method used to quickly find active services on a remote machine. 
+        Note that this is not as stealthy or comprehensive as Nmap but serves well for a 
+        fast, integrated discovery phase.
+      tr: |
+        Hedef makinedeki açık servisleri belirlemek için temel bir TCP port taraması yapar. Uzak
+        makinedeki etkin servisleri hızla bulmaya yarayan hafif bir tarama yöntemidir. Nmap kadar
+        gizli ya da kapsamlı değildir; ancak hızlı ve bütünleşik bir keşif aşaması için yeterlidir.
     command: "dmitry -p {{target_host}}"
 
-  - title: dmitry - Port scan with banner grabbing
-    desc: |
-      Execute a TCP port scan while also retrieving service banners and reporting filtered ports. 
-      Banner grabbing helps identify specific software versions running on open ports, which is 
-      essential for vulnerability research. Including the filtered flag (-f) provides a more 
-      complete view of the target's firewall configuration.
+  - title:
+      en: dmitry - Port scan with banner grabbing
+      tr: dmitry - Pankart toplamalı port taraması
+    desc:
+      en: |
+        Execute a TCP port scan while also retrieving service banners and reporting filtered ports. 
+        Banner grabbing helps identify specific software versions running on open ports, which is 
+        essential for vulnerability research. Including the filtered flag (-f) provides a more 
+        complete view of the target's firewall configuration.
+      tr: |
+        TCP port taraması yaparken servis pankartlarını da toplar ve filtrelenen portları raporlar.
+        Pankart toplama, açık portlarda çalışan yazılımların sürümlerini belirlemeye yarar; bu bilgi
+        zafiyet araştırması için vazgeçilmezdir. Filtrelenenleri gösteren -f bayrağı, hedefin
+        güvenlik duvarı yapılandırmasının daha eksiksiz görülmesini sağlar.
     command: "dmitry -p -b -f {{target_host}}"
 
-  - title: dmitry - Port scan with custom TTL
-    desc: |
-      Perform a TCP port scan while specifying a custom Time-To-Live (TTL) value for the scan packets. 
-      The default TTL is 2 seconds, but increasing it can help maintain accuracy in high-latency 
-      environments. Adjusting this value can prevent scan timeouts when the network connection 
-      to the target is slow or unstable.
+  - title:
+      en: dmitry - Port scan with custom TTL
+      tr: dmitry - Özel TTL değerli port taraması
+    desc:
+      en: |
+        Perform a TCP port scan while specifying a custom Time-To-Live (TTL) value for the scan packets. 
+        The default TTL is 2 seconds, but increasing it can help maintain accuracy in high-latency 
+        environments. Adjusting this value can prevent scan timeouts when the network connection 
+        to the target is slow or unstable.
+      tr: |
+        Tarama paketleri için özel bir TTL (yaşam süresi) değeri belirterek TCP port taraması yapar.
+        Varsayılan TTL 2 saniyedir; gecikmesi yüksek ortamlarda değeri yükseltmek doğruluğu korur.
+        Hedefe giden ağ bağlantısı yavaş ya da kararsız olduğunda bu ayarla tarama zaman aşımlarının
+        önüne geçilir.
     command: "dmitry -p -t {{ttl_seconds|5}} {{target_host}}"
 
   # === COMPREHENSIVE SCANNING ===
-  - title: dmitry - Full information gathering scan
-    desc: |
-      Combine multiple modules to perform a comprehensive information gathering scan on a target host. 
-      This single command includes Whois lookups, Netcraft data, subdomain discovery, and email 
-      searches. It provides a broad overview of the target's digital footprint in a single execution 
-      to save time during the reconnaissance phase.
+  - title:
+      en: dmitry - Full information gathering scan
+      tr: dmitry - Toplu bilgi toplama taraması
+    desc:
+      en: |
+        Combine multiple modules to perform a comprehensive information gathering scan on a target host. 
+        This single command includes Whois lookups, Netcraft data, subdomain discovery, and email 
+        searches. It provides a broad overview of the target's digital footprint in a single execution 
+        to save time during the reconnaissance phase.
+      tr: |
+        Whois sorgularını, Netcraft verisini, alt alan adı keşfini ve e-posta aramasını tek komutta
+        birleştiren kapsamlı bir bilgi toplama taraması yapar. Hedefin dijital ayak izine dair geniş
+        bir genel bakış tek çalıştırmada elde edilir. Keşif aşamasında zaman kazanmak için
+        etkilidir.
     command: "dmitry -winse {{target_host}}"
 
   # === OUTPUT MANAGEMENT ===
-  - title: dmitry - Save scan results to file
-    desc: |
-      Save the output of the information gathering scan to a text file for later analysis. 
-      If a filename is not explicitly specified, the tool defaults to a naming convention 
-      based on the host name. This is an essential step for documentation and reporting 
-      during a professional penetration testing engagement.
+  - title:
+      en: dmitry - Save scan results to file
+      tr: dmitry - Tarama sonuçlarını dosyaya kaydetme
+    desc:
+      en: |
+        Save the output of the information gathering scan to a text file for later analysis. 
+        If a filename is not explicitly specified, the tool defaults to a naming convention 
+        based on the host name. This is an essential step for documentation and reporting 
+        during a professional penetration testing engagement.
+      tr: |
+        Bilgi toplama taramasının çıktısını daha sonra incelemek üzere bir metin dosyasına kaydeder.
+        Dosya adı açıkça verilmezse araç, makine adına dayalı adlandırma düzenini kullanır.
+        Profesyonel bir sızma testi çalışmasında belgelendirme ve raporlama için vazgeçilmez bir
+        adımdır.
     command: "dmitry -o {{output_file|results.txt}} {{target_host}}"

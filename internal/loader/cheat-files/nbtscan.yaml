@@ -3,68 +3,131 @@ tags: [network, pentest, enumeration, netbios, reconnaissance, scanner]
 
 actions:
   # === ENUMERATION AND SCANNING ===
-  - title: nbtscan - basic network scan
-    desc: |
-      Scans a specified range of IP addresses for NetBIOS information. 
-      It identifies NetBIOS names, IP addresses, and MAC addresses for hosts responding on the local network. 
-      This is the standard way to identify Windows-based machines and their associated workgroups or domains during the reconnaissance phase.
+  - title:
+      en: nbtscan - basic network scan
+      tr: nbtscan - temel ağ taraması
+    desc:
+      en: |
+        Scans a specified range of IP addresses for NetBIOS information. 
+        It identifies NetBIOS names, IP addresses, and MAC addresses for hosts responding on the local network. 
+        This is the standard way to identify Windows-based machines and their associated workgroups or domains during the reconnaissance phase.
+      tr: |
+        Belirtilen bir IP adresi aralığını NetBIOS bilgisi için tarar.
+        Yerel ağda yanıt veren makinelerin NetBIOS adlarını, IP adreslerini ve MAC adreslerini belirler.
+        Keşif aşamasında Windows tabanlı makineleri ve ilişkili çalışma gruplarını veya etki alanlarını belirlemenin standart yoludur.
     command: "nbtscan {{target_range}}"
 
-  - title: nbtscan - verbose service enumeration
-    desc: |
-      Performs a detailed scan to list all NetBIOS names received from each host. 
-      When combined with the -h flag, it translates hex service codes into human-readable descriptions like 'Workstation' or 'File Server'. 
-      This provides essential insight into the specific roles and services running on a target machine.
+  - title:
+      en: nbtscan - verbose service enumeration
+      tr: nbtscan - ayrıntılı hizmet numaralandırma
+    desc:
+      en: |
+        Performs a detailed scan to list all NetBIOS names received from each host. 
+        When combined with the -h flag, it translates hex service codes into human-readable descriptions like 'Workstation' or 'File Server'. 
+        This provides essential insight into the specific roles and services running on a target machine.
+      tr: |
+        Her makineden alınan tüm NetBIOS adlarını listelemek için ayrıntılı tarama gerçekleştirir.
+        -h bayrağıyla birleştiğinde onaltılık hizmet kodlarını 'Workstation' veya 'File Server' gibi okunabilir açıklamalara çevirir.
+        Bu, hedef makinede çalışan belirli roller ve hizmetler hakkında temel içgörü sağlar.
     command: "nbtscan -v -h {{target}}"
 
-  - title: nbtscan - scan range using dash notation
-    desc: |
-      Scans a specific range of IP addresses defined by a start and end address. 
-      This is useful when you want to target a specific subset of a network without scanning the entire subnet. 
-      The results will include the NetBIOS name, user, and MAC address for every responding host in that range.
+  - title:
+      en: nbtscan - scan range using dash notation
+      tr: nbtscan - tire gösterimiyle aralık tarama
+    desc:
+      en: |
+        Scans a specific range of IP addresses defined by a start and end address. 
+        This is useful when you want to target a specific subset of a network without scanning the entire subnet. 
+        The results will include the NetBIOS name, user, and MAC address for every responding host in that range.
+      tr: |
+        Başlangıç ve bitiş adresiyle tanımlanan belirli bir IP adresi aralığını tarar.
+        Tüm alt ağı taramadan ağın belirli bir alt kümesini hedeflemek istediğinizde kullanışlıdır.
+        Sonuçlar o aralıkta yanıt veren her makinenin NetBIOS adını, kullanıcısını ve MAC adresini içerir.
     command: "nbtscan {{start_ip}}-{{end_ip}}"
 
   # === ADVANCED CONFIGURATION ===
-  - title: nbtscan - win95 compatibility scan
-    desc: |
-      Forces the scan to originate from the local UDP port 137, which is the standard NetBIOS Name Service port. 
-      This option is required for scanning older Windows 95 boxes as they typically only respond to queries from this specific port. 
-      Note that you usually need root or administrative privileges to bind to port 137 on Unix-like systems.
+  - title:
+      en: nbtscan - win95 compatibility scan
+      tr: nbtscan - win95 uyumluluk taraması
+    desc:
+      en: |
+        Forces the scan to originate from the local UDP port 137, which is the standard NetBIOS Name Service port. 
+        This option is required for scanning older Windows 95 boxes as they typically only respond to queries from this specific port. 
+        Note that you usually need root or administrative privileges to bind to port 137 on Unix-like systems.
+      tr: |
+        Taramayı standart NetBIOS Ad Hizmeti portu olan yerel UDP 137 portundan başlatmaya zorlar.
+        Bu seçenek eski Windows 95 makinelerini taramak için gereklidir çünkü bunlar genellikle yalnızca bu belirli porttan gelen sorgulara yanıt verir.
+        Unix benzeri sistemlerde 137 portuna bağlanmak için genellikle root veya yönetici yetkilerine ihtiyacınız olduğunu unutmayın.
     command: "sudo nbtscan -r {{target_range}}"
 
-  - title: nbtscan - adjusted performance and retransmits
-    desc: |
-      Modifies the timeout and the number of retransmission attempts for each query. 
-      Increasing these values is helpful when scanning high-latency networks or segments with packet loss where hosts might be slow to respond. 
-      Lowering the timeout can significantly speed up scans on fast, reliable local networks.
+  - title:
+      en: nbtscan - adjusted performance and retransmits
+      tr: nbtscan - ayarlanmış performans ve yeniden gönderimler
+    desc:
+      en: |
+        Modifies the timeout and the number of retransmission attempts for each query. 
+        Increasing these values is helpful when scanning high-latency networks or segments with packet loss where hosts might be slow to respond. 
+        Lowering the timeout can significantly speed up scans on fast, reliable local networks.
+      tr: |
+        Her sorgu için zaman aşımını ve yeniden gönderim denemesi sayısını değiştirir.
+        Bu değerleri artırmak, makinelerin yavaş yanıt verebileceği yüksek gecikmeli veya paket kayıplı ağları tararken yardımcıdır.
+        Zaman aşımını düşürmek hızlı, güvenilir yerel ağlarda taramaları önemli ölçüde hızlandırabilir.
     command: "nbtscan -t {{timeout_ms|1000}} -m {{retransmits|2}} {{target_range}}"
 
   # === OUTPUT FORMATTING ===
-  - title: nbtscan - script-friendly output
-    desc: |
-      Formats the scan results using a specific character as a field separator, making the output easy to parse. 
-      It suppresses banners and column headers, which is ideal for piping the data into other tools like grep, awk, or custom automation scripts. 
-      This allows for the seamless integration of NetBIOS data into larger security reporting pipelines.
+  - title:
+      en: nbtscan - script-friendly output
+      tr: nbtscan - betik dostu çıktı
+    desc:
+      en: |
+        Formats the scan results using a specific character as a field separator, making the output easy to parse. 
+        It suppresses banners and column headers, which is ideal for piping the data into other tools like grep, awk, or custom automation scripts. 
+        This allows for the seamless integration of NetBIOS data into larger security reporting pipelines.
+      tr: |
+        Tarama sonuçlarını alan ayırıcı olarak belirli bir karakter kullanarak biçimlendirir ve çıktının ayrıştırılmasını kolaylaştırır.
+        Açılış yazılarını ve sütun başlıklarını gizler; bu, veriyi grep, awk veya özel otomasyon betikleri gibi araçlara aktarmak için idealdir.
+        NetBIOS verisinin daha büyük güvenlik raporlama hatlarına sorunsuz bütünleşmesini sağlar.
     command: "nbtscan -s {{separator|:}} {{target_range}}"
 
-  - title: nbtscan - generate hosts file format
-    desc: |
-      Outputs the discovered host information in the standard /etc/hosts file format. 
-      This can be useful for quickly populating a local name resolution file during a penetration test. 
-      It maps the discovered IP addresses directly to their NetBIOS names for easier navigation.
+  - title:
+      en: nbtscan - generate hosts file format
+      tr: nbtscan - hosts dosyası biçimi üretme
+    desc:
+      en: |
+        Outputs the discovered host information in the standard /etc/hosts file format. 
+        This can be useful for quickly populating a local name resolution file during a penetration test. 
+        It maps the discovered IP addresses directly to their NetBIOS names for easier navigation.
+      tr: |
+        Keşfedilen makine bilgisini standart /etc/hosts dosyası biçiminde çıkarır.
+        Sızma testi sırasında yerel ad çözümleme dosyasını hızla doldurmak için kullanışlı olabilir.
+        Daha kolay gezinme için keşfedilen IP adreslerini doğrudan NetBIOS adlarına eşler.
     command: "nbtscan -e {{target_range}}"
 
-  - title: nbtscan - generate lmhosts format
-    desc: |
-      Produces output in the LMHOSTS format, which is a legacy Windows name resolution format. 
-      This is useful for environments that still rely on or interact with legacy NetBIOS name resolution mechanisms. 
-      The resulting list can be saved to a file to assist Windows systems in finding specific hosts without DNS.
+  - title:
+      en: nbtscan - generate lmhosts format
+      tr: nbtscan - lmhosts biçimi üretme
+    desc:
+      en: |
+        Produces output in the LMHOSTS format, which is a legacy Windows name resolution format. 
+        This is useful for environments that still rely on or interact with legacy NetBIOS name resolution mechanisms. 
+        The resulting list can be saved to a file to assist Windows systems in finding specific hosts without DNS.
+      tr: |
+        Çıktıyı eski bir Windows ad çözümleme biçimi olan LMHOSTS biçiminde üretir.
+        Hâlâ eski NetBIOS ad çözümleme mekanizmalarına dayanan veya bunlarla etkileşen ortamlar için kullanışlıdır.
+        Ortaya çıkan liste Windows sistemlerinin DNS olmadan belirli makineleri bulmasına yardımcı olmak için dosyaya kaydedilebilir.
     command: "nbtscan -l {{target_range}}"
 
   # === INPUT MANAGEMENT ===
-  - title: nbtscan - scan targets from file
-    desc: |
-      Reads a list of target IP addresses or network ranges from a specified text file. 
-      This feature is invaluable when you have already identified relevant targets via other tools and want to perform a batch NetBIOS scan. 
-      The file should contain one IP address or CIDR range per line.
+  - title:
+      en: nbtscan - scan targets from file
+      tr: nbtscan - dosyadan hedef tarama
+    desc:
+      en: |
+        Reads a list of target IP addresses or network ranges from a specified text file. 
+        This feature is invaluable when you have already identified relevant targets via other tools and want to perform a batch NetBIOS scan. 
+        The file should contain one IP address or CIDR range per line.
+      tr: |
+        Hedef IP adresleri veya ağ aralıklarının listesini belirtilen bir metin dosyasından okur.
+        İlgili hedefleri diğer araçlarla zaten belirlediğinizde toplu NetBIOS taraması yapmak için bu özellik paha biçilmezdir.
+        Dosya satır başına bir IP adresi veya CIDR aralığı içermelidir.
     command: "nbtscan -f {{input_file}}"

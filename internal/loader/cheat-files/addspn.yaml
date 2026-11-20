@@ -2,38 +2,74 @@ tool: addspn
 tags: [active-directory, pentest, kerberos, spn, impacket]
 
 actions:
- - title: addspn - query current spns
-   desc: |
-     Lists the SPNs currently registered on the target account.
-     Always run first to see existing state before adding or removing.
+ - title:
+     en: addspn - query current spns
+     tr: addspn - mevcut spn'leri sorgula
+   desc:
+     en: |
+       Lists the SPNs currently registered on the target account.
+       Always run first to see existing state before adding or removing.
+     tr: |
+       Hedef hesapta kayıtlı mevcut SPN'leri listeler.
+       Ekleme veya kaldırma işleminden önce her zaman çalıştırın.
    command: "addspn.py {{dc_host}} -u {{domain}}/{{username}} -p {{password}} -t {{target}} -q"
 
- - title: addspn - add spn
-   desc: |
-     Registers a new ServicePrincipalName on the target user or computer.
-     Classic step for Kerberoasting setups or service impersonation.
+ - title:
+     en: addspn - add spn
+     tr: addspn - spn ekle
+   desc:
+     en: |
+       Registers a new ServicePrincipalName on the target user or computer.
+       Classic step for Kerberoasting setups or service impersonation.
+     tr: |
+       Hedef kullanıcı veya bilgisayara yeni bir ServicePrincipalName kaydeder.
+       Kerberoasting kurulumları veya hizmet taklidi için klasik adımdır.
    command: "addspn.py {{dc_host}} -u {{domain}}/{{username}} -p {{password}} -t {{target}} -s {{spn|http/target.domain.local}}"
 
- - title: addspn - remove spn
-   desc: |
-     Removes a specific SPN from the target account.
-     Use for cleanup after an engagement or to break Kerberoast exposure.
+ - title:
+     en: addspn - remove spn
+     tr: addspn - spn kaldır
+   desc:
+     en: |
+       Removes a specific SPN from the target account.
+       Use for cleanup after an engagement or to break Kerberoast exposure.
+     tr: |
+       Hedef hesaptan belirli bir SPN'yi kaldırır.
+       Çalışma sonrası temizlik veya Kerberoast maruziyetini gidermek için kullanın.
    command: "addspn.py {{dc_host}} -u {{domain}}/{{username}} -p {{password}} -t {{target}} -s {{spn|http/target.domain.local}} -r"
 
- - title: addspn - clear all spns
-   desc: |
-     Removes every SPN from the target account at once.
-     Destructive; confirm the target before running in production.
+ - title:
+     en: addspn - clear all spns
+     tr: addspn - tüm spn'leri temizle
+   desc:
+     en: |
+       Removes every SPN from the target account at once.
+       Destructive; confirm the target before running in production.
+     tr: |
+       Hedef hesaptaki tüm SPN'leri tek seferde kaldırır.
+       Yıkıcıdır; üretim ortamında çalıştırmadan önce hedefi doğrulayın.
    command: "addspn.py {{dc_host}} -u {{domain}}/{{username}} -p {{password}} -t {{target}} -c"
 
- - title: addspn - add via additional hostname
-   desc: |
-     Adds the SPN through msDS-AdditionalDnsHostName instead of servicePrincipalName.
-     Bypasses checks that only inspect the SPN attribute; useful for shadow-credential style setups.
+ - title:
+     en: addspn - add via additional hostname
+     tr: addspn - ek ana bilgisayar adıyla ekle
+   desc:
+     en: |
+       Adds the SPN through msDS-AdditionalDnsHostName instead of servicePrincipalName.
+       Bypasses checks that only inspect the SPN attribute; useful for shadow-credential style setups.
+     tr: |
+       SPN'yi servicePrincipalName yerine msDS-AdditionalDnsHostName üzerinden ekler.
+       Yalnızca SPN özniteliğini denetleyen kontrolleri atlatır; shadow-credential tarzı kurulumlar için yararlıdır.
    command: "addspn.py {{dc_host}} -u {{domain}}/{{username}} -p {{password}} -t {{target}} -s {{spn|host/evil.domain.local}} -a"
 
- - title: addspn - kerberos auth with hashes
-   desc: |
-     Authenticates with Kerberos or Pass-the-Hash instead of a cleartext password.
-     Use when operating from a host with only hashes or a ccache available.
+ - title:
+     en: addspn - kerberos auth with hashes
+     tr: addspn - hash'lerle kerberos kimlik doğrulaması
+   desc:
+     en: |
+       Authenticates with Kerberos or Pass-the-Hash instead of a cleartext password.
+       Use when operating from a host with only hashes or a ccache available.
+     tr: |
+       Açık parola yerine Kerberos veya Pass-the-Hash ile kimlik doğrular.
+       Yalnızca hash'lerin veya bir ccache'in bulunduğu host'tan çalışırken kullanın.
    command: "addspn.py {{dc_host}} -u {{domain}}/{{username}} -hashes {{lm_hash|aad3b435b51404eeaad3b435b51404ee}}:{{nt_hash}} -k -t {{target}} -s {{spn|http/target.domain.local}} -dc-ip {{dc_ip}}"

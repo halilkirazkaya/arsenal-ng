@@ -3,46 +3,88 @@ tags: [network, security, pentest, exploitation, active-directory, impacket, ker
 
 actions:
   # === BASIC EXPLOITATION ===
-  - title: impacket-goldenPac - Basic MS14-068 exploitation
-    desc: |
-      This command performs the full MS14-068 exploit against a target machine using cleartext credentials. 
-      It automatically requests a forged PAC from the Domain Controller, gains administrative access, and executes a remote command (defaults to cmd.exe). 
-      This is the standard starting point when you have a valid set of domain user credentials and the target is likely unpatched.
+  - title:
+      en: impacket-goldenPac - Basic MS14-068 exploitation
+      tr: impacket-goldenPac - temel MS14-068 sömürüsü
+    desc:
+      en: |
+        This command performs the full MS14-068 exploit against a target machine using cleartext credentials. 
+        It automatically requests a forged PAC from the Domain Controller, gains administrative access, and executes a remote command (defaults to cmd.exe). 
+        This is the standard starting point when you have a valid set of domain user credentials and the target is likely unpatched.
+      tr: |
+        Açık kimlik bilgileriyle hedef makineye karşı tam MS14-068 sömürüsünü gerçekleştirir.
+        Etki Alanı Denetleyicisinden otomatik olarak sahte PAC ister, yönetici erişimi kazanır ve uzak komut çalıştırır (varsayılan cmd.exe).
+        Geçerli bir etki alanı kullanıcı kimlik bilgisine sahipken ve hedefin muhtemelen yamasız olduğu durumlarda standart başlangıç noktasıdır.
     command: "impacket-goldenPac {{domain}}/{{username}}:{{password}}@{{target_fqdn}}"
 
-  - title: impacket-goldenPac - Exploitation using NTLM hashes
-    desc: |
-      Use this command when you have obtained the NTLM hash of a user instead of a cleartext password. 
-      This allows for a Pass-the-Hash (PtH) approach to exploit the MS14-068 vulnerability. 
-      Ensure the hash is provided in the LMHASH:NTHASH format; if the LM hash is unavailable, use the standard empty LM hash string.
+  - title:
+      en: impacket-goldenPac - Exploitation using NTLM hashes
+      tr: impacket-goldenPac - NTLM hash'leriyle sömürü
+    desc:
+      en: |
+        Use this command when you have obtained the NTLM hash of a user instead of a cleartext password. 
+        This allows for a Pass-the-Hash (PtH) approach to exploit the MS14-068 vulnerability. 
+        Ensure the hash is provided in the LMHASH:NTHASH format; if the LM hash is unavailable, use the standard empty LM hash string.
+      tr: |
+        Açık parola yerine kullanıcının NTLM hash'i ele geçirildiğinde bu komutu kullanın.
+        MS14-068 açığını sömürmek için Pass-the-Hash (PtH) yaklaşımına olanak tanır.
+        Hash'in LMHASH:NTHASH biçiminde verildiğinden emin olun; LM hash'i yoksa standart boş LM hash dizesini kullanın.
     command: "impacket-goldenPac -hashes {{hash}} {{domain}}/{{username}}@{{target_fqdn}}"
 
   # === ADVANCED CONNECTIVITY ===
-  - title: impacket-goldenPac - Specify DC and Target IP addresses
-    desc: |
-      This variation is used when DNS resolution is failing or when the target FQDN does not map correctly to the desired IP. 
-      Explicitly defining the Domain Controller IP via -dc-ip is crucial for retrieving the user's SID, which is a required component for the forged ticket. 
-      Using -target-ip ensures the exploit traffic is directed to the specific host you intend to compromise.
+  - title:
+      en: impacket-goldenPac - Specify DC and Target IP addresses
+      tr: impacket-goldenPac - DC ve hedef IP adreslerini belirtme
+    desc:
+      en: |
+        This variation is used when DNS resolution is failing or when the target FQDN does not map correctly to the desired IP. 
+        Explicitly defining the Domain Controller IP via -dc-ip is crucial for retrieving the user's SID, which is a required component for the forged ticket. 
+        Using -target-ip ensures the exploit traffic is directed to the specific host you intend to compromise.
+      tr: |
+        DNS çözümlemesi başarısız olduğunda veya hedef FQDN doğru IP'ye eşleşmediğinde kullanılan varyasyondur.
+        Kullanıcının SID değerini almak için -dc-ip ile Etki Alanı Denetleyicisi IP'sini açıkça tanımlamak kritiktir; sahte bilet için bu zorunlu bir bileşendir.
+        -target-ip kullanmak sömürü trafiğinin uzlaşmayı hedeflediğiniz belirli makineye gitmesini sağlar.
     command: "impacket-goldenPac -dc-ip {{dc_ip}} -target-ip {{target_ip}} {{domain}}/{{username}}:{{password}}@{{target_fqdn}}"
 
-  - title: impacket-goldenPac - Debugging and Timestamps
-    desc: |
-      This command enables verbose debugging output and adds timestamps to every log entry. 
-      It is extremely useful for troubleshooting connection timeouts, authentication failures, or Kerberos errors during the exploitation process. 
-      Use this mode in lab environments or when the exploit fails without a clear reason to see the underlying Impacket library interaction.
+  - title:
+      en: impacket-goldenPac - Debugging and Timestamps
+      tr: impacket-goldenPac - hata ayıklama ve zaman damgaları
+    desc:
+      en: |
+        This command enables verbose debugging output and adds timestamps to every log entry. 
+        It is extremely useful for troubleshooting connection timeouts, authentication failures, or Kerberos errors during the exploitation process. 
+        Use this mode in lab environments or when the exploit fails without a clear reason to see the underlying Impacket library interaction.
+      tr: |
+        Bu komut ayrıntılı hata ayıklama çıktısını etkinleştirir ve her günlük girdisine zaman damgası ekler.
+        Sömürü sırasında bağlantı zaman aşımları, kimlik doğrulama hataları veya Kerberos hatalarını gidermek için son derece kullanışlıdır.
+        Sömürü açık bir neden olmadan başarısız olduğunda temel Impacket kütüphane etkileşimini görmek için bu modu laboratuvar ortamlarında kullanın.
     command: "impacket-goldenPac -debug -ts {{domain}}/{{username}}:{{password}}@{{target_fqdn}}"
 
   # === TICKET AND FILE OPERATIONS ===
-  - title: impacket-goldenPac - Save forged ticket without execution
-    desc: |
-      This command generates the forged Kerberos ticket (Golden Ticket) and saves it to a local CCache file without performing any remote execution. 
-      By specifying 'None' as the command, you avoid triggering PSEXEC-style behavior, which can be significantly stealthier. 
-      The resulting file can be exported and used later with other tools by setting the KRB5CCNAME environment variable.
+  - title:
+      en: impacket-goldenPac - Save forged ticket without execution
+      tr: impacket-goldenPac - çalıştırmadan sahte bileti kaydetme
+    desc:
+      en: |
+        This command generates the forged Kerberos ticket (Golden Ticket) and saves it to a local CCache file without performing any remote execution. 
+        By specifying 'None' as the command, you avoid triggering PSEXEC-style behavior, which can be significantly stealthier. 
+        The resulting file can be exported and used later with other tools by setting the KRB5CCNAME environment variable.
+      tr: |
+        Sahte Kerberos biletini (Golden Ticket) üretir ve uzak çalıştırma yapmadan yerel CCache dosyasına kaydeder.
+        Komut olarak 'None' belirterek PSEXEC tarzı davranıştan kaçınırsınız; bu belirgin ölçüde daha gizlidir.
+        Oluşan dosya daha sonra KRB5CCNAME ortam değişkeniyle diğer araçlarda kullanılmak üzere aktarılabilir.
     command: "impacket-goldenPac -w {{output_file|ticket.ccache}} {{domain}}/{{username}}:{{password}}@{{target_fqdn}} None"
 
-  - title: impacket-goldenPac - Upload and execute custom binary
-    desc: |
-      Instead of launching the default cmd.exe, this command uploads a local executable to the target and runs it with system privileges. 
-      This is useful for deploying custom reverse shells, post-exploitation agents, or specific enumeration tools. 
-      Be cautious, as uploading files to the disk and creating services for execution is highly likely to be detected by EDR or antivirus solutions.
+  - title:
+      en: impacket-goldenPac - Upload and execute custom binary
+      tr: impacket-goldenPac - özel ikili dosyayı yükleyip çalıştırma
+    desc:
+      en: |
+        Instead of launching the default cmd.exe, this command uploads a local executable to the target and runs it with system privileges. 
+        This is useful for deploying custom reverse shells, post-exploitation agents, or specific enumeration tools. 
+        Be cautious, as uploading files to the disk and creating services for execution is highly likely to be detected by EDR or antivirus solutions.
+      tr: |
+        Varsayılan cmd.exe yerine yerel bir çalıştırılabilir dosyayı hedefe yükler ve sistem yetkileriyle çalıştırır.
+        Özel ters kabuklar, sızma sonrası ajanlar veya belirli numaralandırma araçları dağıtmak için kullanışlıdır.
+        Diske dosya yüklemek ve çalıştırma için hizmet oluşturmak EDR veya antivirüs çözümlerince büyük olasılıkla tespit edilir; dikkatli olun.
     command: "impacket-goldenPac -c {{local_binary_path}} {{domain}}/{{username}}:{{password}}@{{target_fqdn}} {{binary_arguments|}}"

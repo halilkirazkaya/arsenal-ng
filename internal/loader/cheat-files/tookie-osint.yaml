@@ -3,75 +3,145 @@ tags: [osint, reconnaissance, usernames, social-media, pentest, information-gath
 
 actions:
   # === BASIC USAGE ===
-  - title: tookie-osint - basic username scan
-    desc: |
-      Perform a standard search for a specific username across various social media platforms and websites. 
-      This is the primary method for identifying an individual's digital footprint across the internet. 
-      The tool will return a list of URLs where the username was successfully found.
+  - title:
+      en: tookie-osint - basic username scan
+      tr: tookie-osint - temel kullanıcı adı taraması
+    desc:
+      en: |
+        Perform a standard search for a specific username across various social media platforms and websites. 
+        This is the primary method for identifying an individual's digital footprint across the internet. 
+        The tool will return a list of URLs where the username was successfully found.
+      tr: |
+        Belirli bir kullanıcı adı için çeşitli sosyal medya platformlarında ve web sitelerinde standart bir arama gerçekleştirir.
+        Bu, bir kişinin internetteki dijital ayak izini belirlemenin birincil yöntemidir.
+        Araç, kullanıcı adının bulunduğu URL'lerin bir listesini döndürür.
     command: "tookie-osint -u {{username}}"
 
-  - title: tookie-osint - scan multiple usernames
-    desc: |
-      Read a list of usernames from a local file and perform a bulk scan for each entry. 
-      This is highly efficient for large-scale investigations involving multiple targets or different handle variations. 
-      The input file should contain one username per line to ensure the tool parses them correctly.
+  - title:
+      en: tookie-osint - scan multiple usernames
+      tr: tookie-osint - birden fazla kullanıcı adı tarama
+    desc:
+      en: |
+        Read a list of usernames from a local file and perform a bulk scan for each entry. 
+        This is highly efficient for large-scale investigations involving multiple targets or different handle variations. 
+        The input file should contain one username per line to ensure the tool parses them correctly.
+      tr: |
+        Yerel bir dosyadaki kullanıcı adı listesinden toplu tarama yapar.
+        Birden fazla hedef veya farklı kullanıcı adı varyasyonları içeren geniş çaplı araştırmalar için oldukça verimlidir.
+        Girdi dosyası, doğru ayrıştırma için satır başına bir kullanıcı adı içermelidir.
     command: "tookie-osint -U {{user_file}}"
 
   # === OUTPUT AND LOGGING ===
-  - title: tookie-osint - export results to json
-    desc: |
-      Execute a scan and save the findings into a structured JSON file. 
-      This format is ideal for automated workflows or for importing results into other OSINT analysis tools. 
-      The resulting file will contain detailed metadata about each discovered account.
+  - title:
+      en: tookie-osint - export results to json
+      tr: tookie-osint - sonuçları json olarak dışa aktarma
+    desc:
+      en: |
+        Execute a scan and save the findings into a structured JSON file. 
+        This format is ideal for automated workflows or for importing results into other OSINT analysis tools. 
+        The resulting file will contain detailed metadata about each discovered account.
+      tr: |
+        Tarama yapar ve bulguları yapılandırılmış bir JSON dosyasına kaydeder.
+        Bu biçim, otomatik iş akışları veya sonuçları diğer OSINT araçlarına aktarmak için idealdir.
+        Ortaya çıkan dosya, bulunan her hesap hakkında ayrıntılı meta veriler içerir.
     command: "tookie-osint -u {{username}} -o json"
 
-  - title: tookie-osint - export results to csv
-    desc: |
-      Run the enumeration process and save the output in CSV format. 
-      Use this option when you need to view results in spreadsheet software like Excel or Google Sheets. 
-      It provides a clean, tabular representation of the platforms where the username exists.
+  - title:
+      en: tookie-osint - export results to csv
+      tr: tookie-osint - sonuçları csv olarak dışa aktarma
+    desc:
+      en: |
+        Run the enumeration process and save the output in CSV format. 
+        Use this option when you need to view results in spreadsheet software like Excel or Google Sheets. 
+        It provides a clean, tabular representation of the platforms where the username exists.
+      tr: |
+        Numaralandırme işlemini çalıştırır ve çıktıyı CSV biçiminde kaydeder.
+        Sonuçları Excel veya Google E-Tablolar gibi yazılımlarda görüntülemek gerektiğinde bu seçeneği kullanın.
+        Kullanıcı adının bulunduğu platformların temiz, tablosal bir temsilini sunar.
     command: "tookie-osint -u {{username}} -o csv"
 
-  - title: tookie-osint - show all results
-    desc: |
-      Display both positive matches and negative attempts in the terminal output. 
-      By default, the tool only shows sites where the user was found; this flag provides full transparency of the scanning process. 
-      Use this to verify that specific high-interest sites were actually checked during the run.
+  - title:
+      en: tookie-osint - show all results
+      tr: tookie-osint - tüm sonuçları gösterme
+    desc:
+      en: |
+        Display both positive matches and negative attempts in the terminal output. 
+        By default, the tool only shows sites where the user was found; this flag provides full transparency of the scanning process. 
+        Use this to verify that specific high-interest sites were actually checked during the run.
+      tr: |
+        Terminal çıktısında hem olumlu eşleşmeleri hem de olumsuz denemeleri gösterir.
+        Araç varsayılan olarak yalnızca kullanıcının bulunduğu siteleri gösterir; bu bayrak tarama sürecinin tam şeffaflığını sağlar.
+        İlgilendiğiniz belirli sitelerin gerçekten kontrol edildiğini doğrulamak için kullanın.
     command: "tookie-osint -u {{username}} -a"
 
   # === PERFORMANCE AND ANONYMITY ===
-  - title: tookie-osint - multi-threaded scan
-    desc: |
-      Increase the speed of the username lookup by utilizing multiple concurrent threads. 
-      The default thread count is 2, but increasing this value can significantly reduce the time required for a full scan. 
-      Be cautious as very high thread counts may trigger rate-limiting or temporary bans from certain websites.
+  - title:
+      en: tookie-osint - multi-threaded scan
+      tr: tookie-osint - çok iş parçacıklı tarama
+    desc:
+      en: |
+        Increase the speed of the username lookup by utilizing multiple concurrent threads. 
+        The default thread count is 2, but increasing this value can significantly reduce the time required for a full scan. 
+        Be cautious as very high thread counts may trigger rate-limiting or temporary bans from certain websites.
+      tr: |
+        Birden fazla eşzamanlı iş parçacığı kullanarak kullanıcı adı aramasını hızlandırır.
+        Varsayılan iş parçacığı sayısı 2'dir, ancak bu değeri artırmak tam tarama süresini önemli ölçüde kısaltabilir.
+        Çok yüksek iş parçacığı sayılarının hız sınırlamasını veya geçici engellemeleri tetikleyebileceğine dikkat edin.
     command: "tookie-osint -u {{username}} -t {{threads|15}}"
 
-  - title: tookie-osint - proxy configuration
-    desc: |
-      Route all network requests through a specified proxy server to mask your original IP address. 
-      This is useful for bypassing geographic restrictions or avoiding IP-based blocks during intensive scanning. 
-      Ensure the proxy URL is formatted correctly (e.g., http://127.0.0.1:8080) before starting.
+  - title:
+      en: tookie-osint - proxy configuration
+      tr: tookie-osint - proxy yapılandırması
+    desc:
+      en: |
+        Route all network requests through a specified proxy server to mask your original IP address. 
+        This is useful for bypassing geographic restrictions or avoiding IP-based blocks during intensive scanning. 
+        Ensure the proxy URL is formatted correctly (e.g., http://127.0.0.1:8080) before starting.
+      tr: |
+        Orijinal IP adresinizi gizlemek için tüm ağ isteklerini belirtilen bir proxy sunucusu üzerinden yönlendirir.
+        Bu, coğrafi kısıtlamaları aşmak veya yoğun taramalar sırasında IP tabanlı engellerden kaçınmak için kullanışlıdır.
+        Başlamadan önce proxy URL'sinin doğru biçimlendirildiğinden emin olun (örn. http://127.0.0.1:8080).
     command: "tookie-osint -u {{username}} -p {{proxy_url}}"
 
-  - title: tookie-osint - skip random headers
-    desc: |
-      Disable the use of randomized User-Agent headers during the scanning process. 
-      This can be useful if a specific network environment or WAF is sensitive to frequently changing browser signatures. 
-      However, using fixed headers might increase the likelihood of being detected as a bot by some services.
+  - title:
+      en: tookie-osint - skip random headers
+      tr: tookie-osint - rastgele başlıkları atlama
+    desc:
+      en: |
+        Disable the use of randomized User-Agent headers during the scanning process. 
+        This can be useful if a specific network environment or WAF is sensitive to frequently changing browser signatures. 
+        However, using fixed headers might increase the likelihood of being detected as a bot by some services.
+      tr: |
+        Tarama sırasında rastgele User-Agent başlıklarının kullanımını devre dışı bırakır.
+        Bu, belirli bir ağ ortamı veya WAF sık değişen tarayıcı imzalarına duyarlıysa faydalı olabilir.
+        Ancak sabit başlıklar, bazı servisler tarafından bot olarak algılanma olasılığını artırabilir.
     command: "tookie-osint -u {{username}} -sk"
 
   # === ADVANCED SCRAPING ===
-  - title: tookie-osint - webscraper and data harvesting
-    desc: |
-      Enable the built-in webscraper to extract additional data from the discovered profile pages. 
-      The harvest flag specifically tells the tool to gather content and details from the site rather than just checking for account existence. 
-      This provides deeper intelligence, such as bio descriptions or profile images, depending on the platform.
+  - title:
+      en: tookie-osint - webscraper and data harvesting
+      tr: tookie-osint - web kazıyıcı ve veri toplama
+    desc:
+      en: |
+        Enable the built-in webscraper to extract additional data from the discovered profile pages. 
+        The harvest flag specifically tells the tool to gather content and details from the site rather than just checking for account existence. 
+        This provides deeper intelligence, such as bio descriptions or profile images, depending on the platform.
+      tr: |
+        Bulunan profil sayfalarından ek veri çıkarmak için yerleşik web kazıyıcıyı etkinleştirir.
+        Harvest bayrağı araca özellikle hesap varlığını kontrol etmek yerine siteden içerik ve ayrıntı toplamasını söyler.
+        Platforma bağlı olarak biyografi açıklamaları veya profil resimleri gibi daha derin istihbarat sağlar.
     command: "tookie-osint -u {{username}} -W -H"
 
-  - title: tookie-osint - webscraper with custom delay
-    desc: |
-      Set a specific delay for the webscraper to wait for pages to fully load before attempting to extract data. 
-      This is particularly important for heavy, JavaScript-driven websites that do not render content immediately. 
-      A longer delay ensures higher accuracy in data harvesting at the cost of overall scan speed.
+  - title:
+      en: tookie-osint - webscraper with custom delay
+      tr: tookie-osint - özel gecikmeli web kazıyıcı
+    desc:
+      en: |
+        Set a specific delay for the webscraper to wait for pages to fully load before attempting to extract data. 
+        This is particularly important for heavy, JavaScript-driven websites that do not render content immediately. 
+        A longer delay ensures higher accuracy in data harvesting at the cost of overall scan speed.
+      tr: |
+        Web kazıyıcının veri çıkarmadan önce sayfaların tamamen yüklenmesini bekleyeceği belirli bir gecikme ayarlar.
+        Bu, içeriği hemen oluşturmayan ağır, JavaScript tabanlı web siteleri için özellikle önemlidir.
+        Daha uzun bir gecikme, tarama hızı pahasına veri toplamada daha yüksek doğruluk sağlar.
     command: "tookie-osint -u {{username}} -W -D {{delay_seconds|5}}"

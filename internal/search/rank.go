@@ -17,14 +17,14 @@ import (
 // =============================================================================
 
 // rank orders cheats by relevance to the terms. Ties keep input order.
-func rank(cheats []*model.Cheat, terms []string) []*model.Cheat {
+func rank(cheats []*model.Cheat, terms []string, lang string) []*model.Cheat {
 	type scored struct {
 		cheat *model.Cheat
 		score int
 	}
 	items := make([]scored, 0, len(cheats))
 	for _, cheat := range cheats {
-		if score, ok := scoreCheat(cheat, terms); ok {
+		if score, ok := scoreCheat(cheat, terms, lang); ok {
 			items = append(items, scored{cheat, score})
 		}
 	}

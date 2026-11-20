@@ -4,38 +4,70 @@ tags: [security, pentest, credentials, forensics, exploitation, reconnaissance, 
 actions:
 # === PASSWORD EXTRACTION ===
 
- - title: PassDetective - extract passwords from shell history
-   desc: |
-     Automatically scans and analyzes shell history files to identify and extract plaintext passwords.
-     This command is primarily used during post-exploitation or forensic analysis to find credentials accidentally leaked in command-line arguments.
-     It parses history change descriptions and identifies common patterns used for sensitive data.
-     Results are displayed for inspection, allowing researchers to quickly gather credentials for lateral movement.
+ - title:
+     en: PassDetective - extract passwords from shell history
+     tr: PassDetective - kabuk geçmişinden parola çıkarma
+   desc:
+     en: |
+       Automatically scans and analyzes shell history files to identify and extract plaintext passwords.
+       This command is primarily used during post-exploitation or forensic analysis to find credentials accidentally leaked in command-line arguments.
+       It parses history change descriptions and identifies common patterns used for sensitive data.
+       Results are displayed for inspection, allowing researchers to quickly gather credentials for lateral movement.
+     tr: |
+       Kabuk geçmişi dosyalarını otomatik olarak tarayıp analiz ederek açık metin parolaları tespit edip çıkarır.
+       Bu komut, komut satırı argümanlarına yanlışlıkla sızmış kimlik bilgilerini bulmak için daha çok sömürü sonrası (post-exploitation) veya adli bilişim analizinde kullanılır.
+       Geçmiş kayıtlarındaki değişiklik açıklamalarını ayrıştırır ve hassas verilerde kullanılan yaygın kalıpları belirler.
+       Sonuçlar inceleme için görüntülenir; araştırmacıların yanal hareket için kimlik bilgilerini hızla toplamasına olanak tanır.
    command: "PassDetective extract"
 
- - title: PassDetective - display help for extraction module
-   desc: |
-     Shows detailed usage information and specific flags available for the extraction command.
-     Use this when you need to verify if the tool supports specific history file paths or filtering options.
-     It provides insight into the underlying logic the tool uses to identify secrets within the shell history.
-     Regularly checking the help menu is recommended as new features or pattern updates might be added.
+ - title:
+     en: PassDetective - display help for extraction module
+     tr: PassDetective - çıkarma modülü yardımını görüntüleme
+   desc:
+     en: |
+       Shows detailed usage information and specific flags available for the extraction command.
+       Use this when you need to verify if the tool supports specific history file paths or filtering options.
+       It provides insight into the underlying logic the tool uses to identify secrets within the shell history.
+       Regularly checking the help menu is recommended as new features or pattern updates might be added.
+     tr: |
+       Çıkarma komutu için ayrıntılı kullanım bilgisini ve kullanılabilir özel bayrakları gösterir.
+       Aracın belirli geçmiş dosyası yollarını veya filtreleme seçeneklerini destekleyip desteklemediğini doğrulamanız gerektiğinde bunu kullanın.
+       Aracın kabuk geçmişindeki gizli verileri tespit etmek için kullandığı mantığa dair fikir verir.
+       Yeni özellikler veya kalıp güncellemeleri eklenebileceğinden yardım menüsünü düzenli olarak denetlemeniz önerilir.
    command: "PassDetective extract --help"
 
 # === SHELL CONFIGURATION ===
 
- - title: PassDetective - generate shell completion script
-   desc: |
-     Generates an autocompletion script for the specified shell environment to enhance productivity.
-     The command supports various shells such as bash, zsh, fish, or powershell to provide tab-completion for commands.
-     This is useful for power users who want to quickly navigate through the tool's available sub-commands and flags.
-     After generation, the output must typically be sourced or moved to the appropriate shell completion directory.
+ - title:
+     en: PassDetective - generate shell completion script
+     tr: PassDetective - kabuk tamamlama betiği üretme
+   desc:
+     en: |
+       Generates an autocompletion script for the specified shell environment to enhance productivity.
+       The command supports various shells such as bash, zsh, fish, or powershell to provide tab-completion for commands.
+       This is useful for power users who want to quickly navigate through the tool's available sub-commands and flags.
+       After generation, the output must typically be sourced or moved to the appropriate shell completion directory.
+     tr: |
+       Verimliliği artırmak için belirtilen kabuk ortamına yönelik bir otomatik tamamlama betiği üretir.
+       Komut, komutlar için sekme tamamlaması sağlamak üzere bash, zsh, fish veya powershell gibi çeşitli kabukları destekler.
+       Aracın alt komutları ve bayrakları arasında hızla gezinmek isteyen ileri düzey kullanıcılar için kullanışlıdır.
+       Üretimden sonra çıktının genellikle kaynak olarak yüklenmesi veya ilgili kabuk tamamlama dizinine taşınması gerekir.
    command: "PassDetective completion {{shell_type|bash}}"
 
 # === GENERAL HELP ===
 
- - title: PassDetective - show general help information
-   desc: |
-     Displays the primary help menu including the list of available commands and global flags.
-     This is the standard starting point to understand the basic structure of the tool and its capabilities.
-     It lists global flags such as the help flag which can be applied to any sub-command for context-specific info.
-     No special privileges are usually required to run the help command.
+ - title:
+     en: PassDetective - show general help information
+     tr: PassDetective - genel yardım bilgisini gösterme
+   desc:
+     en: |
+       Displays the primary help menu including the list of available commands and global flags.
+       This is the standard starting point to understand the basic structure of the tool and its capabilities.
+       It lists global flags such as the help flag which can be applied to any sub-command for context-specific info.
+       No special privileges are usually required to run the help command.
+     tr: |
+       Kullanılabilir komutların ve genel bayrakların listesini içeren birincil yardım menüsünü görüntüler.
+       Aracın temel yapısını ve yeteneklerini anlamak için standart başlangıç noktasıdır.
+       Bağlama özgü bilgi için her alt komuta uygulanabilen yardım bayrağı gibi genel bayrakları listeler.
+       Yardım komutunu çalıştırmak için genellikle özel ayrıcalık gerekmez.
    command: "PassDetective --help"

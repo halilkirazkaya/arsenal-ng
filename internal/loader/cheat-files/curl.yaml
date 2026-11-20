@@ -3,126 +3,246 @@ tags: [network, web, security, transfer, api, pentest, debugging, enumeration]
 
 actions:
 # === BASIC OPERATIONS ===
- - title: curl - simple GET request
-   desc: |
-     Performs a standard HTTP GET request to the specified URL. 
-     This is the most common way to fetch resources and verify if a web server is responding. 
-     The output is printed directly to the standard output (terminal). 
-     It is often used for quick connectivity checks or inspecting raw HTML/JSON responses.
+ - title:
+     en: curl - simple GET request
+     tr: curl - yalın GET isteği
+   desc:
+     en: |
+       Performs a standard HTTP GET request to the specified URL. 
+       This is the most common way to fetch resources and verify if a web server is responding. 
+       The output is printed directly to the standard output (terminal). 
+       It is often used for quick connectivity checks or inspecting raw HTML/JSON responses.
+     tr: |
+       Belirtilen adrese standart HTTP GET isteği gönderir.
+       Kaynakları çekip ağ sunucusunun yanıt verip vermediğini doğrulamanın en yaygın yoludur.
+       Çıktı doğrudan standart çıktıya (uçbirim) yazılır.
+       Hızlı erişim denetimleri veya işlenmemiş HTML/JSON yanıtlarını incelemek amacıyla sık kullanılır.
    command: "curl {{url}}"
 
- - title: curl - save output to a file
-   desc: |
-     Downloads the content from the URL and saves it into a local file. 
-     The -o flag allows you to specify a custom filename for the saved content. 
-     This is essential when downloading binaries, scripts, or large datasets that shouldn't be printed to the terminal. 
-     Ensure you have write permissions in the directory where you are saving the file.
+ - title:
+     en: curl - save output to a file
+     tr: curl - çıktıyı dosyaya kaydetme
+   desc:
+     en: |
+       Downloads the content from the URL and saves it into a local file. 
+       The -o flag allows you to specify a custom filename for the saved content. 
+       This is essential when downloading binaries, scripts, or large datasets that shouldn't be printed to the terminal. 
+       Ensure you have write permissions in the directory where you are saving the file.
+     tr: |
+       Adresteki içeriği indirerek yerel dosyaya kaydeder.
+       -o seçeneği kaydedilen içeriğe özel dosya adı vermeyi sağlar.
+       Uçbirime yazdırılmaması gereken çalıştırılabilir dosyaları, betikleri veya büyük veri kümelerini indirirken vazgeçilmezdir.
+       Dosyanın kaydedileceği dizinde yazma izni bulunduğundan emin olunmalıdır.
    command: "curl -o {{filename|output.txt}} {{url}}"
 
- - title: curl - display response headers
-   desc: |
-     Fetches the URL and displays only the HTTP response headers. 
-     This is highly useful for debugging server configurations, identifying the web server software, and checking cookies or redirect locations. 
-     Using -I triggers a HEAD request, which is faster as it does not download the body content. 
-     It is a primary step in web reconnaissance to find potential vulnerabilities in header configurations.
+ - title:
+     en: curl - display response headers
+     tr: curl - yanıt başlıklarını görüntüleme
+   desc:
+     en: |
+       Fetches the URL and displays only the HTTP response headers. 
+       This is highly useful for debugging server configurations, identifying the web server software, and checking cookies or redirect locations. 
+       Using -I triggers a HEAD request, which is faster as it does not download the body content. 
+       It is a primary step in web reconnaissance to find potential vulnerabilities in header configurations.
+     tr: |
+       Adresi çekerek yalnızca HTTP yanıt başlıklarını gösterir.
+       Sunucu yapılandırmalarını gidermek, ağ sunucusu yazılımını tanımak, çerez veya yönlendirme adreslerini denetlemek açısından oldukça kullanışlıdır.
+       -I seçeneği gövde içeriğini indirmediğinden daha hızlı çalışan HEAD isteğini tetikler.
+       Başlık yapılandırmalarındaki olası zafiyetleri bulmak amacıyla ağ keşfinde başvurulan birincil adımdır.
    command: "curl -I {{url}}"
 
- - title: curl - verbose output for debugging
-   desc: |
-     Enables verbose mode to show the entire request and response flow. 
-     It displays the handshake, headers sent by curl, and the headers received from the server. 
-     Lines starting with '>' indicate data sent, while '<' indicates data received. 
-     Use this when a request is failing and you need to see exactly what curl is doing under the hood.
+ - title:
+     en: curl - verbose output for debugging
+     tr: curl - hata ayıklama için ayrıntılı çıktı
+   desc:
+     en: |
+       Enables verbose mode to show the entire request and response flow. 
+       It displays the handshake, headers sent by curl, and the headers received from the server. 
+       Lines starting with '>' indicate data sent, while '<' indicates data received. 
+       Use this when a request is failing and you need to see exactly what curl is doing under the hood.
+     tr: |
+       İstek ile yanıt akışının tamamını gösteren ayrıntılı kipi etkinleştirir.
+       El sıkışmayı, curl tarafından gönderilen başlıklarla sunucudan alınan başlıkları gösterir.
+       '>' ile başlayan satırlar giden veriyi, '<' ile başlayan satırlar gelen veriyi belirtir.
+       İstek başarısız olduğunda curl tarafının perde arkasında ne yaptığını görmek gerektiğinde kullanılmalıdır.
    command: "curl -v {{url}}"
 
 # === DATA TRANSFER & METHODS ===
- - title: curl - send POST request with data
-   desc: |
-     Sends an HTTP POST request with specific form data to the server. 
-     The -d flag automatically sets the Content-Type to application/x-www-form-urlencoded. 
-     This is typically used for submitting web forms or login credentials. 
-     You can use multiple -d flags to send multiple key-value pairs in a single request.
+ - title:
+     en: curl - send POST request with data
+     tr: curl - veriyle POST isteği gönderme
+   desc:
+     en: |
+       Sends an HTTP POST request with specific form data to the server. 
+       The -d flag automatically sets the Content-Type to application/x-www-form-urlencoded. 
+       This is typically used for submitting web forms or login credentials. 
+       You can use multiple -d flags to send multiple key-value pairs in a single request.
+     tr: |
+       Sunucuya belirli form verisiyle HTTP POST isteği gönderir.
+       -d seçeneği içerik türünü kendiliğinden application/x-www-form-urlencoded değerine ayarlar.
+       Ağ formlarını veya giriş kimlik bilgilerini göndermek amacıyla tipik biçimde kullanılır.
+       Tek istekte birden fazla anahtar-değer çifti göndermek amacıyla -d seçeneği yinelenebilir.
    command: "curl -d \"{{key1}}={{value1}}\" -d \"{{key2}}={{value2}}\" {{url}}"
 
- - title: curl - send JSON data in POST
-   desc: |
-     Sends a POST request with a raw JSON payload. 
-     You must manually set the 'Content-Type: application/json' header for the server to parse the data correctly. 
-     This is the standard way to interact with modern RESTful APIs. 
-     Be careful with shell quoting when writing the JSON string directly in the terminal.
+ - title:
+     en: curl - send JSON data in POST
+     tr: curl - POST içinde JSON verisi gönderme
+   desc:
+     en: |
+       Sends a POST request with a raw JSON payload. 
+       You must manually set the 'Content-Type: application/json' header for the server to parse the data correctly. 
+       This is the standard way to interact with modern RESTful APIs. 
+       Be careful with shell quoting when writing the JSON string directly in the terminal.
+     tr: |
+       İşlenmemiş JSON yüküyle POST isteği gönderir.
+       Sunucunun veriyi doğru çözümlemesi amacıyla 'Content-Type: application/json' başlığı elle ayarlanmalıdır.
+       Güncel REST arayüzleriyle etkileşimin standart yoludur.
+       JSON dizesi uçbirimde doğrudan yazılırken kabuk tırnak işaretlerine dikkat edilmelidir.
    command: "curl -X POST -H \"Content-Type: application/json\" -d '{{json_data}}' {{url}}"
 
- - title: curl - upload a file
-   desc: |
-     Uploads a local file to the destination server using the -T flag. 
-     This typically uses the PUT method or specific protocols supported by the server like FTP or SFTP. 
-     It is commonly used for transferring logs, backups, or exploit payloads to a target system. 
-     Note that the remote server must be configured to accept file uploads at that specific path.
+ - title:
+     en: curl - upload a file
+     tr: curl - dosya yükleme
+   desc:
+     en: |
+       Uploads a local file to the destination server using the -T flag. 
+       This typically uses the PUT method or specific protocols supported by the server like FTP or SFTP. 
+       It is commonly used for transferring logs, backups, or exploit payloads to a target system. 
+       Note that the remote server must be configured to accept file uploads at that specific path.
+     tr: |
+       -T seçeneğini kullanarak yerel dosyayı hedef sunucuya yükler.
+       Tipik biçimde PUT yöntemini veya sunucunun desteklediği FTP ya da SFTP benzeri iletişim kurallarını kullanır.
+       Günlükleri, yedekleri veya sömürü yüklerini hedef sisteme aktarmak amacıyla yaygın kullanılır.
+       Uzak sunucunun ilgili yolda dosya yüklemeyi kabul edecek biçimde yapılandırılmış olması gerektiği unutulmamalıdır.
    command: "curl -T {{local_file}} {{url}}"
 
 # === AUTHENTICATION & HEADERS ===
- - title: curl - basic authentication
-   desc: |
-     Authenticates against a server using the HTTP Basic Authentication scheme. 
-     The -u flag takes a username and password separated by a colon. 
-     Curl handles the Base64 encoding of these credentials automatically. 
-     Be aware that Basic Auth is insecure over HTTP as credentials are sent in plain text; always use HTTPS.
+ - title:
+     en: curl - basic authentication
+     tr: curl - temel kimlik doğrulama
+   desc:
+     en: |
+       Authenticates against a server using the HTTP Basic Authentication scheme. 
+       The -u flag takes a username and password separated by a colon. 
+       Curl handles the Base64 encoding of these credentials automatically. 
+       Be aware that Basic Auth is insecure over HTTP as credentials are sent in plain text; always use HTTPS.
+     tr: |
+       HTTP temel kimlik doğrulama düzeneğiyle sunucu karşısında kimlik doğrular.
+       -u seçeneği iki nokta işaretiyle ayrılmış kullanıcı adı ile parola alır.
+       Curl bu kimlik bilgilerinin Base64 kodlamasını kendiliğinden üstlenir.
+       Kimlik bilgileri düz metin taşındığından temel doğrulamanın HTTP üzerinde güvensiz kaldığı unutulmamalı; daima HTTPS kullanılmalıdır.
    command: "curl -u {{username}}:{{password}} {{url}}"
 
- - title: curl - send custom headers
-   desc: |
-     Adds a custom header to the outgoing HTTP request. 
-     This is frequently used to provide API keys, Bearer tokens, or to bypass simple security filters. 
-     You can add multiple headers by repeating the -H flag. 
-     It is essential for testing how a server reacts to non-standard or missing headers.
+ - title:
+     en: curl - send custom headers
+     tr: curl - özel başlıklar gönderme
+   desc:
+     en: |
+       Adds a custom header to the outgoing HTTP request. 
+       This is frequently used to provide API keys, Bearer tokens, or to bypass simple security filters. 
+       You can add multiple headers by repeating the -H flag. 
+       It is essential for testing how a server reacts to non-standard or missing headers.
+     tr: |
+       Giden HTTP isteğine özel başlık ekler.
+       Arayüz anahtarları, taşıyıcı jetonlar sağlamak veya yalın güvenlik filtrelerini aşmak amacıyla sık kullanılır.
+       -H seçeneği yinelenerek birden fazla başlık eklenebilir.
+       Sunucunun standart dışı veya eksik başlıklara verdiği tepkiyi denemek açısından vazgeçilmezdir.
    command: "curl -H \"{{header_name}}: {{header_value}}\" {{url}}"
 
- - title: curl - set custom User-Agent
-   desc: |
-     Overrides the default curl User-Agent string with a custom one. 
-     Many web applications block the 'curl' User-Agent to prevent automated scraping or bot activity. 
-     Setting this to a common browser string (like Chrome or Firefox) can help bypass such restrictions. 
-     This is a standard technique used during the initial stages of web application testing.
+ - title:
+     en: curl - set custom User-Agent
+     tr: curl - özel istemci tanıtımı ayarlama
+   desc:
+     en: |
+       Overrides the default curl User-Agent string with a custom one. 
+       Many web applications block the 'curl' User-Agent to prevent automated scraping or bot activity. 
+       Setting this to a common browser string (like Chrome or Firefox) can help bypass such restrictions. 
+       This is a standard technique used during the initial stages of web application testing.
+     tr: |
+       Varsayılan curl istemci tanıtım dizesini özel dizeyle değiştirir.
+       Birçok ağ uygulaması otomatik kazıma veya robot etkinliğini engellemek amacıyla 'curl' tanıtımını engeller.
+       Bu değerin yaygın tarayıcı dizesi (Chrome veya Firefox benzeri) yapılması bu tür kısıtları aşmaya yardımcı olabilir.
+       Ağ uygulaması denemelerinin ilk aşamalarında kullanılan standart tekniktir.
    command: "curl -A \"{{user_agent|Mozilla/5.0 (Windows NT 10.0; Win64; x64)}}\" {{url}}"
 
 # === SECURITY & PROXIES ===
- - title: curl - ignore SSL certificate errors
-   desc: |
-     Allows curl to connect to servers with invalid or self-signed SSL certificates. 
-     The -k (or --insecure) flag bypasses the certificate verification process entirely. 
-     This is useful for testing internal development servers or legacy systems. 
-     Warning: This makes the connection vulnerable to Man-in-the-Middle (MITM) attacks; use with caution.
+ - title:
+     en: curl - ignore SSL certificate errors
+     tr: curl - SSL sertifika hatalarını yoksayma
+   desc:
+     en: |
+       Allows curl to connect to servers with invalid or self-signed SSL certificates. 
+       The -k (or --insecure) flag bypasses the certificate verification process entirely. 
+       This is useful for testing internal development servers or legacy systems. 
+       Warning: This makes the connection vulnerable to Man-in-the-Middle (MITM) attacks; use with caution.
+     tr: |
+       Curl tarafının geçersiz veya öz imzalı SSL sertifikalı sunuculara bağlanmasına izin verir.
+       -k (veya --insecure) seçeneği sertifika doğrulama sürecini tümüyle atlar.
+       Kurum içi geliştirme sunucularını veya eski sistemleri denemek amacıyla kullanışlıdır.
+       Uyarı: Bu durum bağlantıyı ortadaki kişi (MITM) saldırılarına açık duruma getirir; dikkatle kullanılmalıdır.
    command: "curl -k {{url}}"
 
- - title: curl - use a proxy server
-   desc: |
-     Routes the entire request through a specified proxy server. 
-     This is vital for capturing traffic in tools like Burp Suite, OWASP ZAP, or for anonymizing the source IP. 
-     The proxy can be HTTP, HTTPS, or SOCKS. 
-     Ensure the proxy address and port are correct, otherwise, the connection will time out.
+ - title:
+     en: curl - use a proxy server
+     tr: curl - vekil sunucu kullanma
+   desc:
+     en: |
+       Routes the entire request through a specified proxy server. 
+       This is vital for capturing traffic in tools like Burp Suite, OWASP ZAP, or for anonymizing the source IP. 
+       The proxy can be HTTP, HTTPS, or SOCKS. 
+       Ensure the proxy address and port are correct, otherwise, the connection will time out.
+     tr: |
+       İsteğin tamamını belirtilen vekil sunucu üzerinden geçirir.
+       Trafiği Burp Suite, OWASP ZAP benzeri araçlarda yakalamak veya kaynak adresini gizlemek açısından hayati önemdedir.
+       Vekil HTTP, HTTPS veya SOCKS olabilir.
+       Vekil adresiyle bağlantı noktasının doğruluğuna dikkat edilmelidir; aksi durumda bağlantı zaman aşımına uğrar.
    command: "curl -x {{proxy_proto|http}}://{{proxy_host}}:{{proxy_port|8080}} {{url}}"
 
- - title: curl - use cookies from a file
-   desc: |
-     Sends cookies stored in a file along with the request. 
-     The -b flag reads cookies from the specified file, while -c can be used to write received cookies back to a file. 
-     This is necessary for maintaining sessions in multi-step web interactions. 
-     The file format should be either Netscape cookie format or simple "name=value" pairs.
+ - title:
+     en: curl - use cookies from a file
+     tr: curl - dosyadaki çerezleri kullanma
+   desc:
+     en: |
+       Sends cookies stored in a file along with the request. 
+       The -b flag reads cookies from the specified file, while -c can be used to write received cookies back to a file. 
+       This is necessary for maintaining sessions in multi-step web interactions. 
+       The file format should be either Netscape cookie format or simple "name=value" pairs.
+     tr: |
+       Dosyada saklı çerezleri istekle birlikte gönderir.
+       -b seçeneği çerezleri belirtilen dosyadan okurken -c seçeneği alınan çerezleri dosyaya yazmak amacıyla kullanılabilir.
+       Çok adımlı ağ etkileşimlerinde oturum sürdürmek amacıyla gereklidir.
+       Dosya biçimi Netscape çerez biçimi veya yalın "name=value" çiftleri olmalıdır.
    command: "curl -b {{cookie_file|cookies.txt}} {{url}}"
 
 # === ADVANCED ===
- - title: curl - follow redirects
-   desc: |
-     Instructs curl to follow HTTP 3xx redirects automatically. 
-     By default, curl shows the redirect page content or headers but does not move to the new location. 
-     The -L flag ensures you reach the final destination of a shortened or redirected URL. 
-     This is critical when testing URLs that use load balancers or authentication redirects.
+ - title:
+     en: curl - follow redirects
+     tr: curl - yönlendirmeleri takip et
+   desc:
+     en: |
+       Instructs curl to follow HTTP 3xx redirects automatically. 
+       By default, curl shows the redirect page content or headers but does not move to the new location. 
+       The -L flag ensures you reach the final destination of a shortened or redirected URL. 
+       This is critical when testing URLs that use load balancers or authentication redirects.
+     tr: |
+       Curl tarafına HTTP 3xx yönlendirmelerini kendiliğinden izleme buyruğu verir.
+       Varsayılan davranışta curl yönlendirme sayfasının içeriğini veya başlıklarını gösterir; yeni konuma geçmez.
+       -L seçeneği kısaltılmış veya yönlendirilmiş adresin son durağına ulaşmayı garanti eder.
+       Yük dengeleyici veya kimlik doğrulama yönlendirmesi kullanan adresleri denerken kritik önemdedir.
    command: "curl -L {{url}}"
 
- - title: curl - limit rate of download
-   desc: |
-     Limits the speed of the data transfer to a specified rate. 
-     The rate can be specified in bytes, kilobytes (k), or megabytes (m). 
-     This is useful to prevent curl from consuming all available bandwidth on a network. 
-     It is often used when downloading large files in production environments or over slow connections.
+ - title:
+     en: curl - limit rate of download
+     tr: curl - indirme hızını sınırlama
+   desc:
+     en: |
+       Limits the speed of the data transfer to a specified rate. 
+       The rate can be specified in bytes, kilobytes (k), or megabytes (m). 
+       This is useful to prevent curl from consuming all available bandwidth on a network. 
+       It is often used when downloading large files in production environments or over slow connections.
+     tr: |
+       Veri aktarım hızını belirtilen üst sınırda tutar.
+       Hız bayt, kilobayt (k) veya megabayt (m) cinsinden belirtilebilir.
+       Curl tarafının ağdaki tüm bant genişliğini tüketmesini engellemek açısından kullanışlıdır.
+       Üretim ortamlarında büyük dosyalar indirilirken veya yavaş bağlantılarda sık kullanılır.
    command: "curl --limit-rate {{rate|100k}} {{url}}"

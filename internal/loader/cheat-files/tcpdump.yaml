@@ -4,106 +4,204 @@ tags: [network, sniffer, security, pentest, troubleshooting, packets, forensics]
 actions:
 # === BASIC CAPTURE ===
 
- - title: tcpdump - list interfaces
-   desc: |
-     Lists all available network interfaces that tcpdump can capture on. 
-     This is usually the first step to identify which interface (e.g., eth0, wlan0, lo) you need to monitor.
-     The output also indicates whether an interface is up or running.
+ - title:
+     en: tcpdump - list interfaces
+     tr: tcpdump - arayüzleri listeleme
+   desc:
+     en: |
+       Lists all available network interfaces that tcpdump can capture on. 
+       This is usually the first step to identify which interface (e.g., eth0, wlan0, lo) you need to monitor.
+       The output also indicates whether an interface is up or running.
+     tr: |
+       tcpdump'un yakalama yapabildiği tüm kullanılabilir ağ arayüzlerini listeler.
+       Genelde hangi arayüzü (örn. eth0, wlan0, lo) izlemeniz gerektiğini belirlemenin ilk adımıdır.
+       Çıktı ayrıca arayüzün açık ve çalışıyor olup olmadığını gösterir.
    command: "tcpdump -D"
 
- - title: tcpdump - basic live capture
-   desc: |
-     Starts a live capture on a specified interface without resolving hostnames.
-     The -n flag prevents DNS lookups, which speeds up the display and reduces overhead during high traffic.
-     Use 'any' as the interface to listen on all active interfaces simultaneously, though this may require root privileges.
+ - title:
+     en: tcpdump - basic live capture
+     tr: tcpdump - temel canlı yakalama
+   desc:
+     en: |
+       Starts a live capture on a specified interface without resolving hostnames.
+       The -n flag prevents DNS lookups, which speeds up the display and reduces overhead during high traffic.
+       Use 'any' as the interface to listen on all active interfaces simultaneously, though this may require root privileges.
+     tr: |
+       Belirli bir arayüzde makine adlarını çözümlemeden canlı yakalama başlatır.
+       -n flag'i DNS aramalarını kapatarak görüntüyü hızlandırır ve yoğun trafikte ek yükü azaltır.
+       Tüm aktif arayüzleri aynı anda dinlemek için arayüz olarak 'any' kullanın; ancak root yetkisi gerekebilir.
    command: "tcpdump -i {{interface|any}} -n"
 
- - title: tcpdump - capture and save to file
-   desc: |
-     Captures packets from an interface and saves them to a raw pcap file.
-     This file can later be analyzed using tools like Wireshark or read back into tcpdump.
-     Ensure the user has write permissions in the target directory and monitor disk space for high-volume traffic.
+ - title:
+     en: tcpdump - capture and save to file
+     tr: tcpdump - yakalayıp dosyaya kaydetme
+   desc:
+     en: |
+       Captures packets from an interface and saves them to a raw pcap file.
+       This file can later be analyzed using tools like Wireshark or read back into tcpdump.
+       Ensure the user has write permissions in the target directory and monitor disk space for high-volume traffic.
+     tr: |
+       Arayüzden paketleri yakalayıp ham pcap dosyasına kaydeder.
+       Bu dosya daha sonra Wireshark gibi araçlarla analiz edilebilir veya tcpdump'a geri okutulabilir.
+       Hedef dizinde yazma izniniz olduğundan ve yüksek hacimli trafikte disk alanını izlediğinizden emin olun.
    command: "tcpdump -i {{interface|any}} -w {{output_file|capture.pcap}}"
 
- - title: tcpdump - read from pcap file
-   desc: |
-     Reads and displays the contents of a previously saved pcap file.
-     You can apply additional filters while reading the file to isolate specific traffic without re-capturing.
-     This is standard practice for forensic analysis and offline network debugging.
+ - title:
+     en: tcpdump - read from pcap file
+     tr: tcpdump - pcap dosyasından okuma
+   desc:
+     en: |
+       Reads and displays the contents of a previously saved pcap file.
+       You can apply additional filters while reading the file to isolate specific traffic without re-capturing.
+       This is standard practice for forensic analysis and offline network debugging.
+     tr: |
+       Önceden kaydedilmiş bir pcap dosyasının içeriğini okur ve gösterir.
+       Dosyayı okurken yeniden yakalamaya gerek kalmadan belirli trafiği yalıtmak için ek filtreler uygulayabilirsiniz.
+       Adli analiz ve çevrimdışı ağ hata ayıklama için standart uygulamadır.
    command: "tcpdump -r {{input_file|capture.pcap}}"
 
 # === FILTERING OPTIONS ===
 
- - title: tcpdump - filter by host
-   desc: |
-     Filters traffic to show only packets where the source or destination matches the specified IP address.
-     This is essential for focusing on a single target machine during a penetration test or investigation.
-     You can further specify 'src host' or 'dst host' to narrow down the direction of the traffic.
+ - title:
+     en: tcpdump - filter by host
+     tr: tcpdump - makineye göre filtreleme
+   desc:
+     en: |
+       Filters traffic to show only packets where the source or destination matches the specified IP address.
+       This is essential for focusing on a single target machine during a penetration test or investigation.
+       You can further specify 'src host' or 'dst host' to narrow down the direction of the traffic.
+     tr: |
+       Kaynak veya hedefin belirtilen IP adresiyle eşleştiği paketleri göstermek için trafiği filtreler.
+       Sızma testi veya soruşturma sırasında tek bir hedef makineye odaklanmak için gereklidir.
+       Trafiğin yönünü daraltmak için ayrıca 'src host' veya 'dst host' belirtebilirsiniz.
    command: "tcpdump -i {{interface|any}} host {{target_ip}}"
 
- - title: tcpdump - filter by port
-   desc: |
-     Captures traffic flowing through a specific port number.
-     Useful for monitoring specific services like HTTP (80), HTTPS (443), or SSH (22).
-     If the service uses both TCP and UDP, this filter will capture both unless a protocol is specified.
+ - title:
+     en: tcpdump - filter by port
+     tr: tcpdump - porta göre filtreleme
+   desc:
+     en: |
+       Captures traffic flowing through a specific port number.
+       Useful for monitoring specific services like HTTP (80), HTTPS (443), or SSH (22).
+       If the service uses both TCP and UDP, this filter will capture both unless a protocol is specified.
+     tr: |
+       Belirli bir port numarasından geçen trafiği yakalar.
+       HTTP (80), HTTPS (443) veya SSH (22) gibi belirli servisleri izlemek için yararlıdır.
+       Servis hem TCP hem UDP kullanıyorsa protokol belirtilmedikçe ikisini de yakalar.
    command: "tcpdump -i {{interface|any}} port {{port_number|80}}"
 
- - title: tcpdump - filter by network range
-   desc: |
-     Captures traffic for an entire subnet using CIDR notation.
-     This is helpful for monitoring traffic within a specific VLAN or organizational department.
-     It captures any packet where the source or destination IP falls within the defined network range.
+ - title:
+     en: tcpdump - filter by network range
+     tr: tcpdump - ağ aralığına göre filtreleme
+   desc:
+     en: |
+       Captures traffic for an entire subnet using CIDR notation.
+       This is helpful for monitoring traffic within a specific VLAN or organizational department.
+       It captures any packet where the source or destination IP falls within the defined network range.
+     tr: |
+       CIDR gösterimli tüm bir alt ağın trafiğini yakalar.
+       Belirli bir VLAN veya departman trafiğini izlemek için yararlıdır.
+       Kaynak veya hedef IP'si tanımlı ağ aralığına düşen her paketi yakalar.
    command: "tcpdump -i {{interface|any}} net {{network_range|192.168.1.0/24}}"
 
- - title: tcpdump - protocol specific filter (ICMP)
-   desc: |
-     Isolates ICMP packets, such as Ping requests (Echo Request) and replies.
-     This is the go-to command for diagnosing connectivity issues and observing network discovery attempts.
-     It helps identify if a host is alive or if a firewall is blocking specific diagnostic traffic.
+ - title:
+     en: tcpdump - protocol specific filter (ICMP)
+     tr: tcpdump - protokole özel filtre (ICMP)
+   desc:
+     en: |
+       Isolates ICMP packets, such as Ping requests (Echo Request) and replies.
+       This is the go-to command for diagnosing connectivity issues and observing network discovery attempts.
+       It helps identify if a host is alive or if a firewall is blocking specific diagnostic traffic.
+     tr: |
+       Ping istekleri (Echo Request) ve yanıtları gibi ICMP paketlerini yalıtır.
+       Bağlantı sorunlarını teşhis ve ağ keşif girişimlerini gözlemlemek için başvurulan komuttur.
+       Bir makinenin canlı olup olmadığını veya güvenlik duvarının tanısal trafiği engelleyip engellemediğini belirlemeye yardımcı olur.
    command: "tcpdump -i {{interface|any}} icmp"
 
 # === PAYLOAD & VERBOSITY ===
 
- - title: tcpdump - display ASCII and Hex payload
-   desc: |
-     Displays the packet contents in both Hexadecimal and ASCII formats.
-     The -X flag is invaluable for inspecting unencrypted application-layer data like HTTP headers or telnet commands.
-     Use -s 0 to ensure the entire packet is captured (no truncation) regardless of its size.
+ - title:
+     en: tcpdump - display ASCII and Hex payload
+     tr: tcpdump - ASCII ve Hex yükünü gösterme
+   desc:
+     en: |
+       Displays the packet contents in both Hexadecimal and ASCII formats.
+       The -X flag is invaluable for inspecting unencrypted application-layer data like HTTP headers or telnet commands.
+       Use -s 0 to ensure the entire packet is captured (no truncation) regardless of its size.
+     tr: |
+       Paket içeriklerini hem Onaltılık (Hexadecimal) hem ASCII biçiminde gösterir.
+       -X flag'i, şifrelenmemiş HTTP başlıkları veya telnet komutları gibi uygulama katmanı verisini incelemede çok değerlidir.
+       Paket boyutundan bağımsız tüm paketin yakalanması (kesilmemesi) için -s 0 kullanın.
    command: "tcpdump -i {{interface|any}} -X -s 0"
 
- - title: tcpdump - show ASCII only
-   desc: |
-     Prints the packet payload in ASCII format only.
-     This is particularly useful for quickly reading plain-text protocols like HTTP, SMTP, or POP3 directly in the terminal.
-     It provides a cleaner view than the hex dump when you are only interested in string-based data.
+ - title:
+     en: tcpdump - show ASCII only
+     tr: tcpdump - yalnızca ASCII gösterme
+   desc:
+     en: |
+       Prints the packet payload in ASCII format only.
+       This is particularly useful for quickly reading plain-text protocols like HTTP, SMTP, or POP3 directly in the terminal.
+       It provides a cleaner view than the hex dump when you are only interested in string-based data.
+     tr: |
+       Paket yükünü yalnızca ASCII biçiminde yazdırır.
+       HTTP, SMTP veya POP3 gibi düz metin protokollerini doğrudan terminalde hızlı okumak için özellikle yararlıdır.
+       Yalnızca dize tabanlı veriyle ilgilenirken hex dökümünden daha temiz bir görünüm verir.
    command: "tcpdump -i {{interface|any}} -A"
 
- - title: tcpdump - increased verbosity
-   desc: |
-     Increases the amount of detail shown for each packet, such as TTL, ID, and length.
-     You can use multiple 'v's (e.g., -vv or -vvv) for even more exhaustive protocol decoding and information.
-     Higher verbosity levels are useful for deep packet inspection but can result in very noisy output.
+ - title:
+     en: tcpdump - increased verbosity
+     tr: tcpdump - artırılmış ayrıntı
+   desc:
+     en: |
+       Increases the amount of detail shown for each packet, such as TTL, ID, and length.
+       You can use multiple 'v's (e.g., -vv or -vvv) for even more exhaustive protocol decoding and information.
+       Higher verbosity levels are useful for deep packet inspection but can result in very noisy output.
+     tr: |
+       Paket başına gösterilen TTL, kimlik ve uzunluk gibi ayrıntı miktarını artırır.
+       Daha da kapsamlı protokol çözümleme için birden çok 'v' (-vv veya -vvv) kullanabilirsiniz.
+       Yüksek ayrıntı düzeyleri derin paket incelemede yararlıdır ama çok gürültülü çıktı üretebilir.
    command: "tcpdump -i {{interface|any}} -vv"
 
 # === ADVANCED FILTERS ===
 
- - title: tcpdump - filter TCP SYN packets
-   desc: |
-     Filters for TCP packets that have only the SYN flag set.
-     This is used to identify the start of new TCP connections and is very effective for detecting port scanning activity.
-     The command uses bitwise operations on the TCP header flags field to isolate the SYN bit.
+ - title:
+     en: tcpdump - filter TCP SYN packets
+     tr: tcpdump - TCP SYN paketlerini filtreleme
+   desc:
+     en: |
+       Filters for TCP packets that have only the SYN flag set.
+       This is used to identify the start of new TCP connections and is very effective for detecting port scanning activity.
+       The command uses bitwise operations on the TCP header flags field to isolate the SYN bit.
+     tr: |
+       Yalnızca SYN flag'i ayarlı TCP paketlerini filtreler.
+       Yeni TCP bağlantılarının başlangıcını belirlemek için kullanılır ve port tarama aktivitesini tespit etmede çok etkilidir.
+       Komut, TCP başlık flag alanındaki SYN bitini yalıtmak için bitsel işlemler kullanır.
    command: "tcpdump -i {{interface|any}} 'tcp[tcpflags] & (tcp-syn) != 0'"
 
- - title: tcpdump - complex logical filtering
-   desc: |
-     Combines multiple filters using logical operators like 'and', 'or', and 'not'.
-     In this example, it captures traffic for a specific host that is NOT on port 22 (SSH).
-     Using quotes is mandatory to prevent the shell from misinterpreting special characters or parentheses.
+ - title:
+     en: tcpdump - complex logical filtering
+     tr: tcpdump - karmaşık mantıksal filtreleme
+   desc:
+     en: |
+       Combines multiple filters using logical operators like 'and', 'or', and 'not'.
+       In this example, it captures traffic for a specific host that is NOT on port 22 (SSH).
+       Using quotes is mandatory to prevent the shell from misinterpreting special characters or parentheses.
+     tr: |
+       'and', 'or' ve 'not' gibi mantıksal işleçlerle birden çok filtreyi birleştirir.
+       Bu örnekte, SSH (22) portunda OLMAYAN, belirli bir makinenin trafiğini yakalar.
+       Kabuk özel karakterleri veya parantezleri yanlış yorumlamasın diye tırnak kullanmak zorunludur.
    command: "tcpdump -i {{interface|any}} 'host {{target_ip}} and not port {{exclude_port|22}}'"
 
- - title: tcpdump - capture specific packet count
-   desc: |
-     Tells tcpdump to exit automatically after capturing a predefined number of packets.
-     This is useful for scripted environments or quick checks where you don't want the process to run indefinitely.
-     It helps prevent log files from growing excessively large during a brief observation.
+ - title:
+     en: tcpdump - capture specific packet count
+     tr: tcpdump - belirli sayıda paket yakalama
+   desc:
+     en: |
+       Tells tcpdump to exit automatically after capturing a predefined number of packets.
+       This is useful for scripted environments or quick checks where you don't want the process to run indefinitely.
+       It helps prevent log files from growing excessively large during a brief observation.
+     tr: |
+       Önceden tanımlı sayıda paket yakaladıktan sonra tcpdump'a otomatik çıkmasını söyler.
+       Sürecin süresiz çalışmasını istemediğiniz betikli ortamlar veya hızlı kontroller için yararlıdır.
+       Kısa bir gözlem sırasında günlük dosyalarının aşırı büyümesini engeller.
    command: "tcpdump -i {{interface|any}} -c {{count|100}}"

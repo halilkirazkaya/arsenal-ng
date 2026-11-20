@@ -3,84 +3,145 @@ tags: [network, web, security, pentest, enumeration, api, reconnaissance, scanne
 
 actions:
   # === API SCANNING ===
-  - title: kr - basic api scan
-    desc: |
-      Execute a targeted API scan against a specific host using Assetnote wordlists. This command is specifically 
-      designed to discover API endpoints by leveraging structured data from the .kite format. It helps identify 
-      hidden routes that standard directory busters might miss by testing various HTTP methods and parameters. 
-      Ensure you have network connectivity to the target before starting the reconnaissance process.
+  - title:
+      en: kr - basic api scan
+      tr: kr - temel api taraması
+    desc:
+      en: |
+        Execute a targeted API scan against a specific host using Assetnote wordlists. This command is specifically 
+        designed to discover API endpoints by leveraging structured data from the .kite format. It helps identify 
+        hidden routes that standard directory busters might miss by testing various HTTP methods and parameters. 
+        Ensure you have network connectivity to the target before starting the reconnaissance process.
+      tr: |
+        Assetnote sözlüklerini kullanarak belirli bir hedefe yönelik API taraması yürütün. Bu komut özellikle
+        .kite biçiminden gelen yapılandırılmış verilerden yararlanarak API uç noktalarını keşfetmek için tasarlanmıştır. Çeşitli HTTP yöntemlerini ve parametrelerini deneyerek standart dizin tarayıcıların kaçırabileceği gizli rotaların belirlenmesine yardımcı olur.
+        Keşif sürecine başlamadan önce hedefe ağ bağlantınız olduğundan emin olun.
     command: "kr scan {{target}} -A={{wordlist_alias|apiroutes-210328}}"
 
-  - title: kr - high performance multi-host scan
-    desc: |
-      Scan a list of targets from a file while controlling the concurrency settings to maximize throughput. You 
-      can adjust the maximum parallel hosts and connections per host to optimize speed without overwhelming 
-      the targets or your own network stack. This is particularly useful for bug bounty hunting or large-scale 
-      internal audits where thousands of hosts need to be checked. Note that high concurrency may lead to 
-      aggressive rate limiting or account lockouts on some environments.
+  - title:
+      en: kr - high performance multi-host scan
+      tr: kr - yüksek performanslı çok hedefli tarama
+    desc:
+      en: |
+        Scan a list of targets from a file while controlling the concurrency settings to maximize throughput. You 
+        can adjust the maximum parallel hosts and connections per host to optimize speed without overwhelming 
+        the targets or your own network stack. This is particularly useful for bug bounty hunting or large-scale 
+        internal audits where thousands of hosts need to be checked. Note that high concurrency may lead to 
+        aggressive rate limiting or account lockouts on some environments.
+      tr: |
+        İş hacmini en üst düzeye çıkarmak için eşzamanlılık ayarlarını kontrol ederek bir dosyadaki hedef listesini tarayın.
+        Hedefleri veya kendi ağ yığınınızı zorlamadan hızı optimize etmek için maksimum paralel hedef ve hedef başına bağlantı sayısını ayarlayabilirsiniz. Binlerce hedefin kontrol edilmesi gereken hata ödül avcılığı veya geniş ölçekli iç denetimler için özellikle kullanışlıdır. Yüksek eşzamanlılığın bazı ortamlarda agresif hız sınırlamaya veya hesap kilitlenmelerine yol açabileceğini unutmayın.
     command: "kr scan {{targets_file}} -A={{wordlist_alias|apiroutes-210328}} -j {{max_parallel_hosts|50}} -x {{max_connections_per_host|5}}"
 
-  - title: kr - scan with depth-based baseline checks
-    desc: |
-      Perform a scan with an increased directory depth for wildcard detection and baseline checks. Increasing 
-      the depth allows the tool to perform separate baseline checks for sub-directories, which is critical 
-      for applications using virtual path-based routing. This improves the accuracy of the results and reduces 
-      false positives in complex environments. However, increasing depth will significantly increase the 
-      total number of requests sent to the target.
+  - title:
+      en: kr - scan with depth-based baseline checks
+      tr: kr - derinlik tabanlı temel kontrollerle tarama
+    desc:
+      en: |
+        Perform a scan with an increased directory depth for wildcard detection and baseline checks. Increasing 
+        the depth allows the tool to perform separate baseline checks for sub-directories, which is critical 
+        for applications using virtual path-based routing. This improves the accuracy of the results and reduces 
+        false positives in complex environments. However, increasing depth will significantly increase the 
+        total number of requests sent to the target.
+      tr: |
+        Joker karakter tespiti ve temel kontroller için artırılmış dizin derinliğiyle tarama gerçekleştirin. Derinliği
+        artırmak, aracın alt dizinler için ayrı temel kontroller yapmasına olanak tanır; bu, sanal yol tabanlı yönlendirme kullanan uygulamalar için kritiktir. Bu, sonuçların doğruluğunu artırır ve karmaşık ortamlarda yanlış pozitifleri azaltır. Ancak derinliği artırmak hedefe gönderilen toplam istek sayısını önemli ölçüde artırır.
     command: "kr scan {{target}} -A={{wordlist_alias|apiroutes-210328}} --preflight-depth {{depth|2}}"
 
   # === BRUTE FORCING ===
-  - title: kr - directory brute force with extensions
-    desc: |
-      Perform a standard path brute force using a text-based wordlist and specific file extensions. This mode 
-      is suitable for discovering common files like configuration backups, scripts, or administrative panels. 
-      You can provide multiple extensions separated by commas to increase the coverage of the scan. Use 
-      a low connection count if the target is protected by a Web Application Firewall (WAF) or rate limiter.
+  - title:
+      en: kr - directory brute force with extensions
+      tr: kr - uzantılı dizin kaba kuvvet taraması
+    desc:
+      en: |
+        Perform a standard path brute force using a text-based wordlist and specific file extensions. This mode 
+        is suitable for discovering common files like configuration backups, scripts, or administrative panels. 
+        You can provide multiple extensions separated by commas to increase the coverage of the scan. Use 
+        a low connection count if the target is protected by a Web Application Firewall (WAF) or rate limiter.
+      tr: |
+        Metin tabanlı bir sözlük ve belirli dosya uzantıları kullanarak standart yol kaba kuvvet taraması yapın. Bu mod
+        yapılandırma yedekleri, betikler veya yönetim panelleri gibi yaygın dosyaları keşfetmek için uygundur.
+        Tarama kapsamını artırmak için virgülle ayrılmış birden fazla uzantı verebilirsiniz. Hedef bir Web Uygulama Güvenlik Duvarı (WAF) veya hız sınırlayıcı ile korunuyorsa düşük bağlantı sayısı kullanın.
     command: "kr brute {{target}} -w {{wordlist_path}} -e {{extensions|php,aspx,json,txt}}"
 
-  - title: kr - dirsearch compatibility mode
-    desc: |
-      Run a brute force scan using wordlists that contain the %EXT% placeholder, mimicking dirsearch behavior. 
-      The tool will automatically replace the placeholder with the extensions provided in the command line 
-      arguments. This is perfect for users who want to use their existing legacy wordlists with Kiterunner's 
-      high-performance engine. It ensures that specialized wordlists for specific tech stacks remain effective.
+  - title:
+      en: kr - dirsearch compatibility mode
+      tr: kr - dirsearch uyumluluk modu
+    desc:
+      en: |
+        Run a brute force scan using wordlists that contain the %EXT% placeholder, mimicking dirsearch behavior. 
+        The tool will automatically replace the placeholder with the extensions provided in the command line 
+        arguments. This is perfect for users who want to use their existing legacy wordlists with Kiterunner's 
+        high-performance engine. It ensures that specialized wordlists for specific tech stacks remain effective.
+      tr: |
+        %EXT% yer tutucusunu içeren sözlüklerle dirsearch davranışını taklit eden kaba kuvvet taraması çalıştırın.
+        Araç, yer tutucuyu komut satırı bağımsız değişkenlerinde verilen uzantılarla otomatik olarak değiştirir. Bu, mevcut eski sözlüklerini Kiterunner'ın
+        yüksek performanslı motoruyla kullanmak isteyenler için idealdir. Belirli teknoloji yığınlarına özel sözlüklerin etkili kalmasını sağlar.
     command: "kr brute {{target}} -w {{wordlist_path}} -D -e {{extensions|php,html,js}}"
 
   # === FILTERS AND HEADERS ===
-  - title: kr - scan with custom headers and filters
-    desc: |
-      Execute a scan while injecting custom HTTP headers and filtering out responses by content length. This 
-      is useful for bypassing simple IP-based filters using headers like X-Forwarded-For or providing 
-      authentication tokens. Filtering by length helps clean up the output by hiding known "Not Found" 
-      pages that return a 200 OK status. Be careful not to ignore lengths that might contain valid but 
-      small JSON responses.
+  - title:
+      en: kr - scan with custom headers and filters
+      tr: kr - özel başlık ve filtrelerle tarama
+    desc:
+      en: |
+        Execute a scan while injecting custom HTTP headers and filtering out responses by content length. This 
+        is useful for bypassing simple IP-based filters using headers like X-Forwarded-For or providing 
+        authentication tokens. Filtering by length helps clean up the output by hiding known "Not Found" 
+        pages that return a 200 OK status. Be careful not to ignore lengths that might contain valid but 
+        small JSON responses.
+      tr: |
+        Özel HTTP başlıkları ekleyip yanıtları içerik uzunluğuna göre filtreleyerek tarama yürütün. Bu,
+        X-Forwarded-For gibi başlıklarla basit IP tabanlı filtreleri aşmak veya kimlik doğrulama jetonları sağlamak için kullanışlıdır. Uzunluğa göre filtreleme, 200 OK durumu döndüren bilinen "Bulunamadı"
+        sayfalarını gizleyerek çıktıyı temizlemeye yardımcı olur. Geçerli ancak küçük JSON yanıtları içerebilecek uzunlukları yoksaymamaya dikkat edin.
     command: "kr scan {{target}} -H \"{{header_name|Authorization}}: {{header_value}}\" --ignore-length {{length_to_ignore|0-100}}"
 
   # === WORDLIST MANAGEMENT ===
-  - title: kr - list available assetnote wordlists
-    desc: |
-      Display all available wordlists provided by Assetnote that can be used with the integrated download 
-      feature. The output includes information about the wordlist alias, filename, source, and whether 
-      it is currently cached locally on your machine. This helps in selecting the most relevant dataset 
-      for a specific technology stack or target profile. It is the best way to keep track of the 
-      pre-packaged datasets available for quick use.
+  - title:
+      en: kr - list available assetnote wordlists
+      tr: kr - mevcut assetnote sözlüklerini listeleme
+    desc:
+      en: |
+        Display all available wordlists provided by Assetnote that can be used with the integrated download 
+        feature. The output includes information about the wordlist alias, filename, source, and whether 
+        it is currently cached locally on your machine. This helps in selecting the most relevant dataset 
+        for a specific technology stack or target profile. It is the best way to keep track of the 
+        pre-packaged datasets available for quick use.
+      tr: |
+        Tümleşik indirme özelliğiyle kullanılabilen Assetnote tarafından sağlanan tüm sözlükleri görüntüleyin.
+        Çıktı, sözlük takma adı, dosya adı, kaynak ve makinenizde yerel olarak önbelleğe alınıp alınmadığı bilgilerini içerir. Bu, belirli bir teknoloji yığını veya hedef profili için en ilgili veri kümesini seçmeye yardımcı olur. Hızlı kullanım için hazır paketlenmiş
+        veri kümelerini takip etmenin en iyi yoludur.
     command: "kr wordlist list"
 
-  - title: kr - convert wordlist format
-    desc: |
-      Convert wordlists between .txt, .json, and .kite formats for better compatibility and performance. The 
-      .kite format is a binary representation used by Kiterunner to speed up scanning and drastically 
-      reduce memory overhead during execution. Converting large text wordlists to .kite is highly 
-      recommended before performing large-scale scans. Use the debug flag if you encounter errors 
-      during the conversion of complex JSON schemas.
+  - title:
+      en: kr - convert wordlist format
+      tr: kr - sözlük biçimi dönüştürme
+    desc:
+      en: |
+        Convert wordlists between .txt, .json, and .kite formats for better compatibility and performance. The 
+        .kite format is a binary representation used by Kiterunner to speed up scanning and drastically 
+        reduce memory overhead during execution. Converting large text wordlists to .kite is highly 
+        recommended before performing large-scale scans. Use the debug flag if you encounter errors 
+        during the conversion of complex JSON schemas.
+      tr: |
+        Daha iyi uyumluluk ve performans için sözlükleri .txt, .json ve .kite biçimleri arasında dönüştürün.
+        .kite biçimi, Kiterunner'ın taramayı hızlandırmak ve çalıştırma sırasında bellek yükünü önemli ölçüde azaltmak için kullandığı ikili bir temsildir. Geniş ölçekli taramalardan önce büyük metin sözlüklerini .kite biçimine dönüştürmek şiddetle
+        önerilir. Karmaşık JSON şemalarının dönüştürülmesi sırasında hatalarla karşılaşırsanız hata ayıklama bayrağını kullanın.
     command: "kr kb convert {{input_file}} {{output_file}}"
 
   # === UTILITIES ===
-  - title: kr - replay specific request
-    desc: |
-      Reconstruct and resend a specific request based on the output line from a previous Kiterunner scan. 
-      This is an essential feature for manual verification of findings or for troubleshooting unexpected 
-      response codes in a controlled manner. You can also specify a proxy to capture the replayed request 
-      in tools like Burp Suite or OWASP ZAP. Ensure the .kite wordlist used in the original scan is 
-      available for accurate reconstruction.
+  - title:
+      en: kr - replay specific request
+      tr: kr - belirli isteği yeniden oynatma
+    desc:
+      en: |
+        Reconstruct and resend a specific request based on the output line from a previous Kiterunner scan. 
+        This is an essential feature for manual verification of findings or for troubleshooting unexpected 
+        response codes in a controlled manner. You can also specify a proxy to capture the replayed request 
+        in tools like Burp Suite or OWASP ZAP. Ensure the .kite wordlist used in the original scan is 
+        available for accurate reconstruction.
+      tr: |
+        Önceki bir Kiterunner taramasının çıktı satırına dayanarak belirli bir isteği yeniden oluşturup gönderin.
+        Bu, bulguların manuel doğrulanması veya beklenmeyen yanıt kodlarının kontrollü şekilde sorun gidermesi için temel bir özelliktir. Yeniden oynatılan isteği Burp Suite veya OWASP ZAP gibi araçlarda yakalamak için bir proxy de belirtebilirsiniz. Doğru yeniden oluşturma için özgün taramada kullanılan .kite sözlüğünün
+        mevcut olduğundan emin olun.
     command: "kr kb replay -w {{kite_file}} \"{{response_line}}\" --proxy={{proxy_url|http://localhost:8080}}"

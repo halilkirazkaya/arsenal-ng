@@ -3,74 +3,144 @@ tags: [network, windows, security, pentest, enumeration, exploitation, authentic
 
 actions:
   # === AUTHENTICATION METHODS ===
-  - title: impacket-smbclient - basic authentication
-    desc: |
-      Connects to a remote SMB share using a standard username and password. 
-      This is the most common way to interact with Windows shares to list directories or manage files. 
-      The command opens an interactive mini-shell that supports operations like 'ls', 'cd', 'get', and 'put'.
+  - title:
+      en: impacket-smbclient - basic authentication
+      tr: impacket-smbclient - temel kimlik doğrulaması
+    desc:
+      en: |
+        Connects to a remote SMB share using a standard username and password. 
+        This is the most common way to interact with Windows shares to list directories or manage files. 
+        The command opens an interactive mini-shell that supports operations like 'ls', 'cd', 'get', and 'put'.
+      tr: |
+        Standart bir kullanıcı adı ve parola ile uzak bir SMB paylaşımına bağlanır.
+        Dizinleri listelemek veya dosyaları yönetmek için Windows paylaşımlarıyla etkileşimin en yaygın yoludur.
+        Komut, 'ls', 'cd', 'get' ve 'put' gibi işlemleri destekleyen etkileşimli bir mini kabuk açar.
     command: "impacket-smbclient {{domain|.}}/{{username}}:{{password}}@{{target}}"
 
-  - title: impacket-smbclient - anonymous login
-    desc: |
-      Attempts to connect to the SMB service without providing a password or using a null session.
-      This is useful for identifying misconfigured servers that allow unauthenticated access to sensitive shares like IPC$ or public backups.
-      Note that many modern Windows systems have anonymous access disabled by default for security.
+  - title:
+      en: impacket-smbclient - anonymous login
+      tr: impacket-smbclient - anonim giriş
+    desc:
+      en: |
+        Attempts to connect to the SMB service without providing a password or using a null session.
+        This is useful for identifying misconfigured servers that allow unauthenticated access to sensitive shares like IPC$ or public backups.
+        Note that many modern Windows systems have anonymous access disabled by default for security.
+      tr: |
+        SMB hizmetine parola vermeden veya boş oturumla bağlanmaya çalışır.
+        IPC$ veya herkese açık yedekler gibi hassas paylaşımlara kimlik doğrulamasız erişime izin veren yanlış yapılandırılmış sunucuları tespit etmek için faydalıdır.
+        Birçok modern Windows sisteminde anonim erişimin güvenlik nedeniyle varsayılan olarak devre dışı olduğunu unutmayın.
     command: "impacket-smbclient {{target}} -no-pass"
 
-  - title: impacket-smbclient - pass-the-hash authentication
-    desc: |
-      Authenticates to the target using NTLM hashes instead of a plaintext password.
-      This technique is vital in post-exploitation scenarios where you have extracted hashes but cannot crack them.
-      The hash must be provided in the format 'LMHASH:NTHASH', though the LM part can be empty (e.g., 'aad3b435b51404eeaad3b435b51404ee:NTHASH').
+  - title:
+      en: impacket-smbclient - pass-the-hash authentication
+      tr: impacket-smbclient - pass-the-hash kimlik doğrulaması
+    desc:
+      en: |
+        Authenticates to the target using NTLM hashes instead of a plaintext password.
+        This technique is vital in post-exploitation scenarios where you have extracted hashes but cannot crack them.
+        The hash must be provided in the format 'LMHASH:NTHASH', though the LM part can be empty (e.g., 'aad3b435b51404eeaad3b435b51404ee:NTHASH').
+      tr: |
+        Hedefe açık parola yerine NTLM hash'leri ile kimlik doğrulaması yapar.
+        Hash'leri çıkarıp kıramadığınız sömürü sonrası senaryolarda bu teknik hayati öneme sahiptir.
+        Hash, 'LMHASH:NTHASH' biçiminde verilmelidir; ancak LM kısmı boş olabilir (örn. 'aad3b435b51404eeaad3b435b51404ee:NTHASH').
     command: "impacket-smbclient {{domain|.}}/{{username}}@{{target}} -hashes {{lmhash:nthash}}"
 
-  - title: impacket-smbclient - kerberos authentication
-    desc: |
-      Uses Kerberos tickets for authentication instead of NTLM.
-      This requires a valid Kerberos ticket-granting ticket (TGT) to be present in the environment (KRB5CCNAME).
-      It is highly effective in Active Directory environments where NTLM is disabled or to avoid generating NTLM-based alerts.
+  - title:
+      en: impacket-smbclient - kerberos authentication
+      tr: impacket-smbclient - Kerberos kimlik doğrulaması
+    desc:
+      en: |
+        Uses Kerberos tickets for authentication instead of NTLM.
+        This requires a valid Kerberos ticket-granting ticket (TGT) to be present in the environment (KRB5CCNAME).
+        It is highly effective in Active Directory environments where NTLM is disabled or to avoid generating NTLM-based alerts.
+      tr: |
+        Kimlik doğrulama için NTLM yerine Kerberos biletlerini kullanır.
+        Ortamda (KRB5CCNAME) geçerli bir Kerberos bilet verme bileti (TGT) bulunmasını gerektirir.
+        NTLM'in devre dışı olduğu Active Directory ortamlarında veya NTLM tabanlı uyarı üretmekten kaçınmak için oldukça etkilidir.
     command: "impacket-smbclient -k -no-pass {{domain}}/{{username}}@{{target}}"
 
   # === CONNECTION SETTINGS ===
-  - title: impacket-smbclient - specify domain controller ip
-    desc: |
-      Explicitly defines the IP address of the Domain Controller (DC) for authentication purposes.
-      This is necessary when the target machine cannot resolve the domain name or when you are in a different network segment.
-      It ensures that the authentication request is sent directly to the authoritative DC.
+  - title:
+      en: impacket-smbclient - specify domain controller ip
+      tr: impacket-smbclient - etki alanı denetleyicisi IP'si belirtme
+    desc:
+      en: |
+        Explicitly defines the IP address of the Domain Controller (DC) for authentication purposes.
+        This is necessary when the target machine cannot resolve the domain name or when you are in a different network segment.
+        It ensures that the authentication request is sent directly to the authoritative DC.
+      tr: |
+        Kimlik doğrulama amacıyla Etki Alanı Denetleyicisinin (DC) IP adresini açıkça tanımlar.
+        Hedef makine etki alanı adını çözümleyemediğinde veya farklı bir ağ kesiminde olduğunuzda gereklidir.
+        Kimlik doğrulama isteğinin doğrudan yetkili DC'ye gönderilmesini sağlar.
     command: "impacket-smbclient {{domain}}/{{username}}@{{target}} -dc-ip {{dc_ip}}"
 
-  - title: impacket-smbclient - connection on custom port
-    desc: |
-      Connects to the SMB service using a non-standard port instead of the default 445.
-      This is useful when the target is behind a port forwarder, a proxy, or an SSH tunnel.
-      Specify the destination port to ensure the client reaches the intended service.
+  - title:
+      en: impacket-smbclient - connection on custom port
+      tr: impacket-smbclient - özel port üzerinden bağlantı
+    desc:
+      en: |
+        Connects to the SMB service using a non-standard port instead of the default 445.
+        This is useful when the target is behind a port forwarder, a proxy, or an SSH tunnel.
+        Specify the destination port to ensure the client reaches the intended service.
+      tr: |
+        SMB hizmetine varsayılan 445 yerine standart dışı bir portla bağlanır.
+        Hedef bir port yönlendiricinin, proxy'nin veya SSH tünelinin arkasındayken faydalıdır.
+        İstemcinin amaçlanan hizmete ulaşması için hedef portu belirtin.
     command: "impacket-smbclient {{domain|.}}/{{username}}@{{target}} -port {{port|445}}"
 
-  - title: impacket-smbclient - separate target ip from netbios name
-    desc: |
-      Specifies a target IP address that differs from the NetBIOS name or FQDN used in the target string.
-      This is useful when the target's hostname does not resolve via DNS but is required for the SMB protocol to function correctly.
-      It forces the connection to the provided IP while maintaining the specified target name for the session.
+  - title:
+      en: impacket-smbclient - separate target ip from netbios name
+      tr: impacket-smbclient - hedef IP'yi NetBIOS adından ayırma
+    desc:
+      en: |
+        Specifies a target IP address that differs from the NetBIOS name or FQDN used in the target string.
+        This is useful when the target's hostname does not resolve via DNS but is required for the SMB protocol to function correctly.
+        It forces the connection to the provided IP while maintaining the specified target name for the session.
+      tr: |
+        Hedef dizgisinde kullanılan NetBIOS adı veya FQDN'den farklı bir hedef IP adresi belirtir.
+        Hedefin ana makine adı DNS ile çözülemiyor ancak SMB protokolünün doğru çalışması için gerekli olduğunda faydalıdır.
+        Oturum için belirtilen hedef adı korurken bağlantıyı verilen IP'ye zorlar.
     command: "impacket-smbclient {{domain|.}}/{{username}}@{{hostname}} -target-ip {{target_ip}}"
 
   # === AUTOMATION & LOGGING ===
-  - title: impacket-smbclient - execute commands from file
-    desc: |
-      Reads a series of commands from a local text file and executes them automatically in the SMB session.
-      This is excellent for automating data exfiltration or routine enumeration tasks across multiple shares.
-      It reduces manual interaction and minimizes the time spent in the interactive shell.
+  - title:
+      en: impacket-smbclient - execute commands from file
+      tr: impacket-smbclient - dosyadan komut çalıştırma
+    desc:
+      en: |
+        Reads a series of commands from a local text file and executes them automatically in the SMB session.
+        This is excellent for automating data exfiltration or routine enumeration tasks across multiple shares.
+        It reduces manual interaction and minimizes the time spent in the interactive shell.
+      tr: |
+        Yerel bir metin dosyasından bir dizi komut okuyup SMB oturumunda otomatik olarak çalıştırır.
+        Birden çok paylaşımda veri sızdırma veya rutin listeleme görevlerini otomatikleştirmek için idealdir.
+        Elle etkileşimi azaltır ve etkileşimli kabukta geçirilen süreyi en aza indirir.
     command: "impacket-smbclient {{domain|.}}/{{username}}@{{target}} -inputfile {{commands_file}}"
 
-  - title: impacket-smbclient - log session to file
-    desc: |
-      Logs all actions and output from the smbclient session to a specified local file.
-      This is crucial for maintaining an audit trail during penetration tests or for later analysis of share contents.
-      The output file will contain every command entered and every response received from the server.
+  - title:
+      en: impacket-smbclient - log session to file
+      tr: impacket-smbclient - oturumu dosyaya kaydetme
+    desc:
+      en: |
+        Logs all actions and output from the smbclient session to a specified local file.
+        This is crucial for maintaining an audit trail during penetration tests or for later analysis of share contents.
+        The output file will contain every command entered and every response received from the server.
+      tr: |
+        smbclient oturumundaki tüm işlemleri ve çıktıları belirtilen yerel bir dosyaya kaydeder.
+        Sızma testleri sırasında denetim izi tutmak veya paylaşım içeriklerini sonradan analiz etmek için kritik öneme sahiptir.
+        Çıktı dosyası, girilen her komutu ve sunucudan alınan her yanıtı içerir.
     command: "impacket-smbclient {{domain|.}}/{{username}}@{{target}} -outputfile {{log_filename|smb_session.log}}"
 
-  - title: impacket-smbclient - debug mode and timestamps
-    desc: |
-      Enables verbose debug output and adds timestamps to every log entry.
-      This is used for troubleshooting connection issues or understanding protocol negotiation failures.
-      Debug mode provides a deeper look into the underlying Impacket library's interaction with the remote SMB provider.
+  - title:
+      en: impacket-smbclient - debug mode and timestamps
+      tr: impacket-smbclient - hata ayıklama kipi ve zaman damgaları
+    desc:
+      en: |
+        Enables verbose debug output and adds timestamps to every log entry.
+        This is used for troubleshooting connection issues or understanding protocol negotiation failures.
+        Debug mode provides a deeper look into the underlying Impacket library's interaction with the remote SMB provider.
+      tr: |
+        Ayrıntılı hata ayıklama çıktısını etkinleştirir ve her günlük girdisine zaman damgası ekler.
+        Bağlantı sorunlarını veya protokol anlaşma hatalarını gidermek için kullanılır.
+        Hata ayıklama kipi, altta yatan Impacket kütüphanesinin uzak SMB sağlayıcısıyla etkileşimine daha derin bir bakış sağlar.
     command: "impacket-smbclient -debug -ts {{domain|.}}/{{username}}@{{target}}"

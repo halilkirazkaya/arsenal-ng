@@ -3,84 +3,154 @@ tags: [system, archive, compression, utility, files, linux]
 
 actions:
 # === BASIC DECOMPRESSION ===
- - title: gunzip - basic decompression
-   desc: |
-     Decompress a gzip file and replace it with the uncompressed version. This is the 
-     standard use case when you want to extract a single file for immediate use. 
-     By default, the original .gz file is deleted after successful extraction to save 
-     disk space.
+ - title:
+     en: gunzip - basic decompression
+     tr: gunzip - temel sıkıştırma açma
+   desc:
+     en: |
+       Decompress a gzip file and replace it with the uncompressed version. This is the 
+       standard use case when you want to extract a single file for immediate use. 
+       By default, the original .gz file is deleted after successful extraction to save 
+       disk space.
+     tr: |
+       gzip dosyasını açar ve sıkıştırılmış sürümü sıkıştırılmamış haliyle değiştirir.
+       Tek bir dosyayı hemen kullanmak üzere çıkarmanın standart yoludur.
+       Disk alanından tasarruf için .gz dosyası varsayılan olarak silinir.
    command: "gunzip {{file_name}}"
 
- - title: gunzip - decompress and keep original
-   desc: |
-     Use the keep flag to prevent the tool from deleting the source archive after extraction. 
-     This is useful when you need to maintain a backup or share the compressed file 
-     later with other users. It ensures that both the original .gz archive and the 
-     newly extracted file exist on the storage.
+ - title:
+     en: gunzip - decompress and keep original
+     tr: gunzip - kaynağı koruyarak açma
+   desc:
+     en: |
+       Use the keep flag to prevent the tool from deleting the source archive after extraction. 
+       This is useful when you need to maintain a backup or share the compressed file 
+       later with other users. It ensures that both the original .gz archive and the 
+       newly extracted file exist on the storage.
+     tr: |
+       Kaynak arşivi silmeden çıkarmak için keep bayrağını kullanır.
+       Yedeği saklamak veya sıkıştırılmış dosyayı başkalarıyla paylaşmak gerektiğinde faydalıdır.
+       Hem .gz arşivi hem de çıkarılan dosya diskte kalır.
    command: "gunzip -k {{file_name}}"
 
- - title: gunzip - verbose decompression
-   desc: |
-     Extract a file while displaying the name and percentage reduction for each file processed. 
-     This provides visual feedback during the extraction process, which is helpful for 
-     tracking progress on large files. It allows the user to see exactly what is 
-     happening in real-time.
+ - title:
+     en: gunzip - verbose decompression
+     tr: gunzip - ayrıntılı çıkarma
+   desc:
+     en: |
+       Extract a file while displaying the name and percentage reduction for each file processed. 
+       This provides visual feedback during the extraction process, which is helpful for 
+       tracking progress on large files. It allows the user to see exactly what is 
+       happening in real-time.
+     tr: |
+       İşlenen her dosyanın adını ve sıkıştırma oranını göstererek çıkarır.
+       Büyük dosyalarda ilerlemeyi takip için görsel geri bildirim sağlar.
+       O anda ne olduğunu gerçek zamanlı görmeyi sağlar.
    command: "gunzip -v {{file_name}}"
 
 # === INSPECTION AND TESTING ===
- - title: gunzip - list compressed file info
-   desc: |
-     Display detailed information about the compressed file without actually extracting it. 
-     The output includes the compressed size, uncompressed size, compression ratio, 
-     and the original file name. This is a safe way to inspect a file's contents 
-     before committing to a full decompression.
+ - title:
+     en: gunzip - list compressed file info
+     tr: gunzip - sıkıştırılmış dosya bilgisini listele
+   desc:
+     en: |
+       Display detailed information about the compressed file without actually extracting it. 
+       The output includes the compressed size, uncompressed size, compression ratio, 
+       and the original file name. This is a safe way to inspect a file's contents 
+       before committing to a full decompression.
+     tr: |
+       Dosyayı çıkarmadan hakkında detaylı bilgi gösterir.
+       Çıktı sıkıştırılmış/gerçek boyut, oran ve orijinal dosya adını içerir.
+       Tam çıkarmaya karar vermeden önce içeriği güvenli şekilde inceleme yoludur.
    command: "gunzip -l {{file_name}}"
 
- - title: gunzip - test file integrity
-   desc: |
-     Check the validity of a compressed file to ensure it has not been corrupted during 
-     transfer or storage. This command performs a trial decompression and verifies the 
-     internal checksums of the gzip archive. It does not produce any output files, 
-     making it ideal for verifying large downloads or backups.
+ - title:
+     en: gunzip - test file integrity
+     tr: gunzip - dosya bütünlüğünü test et
+   desc:
+     en: |
+       Check the validity of a compressed file to ensure it has not been corrupted during 
+       transfer or storage. This command performs a trial decompression and verifies the 
+       internal checksums of the gzip archive. It does not produce any output files, 
+       making it ideal for verifying large downloads or backups.
+     tr: |
+       Aktarım veya depolama sırasında bozulmayı deneme açmasıyla denetler.
+       gzip arşivinin iç sağlama toplamlarını doğrular; çıktı dosyası üretmez.
+       Büyük indirme veya yedekleri doğrulamak için idealdir.
    command: "gunzip -t {{file_name}}"
 
 # === ADVANCED OPERATIONS ===
- - title: gunzip - decompress to stdout
-   desc: |
-     Extract the contents of a gzip file directly to the terminal or redirect it to a pipe. 
-     This allows you to process the data with other tools like grep, awk, or sed without 
-     writing the full file to disk first. The original compressed file remains 
-     untouched when using this option.
+ - title:
+     en: gunzip - decompress to stdout
+     tr: gunzip - çıktıyı stdout akışına yazma
+   desc:
+     en: |
+       Extract the contents of a gzip file directly to the terminal or redirect it to a pipe. 
+       This allows you to process the data with other tools like grep, awk, or sed without 
+       writing the full file to disk first. The original compressed file remains 
+       untouched when using this option.
+     tr: |
+       gzip içeriğini terminale veya hatta yönlendirilmek üzere doğrudan çıkarır.
+       Veriyi önce diske yazmadan grep, awk veya sed ile işlemeyi sağlar.
+       Bu seçenekle orijinal sıkıştırılmış dosya değişmeden kalır.
    command: "gunzip -c {{file_name}}"
 
- - title: gunzip - recursive decompression
-   desc: |
-     Traverse a directory structure and automatically decompress every .gz file found 
-     within it and its subdirectories. This is highly efficient for bulk processing 
-     log files or large datasets spread across multiple folders. Note that this will 
-     replace all .gz files with uncompressed versions unless combined with other flags.
+ - title:
+     en: gunzip - recursive decompression
+     tr: gunzip - özyineli açma
+   desc:
+     en: |
+       Traverse a directory structure and automatically decompress every .gz file found 
+       within it and its subdirectories. This is highly efficient for bulk processing 
+       log files or large datasets spread across multiple folders. Note that this will 
+       replace all .gz files with uncompressed versions unless combined with other flags.
+     tr: |
+       Bir dizin ve alt dizinlerindeki tüm .gz dosyalarını otomatik açar.
+       Birçok klasöre dağılmış log veya büyük veri setlerinde toplu işlem için verimlidir.
+       Diğer bayraklarla birleştirilmedikçe tüm .gz dosyaları sıkıştırılmamış haliyle değişir.
    command: "gunzip -r {{directory_path}}"
 
- - title: gunzip - force overwrite
-   desc: |
-     Overwrite existing files in the destination without prompting the user for confirmation. 
-     This is essential for automated scripts or batch jobs where user interaction is 
-     not possible. It also allows decompressing files that have multiple hard links 
-     or files that do not follow standard naming conventions.
+ - title:
+     en: gunzip - force overwrite
+     tr: gunzip - üzerine yazmaya zorla
+   desc:
+     en: |
+       Overwrite existing files in the destination without prompting the user for confirmation. 
+       This is essential for automated scripts or batch jobs where user interaction is 
+       not possible. It also allows decompressing files that have multiple hard links 
+       or files that do not follow standard naming conventions.
+     tr: |
+       Hedefteki mevcut dosyaları kullanıcı onayı sormadan üzerine yazar.
+       Kullanıcı etkileşiminin mümkün olmadığı otomatik betikler için gereklidir.
+       Çoklu sabit bağlantılı dosyaları veya standart dışı adlı dosyaları da açmayı sağlar.
    command: "gunzip -f {{file_name}}"
 
- - title: gunzip - specify custom suffix
-   desc: |
-     Decompress files that use a non-standard suffix instead of the default .gz extension. 
-     Use this when working with specialized backup systems or custom applications 
-     that rename compressed files for organizational purposes. It allows the tool to 
-     recognize and process these specific files correctly.
+ - title:
+     en: gunzip - specify custom suffix
+     tr: gunzip - özel sonek belirtme
+   desc:
+     en: |
+       Decompress files that use a non-standard suffix instead of the default .gz extension. 
+       Use this when working with specialized backup systems or custom applications 
+       that rename compressed files for organizational purposes. It allows the tool to 
+       recognize and process these specific files correctly.
+     tr: |
+       Varsayılan .gz yerine standart dışı sonek kullanan dosyaları açar.
+       Dosyaları kurumsal amaçla yeniden adlandıran özel yedekleme sistemlerinde kullanılır.
+       Aracın bu dosyaları doğru tanımasını sağlar.
    command: "gunzip -S {{suffix|.ext}} {{file_name}}"
 
- - title: gunzip - restore original name and timestamp
-   desc: |
-     Restore the original file name and time stamp if they were saved within the 
-     compressed file header. This is the default behavior, but explicitly setting it 
-     ensures that file metadata is preserved during the extraction process. It is 
-     useful for maintaining historical accuracy of logs or source code files.
+ - title:
+     en: gunzip - restore original name and timestamp
+     tr: gunzip - orijinal ad ve zaman damgasını geri yükle
+   desc:
+     en: |
+       Restore the original file name and time stamp if they were saved within the 
+       compressed file header. This is the default behavior, but explicitly setting it 
+       ensures that file metadata is preserved during the extraction process. It is 
+       useful for maintaining historical accuracy of logs or source code files.
+     tr: |
+       Sıkıştırılmış başlıkta kayıtlıysa orijinal dosya adı ve zaman damgasını geri yükler.
+       Bu varsayılan davranıştır; açıkça belirtmek dosya meta verisinin korunmasını garanti eder.
+       Log veya kaynak kodu dosyalarının tarihsel doğruluğu için faydalıdır.
    command: "gunzip -N {{file_name}}"

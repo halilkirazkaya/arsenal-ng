@@ -4,120 +4,211 @@ tags: [security, pentest, password-cracking, forensics, cryptography, gpu-accele
 actions:
 # === SYSTEM & IDENTIFICATION ===
 
- - title: hashcat - system benchmark
-   desc: |
-     Runs a benchmark of various hash algorithms to test the performance of your hardware. 
-     This is essential for determining the expected cracking speed on your specific CPU or GPU.
-     It helps in estimating how long a specific attack will take before starting a real session.
-     The output displays the speed in Mega-hashes per second (MH/s) or Kilo-hashes per second (kH/s).
+ - title:
+     en: hashcat - system benchmark
+     tr: hashcat - sistem karşılaştırması
+   desc:
+     en: |
+       Runs a benchmark of various hash algorithms to test the performance of your hardware. 
+       This is essential for determining the expected cracking speed on your specific CPU or GPU.
+       It helps in estimating how long a specific attack will take before starting a real session.
+       The output displays the speed in Mega-hashes per second (MH/s) or Kilo-hashes per second (kH/s).
+     tr: |
+       Çeşitli hash algoritmalarında donanımınızın kırma hızını ölçer.
+       Belirli CPU veya GPU'nuzdaki beklenen kırma hızını belirlemek için gereklidir.
+       Gerçek saldırıya başlamadan süreyi tahmin etmeye yardımcı olur; çıktı MH/s veya kH/s cinsindendir.
    command: "hashcat -b"
 
- - title: hashcat - identify hash type
-   desc: |
-     Automatically detects the potential hash algorithm of a given hash string or file.
-     This tool analyzes the structure, length, and character set of the input to suggest valid hash modes (-m).
-     It is the best starting point when you encounter an unknown hash format during an engagement.
-     Note that multiple algorithms might share the same format, so verify the results with context.
+ - title:
+     en: hashcat - identify hash type
+     tr: hashcat - hash türü tespit
+   desc:
+     en: |
+       Automatically detects the potential hash algorithm of a given hash string or file.
+       This tool analyzes the structure, length, and character set of the input to suggest valid hash modes (-m).
+       It is the best starting point when you encounter an unknown hash format during an engagement.
+       Note that multiple algorithms might share the same format, so verify the results with context.
+     tr: |
+       Verilen hash dizesi veya dosyasının olası algoritmasını otomatik tespit eder.
+       Girdinin yapısı, uzunluğu ve karakter setini analiz ederek geçerli hash modlarını (-m) önerir.
+       Angajmanda bilinmeyen hash formatıyla karşılaşıldığında en iyi başlangıç noktasıdır.
    command: "hashcat --identify {{hash_file}}"
 
- - title: hashcat - list supported hash modes
-   desc: |
-     Displays a comprehensive list of all supported hashing algorithms and their corresponding mode numbers.
-     The mode number is required for the -m flag in almost every hashcat operation.
-     Use -hh for an even more detailed list including all plugin-based hashes.
-     This is useful for finding the specific code for rare or custom hashing schemes.
+ - title:
+     en: hashcat - list supported hash modes
+     tr: hashcat - desteklenen hash modlarını listele
+   desc:
+     en: |
+       Displays a comprehensive list of all supported hashing algorithms and their corresponding mode numbers.
+       The mode number is required for the -m flag in almost every hashcat operation.
+       Use -hh for an even more detailed list including all plugin-based hashes.
+       This is useful for finding the specific code for rare or custom hashing schemes.
+     tr: |
+       Desteklenen tüm hash algoritmalarını ve karşılık gelen mod numaralarını listeler.
+       Mod numarası neredeyse her hashcat işleminde -m bayrağı için gerekir.
+       -h yerine -hh daha fazla eklenti tabanlı hash dahil daha detaylı liste verir.
    command: "hashcat -h"
 
 # === ATTACK MODES ===
 
 # --- Attack Mode 0: Straight (Wordlist) ---
 
- - title: hashcat - basic wordlist attack (mode 0)
-   desc: |
-     Performs a straightforward dictionary attack against a target hash file using a wordlist.
-     It reads each line from the wordlist, hashes it, and compares it to the target hash.
-     This is the most common attack type and is highly effective with leaked password lists.
-     Ensure you specify the correct hash type using the -m flag.
+ - title:
+     en: hashcat - basic wordlist attack (mode 0)
+     tr: hashcat - temel wordlist saldırısı (mod 0)
+   desc:
+     en: |
+       Performs a straightforward dictionary attack against a target hash file using a wordlist.
+       It reads each line from the wordlist, hashes it, and compares it to the target hash.
+       This is the most common attack type and is highly effective with leaked password lists.
+       Ensure you specify the correct hash type using the -m flag.
+     tr: |
+       Hedef hash dosyasına karşı sözlük saldırısı yapar.
+       Listedeki her satırı hash'leyip hedefle karşılaştırır.
+       Sızdırılmış parola listeleriyle en yaygın ve etkili saldırı türüdür; -m ile doğru türü belirtin.
    command: "hashcat -a 0 -m {{hash_mode|1000}} {{hash_file}} {{wordlist|/usr/share/wordlists/rockyou.txt}}"
 
- - title: hashcat - wordlist attack with rules
-   desc: |
-     Applies mutation rules to every word in a wordlist to catch complex password variations.
-     Rules can perform actions like capitalizing letters, adding numbers, or toggling case.
-     This significantly increases the effectiveness of a dictionary attack without needing a massive wordlist.
-     The 'best64.rule' is a standard starting point for common password patterns.
+ - title:
+     en: hashcat - wordlist attack with rules
+     tr: hashcat - kurallı wordlist saldırısı
+   desc:
+     en: |
+       Applies mutation rules to every word in a wordlist to catch complex password variations.
+       Rules can perform actions like capitalizing letters, adding numbers, or toggling case.
+       This significantly increases the effectiveness of a dictionary attack without needing a massive wordlist.
+       The 'best64.rule' is a standard starting point for common password patterns.
+     tr: |
+       Karmaşık varyantları yakalamak için listedeki her kelimeye mutasyon kuralları uygular.
+       Kurallar büyük harfe çevirme, sayı ekleme veya harf değiştirme gibi işlemler yapar.
+       Devasa listeye gerek kalmadan sözlük saldırısının etkinliğini ciddi artırır; 'best64.rule' standarttır.
    command: "hashcat -a 0 -m {{hash_mode}} {{hash_file}} {{wordlist}} -r {{rule_file|/usr/share/hashcat/rules/best64.rule}}"
 
 # --- Attack Mode 1: Combinator ---
 
- - title: hashcat - combinator attack (mode 1)
-   desc: |
-     Combines words from two different wordlists to create new password candidates.
-     For every word in the first list, it appends every word from the second list.
-     This is ideal for cracking passwords composed of two common words or names.
-     Note that this can lead to a very large keyspace if both wordlists are huge.
+ - title:
+     en: hashcat - combinator attack (mode 1)
+     tr: hashcat - birleştirici saldırı (mod 1)
+   desc:
+     en: |
+       Combines words from two different wordlists to create new password candidates.
+       For every word in the first list, it appends every word from the second list.
+       This is ideal for cracking passwords composed of two common words or names.
+       Note that this can lead to a very large keyspace if both wordlists are huge.
+     tr: |
+       Yeni adaylar için iki farklı listedeki kelimeleri birleştirir.
+       İlk listedeki her kelimenin sonuna ikinci listedeki her kelimeyi ekler.
+       İki yaygın kelimeden oluşan parolaları kırmada idealdir; iki büyük liste anahtar uzayını şişirebilir.
    command: "hashcat -a 1 -m {{hash_mode}} {{hash_file}} {{wordlist1}} {{wordlist2}}"
 
 # --- Attack Mode 3: Brute-force (Mask) ---
 
- - title: hashcat - mask attack (mode 3)
-   desc: |
-     Executes a brute-force attack based on a specific pattern or "mask".
-     Masks use placeholders like ?l (lowercase), ?u (uppercase), ?d (digit), and ?s (special).
-     For example, '?u?l?l?l?d?d' would try all passwords starting with one uppercase letter, three lowercase, and two digits.
-     This is much more efficient than a pure brute-force attack when the password structure is known.
+ - title:
+     en: hashcat - mask attack (mode 3)
+     tr: hashcat - maske saldırısı (mod 3)
+   desc:
+     en: |
+       Executes a brute-force attack based on a specific pattern or "mask".
+       Masks use placeholders like ?l (lowercase), ?u (uppercase), ?d (digit), and ?s (special).
+       For example, '?u?l?l?l?d?d' would try all passwords starting with one uppercase letter, three lowercase, and two digits.
+       This is much more efficient than a pure brute-force attack when the password structure is known.
+     tr: |
+       Belirli bir desene ("maske") göre kaba kuvvet saldırısı yapar.
+       ?l (küçük harf), ?u (büyük harf), ?d (rakam), ?s (özel) gibi yer tutucular kullanır.
+       Parola yapısı biliniyorsa saf kaba kuvvetten çok daha verimlidir.
    command: "hashcat -a 3 -m {{hash_mode}} {{hash_file}} {{mask|?u?l?l?l?d?d}}"
 
- - title: hashcat - incrementing mask attack
-   desc: |
-     Performs a mask attack that starts with a minimum length and increments to a maximum length.
-     This is useful when you know the character set but are unsure of the exact password length.
-     It prevents the tool from jumping straight to a long, time-consuming mask immediately.
-     Use --increment-min and --increment-max to define the length boundaries.
+ - title:
+     en: hashcat - incrementing mask attack
+     tr: hashcat - artan maske saldırısı
+   desc:
+     en: |
+       Performs a mask attack that starts with a minimum length and increments to a maximum length.
+       This is useful when you know the character set but are unsure of the exact password length.
+       It prevents the tool from jumping straight to a long, time-consuming mask immediately.
+       Use --increment-min and --increment-max to define the length boundaries.
+     tr: |
+       Minimum uzunluktan başlayıp azami uzunluğa kadar maske saldırısı yapar.
+       Karakter seti biliniyor ancak tam uzunluk bilinmiyorsa faydalıdır.
+       --increment-min ve --increment-max ile uzunluk sınırları tanımlanır.
    command: "hashcat -a 3 -m {{hash_mode}} {{hash_file}} --increment --increment-min {{min|1}} --increment-max {{max|8}} {{mask|?a?a?a?a?a?a?a?a}}"
 
 # --- Attack Mode 6/7: Hybrid Attacks ---
 
- - title: hashcat - hybrid attack (wordlist + mask)
-   desc: |
-     Appends a mask-based pattern to the end of every word in a wordlist.
-     Commonly used to crack passwords that consist of a base word followed by a few digits or symbols.
-     For example, using a mask of '?d?d' will add '00' through '99' to every dictionary entry.
-     This attack mode is designated as -a 6.
+ - title:
+     en: hashcat - hybrid attack (wordlist + mask)
+     tr: hashcat - hibrit saldırı (wordlist + maske)
+   desc:
+     en: |
+       Appends a mask-based pattern to the end of every word in a wordlist.
+       Commonly used to crack passwords that consist of a base word followed by a few digits or symbols.
+       For example, using a mask of '?d?d' will add '00' through '99' to every dictionary entry.
+       This attack mode is designated as -a 6.
+     tr: |
+       Listedeki her kelimenin sonuna maske deseni ekler.
+       Taban kelime + birkaç rakam/sembol içeren parolaları kırmakta yaygındır.
+       Örneğin '?d?d' maskesi her sözlük girdisine '00'-'99' ekler; saldırı modu -a 6'dır.
    command: "hashcat -a 6 -m {{hash_mode}} {{hash_file}} {{wordlist}} {{mask|?d?d?d}}"
 
 # === PERFORMANCE & OPTIMIZATION ===
 
- - title: hashcat - optimized kernels and workload
-   desc: |
-     Uses optimized GPU kernels and adjusts the workload profile for maximum performance.
-     The -O flag enables optimized kernels which are faster but may limit maximum password length.
-     The -w flag sets the workload profile; '3' or '4' are high-performance modes that might make the system lag.
-     Only use -w 4 on dedicated cracking machines where desktop responsiveness is not required.
+ - title:
+     en: hashcat - optimized kernels and workload
+     tr: hashcat - optimize çekirdek ve iş yükü
+   desc:
+     en: |
+       Uses optimized GPU kernels and adjusts the workload profile for maximum performance.
+       The -O flag enables optimized kernels which are faster but may limit maximum password length.
+       The -w flag sets the workload profile; '3' or '4' are high-performance modes that might make the system lag.
+       Only use -w 4 on dedicated cracking machines where desktop responsiveness is not required.
+     tr: |
+       Azami performans için optimize GPU çekirdekleri ve iş yükü profili kullanır.
+       -O bayrağı daha hızlı ancak azami parola uzunluğunu kısıtlayabilen çekirdekleri etkinleştirir.
+       -w 3/4 yüksek performans modlarıdır; -w 4 yalnızca masaüstü gerekmeyen özel kırma makinelerinde kullanılmalıdır.
    command: "hashcat -m {{hash_mode}} {{hash_file}} {{wordlist}} -O -w {{profile|3}}"
 
 # === SESSION & OUTPUT MANAGEMENT ===
 
- - title: hashcat - resume a session
-   desc: |
-     Resumes a previously interrupted cracking session using the session name.
-     Hashcat automatically saves restore points unless explicitly disabled.
-     This is vital for long-running attacks that might be stopped due to power loss or system updates.
-     Ensure the original wordlists and hash files are in the same location.
+ - title:
+     en: hashcat - resume a session
+     tr: hashcat - oturumu sürdür
+   desc:
+     en: |
+       Resumes a previously interrupted cracking session using the session name.
+       Hashcat automatically saves restore points unless explicitly disabled.
+       This is vital for long-running attacks that might be stopped due to power loss or system updates.
+       Ensure the original wordlists and hash files are in the same location.
+     tr: |
+       Önceden kesintiye uğrayan kırma oturumunu oturum adıyla kaldığı yerden sürdürür.
+       Hashcat aksini belirtmedikçe geri yükleme noktalarını otomatik kaydeder.
+       Güç kesintisi veya güncellemeyle bölünebilen uzun saldırılar için kritiktir.
    command: "hashcat --session {{session_name|my_attack}} --restore"
 
- - title: hashcat - show cracked hashes
-   desc: |
-     Displays the cracked passwords from the potfile that match the provided hash file.
-     Hashcat stores all successfully recovered passwords in a central 'hashcat.potfile'.
-     This command is useful for quickly retrieving results without re-running the attack.
-     It filters the potfile to only show results relevant to your current target list.
+ - title:
+     en: hashcat - show cracked hashes
+     tr: hashcat - kırılan hash'leri göster
+   desc:
+     en: |
+       Displays the cracked passwords from the potfile that match the provided hash file.
+       Hashcat stores all successfully recovered passwords in a central 'hashcat.potfile'.
+       This command is useful for quickly retrieving results without re-running the attack.
+       It filters the potfile to only show results relevant to your current target list.
+     tr: |
+       Pot dosyasından verilen hash dosyasına ait kırılmış parolaları gösterir.
+       Başarıyla kurtarılan tüm parolalar merkezi 'hashcat.potfile' dosyasında saklanır.
+       Saldırıyı tekrar çalıştırmadan sonuç almak için kullanılır.
    command: "hashcat -m {{hash_mode}} {{hash_file}} --show"
 
- - title: hashcat - output results to file
-   desc: |
-     Redirects all recovered passwords and their corresponding hashes to a specific output file.
-     The --outfile-format flag can be used to customize what information is saved (e.g., hash only, plain only).
-     This is the preferred way to collect results during a large-scale engagement.
-     The default format usually includes the hash and the plain-text password separated by a colon.
+ - title:
+     en: hashcat - output results to file
+     tr: hashcat - sonuçları dosyaya yaz
+   desc:
+     en: |
+       Redirects all recovered passwords and their corresponding hashes to a specific output file.
+       The --outfile-format flag can be used to customize what information is saved (e.g., hash only, plain only).
+       This is the preferred way to collect results during a large-scale engagement.
+       The default format usually includes the hash and the plain-text password separated by a colon.
+     tr: |
+       Kurtarılan tüm parola ve hash eşleşmelerini belirtilen dosyaya yönlendirir.
+       --outfile-format ile nelerin kaydedileceği (yalnızca hash, yalnızca düz metin) özelleştirilebilir.
+       Geniş ölçekli angajmanda sonuç toplamanın tercih edilen yoludur.
    command: "hashcat -m {{hash_mode}} {{hash_file}} {{wordlist}} -o {{output_file|cracked.txt}}"

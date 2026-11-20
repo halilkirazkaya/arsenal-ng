@@ -3,112 +3,217 @@ tags: [network, security, pentest, enumeration, ssl, tls, web]
 
 actions:
   # === BASIC USAGE ===
-  - title: sslscan - basic scan
-    desc: |
-      Perform a standard scan against a target host to identify supported SSL/TLS protocols and ciphers.
-      This is the most common way to start an assessment of a server's transport layer security.
-      The output provides a clear overview of preferred ciphers and potential weaknesses in the configuration.
+  - title:
+      en: sslscan - basic scan
+      tr: sslscan - temel tarama
+    desc:
+      en: |
+        Perform a standard scan against a target host to identify supported SSL/TLS protocols and ciphers.
+        This is the most common way to start an assessment of a server's transport layer security.
+        The output provides a clear overview of preferred ciphers and potential weaknesses in the configuration.
+      tr: |
+        Hedef makinede desteklenen SSL/TLS protokollerini ve şifreleri belirlemek için standart tarama yapar.
+        Sunucunun aktarım katmanı güvenliğini değerlendirmenin en yaygın yoludur.
+        Çıktı, tercih edilen şifrelerin ve yapılandırmadaki olası zayıflıkların net görünümünü verir.
     command: "sslscan {{target}}"
 
-  - title: sslscan - scan specific port
-    desc: |
-      Scan a target on a specific port number by appending it to the hostname or IP.
-      Use this when the service you are testing (like a management interface or database) is not running on the default port 443.
-      This is essential for identifying SSL/TLS configurations on services like 8443 (Alt-HTTPS) or 2381 (HP Insight Management).
+  - title:
+      en: sslscan - scan specific port
+      tr: sslscan - belirli portu tarama
+    desc:
+      en: |
+        Scan a target on a specific port number by appending it to the hostname or IP.
+        Use this when the service you are testing (like a management interface or database) is not running on the default port 443.
+        This is essential for identifying SSL/TLS configurations on services like 8443 (Alt-HTTPS) or 2381 (HP Insight Management).
+      tr: |
+        Makine adı veya IP'nin sonuna ekleyerek belirli bir porttaki hedefi tarar.
+        Test ettiğiniz hizmet (yönetim arayüzü veya veritabanı) varsayılan 443 portunda çalışmıyorsa kullanın.
+        8443 (Alt-HTTPS) veya 2381 (HP Insight Management) gibi servislerde SSL/TLS yapılandırmasını belirlemek için gereklidir.
     command: "sslscan {{target}}:{{port|443}}"
 
-  - title: sslscan - scan multiple targets
-    desc: |
-      Read a list of targets from a text file and perform scans on all of them sequentially.
-      The input file should contain one host per line, and can optionally include port numbers (e.g., 192.168.1.1:443).
-      This is highly effective for large-scale network audits where you need to check the security posture of an entire subnet or domain list.
+  - title:
+      en: sslscan - scan multiple targets
+      tr: sslscan - birden çok hedefi tarama
+    desc:
+      en: |
+        Read a list of targets from a text file and perform scans on all of them sequentially.
+        The input file should contain one host per line, and can optionally include port numbers (e.g., 192.168.1.1:443).
+        This is highly effective for large-scale network audits where you need to check the security posture of an entire subnet or domain list.
+      tr: |
+        Metin dosyasındaki hedef listesini okuyup hepsini sırayla tarar.
+        Girdi dosyası satır başına bir makine içermeli ve isteğe bağlı port numarası eklenebilir (örn. 192.168.1.1:443).
+        Tüm bir alt ağın veya alan adı listesinin güvenlik durumunu denetleyen geniş çaplı ağ denetimlerinde oldukça etkilidir.
     command: "sslscan --targets={{file|targets.txt}}"
 
   # === PROTOCOL & CIPHER ENUMERATION ===
-  - title: sslscan - check specific TLS version
-    desc: |
-      Force the tool to only check for a specific version of the TLS protocol, such as TLS 1.2 or 1.3.
-      This is useful for compliance testing when you need to verify that a server has successfully disabled older, insecure protocols like TLS 1.0 or 1.1.
-      It helps in debugging specific connection issues related to protocol version mismatch.
+  - title:
+      en: sslscan - check specific TLS version
+      tr: sslscan - belirli TLS sürümünü denetleme
+    desc:
+      en: |
+        Force the tool to only check for a specific version of the TLS protocol, such as TLS 1.2 or 1.3.
+        This is useful for compliance testing when you need to verify that a server has successfully disabled older, insecure protocols like TLS 1.0 or 1.1.
+        It helps in debugging specific connection issues related to protocol version mismatch.
+      tr: |
+        Aracı TLS protokolünün belirli bir sürümünü denetlemeye zorlar (örn. TLS 1.2 veya 1.3).
+        Sunucunun TLS 1.0 veya 1.1 gibi eski, güvensiz protokolleri başarıyla kapattığını doğrulayan uyumluluk testleri için yararlıdır.
+        Protokol sürümü uyuşmazlığına bağlı bağlantı sorunlarını ayıklamaya yardımcı olur.
     command: "sslscan --tls{{version|12}} {{target}}"
 
-  - title: sslscan - list all supported TLS versions
-    desc: |
-      Instruct sslscan to check for all versions of the TLS protocol (1.0, 1.1, 1.2, and 1.3).
-      This ensures that the scan covers the entire modern TLS spectrum while ignoring legacy SSLv2 and SSLv3 protocols.
-      It is a good balance for modern security audits focused on current standards.
+  - title:
+      en: sslscan - list all supported TLS versions
+      tr: sslscan - desteklenen tüm TLS sürümlerini listeleme
+    desc:
+      en: |
+        Instruct sslscan to check for all versions of the TLS protocol (1.0, 1.1, 1.2, and 1.3).
+        This ensures that the scan covers the entire modern TLS spectrum while ignoring legacy SSLv2 and SSLv3 protocols.
+        It is a good balance for modern security audits focused on current standards.
+      tr: |
+        Araca TLS protokolünün tüm sürümlerini (1.0, 1.1, 1.2 ve 1.3) denetlemesini söyler.
+        Eski SSLv2 ve SSLv3 protokollerini yok sayarak güncel TLS yelpazesini kapsar.
+        Güncel standartlara odaklanan modern güvenlik denetimleri için dengeli bir yaklaşımdır.
     command: "sslscan --tlsall {{target}}"
 
-  - title: sslscan - show IANA cipher names
-    desc: |
-      Display cipher suite names using the IANA/RFC naming convention instead of the default OpenSSL names.
-      This is particularly helpful when comparing results with official documentation, RFCs, or other security tools like Nmap.
-      Standardizing the names makes it easier to document findings in professional penetration testing reports.
+  - title:
+      en: sslscan - show IANA cipher names
+      tr: sslscan - IANA şifre adlarını gösterme
+    desc:
+      en: |
+        Display cipher suite names using the IANA/RFC naming convention instead of the default OpenSSL names.
+        This is particularly helpful when comparing results with official documentation, RFCs, or other security tools like Nmap.
+        Standardizing the names makes it easier to document findings in professional penetration testing reports.
+      tr: |
+        Şifre paketi adlarını varsayılan OpenSSL adları yerine IANA/RFC adlandırma kuralıyla gösterir.
+        Sonuçları resmi belgeler, RFC'ler veya Nmap gibi araçlarla karşılaştırırken özellikle yararlıdır.
+        Adları standartlaştırmak, sızma testi raporlarında bulguları belgelemeyi kolaylaştırır.
     command: "sslscan --iana-names {{target}}"
 
   # === CERTIFICATE ANALYSIS ===
-  - title: sslscan - show full certificate chain
-    desc: |
-      Retrieve and display detailed information for every certificate in the server's trust chain.
-      This includes the root CA, intermediate certificates, and the leaf certificate.
-      Use this to identify issues with chain-of-trust, expired intermediates, or weak signature algorithms used by the CA.
+  - title:
+      en: sslscan - show full certificate chain
+      tr: sslscan - tam sertifika zincirini gösterme
+    desc:
+      en: |
+        Retrieve and display detailed information for every certificate in the server's trust chain.
+        This includes the root CA, intermediate certificates, and the leaf certificate.
+        Use this to identify issues with chain-of-trust, expired intermediates, or weak signature algorithms used by the CA.
+      tr: |
+        Sunucunun güven zincirindeki her sertifika için ayrıntılı bilgi alır ve gösterir.
+        Kök CA, ara sertifikalar ve yaprak sertifikayı kapsar.
+        Zincir güven sorunlarını, süresi dolmuş araları veya CA'nın kullandığı zayıf imza algoritmalarını belirlemek için kullanın.
     command: "sslscan --show-certificates {{target}}"
 
-  - title: sslscan - client certificate authentication
-    desc: |
-      Provide a client certificate and private key to the server for mutual TLS (mTLS) authentication.
-      This allows you to scan the SSL/TLS configuration of services that require a valid client certificate to establish a connection.
-      The file should be in PEM or ASN1 format; ensure you have the appropriate permissions to read the key file.
+  - title:
+      en: sslscan - client certificate authentication
+      tr: sslscan - istemci sertifikası kimlik doğrulaması
+    desc:
+      en: |
+        Provide a client certificate and private key to the server for mutual TLS (mTLS) authentication.
+        This allows you to scan the SSL/TLS configuration of services that require a valid client certificate to establish a connection.
+        The file should be in PEM or ASN1 format; ensure you have the appropriate permissions to read the key file.
+      tr: |
+        Karşılıklı TLS (mTLS) kimlik doğrulaması için sunucuya istemci sertifikası ve özel anahtar verir.
+        Geçerli bir istemci sertifikası olmadan bağlantı kurulamayan hizmetlerin SSL/TLS yapılandırmasını taramanızı sağlar.
+        Dosya PEM veya ASN1 biçiminde olmalı; anahtar dosyasını okuma izniniz olduğundan emin olun.
     command: "sslscan --certs={{cert_file|client.pem}} --pk={{key_file|client.key}} {{target}}"
 
   # === VULNERABILITY & SPECIAL CHECKS ===
-  - title: sslscan - check for Heartbleed and Renegotiation
-    desc: |
-      Scan the target specifically for the Heartbleed vulnerability (CVE-2014-0160) and secure/insecure TLS renegotiation support.
-      While these checks are often enabled by default, this command ensures the audit covers these critical flaws.
-      Finding these vulnerabilities can lead to immediate server compromise or session hijacking, making them high-priority items.
+  - title:
+      en: sslscan - check for Heartbleed and Renegotiation
+      tr: sslscan - Heartbleed ve yeniden uzlaşma denetimi
+    desc:
+      en: |
+        Scan the target specifically for the Heartbleed vulnerability (CVE-2014-0160) and secure/insecure TLS renegotiation support.
+        While these checks are often enabled by default, this command ensures the audit covers these critical flaws.
+        Finding these vulnerabilities can lead to immediate server compromise or session hijacking, making them high-priority items.
+      tr: |
+        Hedefi özellikle Heartbleed zafiyeti (CVE-2014-0160) ve güvenli/güvensiz TLS yeniden uzlaşma desteği açısından tarar.
+        Bu denetimler genelde varsayılan olarak etkin olsa da bu komut kritik kusurların denetimini güvenceye alır.
+        Bu zafiyetleri bulmak doğrudan sunucu ele geçirme veya oturum kaçırmaya yol açabilir; yüksek önceliklidir.
     command: "sslscan {{target}}"
 
-  - title: sslscan - scan RDP services
-    desc: |
-      Send a Remote Desktop Protocol (RDP) preamble before initiating the SSL/TLS scan.
-      Standard SSL scanners often fail on RDP ports (default 3389) because they don't understand the initial protocol handshake.
-      This flag allows sslscan to correctly identify the encryption used for RDP sessions on Windows servers.
+  - title:
+      en: sslscan - scan RDP services
+      tr: sslscan - RDP servislerini tarama
+    desc:
+      en: |
+        Send a Remote Desktop Protocol (RDP) preamble before initiating the SSL/TLS scan.
+        Standard SSL scanners often fail on RDP ports (default 3389) because they don't understand the initial protocol handshake.
+        This flag allows sslscan to correctly identify the encryption used for RDP sessions on Windows servers.
+      tr: |
+        SSL/TLS taramasından önce Uzak Masaüstü Protokolü (RDP) girişi gönderir.
+        Standart SSL tarayıcıları, ilk protokol el sıkışmasını anlamadığından RDP portlarında (varsayılan 3389) genelde başarısız olur.
+        Bu flag, sslscan'in Windows sunucularındaki RDP oturumlarında kullanılan şifrelemeyi doğru belirlemesini sağlar.
     command: "sslscan --rdp {{target}}:{{port|3389}}"
 
   # === SERVICE SPECIFIC (STARTTLS) ===
-  - title: sslscan - SMTP STARTTLS scan
-    desc: |
-      Perform a scan on an SMTP mail server using the STARTTLS command to upgrade a cleartext connection to a secure one.
-      This is necessary because SMTP usually starts on port 25 or 587 without encryption and negotiates TLS later.
-      Failing to use this flag on an SMTP server will result in a failed scan because the tool won't initiate the handshake correctly.
+  - title:
+      en: sslscan - SMTP STARTTLS scan
+      tr: sslscan - SMTP STARTTLS taraması
+    desc:
+      en: |
+        Perform a scan on an SMTP mail server using the STARTTLS command to upgrade a cleartext connection to a secure one.
+        This is necessary because SMTP usually starts on port 25 or 587 without encryption and negotiates TLS later.
+        Failing to use this flag on an SMTP server will result in a failed scan because the tool won't initiate the handshake correctly.
+      tr: |
+        Açık metin bağlantıyı güvenli bağlantıya yükseltmek için STARTTLS komutunu kullanan SMTP posta sunucusunda tarama yapar.
+        SMTP genelde 25 veya 587 portunda şifresiz başlayıp sonra TLS'e geçtiğinden bu flag gerekir.
+        SMTP sunucusunda bu flag kullanılmazsa araç el sıkışmayı doğru başlatamadığından tarama başarısız olur.
     command: "sslscan --starttls-smtp {{target}}:{{port|25}}"
 
-  - title: sslscan - MySQL STARTTLS scan
-    desc: |
-      Initiate a TLS scan on a MySQL database server by performing the database-specific STARTTLS handshake.
-      Many database configurations allow or require encrypted connections but do not use standard SSL ports.
-      This action helps verify if database traffic is encrypted and if the ciphers used meet security requirements.
+  - title:
+      en: sslscan - MySQL STARTTLS scan
+      tr: sslscan - MySQL STARTTLS taraması
+    desc:
+      en: |
+        Initiate a TLS scan on a MySQL database server by performing the database-specific STARTTLS handshake.
+        Many database configurations allow or require encrypted connections but do not use standard SSL ports.
+        This action helps verify if database traffic is encrypted and if the ciphers used meet security requirements.
+      tr: |
+        Veritabanına özgü STARTTLS el sıkışmasıyla MySQL veritabanı sunucusunda TLS taraması başlatır.
+        Birçok veritabanı yapılandırması standart SSL portları kullanmadan şifreli bağlantılara izin verir veya zorunlu kılar.
+        Veritabanı trafiğinin şifreli olup olmadığını ve şifrelerin güvenlik gereksinimlerini karşılayıp karşılamadığını doğrular.
     command: "sslscan --starttls-mysql {{target}}:{{port|3306}}"
 
   # === ADVANCED & OUTPUT ===
-  - title: sslscan - output to XML file
-    desc: |
-      Save the complete results of the scan into an XML formatted file for automated processing or archival.
-      This is useful for integrating sslscan into automated CI/CD pipelines or vulnerability management systems.
-      You can also use '-' as the filename to output the raw XML directly to the terminal.
+  - title:
+      en: sslscan - output to XML file
+      tr: sslscan - çıktıyı XML dosyasına yazma
+    desc:
+      en: |
+        Save the complete results of the scan into an XML formatted file for automated processing or archival.
+        This is useful for integrating sslscan into automated CI/CD pipelines or vulnerability management systems.
+        You can also use '-' as the filename to output the raw XML directly to the terminal.
+      tr: |
+        Taramanın tam sonuçlarını otomatik işleme veya arşivleme için XML biçimli dosyaya kaydeder.
+        sslscan'i otomatik CI/CD hatlarına veya zafiyet yönetim sistemlerine entegre etmek için yararlıdır.
+        Dosya adı yerine '-' vererek ham XML çıktısını doğrudan terminale de yazdırabilirsiniz.
     command: "sslscan --xml={{output_file|results.xml}} {{target}}"
 
-  - title: sslscan - SNI support
-    desc: |
-      Specify a Server Name Indication (SNI) hostname to be sent during the TLS handshake.
-      This is crucial when scanning servers that host multiple virtual domains on a single IP address (Virtual Hosting).
-      Without providing the correct SNI name, the server might present the wrong certificate or refuse the connection entirely.
+  - title:
+      en: sslscan - SNI support
+      tr: sslscan - SNI desteği
+    desc:
+      en: |
+        Specify a Server Name Indication (SNI) hostname to be sent during the TLS handshake.
+        This is crucial when scanning servers that host multiple virtual domains on a single IP address (Virtual Hosting).
+        Without providing the correct SNI name, the server might present the wrong certificate or refuse the connection entirely.
+      tr: |
+        TLS el sıkışması sırasında gönderilecek Sunucu Adı Göstergesi (SNI) makine adını belirtir.
+        Tek IP'de birden çok sanal alan barındıran (Sanal Barındırma) sunucuları tararken kritiktir.
+        Doğru SNI adı verilmezse sunucu yanlış sertifika sunabilir veya bağlantıyı tamamen reddedebilir.
     command: "sslscan --sni-name={{hostname}} {{target}}"
 
-  - title: sslscan - disable color output
-    desc: |
-      Run the scan without any ANSI color codes in the output.
-      This is helpful when you are piping the output to other text processing tools like grep, awk, or saving to a log file for documentation.
-      It prevents the "garbage" characters from appearing in plain text files.
+  - title:
+      en: sslscan - disable color output
+      tr: sslscan - renkli çıktıyı kapatma
+    desc:
+      en: |
+        Run the scan without any ANSI color codes in the output.
+        This is helpful when you are piping the output to other text processing tools like grep, awk, or saving to a log file for documentation.
+        It prevents the "garbage" characters from appearing in plain text files.
+      tr: |
+        Çıktıdaki tüm ANSI renk kodları olmadan taramayı çalıştırır.
+        Çıktıyı grep, awk gibi metin işleme araçlarına aktarırken veya belgeleme için günlük dosyasına kaydederken yararlıdır.
+        Düz metin dosyalarda çöp karakter görünmesini engeller.
     command: "sslscan --no-colour {{target}}"

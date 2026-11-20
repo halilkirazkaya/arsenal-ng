@@ -9,6 +9,8 @@ import (
 	"log"
 	"strings"
 
+	"github.com/halilkirazkaya/arsenal-ng/internal/config"
+	"github.com/halilkirazkaya/arsenal-ng/internal/keys"
 	"github.com/halilkirazkaya/arsenal-ng/internal/ui/finder"
 	"github.com/halilkirazkaya/arsenal-ng/internal/variables"
 )
@@ -24,6 +26,10 @@ func (m App) applySet(query string) App {
 		name := strings.TrimSpace(parts[0])
 		value := strings.TrimSpace(parts[1])
 		if name != "" && value != "" {
+			// language is reserved: it switches translations, not a variable.
+			if strings.EqualFold(name, keys.Language) {
+				return m.applyLanguage(value)
+			}
 			m.search = applySetVar(m.search, m.globals, name, value)
 			m.search = m.search.SetQuery("")
 			m.search = m.search.ResetList(m.cheats)
@@ -33,6 +39,23 @@ func (m App) applySet(query string) App {
 	log.Printf("Invalid set command format")
 	m.search.StatusMsg = "✗ Usage: set name=value"
 	m.search.StatusIsError = true
+	return m
+}
+
+// applyLanguage switches the UI language and persists the choice.
+func (m App) applyLanguage(value string) App {
+	if err := m.langs.Set(value); err != nil {
+		log.Printf("Invalid language %q", value)
+		m.search.StatusMsg = fmt.Sprintf("✗ %v", err)
+		m.search.StatusIsError = true
+		return m
+	}
+	m.lang = m.langs.Get()
+	m.search = m.search.SetLang(m.lang)
+	m.search = m.search.SetQuery("")
+	m.search = m.search.ResetList(m.cheats)
+	m.search.StatusMsg = fmt.Sprintf("✓ Language set to %s (%s)",
+		config.LanguageName(m.lang), m.lang)
 	return m
 }
 

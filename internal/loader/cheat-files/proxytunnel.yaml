@@ -4,96 +4,184 @@ tags: [network, proxy, tunnel, security, pentest, connectivity, enumeration]
 # === BASIC TUNNELING ===
 
 actions:
-  - title: proxytunnel - basic ssh tunnel
-    desc: |
-      Establishes a basic tunnel through a local HTTP proxy to a destination. 
-      This is typically used as a ProxyCommand in SSH configuration files to bypass restrictive firewalls that only allow HTTP traffic. 
-      It encapsulates the SSH protocol within an HTTP CONNECT request to reach the target server. 
-      Ensure the proxy server permits CONNECT requests to the specified destination port.
+  - title:
+      en: proxytunnel - basic ssh tunnel
+      tr: proxytunnel - temel SSH tüneli
+    desc:
+      en: |
+        Establishes a basic tunnel through a local HTTP proxy to a destination. 
+        This is typically used as a ProxyCommand in SSH configuration files to bypass restrictive firewalls that only allow HTTP traffic. 
+        It encapsulates the SSH protocol within an HTTP CONNECT request to reach the target server. 
+        Ensure the proxy server permits CONNECT requests to the specified destination port.
+      tr: |
+        Yerel bir HTTP vekil sunucu üzerinden hedefe temel bir tünel kurar.
+        Bu genellikle yalnızca HTTP trafiğine izin veren kısıtlayıcı güvenlik duvarlarını atlatmak için SSH yapılandırma dosyalarında ProxyCommand olarak kullanılır.
+        Hedef sunucuya ulaşmak için SSH protokolünü bir HTTP CONNECT isteği içinde kapsüller.
+        Vekil sunucunun belirtilen hedef porta CONNECT isteklerine izin verdiğinden emin olun.
     command: "proxytunnel -p {{proxy_host}}:{{proxy_port|8080}} -d {{dest_host}}:{{dest_port|22}}"
 
-  - title: proxytunnel - tunnel via standalone daemon
-    desc: |
-      Runs proxytunnel as a standalone background daemon listening on a local port. 
-      This allows other applications to connect to the local port and have their traffic automatically routed through the proxy. 
-      It is an excellent alternative to using proxytunnel as an SSH sub-command for every session. 
-      You can bind to a specific interface by providing an address:port combination.
+  - title:
+      en: proxytunnel - tunnel via standalone daemon
+      tr: proxytunnel - bağımsız arka plan servisiyle tünel
+    desc:
+      en: |
+        Runs proxytunnel as a standalone background daemon listening on a local port. 
+        This allows other applications to connect to the local port and have their traffic automatically routed through the proxy. 
+        It is an excellent alternative to using proxytunnel as an SSH sub-command for every session. 
+        You can bind to a specific interface by providing an address:port combination.
+      tr: |
+        proxytunnel programını yerel bir portu dinleyen bağımsız bir arka plan servisi olarak çalıştırır.
+        Böylece diğer uygulamalar yerel porta bağlanabilir ve trafikleri otomatik olarak vekil sunucu üzerinden yönlendirilir.
+        Her oturumda proxytunnel programını SSH alt komutu olarak kullanmaya mükemmel bir alternatiftir.
+        adres:port bileşimi vererek belirli bir arayüze bağlanabilirsiniz.
     command: "proxytunnel -a {{local_port|1080}} -p {{proxy_host}}:{{proxy_port|8080}} -d {{dest_host}}:{{dest_port|22}}"
 
 # === AUTHENTICATION ===
 
-  - title: proxytunnel - basic proxy authentication
-    desc: |
-      Connects through an HTTP proxy that requires standard username and password authentication. 
-      This is required for corporate environments where proxy access is restricted to authorized users. 
-      The credentials are sent using the Basic authentication method in the HTTP headers. 
-      Be aware that passing passwords in the command line may be visible to other users on the system via process lists.
+  - title:
+      en: proxytunnel - basic proxy authentication
+      tr: proxytunnel - temel vekil sunucu kimlik doğrulaması
+    desc:
+      en: |
+        Connects through an HTTP proxy that requires standard username and password authentication. 
+        This is required for corporate environments where proxy access is restricted to authorized users. 
+        The credentials are sent using the Basic authentication method in the HTTP headers. 
+        Be aware that passing passwords in the command line may be visible to other users on the system via process lists.
+      tr: |
+        Standart kullanıcı adı ve parola kimlik doğrulaması isteyen bir HTTP vekil sunucu üzerinden bağlanır.
+        Vekil sunucu erişiminin yetkili kullanıcılarla kısıtlı olduğu kurumsal ortamlarda gereklidir.
+        Kimlik bilgileri HTTP başlıklarında Basic kimlik doğrulama yöntemiyle gönderilir.
+        Komut satırında verilen parolaların işlem listeleri aracılığıyla sistemdeki diğer kullanıcılara görünebileceğini unutmayın.
     command: "proxytunnel -p {{proxy_host}}:{{proxy_port|8080}} -P {{username}}:{{password}} -d {{dest_host}}:{{dest_port|443}}"
 
-  - title: proxytunnel - ntlm authentication
-    desc: |
-      Uses NTLM authentication to bypass Microsoft ISA or Forefront TMG proxy servers. 
-      NTLM is often required in Active Directory environments where standard Basic authentication is disabled for security reasons. 
-      The -t flag is used to specify the NTLM domain required for the challenge-response handshake. 
-      This method is specifically designed for interoperability with Windows-based network infrastructure.
+  - title:
+      en: proxytunnel - ntlm authentication
+      tr: proxytunnel - NTLM kimlik doğrulaması
+    desc:
+      en: |
+        Uses NTLM authentication to bypass Microsoft ISA or Forefront TMG proxy servers. 
+        NTLM is often required in Active Directory environments where standard Basic authentication is disabled for security reasons. 
+        The -t flag is used to specify the NTLM domain required for the challenge-response handshake. 
+        This method is specifically designed for interoperability with Windows-based network infrastructure.
+      tr: |
+        Microsoft ISA veya Forefront TMG vekil sunucularını aşmak için NTLM kimlik doğrulaması kullanır.
+        Standart Basic kimlik doğrulamasının güvenlik gerekçesiyle devre dışı olduğu Active Directory ortamlarında NTLM çoğunlukla zorunludur.
+        -t bayrağı, challenge-response el sıkışması için gereken NTLM etki alanını belirtmekte kullanılır.
+        Bu yöntem özellikle Windows tabanlı ağ altyapısıyla birlikte çalışabilirlik için tasarlanmıştır.
     command: "proxytunnel -p {{proxy_host}}:{{proxy_port|8080}} -N -t {{domain}} -P {{username}}:{{password}} -d {{dest_host}}:{{dest_port|22}}"
 
-  - title: proxytunnel - authentication using a passfile
-    desc: |
-      Reads proxy credentials from a specified file instead of the command line. 
-      Using a passfile is a more secure practice as it prevents passwords from appearing in the shell history or process list. 
-      The file should contain the username and password in a format recognized by the tool. 
-      This is highly recommended for automated scripts or persistent tunnel configurations.
+  - title:
+      en: proxytunnel - authentication using a passfile
+      tr: proxytunnel - parola dosyasıyla kimlik doğrulama
+    desc:
+      en: |
+        Reads proxy credentials from a specified file instead of the command line. 
+        Using a passfile is a more secure practice as it prevents passwords from appearing in the shell history or process list. 
+        The file should contain the username and password in a format recognized by the tool. 
+        This is highly recommended for automated scripts or persistent tunnel configurations.
+      tr: |
+        Vekil sunucu kimlik bilgilerini komut satırı yerine belirtilen bir dosyadan okur.
+        Parola dosyası kullanmak, parolaların kabuk geçmişinde veya işlem listesinde görünmesini engellediği için daha güvenli bir uygulamadır.
+        Dosya, kullanıcı adı ve parolayı aracın tanıdığı bir biçimde içermelidir.
+        Otomatik betikler veya kalıcı tünel yapılandırmaları için şiddetle önerilir.
     command: "proxytunnel -p {{proxy_host}}:{{proxy_port|8080}} -F {{credential_file}} -d {{dest_host}}:{{dest_port|22}}"
 
 # === ENCRYPTION AND SECURITY ===
 
-  - title: proxytunnel - encrypted proxy connection (SSL)
-    desc: |
-      Encrypts the traffic between the local client and the local proxy server. 
-      Use this when the proxy server supports HTTPS connections on its listening port (e.g., port 443). 
-      This adds a layer of TLS encryption that hides the HTTP CONNECT request from local network sniffers. 
-      It is useful for bypassing Deep Packet Inspection (DPI) that might identify and block proxytunnel traffic.
+  - title:
+      en: proxytunnel - encrypted proxy connection (SSL)
+      tr: proxytunnel - şifreli vekil sunucu bağlantısı (SSL)
+    desc:
+      en: |
+        Encrypts the traffic between the local client and the local proxy server. 
+        Use this when the proxy server supports HTTPS connections on its listening port (e.g., port 443). 
+        This adds a layer of TLS encryption that hides the HTTP CONNECT request from local network sniffers. 
+        It is useful for bypassing Deep Packet Inspection (DPI) that might identify and block proxytunnel traffic.
+      tr: |
+        Yerel istemci ile yerel vekil sunucu arasındaki trafiği şifreler.
+        Vekil sunucu dinleme portunda (ör. 443) HTTPS bağlantılarını destekliyorsa kullanın.
+        Bu, HTTP CONNECT isteğini yerel ağ dinleyicilerinden gizleyen bir TLS şifreleme katmanı ekler.
+        proxytunnel trafiğini tespit edip engelleyebilecek Derin Paket İncelemesini (DPI) atlatmak için kullanışlıdır.
     command: "proxytunnel -E -p {{proxy_host}}:{{proxy_port|443}} -d {{dest_host}}:{{dest_port|22}}"
 
-  - title: proxytunnel - encrypt end-to-end destination
-    desc: |
-      Ensures the connection between the proxy and the final destination is encrypted via SSL. 
-      This is useful when the target service is an SSL-wrapped protocol and the proxy needs to handle the handshake. 
-      If the destination server uses a self-signed certificate, you may need to use the -z flag to skip verification. 
-      It provides security for the "second leg" of the tunnel connection.
+  - title:
+      en: proxytunnel - encrypt end-to-end destination
+      tr: proxytunnel - uçtan uca hedef şifreleme
+    desc:
+      en: |
+        Ensures the connection between the proxy and the final destination is encrypted via SSL. 
+        This is useful when the target service is an SSL-wrapped protocol and the proxy needs to handle the handshake. 
+        If the destination server uses a self-signed certificate, you may need to use the -z flag to skip verification. 
+        It provides security for the "second leg" of the tunnel connection.
+      tr: |
+        Vekil sunucu ile nihai hedef arasındaki bağlantının SSL ile şifrelenmesini sağlar.
+        Hedef hizmet SSL sarmalı bir protokol olduğunda ve vekil sunucunun el sıkışmayı yönetmesi gerektiğinde kullanışlıdır.
+        Hedef sunucu kendinden imzalı sertifika kullanıyorsa doğrulamayı atlamak için -z bayrağını kullanmanız gerekebilir.
+        Tünel bağlantısının "ikinci ayağı" için güvenlik sağlar.
     command: "proxytunnel -e -p {{proxy_host}}:{{proxy_port|8080}} -d {{dest_host}}:{{dest_port|443}}"
 
-  - title: proxytunnel - ignore SSL certificate errors
-    desc: |
-      Disables the verification of SSL certificates for encrypted proxy connections. 
-      This is necessary when connecting to proxies or destinations that use self-signed, expired, or otherwise invalid certificates. 
-      Use this option with caution, as it makes the connection vulnerable to man-in-the-middle (MITM) attacks. 
-      It is primarily intended for testing or internal environments where certificate trust is not established.
+  - title:
+      en: proxytunnel - ignore SSL certificate errors
+      tr: proxytunnel - SSL sertifika hatalarını yoksayma
+    desc:
+      en: |
+        Disables the verification of SSL certificates for encrypted proxy connections. 
+        This is necessary when connecting to proxies or destinations that use self-signed, expired, or otherwise invalid certificates. 
+        Use this option with caution, as it makes the connection vulnerable to man-in-the-middle (MITM) attacks. 
+        It is primarily intended for testing or internal environments where certificate trust is not established.
+      tr: |
+        Şifreli vekil sunucu bağlantılarında SSL sertifika doğrulamasını devre dışı bırakır.
+        Kendinden imzalı, süresi dolmuş veya başka şekilde geçersiz sertifika kullanan vekil sunuculara ya da hedeflere bağlanırken gereklidir.
+        Bağlantıyı ortadaki adam (MITM) saldırılarına açık hale getirdiği için bu seçeneği dikkatle kullanın.
+        Öncelikle sertifika güveninin kurulmadığı test veya iç ortamlar için tasarlanmıştır.
     command: "proxytunnel -E -z -p {{proxy_host}}:{{proxy_port|443}} -d {{dest_host}}:{{dest_port|22}}"
 
 # === ADVANCED USAGE ===
 
-  - title: proxytunnel - double proxy chaining
-    desc: |
-      Chains two separate HTTP proxies together to reach a final destination. 
-      The traffic flows from your machine to the local proxy, then to the remote proxy, and finally to the destination. 
-      This is useful for complex network pivoting or when a specific destination is only reachable from a secondary proxy. 
-      Both proxies must be configured to allow the CONNECT method for the subsequent hops.
+  - title:
+      en: proxytunnel - double proxy chaining
+      tr: proxytunnel - çift vekil sunucu zincirleme
+    desc:
+      en: |
+        Chains two separate HTTP proxies together to reach a final destination. 
+        The traffic flows from your machine to the local proxy, then to the remote proxy, and finally to the destination. 
+        This is useful for complex network pivoting or when a specific destination is only reachable from a secondary proxy. 
+        Both proxies must be configured to allow the CONNECT method for the subsequent hops.
+      tr: |
+        Nihai bir hedefe ulaşmak için iki ayrı HTTP vekil sunucuyu birbirine zincirler.
+        Trafik makinenizden yerel vekil sunucuya, oradan uzak vekil sunucuya ve son olarak hedefe akar.
+        Karmaşık ağ sıçramaları için veya belirli bir hedefe yalnızca ikincil bir vekil sunucudan ulaşılabildiğinde kullanışlıdır.
+        Her iki vekil sunucu da sonraki atlamalar için CONNECT yöntemine izin verecek şekilde yapılandırılmalıdır.
     command: "proxytunnel -p {{local_proxy}}:{{l_port|8080}} -r {{remote_proxy}}:{{r_port|8080}} -d {{dest_host}}:{{dest_port|22}}"
 
-  - title: proxytunnel - custom http headers
-    desc: |
-      Injects custom HTTP headers into the tunnel request sent to the proxy. 
-      This can be used to impersonate specific browsers using a User-Agent header or to pass custom metadata required by the proxy. 
-      It is a powerful feature for bypassing filters that look for the default proxytunnel header signatures. 
-      Multiple headers can be specified by repeating the -H flag as needed.
+  - title:
+      en: proxytunnel - custom http headers
+      tr: proxytunnel - özel HTTP başlıkları
+    desc:
+      en: |
+        Injects custom HTTP headers into the tunnel request sent to the proxy. 
+        This can be used to impersonate specific browsers using a User-Agent header or to pass custom metadata required by the proxy. 
+        It is a powerful feature for bypassing filters that look for the default proxytunnel header signatures. 
+        Multiple headers can be specified by repeating the -H flag as needed.
+      tr: |
+        Vekil sunucuya gönderilen tünel isteğine özel HTTP başlıkları ekler.
+        User-Agent başlığıyla belirli tarayıcıları taklit etmek veya vekil sunucunun gerektirdiği özel üst veriyi aktarmak için kullanılabilir.
+        Varsayılan proxytunnel başlık imzalarını arayan filtreleri atlatmak için güçlü bir özelliktir.
+        Gerektiğinde -H bayrağı tekrarlanarak birden fazla başlık belirtilebilir.
     command: "proxytunnel -p {{proxy_host}}:{{proxy_port|8080}} -H \"{{header_name|User-Agent}}: {{header_value|Mozilla/5.0}}\" -d {{dest_host}}:{{dest_port|80}}"
 
-  - title: proxytunnel - verbose debugging
-    desc: |
-      Enables verbose output to provide detailed information about the connection process. 
-      This is essential for troubleshooting failed connections, authentication errors, or proxy rejections. 
-      It displays the HTTP headers exchanged during the CONNECT handshake. 
-      Use this during the initial setup to verify that all parameters and credentials are being sent correctly.
+  - title:
+      en: proxytunnel - verbose debugging
+      tr: proxytunnel - ayrıntılı hata ayıklama
+    desc:
+      en: |
+        Enables verbose output to provide detailed information about the connection process. 
+        This is essential for troubleshooting failed connections, authentication errors, or proxy rejections. 
+        It displays the HTTP headers exchanged during the CONNECT handshake. 
+        Use this during the initial setup to verify that all parameters and credentials are being sent correctly.
+      tr: |
+        Bağlantı süreci hakkında ayrıntılı bilgi vermek için ayrıntılı çıktıyı etkinleştirir.
+        Başarısız bağlantıları, kimlik doğrulama hatalarını veya vekil sunucu reddini gidermek için vazgeçilmezdir.
+        CONNECT el sıkışması sırasında değiş tokuş edilen HTTP başlıklarını gösterir.
+        Tüm parametrelerin ve kimlik bilgilerinin doğru gönderildiğini doğrulamak için ilk kurulum sırasında kullanın.
     command: "proxytunnel -v -p {{proxy_host}}:{{proxy_port|8080}} -d {{dest_host}}:{{dest_port|22}}"

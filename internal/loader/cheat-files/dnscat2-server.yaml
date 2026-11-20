@@ -3,84 +3,162 @@ tags: [network, security, pentest, exfiltration, c2, dns]
 
 actions:
 # === BASIC OPERATION ===
- - title: dnscat2-server - basic listener
-   desc: |
-     Start the dnscat2 server on all interfaces using the default DNS port. This is the simplest
-     method to start a listener when you do not have a registered domain name for recursive tunneling.
-     It expects direct connections to the server IP and requires root privileges to bind to port 53.
+ - title:
+     en: dnscat2-server - basic listener
+     tr: dnscat2-server - Temel dinleyici
+   desc:
+     en: |
+       Start the dnscat2 server on all interfaces using the default DNS port. This is the simplest
+       method to start a listener when you do not have a registered domain name for recursive tunneling.
+       It expects direct connections to the server IP and requires root privileges to bind to port 53.
+     tr: |
+       dnscat2 sunucusunu bütün arayüzlerde varsayılan DNS portunda başlatır. Özyinelemeli tünelleme
+       için kayıtlı alan adı yokken dinleyici başlatmanın en yalın yoludur. Sunucu IP adresine
+       doğrudan bağlantı bekler ve 53 numaralı porta bağlanmak için kök yetkisi gerektirir.
    command: "dnscat2-server"
 
- - title: dnscat2-server - domain-based listener
-   desc: |
-     Configure the server to handle DNS requests for a specific authoritative domain. This is the 
-     primary way to use dnscat2 for recursive DNS tunneling, allowing traffic to bypass firewalls
-     by routing through legitimate DNS resolvers. You must ensure the NS record for the domain
-     points to your server's IP address.
+ - title:
+     en: dnscat2-server - domain-based listener
+     tr: dnscat2-server - Alan adı tabanlı dinleyici
+   desc:
+     en: |
+       Configure the server to handle DNS requests for a specific authoritative domain. This is the 
+       primary way to use dnscat2 for recursive DNS tunneling, allowing traffic to bypass firewalls
+       by routing through legitimate DNS resolvers. You must ensure the NS record for the domain
+       points to your server's IP address.
+     tr: |
+       Sunucuyu belirli bir yetkili alan adına gelen DNS isteklerini işleyecek şekilde yapılandırır.
+       Meşru DNS çözümleyiciler üzerinden yönlendirme yaparak güvenlik duvarlarını aşan özyinelemeli
+       DNS tünnelemesinin birincil yoludur. Alan adının NS kaydının sunucunun IP adresini
+       gösterdiğinden emin olunmalıdır.
    command: "dnscat2-server {{domain}}"
 
- - title: dnscat2-server - custom dns configuration
-   desc: |
-     Specify a custom IP address and port for the DNS server to listen on using the --dns flag.
-     This is useful if port 53 is already occupied or if the server is sitting behind a 
-     load balancer or NAT that forwards a different port. The parameters are passed as a
-     comma-separated list of key-value pairs.
+ - title:
+     en: dnscat2-server - custom dns configuration
+     tr: dnscat2-server - Özel DNS yapılandırması
+   desc:
+     en: |
+       Specify a custom IP address and port for the DNS server to listen on using the --dns flag.
+       This is useful if port 53 is already occupied or if the server is sitting behind a 
+       load balancer or NAT that forwards a different port. The parameters are passed as a
+       comma-separated list of key-value pairs.
+     tr: |
+       --dns bayrağıyla DNS sunucusunun dinleyeceği özel IP adresi ve port belirtilir. 53 numaralı
+       port doluysa ya da sunucu farklı bir portu ileten bir yük dengeleyici veya NAT ardındaysa
+       yararlıdır. Parametreler virgülle ayrılmış anahtar-değer çiftleri olarak aktarılır.
    command: "dnscat2-server --dns 'host={{listen_ip|0.0.0.0}},port={{listen_port|5353}},domain={{domain}}'"
 
 # === SECURITY AND AUTHENTICATION ===
- - title: dnscat2-server - authenticated server
-   desc: |
-     Set a pre-shared secret to enable authentication and prevent man-in-the-middle (MITM) attacks.
-     When a secret is provided, the server defaults to an 'authenticated' security level, requiring
-     clients to prove they know the secret before establishing a session. This is highly 
-     recommended for production environments to prevent unauthorized access to your C2 server.
+ - title:
+     en: dnscat2-server - authenticated server
+     tr: dnscat2-server - Kimlik doğrulamalı sunucu
+   desc:
+     en: |
+       Set a pre-shared secret to enable authentication and prevent man-in-the-middle (MITM) attacks.
+       When a secret is provided, the server defaults to an 'authenticated' security level, requiring
+       clients to prove they know the secret before establishing a session. This is highly 
+       recommended for production environments to prevent unauthorized access to your C2 server.
+     tr: |
+       Kimlik doğrulamayı etkinleştirmek ve ortadaki adam (MITM) saldırılarını engellemek için
+       önceden paylaşılan bir gizli değer belirler. Gizli değer verildiğinde sunucu kimlik
+       doğrulamalı güvenlik düzeyine geçer; istemcilerin oturum kurmadan önce gizli değeri
+       bildiklerini kanıtlaması gerekir. C2 sunucusuna yetkisiz erişimi engellemek için üretim
+       ortamlarında kesinlikle önerilir.
    command: "dnscat2-server --secret {{preshared_secret}} {{domain}}"
 
- - title: dnscat2-server - enforce security level
-   desc: |
-     Explicitly set the security level to define how encryption and authentication are handled.
-     Options include 'open' (client chooses), 'encrypted' (requires encryption), and 'authenticated'
-     (requires encryption and a secret). Use 'authenticated' to ensure that only your authorized 
-     clients can communicate with the server.
+ - title:
+     en: dnscat2-server - enforce security level
+     tr: dnscat2-server - Güvenlik seviyesini belirleme
+   desc:
+     en: |
+       Explicitly set the security level to define how encryption and authentication are handled.
+       Options include 'open' (client chooses), 'encrypted' (requires encryption), and 'authenticated'
+       (requires encryption and a secret). Use 'authenticated' to ensure that only your authorized 
+       clients can communicate with the server.
+     tr: |
+       Şifreleme ve kimlik doğrulamanın nasıl işleneceğini tanımlamak için güvenlik düzeyini açıkça
+       belirler. Seçenekler arasında open (istemci seçer), encrypted (şifreleme ister) ve
+       authenticated (şifreleme ve gizli değer ister) bulunur. Sunucuyla yalnızca yetkili
+       istemcilerin haberleşmesini sağlamak için authenticated kullanılmalıdır.
    command: "dnscat2-server --security {{level|authenticated}} --secret {{preshared_secret}} {{domain}}"
 
 # === ADVANCED TUNNELING ===
- - title: dnscat2-server - dns passthrough
-   desc: |
-     Forward unhandled DNS queries to an upstream DNS server. This allows the dnscat2 server 
-     to act as a functional DNS resolver for the target, passing legitimate queries to a real 
-     DNS server while intercepting C2 traffic. This helps the C2 traffic blend in with normal
-     network activity and prevents breaking DNS resolution on the victim machine.
+ - title:
+     en: dnscat2-server - dns passthrough
+     tr: dnscat2-server - DNS geçişi
+   desc:
+     en: |
+       Forward unhandled DNS queries to an upstream DNS server. This allows the dnscat2 server 
+       to act as a functional DNS resolver for the target, passing legitimate queries to a real 
+       DNS server while intercepting C2 traffic. This helps the C2 traffic blend in with normal
+       network activity and prevents breaking DNS resolution on the victim machine.
+     tr: |
+       İşlenemeyen DNS sorgularını yukarı akış DNS sunucusuna iletir. Böylece dnscat2 sunucusu hedef
+       için işlevsel bir DNS çözümleyici gibi davranır; meşru sorguları gerçek DNS sunucusuna
+       aktarırken C2 trafiğini yakalar. C2 trafiğinin olağan ağ etkinliği içinde erimesine yardımcı
+       olur ve kurban makinede DNS çözmeyi bozmaz.
    command: "dnscat2-server --passthrough {{upstream_dns|8.8.8.8:53}} {{domain}}"
 
- - title: dnscat2-server - automation with auto-command
-   desc: |
-     Automatically execute a specific command on every client that connects to the server.
-     This is useful for immediate post-exploitation actions, such as spawning a shell or 
-     downloading a secondary payload without manual interaction. The command is sent 
-     as soon as the session is established and the client is ready.
+ - title:
+     en: dnscat2-server - automation with auto-command
+     tr: dnscat2-server - Otomatik komutla otomasyon
+   desc:
+     en: |
+       Automatically execute a specific command on every client that connects to the server.
+       This is useful for immediate post-exploitation actions, such as spawning a shell or 
+       downloading a secondary payload without manual interaction. The command is sent 
+       as soon as the session is established and the client is ready.
+     tr: |
+       Sunucuya bağlanan her istemcide belirli bir komutu kendiliğinden çalıştırır. Elle etkileşime
+       girmeden kabuk başlatmak ya da ikinci aşama yük indirmek gibi sömürü sonrası işlemler için
+       yararlıdır. Oturum kurulup istemci hazır olur olmaz komut gönderilir.
    command: "dnscat2-server --auto-command \"{{command|shell}}\" {{domain}}"
 
- - title: dnscat2-server - automatic session attachment
-   desc: |
-     Automatically attach the console to any new session that is created. By default, 
-     dnscat2 creates new windows for each session that you must manually switch to.
-     This flag is useful when you expect only one connection and want to interact 
-     with it immediately upon arrival.
+ - title:
+     en: dnscat2-server - automatic session attachment
+     tr: dnscat2-server - Otomatik oturum bağlama
+   desc:
+     en: |
+       Automatically attach the console to any new session that is created. By default, 
+       dnscat2 creates new windows for each session that you must manually switch to.
+       This flag is useful when you expect only one connection and want to interact 
+       with it immediately upon arrival.
+     tr: |
+       Oluşturulan her yeni oturuma konsolu kendiliğinden bağlar. Varsayılan olarak dnscat2 her
+       oturum için ayrı pencere açar; bu pencereler arasında elle geçiş gerekir. Yalnızca tek
+       bağlantı bekleniyorsa ve gelen bağlantıyla hemen etkileşime girilmek isteniyorsa bu bayrak
+       yararlıdır.
    command: "dnscat2-server --auto-attach {{domain}}"
 
 # === DEBUGGING AND LOGGING ===
- - title: dnscat2-server - packet tracing
-   desc: |
-     Enable packet tracing to display every incoming and outgoing dnscat packet in the terminal.
-     This is a critical feature for debugging connectivity issues, protocol errors, or 
-     firewall interference. Be aware that this produces a large volume of output and 
-     should generally be used only for troubleshooting.
+ - title:
+     en: dnscat2-server - packet tracing
+     tr: dnscat2-server - Paket izleme
+   desc:
+     en: |
+       Enable packet tracing to display every incoming and outgoing dnscat packet in the terminal.
+       This is a critical feature for debugging connectivity issues, protocol errors, or 
+       firewall interference. Be aware that this produces a large volume of output and 
+       should generally be used only for troubleshooting.
+     tr: |
+       Gelen ve giden bütün dnscat paketlerini uçbirimde göstermek için paket izlemeyi
+       etkinleştirir. Bağlantı sorunları, iletişim kuralı hataları ya da güvenlik duvarı girişimi
+       için hata ayıklamada kritik bir özelliktir. Büyük hacimli çıktı ürettiğinden genellikle
+       yalnızca sorun gidermede kullanılmalıdır.
    command: "dnscat2-server --packet-trace {{domain}}"
 
- - title: dnscat2-server - firehose output
-   desc: |
-     Redirect all output directly to stdout instead of using the internal windowing system.
-     This is useful when you are running dnscat2 inside another script or if you want to 
-     log all activity to a file using standard shell redirection. It simplifies the 
-     interface by removing the interactive window management.
+ - title:
+     en: dnscat2-server - firehose output
+     tr: dnscat2-server - Firehose çıktısı
+   desc:
+     en: |
+       Redirect all output directly to stdout instead of using the internal windowing system.
+       This is useful when you are running dnscat2 inside another script or if you want to 
+       log all activity to a file using standard shell redirection. It simplifies the 
+       interface by removing the interactive window management.
+     tr: |
+       Dahili pencere düzenini kullanmak yerine bütün çıktıyı doğrudan stdout akışına yönlendirir.
+       dnscat2 başka bir betik içinden çalıştırılıyorsa ya da standart kabuk yönlendirmesiyle bütün
+       etkinlik dosyaya kaydedilmek isteniyorsa yararlıdır. Etkileşimli pencere yönetimini
+       kaldırarak arayüzü yalınlaştırır.
    command: "dnscat2-server --firehose {{domain}}"

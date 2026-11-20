@@ -3,119 +3,231 @@ tags: [kubernetes, devops, containers, orchestration, security, infrastructure, 
 
 actions:
   # === CONFIGURATION & CONTEXT ===
-  - title: kubectl - list contexts
-    desc: |
-      Lists all available cluster contexts stored in your local kubeconfig file. 
-      Use this to identify which clusters, users, and namespaces are currently configured for access. 
-      It is an essential first step to ensure you are targeting the correct environment before running destructive commands.
+  - title:
+      en: kubectl - list contexts
+      tr: kubectl - bağlamları listeleme
+    desc:
+      en: |
+        Lists all available cluster contexts stored in your local kubeconfig file. 
+        Use this to identify which clusters, users, and namespaces are currently configured for access. 
+        It is an essential first step to ensure you are targeting the correct environment before running destructive commands.
+      tr: |
+        Yerel kubeconfig dosyanızda saklanan tüm kullanılabilir küme bağlamlarını listeler.
+        Hangi kümelerin, kullanıcıların ve ad alanlarının erişim için yapılandırıldığını belirlemek için bunu kullanın.
+        Yıkıcı komutlar çalıştırmadan önce doğru ortamı hedeflediğinizden emin olmak için temel bir ilk adımdır.
     command: "kubectl config get-contexts"
 
-  - title: kubectl - switch context
-    desc: |
-      Sets the current active context for all subsequent kubectl commands. 
-      This allows you to quickly jump between different clusters (e.g., from staging to production). 
-      Always verify your context after switching to prevent accidental modifications to the wrong cluster.
+  - title:
+      en: kubectl - switch context
+      tr: kubectl - bağlam değiştirme
+    desc:
+      en: |
+        Sets the current active context for all subsequent kubectl commands. 
+        This allows you to quickly jump between different clusters (e.g., from staging to production). 
+        Always verify your context after switching to prevent accidental modifications to the wrong cluster.
+      tr: |
+        Sonraki tüm kubectl komutları için geçerli etkin bağlamı ayarlar.
+        Farklı kümeler arasında (ör. hazırlıktan üretime) hızlıca geçiş yapmanızı sağlar.
+        Yanlış kümede istenmeyen değişiklikleri önlemek için geçişten sonra bağlamınızı mutlaka doğrulayın.
     command: "kubectl config use-context {{context_name}}"
 
-  - title: kubectl - view cluster information
-    desc: |
-      Displays the master and services addresses for the currently active cluster context. 
-      This is useful for verifying that the API server is reachable and for locating core services like CoreDNS or Metrics Server. 
-      Use this to troubleshoot initial connection issues with a new cluster.
+  - title:
+      en: kubectl - view cluster information
+      tr: kubectl - küme bilgisini görüntüleme
+    desc:
+      en: |
+        Displays the master and services addresses for the currently active cluster context. 
+        This is useful for verifying that the API server is reachable and for locating core services like CoreDNS or Metrics Server. 
+        Use this to troubleshoot initial connection issues with a new cluster.
+      tr: |
+        Geçerli etkin küme bağlamı için yönetici ve hizmet adreslerini görüntüler.
+        API sunucusuna erişilebildiğini doğrulamak ve CoreDNS veya Metrics Server gibi çekirdek hizmetleri bulmak için kullanışlıdır.
+        Yeni bir kümeyle ilgili ilk bağlantı sorunlarını gidermek için bunu kullanın.
     command: "kubectl cluster-info"
 
   # === ENUMERATION & INSPECTION ===
-  - title: kubectl - list all pods
-    desc: |
-      Retrieves a list of all pods across every namespace in the cluster. 
-      This provides a high-level overview of all running workloads and their current health status. 
-      It is particularly useful for identifying unauthorized or suspicious pods during a security audit.
+  - title:
+      en: kubectl - list all pods
+      tr: kubectl - tüm podları listeleme
+    desc:
+      en: |
+        Retrieves a list of all pods across every namespace in the cluster. 
+        This provides a high-level overview of all running workloads and their current health status. 
+        It is particularly useful for identifying unauthorized or suspicious pods during a security audit.
+      tr: |
+        Kümedeki her ad alanındaki tüm podların listesini getirir.
+        Çalışan tüm iş yüklerine ve güncel sağlık durumlarına üst düzey genel bakış sağlar.
+        Güvenlik denetimi sırasında yetkisiz veya şüpheli podları belirlemek için özellikle kullanışlıdır.
     command: "kubectl get pods --all-namespaces"
 
-  - title: kubectl - describe resource
-    desc: |
-      Provides detailed information about a specific resource, including events, status, and configuration. 
-      Use this when a pod or service is failing to start to see the underlying error messages (e.g., ImagePullBackOff or CrashLoopBackOff). 
-      It reveals metadata like labels, annotations, and resource limits that are not shown in the standard list view.
+  - title:
+      en: kubectl - describe resource
+      tr: kubectl - kaynak detayı gösterme
+    desc:
+      en: |
+        Provides detailed information about a specific resource, including events, status, and configuration. 
+        Use this when a pod or service is failing to start to see the underlying error messages (e.g., ImagePullBackOff or CrashLoopBackOff). 
+        It reveals metadata like labels, annotations, and resource limits that are not shown in the standard list view.
+      tr: |
+        Olaylar, durum ve yapılandırma dahil belirli bir kaynak hakkında ayrıntılı bilgi sağlar.
+        Bir pod veya hizmet başlatılamadığında altta yatan hata iletilerini (ör. ImagePullBackOff veya CrashLoopBackOff) görmek için bunu kullanın.
+        Standart liste görünümünde gösterilmeyen etiketler, açıklamalar ve kaynak sınırları gibi üstverileri ortaya çıkarır.
     command: "kubectl describe {{resource_type|pod}} {{resource_name}} -n {{namespace|default}}"
 
-  - title: kubectl - list API resources
-    desc: |
-      Prints the supported API resources on the server along with their shortnames and API groups. 
-      This is useful for discovery, especially when working with Custom Resource Definitions (CRDs). 
-      It helps users understand what objects they have permission to interact with within the cluster.
+  - title:
+      en: kubectl - list API resources
+      tr: kubectl - API kaynaklarını listeleme
+    desc:
+      en: |
+        Prints the supported API resources on the server along with their shortnames and API groups. 
+        This is useful for discovery, especially when working with Custom Resource Definitions (CRDs). 
+        It helps users understand what objects they have permission to interact with within the cluster.
+      tr: |
+        Sunucuda desteklenen API kaynaklarını kısa adları ve API gruplarıyla birlikte yazdırır.
+        Özellikle Özel Kaynak Tanımları (CRD) ile çalışırken keşif için kullanışlıdır.
+        Kullanıcıların küme içinde hangi nesnelerle etkileşim iznine sahip olduğunu anlamasına yardımcı olur.
     command: "kubectl api-resources"
 
   # === TROUBLESHOOTING & INTERACTION ===
-  - title: kubectl - view container logs
-    desc: |
-      Fetches the standard output and error logs from a specific container within a pod. 
-      This is the primary method for debugging application-level issues or monitoring application behavior. 
-      Adding the '-f' flag allows you to stream logs in real-time as they are generated.
+  - title:
+      en: kubectl - view container logs
+      tr: kubectl - kapsayıcı günlüklerini görüntüleme
+    desc:
+      en: |
+        Fetches the standard output and error logs from a specific container within a pod. 
+        This is the primary method for debugging application-level issues or monitoring application behavior. 
+        Adding the '-f' flag allows you to stream logs in real-time as they are generated.
+      tr: |
+        Bir pod içindeki belirli bir kapsayıcıdan standart çıktı ve hata günlüklerini getirir.
+        Uygulama düzeyi sorunları ayıklamak veya uygulama davranışını izlemek için birincil yöntemdir.
+        '-f' bayrağını eklemek, günlükleri üretildikçe gerçek zamanlı izlemenizi sağlar.
     command: "kubectl logs {{pod_name}} -n {{namespace|default}} -c {{container_name|main}}"
 
-  - title: kubectl - execute shell in pod
-    desc: |
-      Opens an interactive terminal session inside a running container. 
-      This allows you to perform manual troubleshooting, check local files, or test network connectivity from within the cluster. 
-      Ensure you have the necessary RBAC permissions for 'pods/exec' before attempting this command.
+  - title:
+      en: kubectl - execute shell in pod
+      tr: kubectl - pod içinde kabuk çalıştırma
+    desc:
+      en: |
+        Opens an interactive terminal session inside a running container. 
+        This allows you to perform manual troubleshooting, check local files, or test network connectivity from within the cluster. 
+        Ensure you have the necessary RBAC permissions for 'pods/exec' before attempting this command.
+      tr: |
+        Çalışan bir kapsayıcı içinde etkileşimli bir terminal oturumu açar.
+        Manuel sorun giderme yapmanıza, yerel dosyaları denetlemenize veya küme içinden ağ bağlantısını test etmenize olanak tanır.
+        Bu komutu denemeden önce 'pods/exec' için gerekli RBAC izinlerine sahip olduğunuzdan emin olun.
     command: "kubectl exec -it {{pod_name}} -n {{namespace|default}} -- {{shell|/bin/bash}}"
 
-  - title: kubectl - port forwarding
-    desc: |
-      Forwards one or more local ports to a specific pod or service. 
-      This allows you to access internal cluster services (like a database or web UI) from your local machine without exposing them to the public internet. 
-      The connection remains active only as long as the terminal process is running.
+  - title:
+      en: kubectl - port forwarding
+      tr: kubectl - port yönlendirme
+    desc:
+      en: |
+        Forwards one or more local ports to a specific pod or service. 
+        This allows you to access internal cluster services (like a database or web UI) from your local machine without exposing them to the public internet. 
+        The connection remains active only as long as the terminal process is running.
+      tr: |
+        Bir veya daha fazla yerel portu belirli bir pod veya hizmete yönlendirir.
+        Dahili küme hizmetlerine (veritabanı veya web arayüzü gibi) yerel makinenizden, bunları genel internete açmadan erişmenizi sağlar.
+        Bağlantı yalnızca terminal süreci çalıştığı sürece etkin kalır.
     command: "kubectl port-forward {{resource_type|pod}}/{{resource_name}} {{local_port|8080}}:{{remote_port|80}} -n {{namespace|default}}"
 
-  - title: kubectl - copy files to/from pod
-    desc: |
-      Facilitates the transfer of files and directories between your local filesystem and a container. 
-      This is useful for extracting logs that aren't sent to stdout or for injecting configuration files for testing. 
-      Note that the 'tar' binary must be present inside the container for this operation to succeed.
+  - title:
+      en: kubectl - copy files to/from pod
+      tr: kubectl - poda dosya kopyalama
+    desc:
+      en: |
+        Facilitates the transfer of files and directories between your local filesystem and a container. 
+        This is useful for extracting logs that aren't sent to stdout or for injecting configuration files for testing. 
+        Note that the 'tar' binary must be present inside the container for this operation to succeed.
+      tr: |
+        Yerel dosya sisteminiz ile bir kapsayıcı arasında dosya ve dizin aktarımını kolaylaştırır.
+        Stdout'a gönderilmeyen günlükleri çıkarmak veya test için yapılandırma dosyaları enjekte etmekte kullanışlıdır.
+        Bu işlemin başarılı olması için kapsayıcı içinde 'tar' ikilisinin bulunması gerektiğini unutmayın.
     command: "kubectl cp {{source_path}} {{destination_path}} -n {{namespace|default}}"
 
   # === MANAGEMENT & OPERATIONS ===
-  - title: kubectl - apply configuration
-    desc: |
-      Applies a configuration change to a resource defined in a YAML or JSON file. 
-      This follows a declarative approach, where Kubernetes manages the transition from the current state to the desired state. 
-      It is the standard way to deploy or update applications in a repeatable and version-controlled manner.
+  - title:
+      en: kubectl - apply configuration
+      tr: kubectl - yapılandırma uygulama
+    desc:
+      en: |
+        Applies a configuration change to a resource defined in a YAML or JSON file. 
+        This follows a declarative approach, where Kubernetes manages the transition from the current state to the desired state. 
+        It is the standard way to deploy or update applications in a repeatable and version-controlled manner.
+      tr: |
+        YAML veya JSON dosyasında tanımlı bir kaynağa yapılandırma değişikliği uygular.
+        Kubernetes'in mevcut durumdan istenen duruma geçişi yönettiği bildirimsel bir yaklaşım izler.
+        Uygulamaları tekrarlanabilir ve sürüm denetimli şekilde dağıtmanın veya güncellemenin standart yoludur.
     command: "kubectl apply -f {{file_path|manifest.yaml}}"
 
-  - title: kubectl - scale deployment
-    desc: |
-      Updates the number of replicas for a specific deployment, replica set, or stateful set. 
-      This is used to manually handle traffic spikes or to reduce resource consumption during off-peak hours. 
-      Scaling to zero can effectively stop a workload without deleting its configuration.
+  - title:
+      en: kubectl - scale deployment
+      tr: kubectl - dağıtımı ölçekleme
+    desc:
+      en: |
+        Updates the number of replicas for a specific deployment, replica set, or stateful set. 
+        This is used to manually handle traffic spikes or to reduce resource consumption during off-peak hours. 
+        Scaling to zero can effectively stop a workload without deleting its configuration.
+      tr: |
+        Belirli bir dağıtım, replica set veya stateful set için replika sayısını günceller.
+        Trafik artışlarını manuel karşılamak veya sakin saatlerde kaynak tüketimini azaltmak için kullanılır.
+        Sıfıra ölçeklemek, yapılandırmasını silmeden bir iş yükünü etkili biçimde durdurabilir.
     command: "kubectl scale deployment {{deployment_name}} --replicas={{count|3}} -n {{namespace|default}}"
 
   # === SECURITY & RBAC ===
-  - title: kubectl - check authorization
-    desc: |
-      Checks if the current user or a specific service account can perform a given action. 
-      This is an invaluable tool for testing RBAC policies and ensuring the Principle of Least Privilege is followed. 
-      You can specify verbs like 'get', 'list', 'create', or 'delete' against any resource.
+  - title:
+      en: kubectl - check authorization
+      tr: kubectl - yetkilendirme denetleme
+    desc:
+      en: |
+        Checks if the current user or a specific service account can perform a given action. 
+        This is an invaluable tool for testing RBAC policies and ensuring the Principle of Least Privilege is followed. 
+        You can specify verbs like 'get', 'list', 'create', or 'delete' against any resource.
+      tr: |
+        Geçerli kullanıcının veya belirli bir hizmet hesabının verilen bir eylemi gerçekleştirip gerçekleştiremeyeceğini denetler.
+        RBAC ilkelerini test etmek ve En Az Yetki İlkesine uyulduğundan emin olmak için paha biçilmez bir araçtır.
+        Herhangi bir kaynağa karşı 'get', 'list', 'create' veya 'delete' gibi fiiller belirtebilirsiniz.
     command: "kubectl auth can-i {{verb|get}} {{resource|secrets}} -n {{namespace|default}}"
 
-  - title: kubectl - view secrets
-    desc: |
-      Lists or retrieves the contents of Kubernetes secrets within a namespace. 
-      Secrets often contain sensitive data like API keys, database passwords, or TLS certificates. 
-      By default, values are base64 encoded and should be handled with extreme care to avoid data leaks.
+  - title:
+      en: kubectl - view secrets
+      tr: kubectl - gizli bilgileri görüntüleme
+    desc:
+      en: |
+        Lists or retrieves the contents of Kubernetes secrets within a namespace. 
+        Secrets often contain sensitive data like API keys, database passwords, or TLS certificates. 
+        By default, values are base64 encoded and should be handled with extreme care to avoid data leaks.
+      tr: |
+        Bir ad alanı içindeki Kubernetes gizli bilgilerinin içeriğini listeler veya getirir.
+        Gizli bilgiler genellikle API anahtarları, veritabanı parolaları veya TLS sertifikaları gibi hassas veriler içerir.
+        Varsayılan olarak değerler base64 kodludur ve veri sızıntılarını önlemek için son derece dikkatli kullanılmalıdır.
     command: "kubectl get secret {{secret_name}} -n {{namespace|default}} -o yaml"
 
   # === ADVANCED TROUBLESHOOTING ===
-  - title: kubectl - debug pod
-    desc: |
-      Creates an ephemeral container inside a running pod for troubleshooting. 
-      This is useful for debugging pods that do not have a shell or necessary tools installed in their base image. 
-      It allows you to inspect the file system and network of the target pod without restarting it.
+  - title:
+      en: kubectl - debug pod
+      tr: kubectl - pod hata ayıklama
+    desc:
+      en: |
+        Creates an ephemeral container inside a running pod for troubleshooting. 
+        This is useful for debugging pods that do not have a shell or necessary tools installed in their base image. 
+        It allows you to inspect the file system and network of the target pod without restarting it.
+      tr: |
+        Sorun giderme için çalışan bir pod içinde geçici bir kapsayıcı oluşturur.
+        Temel imajında kabuk veya gerekli araçlar kurulu olmayan podlarda hata ayıklamak için kullanışlıdır.
+        Hedef podu yeniden başlatmadan dosya sistemini ve ağını incelemenizi sağlar.
     command: "kubectl debug {{pod_name}} -it --image={{debug_image|busybox}} -n {{namespace|default}}"
 
-  - title: kubectl - resource monitoring
-    desc: |
-      Provides a real-time view of CPU and memory usage for pods or nodes. 
-      This command requires the Metrics Server to be installed in the cluster. 
-      It helps identify "noisy neighbors" or workloads that are nearing their resource limits and might be throttled.
+  - title:
+      en: kubectl - resource monitoring
+      tr: kubectl - kaynak izleme
+    desc:
+      en: |
+        Provides a real-time view of CPU and memory usage for pods or nodes. 
+        This command requires the Metrics Server to be installed in the cluster. 
+        It helps identify "noisy neighbors" or workloads that are nearing their resource limits and might be throttled.
+      tr: |
+        Pod veya düğümler için CPU ve bellek kullanımının gerçek zamanlı görünümünü sağlar.
+        Bu komut kümede Metrics Server kurulu olmasını gerektirir.
+        "Gürültücü komşuları" veya kaynak sınırlarına yaklaşıp kısıtlanabilecek iş yüklerini belirlemeye yardımcı olur.
     command: "kubectl top {{resource_type|pod}} -n {{namespace|default}}"

@@ -43,7 +43,7 @@ func TestUpdateEnterPicksPlainCommand(t *testing.T) {
 	// First cheat has no arguments so picking quits immediately.
 	m.Cursor = 0
 	_, _, oc, pick := m.Update(keyMsg(keys.Enter), testCheats())
-	if oc != Picked || !pick.Quit || pick.Cheat.Title != "Basic scan" {
+	if oc != Picked || !pick.Quit || pick.Cheat.Title.Resolve("en") != "Basic scan" {
 		t.Fatalf("oc=%v quit=%v cheat=%v", oc, pick.Quit, pick.Cheat)
 	}
 }

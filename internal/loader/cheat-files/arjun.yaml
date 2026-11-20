@@ -3,90 +3,174 @@ tags: [web, security, pentest, enumeration, fuzzing, reconnaissance, parameter-d
 
 actions:
   # === BASIC DISCOVERY ===
-  - title: arjun - basic GET parameter discovery
-    desc: |
-      Performs parameter discovery using the GET method on a single URL. 
-      This is the most common starting point for finding hidden query parameters that might lead to vulnerabilities like XSS, SQLi, or SSRF. 
-      Arjun uses a heuristic approach to determine which parameters are valid by observing changes in the HTTP response.
+  - title:
+      en: arjun - basic GET parameter discovery
+      tr: arjun - temel GET parametre keşfi
+    desc:
+      en: |
+        Performs parameter discovery using the GET method on a single URL. 
+        This is the most common starting point for finding hidden query parameters that might lead to vulnerabilities like XSS, SQLi, or SSRF. 
+        Arjun uses a heuristic approach to determine which parameters are valid by observing changes in the HTTP response.
+      tr: |
+        Tek bir URL'de GET yöntemiyle parametre keşfi yapar.
+        XSS, SQLi veya SSRF gibi zafiyetlere yol açabilecek gizli sorgu parametrelerini bulmanın en yaygın başlangıç noktasıdır.
+        Arjun, HTTP yanıtındaki değişiklikleri gözlemleyerek hangi parametrelerin geçerli olduğunu sezgisel yaklaşımla belirler.
     command: "arjun -u {{url}}"
 
-  - title: arjun - POST parameter discovery
-    desc: |
-      Specifically targets parameters within POST requests using standard form encoding (application/x-www-form-urlencoded). 
-      Many web applications process sensitive data or state-changing actions via POST, making this a critical scan for discovering hidden functional parameters. 
-      This is particularly useful for testing login forms, profile updates, or hidden administrative actions.
+  - title:
+      en: arjun - POST parameter discovery
+      tr: arjun - POST parametre keşfi
+    desc:
+      en: |
+        Specifically targets parameters within POST requests using standard form encoding (application/x-www-form-urlencoded). 
+        Many web applications process sensitive data or state-changing actions via POST, making this a critical scan for discovering hidden functional parameters. 
+        This is particularly useful for testing login forms, profile updates, or hidden administrative actions.
+      tr: |
+        Standart form kodlamasıyla (application/x-www-form-urlencoded) POST isteklerindeki parametreleri hedefler.
+        Birçok web uygulaması hassas verileri veya durum değiştiren eylemleri POST ile işlediğinden gizli işlevsel parametreleri bulmada kritik taramadır.
+        Bu, giriş formları, profil güncellemeleri veya gizli yönetim eylemlerini test etmede özellikle yararlıdır.
     command: "arjun -u {{url}} -m POST"
 
-  - title: arjun - JSON parameter discovery
-    desc: |
-      Identifies parameters within a JSON-formatted request body. 
-      Modern web applications and REST APIs frequently use JSON for data exchange, and traditional parameter fuzzers often miss these. 
-      Arjun will structure its probes as JSON objects to ensure the backend API correctly parses the injected parameter names.
+  - title:
+      en: arjun - JSON parameter discovery
+      tr: arjun - JSON parametre keşfi
+    desc:
+      en: |
+        Identifies parameters within a JSON-formatted request body. 
+        Modern web applications and REST APIs frequently use JSON for data exchange, and traditional parameter fuzzers often miss these. 
+        Arjun will structure its probes as JSON objects to ensure the backend API correctly parses the injected parameter names.
+      tr: |
+        JSON biçimli istek gövdesindeki parametreleri belirler.
+        Modern web uygulamaları ve REST API'ler veri alışverişinde sıkça JSON kullanır; geleneksel parametre bulanıklaştırıcılar bunları sıkça kaçırır.
+        Arjun, arka uç API'nin enjekte edilen parametre adlarını doğru ayrıştırması için yoklamaları JSON nesnesi olarak yapılandırır.
     command: "arjun -u {{url}} -m JSON"
 
-  - title: arjun - XML parameter discovery
-    desc: |
-      Targets XML-based endpoints to find hidden tags or attributes that the application might be processing. 
-      This is highly effective against SOAP services or legacy enterprise applications that rely on XML data structures. 
-      It helps in identifying potential entry points for XXE (XML External Entity) or other logic-based vulnerabilities.
+  - title:
+      en: arjun - XML parameter discovery
+      tr: arjun - XML parametre keşfi
+    desc:
+      en: |
+        Targets XML-based endpoints to find hidden tags or attributes that the application might be processing. 
+        This is highly effective against SOAP services or legacy enterprise applications that rely on XML data structures. 
+        It helps in identifying potential entry points for XXE (XML External Entity) or other logic-based vulnerabilities.
+      tr: |
+        Uygulamanın işliyor olabileceği gizli etiket veya öznitelikleri bulmak için XML tabanlı uç noktaları hedefler.
+        XML veri yapılarına dayanan SOAP servisleri veya eski kurumsal uygulamalara karşı oldukça etkilidir.
+        XXE (XML Dış Varlık) veya diğer mantık tabanlı zafiyetler için potansiyel giriş noktalarını belirlemeye yardımcı olur.
     command: "arjun -u {{url}} -m XML"
 
   # === ADVANCED SCANNING & PERFORMANCE ===
-  - title: arjun - passive discovery
-    desc: |
-      Leverages passive sources like the Wayback Machine, CommonCrawl, and AlienVault OTX to find historically used parameters. 
-      This method is completely non-intrusive as it doesn't send requests to the target server initially. 
-      It provides a significant head start by gathering parameters that were previously known to exist on the endpoint.
+  - title:
+      en: arjun - passive discovery
+      tr: arjun - pasif keşif
+    desc:
+      en: |
+        Leverages passive sources like the Wayback Machine, CommonCrawl, and AlienVault OTX to find historically used parameters. 
+        This method is completely non-intrusive as it doesn't send requests to the target server initially. 
+        It provides a significant head start by gathering parameters that were previously known to exist on the endpoint.
+      tr: |
+        Geçmişte kullanılmış parametreleri bulmak için Wayback Machine, CommonCrawl ve AlienVault OTX gibi pasif kaynaklardan yararlanır.
+        Bu yöntem başlangıçta hedef sunucuya istek göndermediği için tamamen iz bırakmaz.
+        Uç noktada önceden varlığı bilinen parametreleri toplayarak önemli bir avantaj sağlar.
     command: "arjun -u {{url}} --passive"
 
-  - title: arjun - custom wordlist and threads
-    desc: |
-      Uses a specific wordlist for parameter names and adjusts the execution speed with threads. 
-      While Arjun comes with an excellent internal database, custom wordlists are vital for environment-specific parameters (e.g., proprietary CMS attributes). 
-      Increasing threads can speed up the process, but may lead to rate-limiting or false negatives if the server cannot handle the load.
+  - title:
+      en: arjun - custom wordlist and threads
+      tr: arjun - özel kelime listesi ve iş parçacığı
+    desc:
+      en: |
+        Uses a specific wordlist for parameter names and adjusts the execution speed with threads. 
+        While Arjun comes with an excellent internal database, custom wordlists are vital for environment-specific parameters (e.g., proprietary CMS attributes). 
+        Increasing threads can speed up the process, but may lead to rate-limiting or false negatives if the server cannot handle the load.
+      tr: |
+        Parametre adları için belirli bir kelime listesi kullanır ve çalıştırma hızını iş parçacıklarıyla ayarlar.
+        Arjun mükemmel bir dahili veritabanıyla gelse de ortama özgü parametreler (ör. özel CMS öznitelikleri) için özel kelime listeleri hayati önem taşır.
+        İş parçacığını artırmak süreci hızlandırabilir, ancak sunucu yükü kaldıramazsa hız sınırlama veya yanlış negatiflere yol açabilir.
     command: "arjun -u {{url}} -w {{wordlist|/usr/share/wordlists/dirb/common.txt}} -t {{threads|10}}"
 
-  - title: arjun - fine-tuning chunk size
-    desc: |
-      Controls how many parameters are sent in a single HTTP request. 
-      Reducing the chunk size is helpful when dealing with Web Application Firewalls (WAFs) that limit the length of the URL or the number of parameters. 
-      A smaller chunk size increases the number of requests but improves accuracy in restrictive environments.
+  - title:
+      en: arjun - fine-tuning chunk size
+      tr: arjun - parça boyutu ince ayarı
+    desc:
+      en: |
+        Controls how many parameters are sent in a single HTTP request. 
+        Reducing the chunk size is helpful when dealing with Web Application Firewalls (WAFs) that limit the length of the URL or the number of parameters. 
+        A smaller chunk size increases the number of requests but improves accuracy in restrictive environments.
+      tr: |
+        Tek bir HTTP isteğinde kaç parametre gönderileceğini denetler.
+        Parça boyutunu küçültmek, URL uzunluğunu veya parametre sayısını sınırlayan Web Uygulaması Güvenlik Duvarlarıyla (WAF) uğraşırken yararlıdır.
+        Daha küçük parça boyutu istek sayısını artırır ancak kısıtlı ortamlarda doğruluğu iyileştirir.
     command: "arjun -u {{url}} -c {{chunks|250}}"
 
   # === AUTHENTICATION & HEADERS ===
-  - title: arjun - authenticated scan with headers
-    desc: |
-      Adds custom HTTP headers such as Cookies or Authorization tokens to every request. 
-      This is essential for discovering parameters on pages that are hidden behind a login wall. 
-      Ensure that your session token is valid throughout the scan to prevent redirected or invalid responses.
+  - title:
+      en: arjun - authenticated scan with headers
+      tr: arjun - başlıklarla kimlik doğrulamalı tarama
+    desc:
+      en: |
+        Adds custom HTTP headers such as Cookies or Authorization tokens to every request. 
+        This is essential for discovering parameters on pages that are hidden behind a login wall. 
+        Ensure that your session token is valid throughout the scan to prevent redirected or invalid responses.
+      tr: |
+        Her isteğe Çerez veya Authorization token gibi özel HTTP başlıkları ekler.
+        Bu, giriş duvarı arkasında gizli sayfalardaki parametreleri keşfetmek için gereklidir.
+        Yönlendirilmiş veya geçersiz yanıtları önlemek için oturum token'ınızın tarama boyunca geçerli olduğundan emin olun.
     command: 'arjun -u {{url}} --headers "Cookie: {{session_id}}; Authorization: Bearer {{token}}"'
 
   # === INPUT & OUTPUT ===
-  - title: arjun - bulk scanning from file
-    desc: |
-      Imports a list of URLs from a text file to perform parameter discovery on multiple targets sequentially. 
-      This is the most efficient way to handle a large attack surface during the reconnaissance phase. 
-      The input file should contain one URL per line, including the protocol (http/https).
+  - title:
+      en: arjun - bulk scanning from file
+      tr: arjun - dosyadan toplu tarama
+    desc:
+      en: |
+        Imports a list of URLs from a text file to perform parameter discovery on multiple targets sequentially. 
+        This is the most efficient way to handle a large attack surface during the reconnaissance phase. 
+        The input file should contain one URL per line, including the protocol (http/https).
+      tr: |
+        Birden çok hedefte sırayla parametre keşfi yapmak için metin dosyasından URL listesi içe aktarır.
+        Bu, keşif aşamasında geniş saldırı yüzeyini işlemenin en verimli yoludur.
+        Girdi dosyası protokol dahil (http/https) satır başına bir URL içermelidir.
     command: "arjun -i {{targets_file}}"
 
-  - title: arjun - export results to JSON
-    desc: |
-      Saves the discovered parameters into a structured JSON file for further analysis or automation. 
-      The JSON output is highly recommended for integrating Arjun's findings into other tools or custom reporting scripts. 
-      It contains detailed information about the found parameters for each scanned URL.
+  - title:
+      en: arjun - export results to JSON
+      tr: arjun - sonuçları JSON'a aktarma
+    desc:
+      en: |
+        Saves the discovered parameters into a structured JSON file for further analysis or automation. 
+        The JSON output is highly recommended for integrating Arjun's findings into other tools or custom reporting scripts. 
+        It contains detailed information about the found parameters for each scanned URL.
+      tr: |
+        Keşfedilen parametreleri ileri analiz veya otomasyon için yapısal JSON dosyasına kaydeder.
+        JSON çıktısı, Arjun bulgularını diğer araçlara veya özel rapor betiklerine entegre etmek için şiddetle önerilir.
+        Taranan her URL için bulunan parametreler hakkında ayrıntılı bilgi içerir.
     command: "arjun -u {{url}} -oJ {{output_file|results.json}}"
 
-  - title: arjun - proxying to Burp Suite
-    desc: |
-      Routes all of Arjun's outgoing requests through a proxy, typically Burp Suite (127.0.0.1:8080). 
-      This allows you to manually inspect the traffic, analyze the differences in responses, and send interesting findings to the Repeater or Intruder. 
-      It is a bridge between automated discovery and manual exploitation.
+  - title:
+      en: arjun - proxying to Burp Suite
+      tr: arjun - Burp Suite'e vekil atama
+    desc:
+      en: |
+        Routes all of Arjun's outgoing requests through a proxy, typically Burp Suite (127.0.0.1:8080). 
+        This allows you to manually inspect the traffic, analyze the differences in responses, and send interesting findings to the Repeater or Intruder. 
+        It is a bridge between automated discovery and manual exploitation.
+      tr: |
+        Arjun'un tüm giden isteklerini genellikle Burp Suite (127.0.0.1:8080) olan bir vekilden geçirir.
+        Bu, trafiği elle incelemenize, yanıtlardaki farkları analiz edip ilginç bulguları Repeater veya Intruder'a göndermenize olanak tanır.
+        Otomatik keşif ile elle sömürü arasında köprüdür.
     command: "arjun -u {{url}} -oB {{proxy|127.0.0.1:8080}}"
 
   # === STABILITY & CONSTRAINTS ===
-  - title: arjun - stable mode and rate limiting
-    desc: |
-      Forces the tool to prioritize stability over speed by implementing the --stable flag and setting a maximum request rate. 
-      The stable mode is useful for targets that return dynamic content lengths which might confuse Arjun's detection engine. 
-      Rate limiting is crucial to avoid being blocked by anti-DoS protections or WAFs on production servers.
+  - title:
+      en: arjun - stable mode and rate limiting
+      tr: arjun - kararlı kip ve hız sınırlama
+    desc:
+      en: |
+        Forces the tool to prioritize stability over speed by implementing the --stable flag and setting a maximum request rate. 
+        The stable mode is useful for targets that return dynamic content lengths which might confuse Arjun's detection engine. 
+        Rate limiting is crucial to avoid being blocked by anti-DoS protections or WAFs on production servers.
+      tr: |
+        --stable bayrağı ve azami istek hızıyla aracı hızdan çok kararlılığa öncelik vermeye zorlar.
+        Kararlı kip, Arjun'un tespit motorunu şaşırtabilecek dinamik içerik uzunlukları döndüren hedeflerde yararlıdır.
+        Hız sınırlama, üretim sunucularındaki anti-DoS korumaları veya WAF'lerce engellenmemek için kritiktir.
     command: "arjun -u {{url}} --stable --rate-limit {{rate|5}}"

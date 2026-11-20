@@ -68,6 +68,9 @@ const ShiftTab = "shift+tab"
 // Set stores a variable typed as set key=value.
 const Set = "set"
 
+// Language is the reserved set name switching the UI language.
+const Language = "language"
+
 // Unset removes a variable typed as unset key.
 const Unset = "unset"
 

@@ -5,6 +5,8 @@ package finder
 import (
 	"strings"
 	"testing"
+
+	"github.com/halilkirazkaya/arsenal-ng/internal/model"
 )
 
 // =============================================================================
@@ -64,11 +66,35 @@ func TestViewFooterCursorMath(t *testing.T) {
 	}
 }
 
+// TestFooterShowsActiveLanguage verifies the footer tracks the model lang.
+func TestFooterShowsActiveLanguage(t *testing.T) {
+	m := New(testCheats())
+	if f := m.Footer(0); !strings.Contains(f, "lang: en") {
+		t.Fatalf("default footer = %q, want lang: en", f)
+	}
+	m = m.SetLang("tr")
+	if f := m.Footer(0); !strings.Contains(f, "lang: tr") {
+		t.Fatalf("tr footer = %q, want lang: tr", f)
+	}
+}
+
 // TestViewSpecialCommandShowsHints verifies hints replace the cheat list.
 func TestViewSpecialCommandShowsHints(t *testing.T) {
 	m := New(testCheats()).Resize(120, 40).SetQuery("set ")
 	v := m.View(nil)
 	if !strings.Contains(v, "Common variables") || strings.Contains(v, "Basic scan") {
 		t.Fatal("hints should replace list for special commands")
+	}
+}
+
+// TestViewRendersActiveLanguage verifies rows use the selected translation.
+func TestViewRendersActiveLanguage(t *testing.T) {
+	cheats := []*model.Cheat{
+		{Tool: "nmap", Title: model.Text{"en": "Port scan", "tr": "Port taraması"}, Command: "nmap"},
+	}
+	m := New(cheats).Resize(120, 40).SetLang("tr")
+	m.Cursor = 0
+	if v := m.View(nil); !strings.Contains(v, "Port taraması") {
+		t.Fatalf("tr view missing translation: %q", v)
 	}
 }

@@ -3,53 +3,102 @@ tags: [network, iot, security, pentest, enumeration, mqtt, authentication]
 
 actions:
   # === BASIC AUTHENTICATION CHECKS ===
-  - title: impacket-mqtt_check - anonymous login check
-    desc: |
-      Attempts to connect to the MQTT broker without providing any credentials.
-      This is a crucial first step in security assessments to identify misconfigured brokers that allow public access.
-      If successful, it indicates that anyone can potentially subscribe to or publish messages on the broker.
+  - title:
+      en: impacket-mqtt_check - anonymous login check
+      tr: impacket-mqtt_check - anonim giriş denetimi
+    desc:
+      en: |
+        Attempts to connect to the MQTT broker without providing any credentials.
+        This is a crucial first step in security assessments to identify misconfigured brokers that allow public access.
+        If successful, it indicates that anyone can potentially subscribe to or publish messages on the broker.
+      tr: |
+        MQTT aracısına hiçbir kimlik bilgisi vermeden bağlanmayı dener.
+        Herkese açık erişime izin veren yanlış yapılandırılmış aracıları belirlemek için güvenlik değerlendirmelerinde kritik ilk adımdır.
+        Başarılı olursa herkesin aracıda konulara abone olabileceğini veya ileti yayımlayabileceğini gösterir.
     command: "impacket-mqtt_check {{target_ip}}"
 
-  - title: impacket-mqtt_check - basic credential check
-    desc: |
-      Tests a specific username and password against the MQTT service.
-      Use this command when you have obtained potential credentials through reconnaissance or default password lists.
-      It helps verify if the provided credentials grant access to the message queuing telemetry transport service.
+  - title:
+      en: impacket-mqtt_check - basic credential check
+      tr: impacket-mqtt_check - temel kimlik bilgisi denetimi
+    desc:
+      en: |
+        Tests a specific username and password against the MQTT service.
+        Use this command when you have obtained potential credentials through reconnaissance or default password lists.
+        It helps verify if the provided credentials grant access to the message queuing telemetry transport service.
+      tr: |
+        MQTT hizmetine karşı belirli bir kullanıcı adı ve parolayı test eder.
+        Keşif veya varsayılan parola listeleriyle olası kimlik bilgileri elde ettiğinizde bu komutu kullanın.
+        Sağlanan kimlik bilgilerinin ileti kuyruk telemetri taşıma hizmetine erişim verip vermediğini doğrulamaya yardımcı olur.
     command: "impacket-mqtt_check {{username}}:{{password}}@{{target_ip}}"
 
-  - title: impacket-mqtt_check - domain authentication check
-    desc: |
-      Performs an authentication check using domain-qualified credentials.
-      This is useful in corporate environments where MQTT brokers might be integrated with Active Directory or other identity providers.
-      The format follows the standard Impacket target syntax: domain/username:password@target.
+  - title:
+      en: impacket-mqtt_check - domain authentication check
+      tr: impacket-mqtt_check - etki alanı kimlik doğrulama denetimi
+    desc:
+      en: |
+        Performs an authentication check using domain-qualified credentials.
+        This is useful in corporate environments where MQTT brokers might be integrated with Active Directory or other identity providers.
+        The format follows the standard Impacket target syntax: domain/username:password@target.
+      tr: |
+        Etki alanı nitelikli kimlik bilgileriyle kimlik doğrulama denetimi yapar.
+        MQTT aracılarının Active Directory veya diğer kimlik sağlayıcılarla bütünleşik olabileceği kurumsal ortamlarda kullanışlıdır.
+        Biçim standart Impacket hedef sözdizimini izler: etki-alanı/kullanıcı-adı:parola@hedef.
     command: "impacket-mqtt_check {{domain}}/{{username}}:{{password}}@{{target_ip}}"
 
   # === ADVANCED CONNECTION OPTIONS ===
-  - title: impacket-mqtt_check - secure connection with custom port
-    desc: |
-      Connects to the MQTT broker using SSL/TLS encryption on a non-standard port.
-      Many secure MQTT (MQTTS) implementations use port 8883 instead of the default 1883.
-      Use the -ssl flag to ensure the tool attempts an encrypted handshake with the target.
+  - title:
+      en: impacket-mqtt_check - secure connection with custom port
+      tr: impacket-mqtt_check - özel portla güvenli bağlantı
+    desc:
+      en: |
+        Connects to the MQTT broker using SSL/TLS encryption on a non-standard port.
+        Many secure MQTT (MQTTS) implementations use port 8883 instead of the default 1883.
+        Use the -ssl flag to ensure the tool attempts an encrypted handshake with the target.
+      tr: |
+        Standart dışı bir portta SSL/TLS şifrelemesiyle MQTT aracısına bağlanır.
+        Birçok güvenli MQTT (MQTTS) uygulaması varsayılan 1883 yerine 8883 portunu kullanır.
+        Aracın hedefle şifreli el sıkışma girişiminde bulunması için -ssl bayrağını kullanın.
     command: "impacket-mqtt_check -ssl -port {{port|8883}} {{target_ip}}"
 
-  - title: impacket-mqtt_check - custom client identifier
-    desc: |
-      Specifies a fixed Client ID to be used during the MQTT connection phase.
-      By default, the tool generates a random ID, but some brokers may restrict connections to specific ID patterns or known devices.
-      Setting a custom ID can help in bypassing certain ACLs or simulating a specific IoT device.
+  - title:
+      en: impacket-mqtt_check - custom client identifier
+      tr: impacket-mqtt_check - özel istemci tanımlayıcısı
+    desc:
+      en: |
+        Specifies a fixed Client ID to be used during the MQTT connection phase.
+        By default, the tool generates a random ID, but some brokers may restrict connections to specific ID patterns or known devices.
+        Setting a custom ID can help in bypassing certain ACLs or simulating a specific IoT device.
+      tr: |
+        MQTT bağlantı aşamasında kullanılacak sabit bir İstemci Kimliği belirtir.
+        Araç varsayılan olarak rastgele bir kimlik üretir, ancak bazı aracılar bağlantıları belirli kimlik kalıplarına veya bilinen cihazlara kısıtlayabilir.
+        Özel kimlik ayarlamak belirli ACL'leri atlatmaya veya belirli bir IoT cihazını taklit etmeye yardımcı olabilir.
     command: "impacket-mqtt_check -client-id {{client_id|device_01}} {{target_ip}}"
 
   # === TROUBLESHOOTING AND LOGGING ===
-  - title: impacket-mqtt_check - verbose debug with timestamps
-    desc: |
-      Runs the check in debug mode while prefixing every log entry with a timestamp.
-      This is highly recommended for troubleshooting network timeouts or protocol-level authentication errors.
-      The detailed output reveals the underlying Impacket library calls and the raw responses from the broker.
+  - title:
+      en: impacket-mqtt_check - verbose debug with timestamps
+      tr: impacket-mqtt_check - zaman damgalı ayrıntılı hata ayıklama
+    desc:
+      en: |
+        Runs the check in debug mode while prefixing every log entry with a timestamp.
+        This is highly recommended for troubleshooting network timeouts or protocol-level authentication errors.
+        The detailed output reveals the underlying Impacket library calls and the raw responses from the broker.
+      tr: |
+        Denetimi hata ayıklama modunda çalıştırır ve her günlük girdisinin başına zaman damgası ekler.
+        Ağ zaman aşımlarını veya protokol düzeyi kimlik doğrulama hatalarını gidermek için şiddetle önerilir.
+        Ayrıntılı çıktı, temel Impacket kütüphane çağrılarını ve aracının ham yanıtlarını ortaya çıkarır.
     command: "impacket-mqtt_check -debug -ts {{target_ip}}"
 
-  - title: impacket-mqtt_check - custom port connection
-    desc: |
-      Tests the MQTT service on a specific port without using SSL.
-      This is useful when the MQTT service is hosted on an alternative port (e.g., 1884) to avoid detection or conflict.
-      Always verify the port status with a port scanner like nmap before running this command.
+  - title:
+      en: impacket-mqtt_check - custom port connection
+      tr: impacket-mqtt_check - özel port bağlantısı
+    desc:
+      en: |
+        Tests the MQTT service on a specific port without using SSL.
+        This is useful when the MQTT service is hosted on an alternative port (e.g., 1884) to avoid detection or conflict.
+        Always verify the port status with a port scanner like nmap before running this command.
+      tr: |
+        SSL kullanmadan belirli bir portta MQTT hizmetini test eder.
+        MQTT hizmeti tespit veya çakışmadan kaçınmak için alternatif bir portta (ör. 1884) barındırıldığında kullanışlıdır.
+        Bu komutu çalıştırmadan önce port durumunu nmap gibi bir port tarayıcıyla doğrulayın.
     command: "impacket-mqtt_check -port {{port|1883}} {{target_ip}}"

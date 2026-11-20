@@ -3,101 +3,185 @@ tags: [recon, enumeration, osint, security, pentest, infrastructure]
 
 actions:
 # === DISCOVERY ACTIONS ===
- - title: tldfinder - basic TLD discovery
-   desc: |
-     Performs a standard discovery scan for the specified domain name. This command is 
-     the primary way to identify private or internal top-level domains associated with an 
-     organization. It helps mapping the extended digital footprint that isn't always 
-     visible via standard subdomain enumeration.
+ - title:
+     en: tldfinder - basic TLD discovery
+     tr: tldfinder - temel TLD keşfi
+   desc:
+     en: |
+       Performs a standard discovery scan for the specified domain name. This command is 
+       the primary way to identify private or internal top-level domains associated with an 
+       organization. It helps mapping the extended digital footprint that isn't always 
+       visible via standard subdomain enumeration.
+     tr: |
+       Belirtilen alan adı için standart keşif taraması yapar.
+       Kuruluşla ilişkili özel veya dahili üst düzey alan adlarını belirlemenin birincil komutudur.
+       Standart alt alan adı numaralandırmayla her zaman görünmeyen genişletilmiş dijital ayak izini çıkarmaya yardımcı olur.
    command: "tldfinder -d {{target_domain}}"
 
- - title: tldfinder - comprehensive discovery
-   desc: |
-     Uses all available sources to find domains and private TLDs, ensuring maximum 
-     coverage. While this mode is slower than the default scan, it provides the most 
-     thorough results by querying every supported provider. Use this when performing 
-     deep reconnaissance where missing a single asset could be critical.
+ - title:
+     en: tldfinder - comprehensive discovery
+     tr: tldfinder - kapsamlı keşif
+   desc:
+     en: |
+       Uses all available sources to find domains and private TLDs, ensuring maximum 
+       coverage. While this mode is slower than the default scan, it provides the most 
+       thorough results by querying every supported provider. Use this when performing 
+       deep reconnaissance where missing a single asset could be critical.
+     tr: |
+       Tüm kaynakları kullanarak alan adlarını ve özel TLD'leri bulur; azami kapsama sağlar.
+       Varsayılan taramadan yavaş olsa da desteklenen her sağlayıcıyı sorgulayarak en kapsamlı sonuçları verir.
+       Tek bir varlığın bile kaçırılmasının kritik olduğu derin keşifte kullanın.
    command: "tldfinder -d {{target_domain}} -all"
 
- - title: tldfinder - custom discovery mode
-   desc: |
-     Changes the enumeration logic to focus on specific types of discovery such as dns, 
-     tld, or domain. This allows the researcher to pivot their strategy based on the 
-     initial findings or specific target infrastructure requirements. The default 
-     mode is usually dns, but tld mode is specialized for finding unique suffixes.
+ - title:
+     en: tldfinder - custom discovery mode
+     tr: tldfinder - özel keşif kipi
+   desc:
+     en: |
+       Changes the enumeration logic to focus on specific types of discovery such as dns, 
+       tld, or domain. This allows the researcher to pivot their strategy based on the 
+       initial findings or specific target infrastructure requirements. The default 
+       mode is usually dns, but tld mode is specialized for finding unique suffixes.
+     tr: |
+       dns, tld veya domain gibi belirli keşif türlerine odaklanmak için numaralandırma mantığını değiştirir.
+       Araştırmacının ilk bulgulara veya hedef altyapı gereksinimlerine göre strateji değiştirmesini sağlar.
+       Varsayılan kip genelde dns'tir; tld kipi benzersiz sonekleri bulmada uzmanlaşmıştır.
    command: "tldfinder -d {{target_domain}} -dm {{mode|tld}}"
 
 # === FILTERING AND SOURCES ===
- - title: tldfinder - filter by specific sources
-   desc: |
-     Restricts the discovery process to a comma-separated list of specific sources. 
-     This is useful for focusing on providers that are known to have high-quality 
-     data for a specific region or target type. It also helps in avoiding sources 
-     that may be slow or currently experiencing downtime.
+ - title:
+     en: tldfinder - filter by specific sources
+     tr: tldfinder - belirli kaynaklarla filtreleme
+   desc:
+     en: |
+       Restricts the discovery process to a comma-separated list of specific sources. 
+       This is useful for focusing on providers that are known to have high-quality 
+       data for a specific region or target type. It also helps in avoiding sources 
+       that may be slow or currently experiencing downtime.
+     tr: |
+       Keşif sürecini virgülle ayrılmış belirli kaynak listesiyle sınırlar.
+       Belirli bölge veya hedef türü için yüksek kaliteli verisi bilinen sağlayıcılara odaklanmak için yararlıdır.
+       Yavaş veya o an kapalı kaynaklardan kaçınmaya da yardımcı olur.
    command: "tldfinder -d {{target_domain}} -s {{sources|censys,whoisxmlapi}}"
 
- - title: tldfinder - exclude specific sources
-   desc: |
-     Skips the specified sources during the enumeration process to save time or avoid 
-     rate limits. If a particular source is consistently failing or providing duplicate 
-     data, excluding it can significantly streamline the discovery workflow. Use the 
-     -ls flag first to identify the exact names of the sources you wish to exclude.
+ - title:
+     en: tldfinder - exclude specific sources
+     tr: tldfinder - belirli kaynakları hariç tutma
+   desc:
+     en: |
+       Skips the specified sources during the enumeration process to save time or avoid 
+       rate limits. If a particular source is consistently failing or providing duplicate 
+       data, excluding it can significantly streamline the discovery workflow. Use the 
+       -ls flag first to identify the exact names of the sources you wish to exclude.
+     tr: |
+       Numaralandırma sırasında belirtilen kaynakları atlayarak zaman kazanır veya hız sınırlarına takılmamayı sağlar.
+       Belirli bir kaynak sürekli başarısız oluyorsa veya yinelenen veri üretiyorsa çıkarmak keşif iş akışını ciddi ölçüde hızlandırır.
+       Önce -ls flag'iyle hariç tutacağınız kaynakların tam adlarını belirleyin.
    command: "tldfinder -d {{target_domain}} -es {{excluded_sources|dnsrepo}}"
 
- - title: tldfinder - match specific domain patterns
-   desc: |
-     Filters the output to only display domains that match a specific string or 
-     a list provided in a file. This is helpful when looking for specific sub-brands 
-     or environments (like "dev" or "prod") within a massive list of results. It 
-     reduces manual work by focusing only on relevant patterns for the engagement.
+ - title:
+     en: tldfinder - match specific domain patterns
+     tr: tldfinder - belirli alan kalıplarıyla eşleşme
+   desc:
+     en: |
+       Filters the output to only display domains that match a specific string or 
+       a list provided in a file. This is helpful when looking for specific sub-brands 
+       or environments (like "dev" or "prod") within a massive list of results. It 
+       reduces manual work by focusing only on relevant patterns for the engagement.
+     tr: |
+       Çıktıyı, belirli bir dizeyle veya dosyadaki listeyle eşleşen alan adlarıyla sınırlamak için filtreler.
+       Devasa sonuç listesinde belirli alt markaları veya ortamları (örn. dev veya prod) ararken yararlıdır.
+       Yalnızca ilgili kalıplara odaklanarak manuel işi azaltır.
    command: "tldfinder -d {{target_domain}} -m {{match_pattern|dev}}"
 
 # === RESOLUTION AND OUTPUT ===
- - title: tldfinder - resolve active domains
-   desc: |
-     Attempts to resolve the discovered domains to ensure they are currently active. 
-     This action filters out historical or dead records, providing a list of 
-     reachable targets for further exploitation or vulnerability scanning. Note 
-     that this increases network traffic and may be detected by security monitoring.
+ - title:
+     en: tldfinder - resolve active domains
+     tr: tldfinder - aktif alanları çözümleme
+   desc:
+     en: |
+       Attempts to resolve the discovered domains to ensure they are currently active. 
+       This action filters out historical or dead records, providing a list of 
+       reachable targets for further exploitation or vulnerability scanning. Note 
+       that this increases network traffic and may be detected by security monitoring.
+     tr: |
+       Keşfedilen alan adlarını çözümleyerek güncel aktif olduklarından emin olmaya çalışır.
+       Geçmiş veya ölü kayıtları eleyerek ileri sömürü veya zafiyet taraması için ulaşılabilir hedef listesi verir.
+       Ağ trafiğini artırdığını ve güvenlik izlemece tespit edilebileceğini unutmayın.
    command: "tldfinder -d {{target_domain}} -active"
 
- - title: tldfinder - include IP addresses
-   desc: |
-     Displays the IP addresses associated with active domains found during the scan. 
-     This requirement necessitates the use of the -active flag to perform the DNS 
-     resolution. It provides immediate context regarding the hosting environment 
-     and allows for IP-based filtering or grouping of assets.
+ - title:
+     en: tldfinder - include IP addresses
+     tr: tldfinder - IP adreslerini dahil etme
+   desc:
+     en: |
+       Displays the IP addresses associated with active domains found during the scan. 
+       This requirement necessitates the use of the -active flag to perform the DNS 
+       resolution. It provides immediate context regarding the hosting environment 
+       and allows for IP-based filtering or grouping of assets.
+     tr: |
+       Tarama sırasında bulunan aktif alanlarla ilişkili IP adreslerini gösterir.
+       DNS çözümlemesi gerektiğinden -active flag'inin kullanılmasını zorunlu kılar.
+       Barındırma ortamına dair anında bağlam sağlar ve varlıkların IP'ye göre filtrelenip gruplanmasına olanak tanır.
    command: "tldfinder -d {{target_domain}} -active -oI"
 
- - title: tldfinder - structured JSON output
-   desc: |
-     Exports the discovery results into a JSON Lines format for easy processing 
-     by other tools. This is the preferred method for integrating tldfinder into 
-     automated CI/CD pipelines or custom reconnaissance frameworks. It captures 
-     all metadata including the source of each found domain if configured.
+ - title:
+     en: tldfinder - structured JSON output
+     tr: tldfinder - yapısal JSON çıktısı
+   desc:
+     en: |
+       Exports the discovery results into a JSON Lines format for easy processing 
+       by other tools. This is the preferred method for integrating tldfinder into 
+       automated CI/CD pipelines or custom reconnaissance frameworks. It captures 
+       all metadata including the source of each found domain if configured.
+     tr: |
+       Keşif sonuçlarını diğer araçlarca kolay işlenen JSON Satırları biçiminde dışa aktarır.
+       Otomatik CI/CD hatlarına veya özel keşif çerçevelerine tldfinder entegre etmenin tercih edilen yöntemidir.
+       Yapılandırılırsa her bulunan alanın kaynağı dahil tüm üstveriyi yakalar.
    command: "tldfinder -d {{target_domain}} -oJ -o {{output_file|results.json}}"
 
 # === UTILITIES ===
- - title: tldfinder - silent mode for piping
-   desc: |
-     Suppresses the banner and all informational messages, outputting only the 
-     discovered domains. This is essential when piping the output directly into 
-     other tools like httpx, nmap, or subfinder. It prevents errors caused by 
-     non-domain strings being passed down the command line pipeline.
+ - title:
+     en: tldfinder - silent mode for piping
+     tr: tldfinder - aktarma için sessiz kip
+   desc:
+     en: |
+       Suppresses the banner and all informational messages, outputting only the 
+       discovered domains. This is essential when piping the output directly into 
+       other tools like httpx, nmap, or subfinder. It prevents errors caused by 
+       non-domain strings being passed down the command line pipeline.
+     tr: |
+       Banner ve bilgi mesajlarını bastırıp yalnızca keşfedilen alan adlarını gösterir.
+       Çıktıyı httpx, nmap veya subfinder gibi araçlara doğrudan aktarmak için gereklidir.
+       Alan adı dışı dizelerin komut hattına karışıp hataya yol açmasını engeller.
    command: "tldfinder -d {{target_domain}} -silent"
 
- - title: tldfinder - list all available sources
-   desc: |
-     Prints a comprehensive list of all data sources currently supported by the 
-     tool. This is useful for verifying which providers are active and checking 
-     if you have the necessary API keys configured for paid services. It should 
-     be run periodically to see new sources added in tool updates.
+ - title:
+     en: tldfinder - list all available sources
+     tr: tldfinder - kullanılabilir tüm kaynakları listeleme
+   desc:
+     en: |
+       Prints a comprehensive list of all data sources currently supported by the 
+       tool. This is useful for verifying which providers are active and checking 
+       if you have the necessary API keys configured for paid services. It should 
+       be run periodically to see new sources added in tool updates.
+     tr: |
+       Araçça desteklenen tüm veri kaynaklarının kapsamlı listesini yazdırır.
+       Hangi sağlayıcıların aktif olduğunu ve ücretli servisler için gerekli API anahtarlarına sahip olup olmadığınızı doğrulamak için yararlıdır.
+       Araç güncellemelerinde eklenen yeni kaynakları görmek için düzenli çalıştırılmalıdır.
    command: "tldfinder -ls"
 
- - title: tldfinder - update tool
-   desc: |
-     Updates the tldfinder binary to the latest available version from the 
-     official repository. Keeping the tool updated ensures you have the latest 
-     source modules, bug fixes, and performance improvements. It may require 
-     write permissions to the directory where the binary is located.
+ - title:
+     en: tldfinder - update tool
+     tr: tldfinder - aracı güncelleme
+   desc:
+     en: |
+       Updates the tldfinder binary to the latest available version from the 
+       official repository. Keeping the tool updated ensures you have the latest 
+       source modules, bug fixes, and performance improvements. It may require 
+       write permissions to the directory where the binary is located.
+     tr: |
+       tldfinder ikilisini resmi depodaki en son sürüme günceller.
+       Aracı güncel tutmak en yeni kaynak modüllere, hata düzeltmelerine ve performans iyileştirmelerine sahip olmanızı sağlar.
+       İkili dosyanın bulunduğu dizine yazma izni gerektirebilir.
    command: "tldfinder -up"

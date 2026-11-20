@@ -3,68 +3,131 @@ tags: [active-directory, kerberos, as-rep-roasting, pentest, enumeration, securi
 
 actions:
   # === ENUMERATION AND DISCOVERY ===
-  - title: impacket-GetNPUsers - list vulnerable users from file
-    desc: |
-      This command iterates through a list of usernames to identify accounts that do not require Kerberos preauthentication. 
-      It is a vital reconnaissance step in Active Directory environments to find targets for AS-REP roasting. 
-      If a user is found with preauth disabled, their TGT can be requested without knowing their password.
+  - title:
+      en: impacket-GetNPUsers - list vulnerable users from file
+      tr: impacket-GetNPUsers - dosyadan savunmasız kullanıcıları listeleme
+    desc:
+      en: |
+        This command iterates through a list of usernames to identify accounts that do not require Kerberos preauthentication. 
+        It is a vital reconnaissance step in Active Directory environments to find targets for AS-REP roasting. 
+        If a user is found with preauth disabled, their TGT can be requested without knowing their password.
+      tr: |
+        Kerberos ön kimlik doğrulaması gerektirmeyen hesapları bulmak için kullanıcı adı listesindeki hesapları tek tek dener.
+        AS-REP roasting hedeflerini bulmak için Active Directory ortamlarında hayati bir keşif adımıdır.
+        Ön kimlik doğrulaması devre dışı bir kullanıcı bulunursa TGT'si parolası bilinmeden istenebilir.
     command: "impacket-GetNPUsers {{domain}}/ -usersfile {{users_file}} -dc-ip {{dc_ip}}"
 
-  - title: impacket-GetNPUsers - query specific user for preauth status
-    desc: |
-      Checks if a specific, known username has the 'Do not require Kerberos preauthentication' attribute set.
-      Use this when you have a high-value target account and want to verify if it's susceptible to AS-REP roasting.
-      This command does not request the hash unless the -request flag is added, making it less noisy.
+  - title:
+      en: impacket-GetNPUsers - query specific user for preauth status
+      tr: impacket-GetNPUsers - belirli kullanıcının ön kimlik doğrulama durumunu sorgulama
+    desc:
+      en: |
+        Checks if a specific, known username has the 'Do not require Kerberos preauthentication' attribute set.
+        Use this when you have a high-value target account and want to verify if it's susceptible to AS-REP roasting.
+        This command does not request the hash unless the -request flag is added, making it less noisy.
+      tr: |
+        Bilinen belirli bir kullanıcı adında 'Kerberos ön kimlik doğrulaması gerekmez' özniteliğinin ayarlı olup olmadığını denetler.
+        Yüksek değerli bir hedef hesabınız varsa AS-REP roasting'e açık olup olmadığını doğrulamak için kullanın.
+        Bu komut -request bayrağı eklenmedikçe hash istemez, bu yüzden daha az gürültülüdür.
     command: "impacket-GetNPUsers {{domain}}/{{username}} -dc-ip {{dc_ip}}"
 
   # === EXPLOITATION (AS-REP ROASTING) ===
-  - title: impacket-GetNPUsers - request and output hashes for cracking
-    desc: |
-      Requests the AS-REP (Authentication Service Response) for users without preauthentication and outputs the crackable hash.
-      The output is displayed in the terminal by default and is formatted for offline cracking tools.
-      This is the primary method for performing an AS-REP roasting attack to obtain user credentials.
+  - title:
+      en: impacket-GetNPUsers - request and output hashes for cracking
+      tr: impacket-GetNPUsers - kırma için hash isteme ve çıktılama
+    desc:
+      en: |
+        Requests the AS-REP (Authentication Service Response) for users without preauthentication and outputs the crackable hash.
+        The output is displayed in the terminal by default and is formatted for offline cracking tools.
+        This is the primary method for performing an AS-REP roasting attack to obtain user credentials.
+      tr: |
+        Ön kimlik doğrulaması olmayan kullanıcılar için AS-REP yanıtını ister ve kırılabilir hash'i çıktılar.
+        Çıktı varsayılan olarak terminalde görüntülenir ve çevrimdışı kırma araçları için biçimlendirilmiştir.
+        Kullanıcı kimlik bilgilerini elde etmek için AS-REP roasting saldırısını gerçekleştirmenin birincil yöntemidir.
     command: "impacket-GetNPUsers {{domain}}/ -usersfile {{users_file}} -request -dc-ip {{dc_ip}}"
 
-  - title: impacket-GetNPUsers - export hashes to file for Hashcat
-    desc: |
-      Requests TGTs for vulnerable users and saves the resulting hashes into a file specifically formatted for Hashcat.
-      The default format for Hashcat (mode 18200) allows for immediate offline brute-forcing or dictionary attacks.
-      Ensure you have write permissions in the directory where the output file is being created.
+  - title:
+      en: impacket-GetNPUsers - export hashes to file for Hashcat
+      tr: impacket-GetNPUsers - Hashcat için hash'leri dosyaya aktarma
+    desc:
+      en: |
+        Requests TGTs for vulnerable users and saves the resulting hashes into a file specifically formatted for Hashcat.
+        The default format for Hashcat (mode 18200) allows for immediate offline brute-forcing or dictionary attacks.
+        Ensure you have write permissions in the directory where the output file is being created.
+      tr: |
+        Savunmasız kullanıcıların TGT'lerini ister ve sonuç hash'leri Hashcat için özel biçimlendirilmiş bir dosyaya kaydeder.
+        Hashcat için varsayılan biçim (mod 18200), doğrudan çevrimdışı kaba kuvvet veya sözlük saldırılarına olanak tanır.
+        Çıktı dosyasının oluşturulduğu dizinde yazma izniniz olduğundan emin olun.
     command: "impacket-GetNPUsers {{domain}}/ -usersfile {{users_file}} -request -format hashcat -outputfile {{output_file|hashes.txt}} -dc-ip {{dc_ip}}"
 
-  - title: impacket-GetNPUsers - export hashes for John the Ripper
-    desc: |
-      Collects AS-REP hashes and saves them in a format compatible with John the Ripper.
-      This is useful if your cracking workflow involves JtR instead of Hashcat.
-      The command targets all users in the provided list and handles the communication with the Domain Controller.
+  - title:
+      en: impacket-GetNPUsers - export hashes for John the Ripper
+      tr: impacket-GetNPUsers - John the Ripper için hash aktarma
+    desc:
+      en: |
+        Collects AS-REP hashes and saves them in a format compatible with John the Ripper.
+        This is useful if your cracking workflow involves JtR instead of Hashcat.
+        The command targets all users in the provided list and handles the communication with the Domain Controller.
+      tr: |
+        AS-REP hash'lerini toplar ve John the Ripper ile uyumlu biçimde kaydeder.
+        Kırma iş akışınız Hashcat yerine JtR kullanıyorsa kullanışlıdır.
+        Komut listedeki tüm kullanıcıları hedefler ve Etki Alanı Denetleyicisiyle iletişimi yönetir.
     command: "impacket-GetNPUsers {{domain}}/ -usersfile {{users_file}} -request -format john -outputfile {{output_file|hashes.jtr}} -dc-ip {{dc_ip}}"
 
   # === AUTHENTICATED QUERIES ===
-  - title: impacket-GetNPUsers - authenticate using NTLM hashes
-    desc: |
-      Performs the query by authenticating as a specific user using their NTLM hashes instead of a plaintext password.
-      This is useful in "Pass-the-Hash" scenarios where you have the hash of a domain user and want to enumerate other accounts.
-      Note that some environments might require valid authentication to query the directory for these attributes.
+  - title:
+      en: impacket-GetNPUsers - authenticate using NTLM hashes
+      tr: impacket-GetNPUsers - NTLM hash'leri ile kimlik doğrulama
+    desc:
+      en: |
+        Performs the query by authenticating as a specific user using their NTLM hashes instead of a plaintext password.
+        This is useful in "Pass-the-Hash" scenarios where you have the hash of a domain user and want to enumerate other accounts.
+        Note that some environments might require valid authentication to query the directory for these attributes.
+      tr: |
+        Düz metin parola yerine NTLM hash'leriyle belirli bir kullanıcı olarak kimlik doğrulayarak sorguyu yapar.
+        Etki alanı kullanıcısının hash'ine sahip olduğunuz ve diğer hesapları numaralandırmak istediğiniz Pass-the-Hash senaryolarında kullanışlıdır.
+        Bazı ortamların bu öznitelikler için dizini sorgulamak üzere geçerli kimlik doğrulama gerektirebileceğini unutmayın.
     command: "impacket-GetNPUsers {{domain}}/{{username}} -hashes {{hash}} -request -dc-ip {{dc_ip}}"
 
-  - title: impacket-GetNPUsers - authenticate using Kerberos ticket (ccache)
-    desc: |
-      Uses an existing Kerberos ticket-granting ticket (TGT) from a ccache file to authenticate the request to the DC.
-      The -k flag tells the tool to use Kerberos, and -no-pass prevents it from prompting for a password.
-      This is a more stealthy approach as it avoids NTLM authentication and leverages existing valid sessions.
+  - title:
+      en: impacket-GetNPUsers - authenticate using Kerberos ticket (ccache)
+      tr: impacket-GetNPUsers - Kerberos bileti (ccache) ile kimlik doğrulama
+    desc:
+      en: |
+        Uses an existing Kerberos ticket-granting ticket (TGT) from a ccache file to authenticate the request to the DC.
+        The -k flag tells the tool to use Kerberos, and -no-pass prevents it from prompting for a password.
+        This is a more stealthy approach as it avoids NTLM authentication and leverages existing valid sessions.
+      tr: |
+        DC'ye isteğin kimliğini doğrulamak için ccache dosyasındaki mevcut Kerberos biletini (TGT) kullanır.
+        -k bayrağı araca Kerberos kullanmasını söyler, -no-pass parola sormasını engeller.
+        NTLM kimlik doğrulamasından kaçındığı ve mevcut geçerli oturumlardan yararlandığı için daha gizli bir yaklaşımdır.
     command: "impacket-GetNPUsers {{domain}}/{{username}} -k -no-pass -dc-ip {{dc_ip}}"
 
   # === ADVANCED OPTIONS ===
-  - title: impacket-GetNPUsers - troubleshoot with debug mode
-    desc: |
-      Runs the tool with verbose debug output enabled to help diagnose connection or authentication issues.
-      This is particularly useful when troubleshooting RPC errors, clock skew issues, or connectivity problems with the Domain Controller.
-      It provides detailed information about the underlying Impacket library calls and Kerberos exchanges.
+  - title:
+      en: impacket-GetNPUsers - troubleshoot with debug mode
+      tr: impacket-GetNPUsers - hata ayıklama moduyla sorun giderme
+    desc:
+      en: |
+        Runs the tool with verbose debug output enabled to help diagnose connection or authentication issues.
+        This is particularly useful when troubleshooting RPC errors, clock skew issues, or connectivity problems with the Domain Controller.
+        It provides detailed information about the underlying Impacket library calls and Kerberos exchanges.
+      tr: |
+        Bağlantı veya kimlik doğrulama sorunlarını teşhis etmek için aracı ayrıntılı hata ayıklama çıktısıyla çalıştırır.
+        Etki Alanı Denetleyicisiyle RPC hataları, saat farkı sorunları veya bağlantı problemlerini giderirken özellikle kullanışlıdır.
+        Temel Impacket kütüphane çağrıları ve Kerberos alışverişleri hakkında ayrıntılı bilgi verir.
     command: "impacket-GetNPUsers {{domain}}/{{username}} -request -debug -dc-ip {{dc_ip}}"
 
-  - title: impacket-GetNPUsers - specify DC hostname
-    desc: |
-      Directs the request to a specific Domain Controller using its hostname instead of just its IP.
-      This can be necessary in environments where Kerberos strictness requires the SPN to match the target hostname.
-      If omitted, the tool usually tries to resolve the domain name to an IP address.
+  - title:
+      en: impacket-GetNPUsers - specify DC hostname
+      tr: impacket-GetNPUsers - DC ana makine adı belirtme
+    desc:
+      en: |
+        Directs the request to a specific Domain Controller using its hostname instead of just its IP.
+        This can be necessary in environments where Kerberos strictness requires the SPN to match the target hostname.
+        If omitted, the tool usually tries to resolve the domain name to an IP address.
+      tr: |
+        İsteği yalnızca IP yerine ana makine adıyla belirli bir Etki Alanı Denetleyicisine yönlendirir.
+        Kerberos katılığının SPN'in hedef ana makine adıyla eşleşmesini gerektirdiği ortamlarda gerekli olabilir.
+        Atlanırsa araç genellikle etki alanı adını bir IP adresine çözümlemeye çalışır.
     command: "impacket-GetNPUsers {{domain}}/ -usersfile {{users_file}} -request -dc-host {{dc_hostname}} -dc-ip {{dc_ip}}"

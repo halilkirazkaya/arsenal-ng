@@ -3,82 +3,159 @@ tags: [android, security, decompiler, reverse-engineering, java, pentest, static
 
 actions:
 # === BASIC USAGE ===
- - title: jadx - basic decompilation
-   desc: |
-     Decompile an APK, DEX, or JAR file into a specified output directory. 
-     This is the standard entry point for reverse engineering Android applications to view their source code.
-     The tool converts Dalvik bytecode back into readable Java classes and extracts the AndroidManifest.xml and resources.
+ - title:
+    en: jadx - basic decompilation
+    tr: jadx - temel derleme çözme
+   desc:
+     en: |
+       Decompile an APK, DEX, or JAR file into a specified output directory. 
+       This is the standard entry point for reverse engineering Android applications to view their source code.
+       The tool converts Dalvik bytecode back into readable Java classes and extracts the AndroidManifest.xml and resources.
+     tr: |
+       Bir APK, DEX veya JAR dosyasını belirtilen bir çıktı dizinine derleme çözümlemeden geçirir.
+       Kaynak kodunu görüntülemek için Android uygulamalarında tersine mühendisliğe başlamanın standart yoludur.
+       Araç, Dalvik bayt kodunu okunabilir Java sınıflarına dönüştürür ve AndroidManifest.xml ile kaynakları çıkarır.
    command: "jadx -d {{output_dir|out}} {{input_file}}"
 
- - title: jadx - decompile source only
-   desc: |
-     Decompile the application but skip the resource decoding process (layouts, drawables, etc.).
-     This is significantly faster than a full decompile and is useful when you only care about the Java/Kotlin logic.
-     Use this to avoid potential errors related to resource parsing in heavily obfuscated apps.
+ - title:
+    en: jadx - decompile source only
+    tr: jadx - yalnızca kaynak kodu çözme
+   desc:
+     en: |
+       Decompile the application but skip the resource decoding process (layouts, drawables, etc.).
+       This is significantly faster than a full decompile and is useful when you only care about the Java/Kotlin logic.
+       Use this to avoid potential errors related to resource parsing in heavily obfuscated apps.
+     tr: |
+       Uygulamanın derlemesini çözer ancak kaynak çözümleme sürecini (yerleşimler, çizimler vb.) atlar.
+       Tam derleme çözümden önemli ölçüde daha hızlıdır ve yalnızca Java/Kotlin mantığıyla ilgilendiğinizde faydalıdır.
+       Yoğun şekilde gizlenmiş uygulamalarda kaynak ayrıştırmayla ilgili olası hatalardan kaçınmak için bunu kullanın.
    command: "jadx -r -s -d {{output_dir|src_only}} {{input_file}}"
 
- - title: jadx - decompile resources only
-   desc: |
-     Extract and decode only the application resources and manifest without decompiling source code.
-     This is useful for analyzing the AndroidManifest.xml for exported components or checking strings.xml for API keys.
-     It saves time when the code logic is not the primary focus of the current analysis task.
+ - title:
+    en: jadx - decompile resources only
+    tr: jadx - yalnızca kaynakları çözme
+   desc:
+     en: |
+       Extract and decode only the application resources and manifest without decompiling source code.
+       This is useful for analyzing the AndroidManifest.xml for exported components or checking strings.xml for API keys.
+       It saves time when the code logic is not the primary focus of the current analysis task.
+     tr: |
+       Kaynak kodu çözmeden yalnızca uygulama kaynaklarını ve bildirimi çıkarıp çözer.
+       Dışa aktarılan bileşenler için AndroidManifest.xml'i analiz etmek veya API anahtarları için strings.xml'i denetlemek amacıyla faydalıdır.
+       Kod mantığı mevcut analiz görevinin birincil odağı değilken zaman kazandırır.
    command: "jadx -s -d {{output_dir|res_only}} {{input_file}}"
 
 # === ADVANCED DECOMPILATION ===
- - title: jadx - enable deobfuscation
-   desc: |
-     Activate the internal deobfuscation engine to rename short or non-printable class and method names.
-     Jadx will generate unique names for mangled identifiers, making the code flow much easier to follow.
-     A mapping file (JOBF) is created in the output directory so you can maintain consistent names across sessions.
+ - title:
+    en: jadx - enable deobfuscation
+    tr: jadx - gizleme çözmeyi etkinleştirme
+   desc:
+     en: |
+       Activate the internal deobfuscation engine to rename short or non-printable class and method names.
+       Jadx will generate unique names for mangled identifiers, making the code flow much easier to follow.
+       A mapping file (JOBF) is created in the output directory so you can maintain consistent names across sessions.
+     tr: |
+       Kısa veya yazdırılamaz sınıf ve yöntem adlarını yeniden adlandırmak için dahili gizleme çözme motorunu etkinleştirir.
+       Jadx, bozulmuş tanımlayıcılar için benzersiz adlar üreterek kod akışını takip etmeyi çok kolaylaştırır.
+       Oturumlar arasında tutarlı adları korumak için çıktı dizininde bir eşleme dosyası (JOBF) oluşturulur.
    command: "jadx --deobf {{input_file}}"
 
- - title: jadx - decompile specific class
-   desc: |
-     Target a specific class for decompilation by providing its full package name.
-     This is extremely efficient for large applications where you only need to investigate a specific logic or vulnerability.
-     It bypasses the need to wait for the entire APK to be processed, saving memory and CPU cycles.
+ - title:
+    en: jadx - decompile specific class
+    tr: jadx - belirli bir sınıfı çözme
+   desc:
+     en: |
+       Target a specific class for decompilation by providing its full package name.
+       This is extremely efficient for large applications where you only need to investigate a specific logic or vulnerability.
+       It bypasses the need to wait for the entire APK to be processed, saving memory and CPU cycles.
+     tr: |
+       Tam paket adını vererek derleme çözümleme için belirli bir sınıfı hedefler.
+       Yalnızca belirli bir mantığı veya zafiyeti incelemeniz gereken büyük uygulamalarda son derece verimlidir.
+       Tüm APK'nin işlenmesini bekleme ihtiyacını ortadan kaldırarak bellek ve CPU döngülerinden tasarruf sağlar.
    command: "jadx --single-class {{class_name}} {{input_file}}"
 
- - title: jadx - export as gradle project
-   desc: |
-     Save the decompiled source code as a structured Gradle project.
-     This allows the output to be imported directly into Android Studio or IntelliJ IDEA for advanced navigation.
-     The tool attempts to recreate the project structure, making it easier to use IDE features like "Find Usages" or "Refactor".
+ - title:
+    en: jadx - export as gradle project
+    tr: jadx - gradle projesi olarak dışa aktarma
+   desc:
+     en: |
+       Save the decompiled source code as a structured Gradle project.
+       This allows the output to be imported directly into Android Studio or IntelliJ IDEA for advanced navigation.
+       The tool attempts to recreate the project structure, making it easier to use IDE features like "Find Usages" or "Refactor".
+     tr: |
+       Çözümlenmiş kaynak kodu yapılandırılmış bir Gradle projesi olarak kaydeder.
+       Çıktının gelişmiş gezinme için doğrudan Android Studio veya IntelliJ IDEA'ya aktarılmasına olanak tanır.
+       Araç, proje yapısını yeniden oluşturmaya çalışarak "Find Usages" veya "Refactor" gibi IDE özelliklerini kullanmayı kolaylaştırır.
    command: "jadx -e -d {{output_dir|gradle_project}} {{input_file}}"
 
 # === OUTPUT & FORMATTING ===
- - title: jadx - output in json format
-   desc: |
-     Change the output format to JSON instead of standard Java files.
-     This is primarily used for automated analysis where other tools or scripts need to parse the structure of the app.
-     The JSON output contains metadata about classes, methods, and their relationships within the binary.
+ - title:
+    en: jadx - output in json format
+    tr: jadx - JSON biçiminde çıktı
+   desc:
+     en: |
+       Change the output format to JSON instead of standard Java files.
+       This is primarily used for automated analysis where other tools or scripts need to parse the structure of the app.
+       The JSON output contains metadata about classes, methods, and their relationships within the binary.
+     tr: |
+       Çıktı biçimini standart Java dosyaları yerine JSON olarak değiştirir.
+       Başta, diğer araçların veya betiklerin uygulamanın yapısını ayrıştırması gereken otomatik analizlerde kullanılır.
+       JSON çıktısı, ikili dosya içindeki sınıflar, yöntemler ve ilişkileri hakkında üstveri içerir.
    command: "jadx --output-format json -d {{output_dir|json_out}} {{input_file}}"
 
- - title: jadx - fallback mode
-   desc: |
-     Force the decompiler into fallback mode to show raw instructions.
-     Use this when the standard decompilation fails or produces "bad code" that doesn't make sense.
-     It provides a more direct representation of the bytecode, which is less readable but more accurate in error scenarios.
+ - title:
+    en: jadx - fallback mode
+    tr: jadx - yedek kip
+   desc:
+     en: |
+       Force the decompiler into fallback mode to show raw instructions.
+       Use this when the standard decompilation fails or produces "bad code" that doesn't make sense.
+       It provides a more direct representation of the bytecode, which is less readable but more accurate in error scenarios.
+     tr: |
+       Ham yönergeleri göstermek için derleme çözücüyü yedek kibe zorlar.
+       Standart derleme çözme başarısız olduğunda veya anlamsız "kötü kod" ürettiğinde bunu kullanın.
+       Bayt kodunun daha doğrudan bir temsilini sağlar; okunması daha zordur ancak hata durumlarında daha doğrudur.
    command: "jadx -m fallback {{input_file}}"
 
 # === TROUBLESHOOTING & PLUGINS ===
- - title: jadx - skip dex checksum verification
-   desc: |
-     Disable the verification of the DEX file checksum before loading.
-     This is often required for analyzing malware or APKs that have been manually tampered with to break analysis tools.
-     By skipping the check, Jadx can process files that would otherwise be rejected as "corrupted".
+ - title:
+    en: jadx - skip dex checksum verification
+    tr: jadx - DEX sağlama toplamı doğrulamasını atlama
+   desc:
+     en: |
+       Disable the verification of the DEX file checksum before loading.
+       This is often required for analyzing malware or APKs that have been manually tampered with to break analysis tools.
+       By skipping the check, Jadx can process files that would otherwise be rejected as "corrupted".
+     tr: |
+       Yüklemeden önce DEX dosyası sağlama toplamının doğrulanmasını devre dışı bırakır.
+       Analiz araçlarını bozmak için elle kurcalanmış zararlı yazılımları veya APK'leri analiz ederken sıklıkla gerekir.
+       Denetimi atlayarak Jadx, aksi halde "bozuk" diye reddedilecek dosyaları işleyebilir.
    command: "jadx -Pdex-input.verify-checksum=no {{input_file}}"
 
- - title: jadx - quiet logging
-   desc: |
-     Set the log level to QUIET to suppress all output except for critical errors.
-     This is recommended when using Jadx as part of a larger automation script or CI/CD pipeline.
-     It prevents the console from being flooded with progress percentages and informational messages.
+ - title:
+    en: jadx - quiet logging
+    tr: jadx - sessiz günlükleme
+   desc:
+     en: |
+       Set the log level to QUIET to suppress all output except for critical errors.
+       This is recommended when using Jadx as part of a larger automation script or CI/CD pipeline.
+       It prevents the console from being flooded with progress percentages and informational messages.
+     tr: |
+       Kritik hatalar dışındaki tüm çıktıyı bastırmak için günlük düzeyini QUIET olarak ayarlar.
+       Jadx'i daha büyük bir otomasyon betiğinin veya CI/CD hattının parçası olarak kullanırken önerilir.
+       Konsolun ilerleme yüzdeleri ve bilgi mesajlarıyla dolmasını engeller.
    command: "jadx --log-level QUIET {{input_file}}"
 
- - title: jadx - list installed plugins
-   desc: |
-     Display a list of all currently installed Jadx plugins.
-     Plugins can extend functionality for different input formats (like Smali) or custom deobfuscation logic.
-     Use this to verify if your environment has the necessary extensions for specific reverse engineering tasks.
+ - title:
+    en: jadx - list installed plugins
+    tr: jadx - kurulu eklentileri listeleme
+   desc:
+     en: |
+       Display a list of all currently installed Jadx plugins.
+       Plugins can extend functionality for different input formats (like Smali) or custom deobfuscation logic.
+       Use this to verify if your environment has the necessary extensions for specific reverse engineering tasks.
+     tr: |
+       O anda kurulu tüm Jadx eklentilerinin listesini gösterir.
+       Eklentiler, farklı girdi biçimleri (Smali gibi) veya özel gizleme çözme mantığı için işlevselliği genişletebilir.
+       Ortamınızın belirli tersine mühendislik görevleri için gerekli uzantılara sahip olduğunu doğrulamak için kullanın.
    command: "jadx plugins --list"

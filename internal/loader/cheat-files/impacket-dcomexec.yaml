@@ -3,82 +3,159 @@ tags: [pentest, lateral-movement, security, windows, active-directory, impacket,
 
 actions:
   # === AUTHENTICATION METHODS ===
-  - title: impacket-dcomexec - basic password authentication
-    desc: |
-      Executes a command on a remote host using a cleartext password. 
-      This is the most straightforward method for lateral movement when valid credentials are available. 
-      It defaults to the ShellWindows DCOM object to execute the specified command.
+  - title:
+      en: impacket-dcomexec - basic password authentication
+      tr: impacket-dcomexec - temel parola kimlik doğrulaması
+    desc:
+      en: |
+        Executes a command on a remote host using a cleartext password. 
+        This is the most straightforward method for lateral movement when valid credentials are available. 
+        It defaults to the ShellWindows DCOM object to execute the specified command.
+      tr: |
+        Açık parolayla uzak hostta komut çalıştırır.
+        Geçerli kimlik mevcutken yatay hareketin en yalın yoludur.
+        Belirtilen komutu çalıştırmak için varsayılan ShellWindows DCOM nesnesini kullanır.
     command: "impacket-dcomexec {{domain|.}}/{{username}}:{{password}}@{{target_ip}} '{{command|whoami}}'"
 
-  - title: impacket-dcomexec - pass-the-hash
-    desc: |
-      Performs remote command execution using NTLM hashes instead of a plaintext password. 
-      The hash must be provided in the LMHASH:NTHASH format; if the LM hash is unknown, use 32 zeros. 
-      This method is vital for moving laterally after extracting hashes from memory or the SAM database without cracking them.
+  - title:
+      en: impacket-dcomexec - pass-the-hash
+      tr: impacket-dcomexec - pass-the-hash
+    desc:
+      en: |
+        Performs remote command execution using NTLM hashes instead of a plaintext password. 
+        The hash must be provided in the LMHASH:NTHASH format; if the LM hash is unknown, use 32 zeros. 
+        This method is vital for moving laterally after extracting hashes from memory or the SAM database without cracking them.
+      tr: |
+        Düz parola yerine NTLM hash ile uzaktan komut çalıştırır.
+        Format LMHASH:NTHASH'tir; LM bilinmiyorsa 32 sıfır kullanın.
+        Bellek veya SAM'den hash çıkardıktan sonra kırmadan ilerlemek için kritiktir.
     command: "impacket-dcomexec -hashes {{lm_hash|00000000000000000000000000000000}}:{{nt_hash}} {{domain|.}}/{{username}}@{{target_ip}} '{{command|hostname}}'"
 
-  - title: impacket-dcomexec - kerberos authentication
-    desc: |
-      Uses Kerberos tickets for authentication instead of NTLM, which is useful in environments where NTLM is disabled. 
-      You must provide the -k flag and ensure you have a valid Kerberos ticket in your cache (KRB5CCNAME). 
-      Specifying the -dc-ip is often required to resolve the Domain Controller's address correctly during the ticket validation process.
+  - title:
+      en: impacket-dcomexec - kerberos authentication
+      tr: impacket-dcomexec - kerberos kimlik doğrulaması
+    desc:
+      en: |
+        Uses Kerberos tickets for authentication instead of NTLM, which is useful in environments where NTLM is disabled. 
+        You must provide the -k flag and ensure you have a valid Kerberos ticket in your cache (KRB5CCNAME). 
+        Specifying the -dc-ip is often required to resolve the Domain Controller's address correctly during the ticket validation process.
+      tr: |
+        NTLM'nin kapalı olduğu ortamlarda Kerberos biletleriyle kimlik doğrular.
+        -k bayrağı ve önbellekte geçerli bilet (KRB5CCNAME) gerekir.
+        Bilet doğrulamada DC adresi için -dc-ip genelde şarttır.
     command: "impacket-dcomexec -k -no-pass -dc-ip {{dc_ip}} {{domain}}/{{username}}@{{target_hostname}} '{{command}}'"
 
   # === DCOM OBJECT SELECTION ===
-  - title: impacket-dcomexec - use MMC20.Application object
-    desc: |
-      Leverages the MMC20.Application DCOM object to execute commands on the target. 
-      Different DCOM objects can be used to bypass specific security controls or detection patterns that might monitor only the default object. 
-      The MMC20 object is a common alternative that provides similar execution capabilities as ShellWindows.
+  - title:
+      en: impacket-dcomexec - use MMC20.Application object
+      tr: impacket-dcomexec - MMC20.Application nesnesi kullanma
+    desc:
+      en: |
+        Leverages the MMC20.Application DCOM object to execute commands on the target. 
+        Different DCOM objects can be used to bypass specific security controls or detection patterns that might monitor only the default object. 
+        The MMC20 object is a common alternative that provides similar execution capabilities as ShellWindows.
+      tr: |
+        Komutları MMC20.Application DCOM nesnesiyle çalıştırır.
+        Farklı DCOM nesneleri varsayılan nesneyi izleyen tespitleri atlatabilir.
+        MMC20 benzer yürütme yetenekli yaygın alternatiftir.
     command: "impacket-dcomexec -object MMC20 {{domain|.}}/{{username}}:{{password}}@{{target_ip}} '{{command}}'"
 
-  - title: impacket-dcomexec - use ShellBrowserWindow object
-    desc: |
-      Utilizes the ShellBrowserWindow DCOM object for command execution. 
-      This is one of the three supported objects in the tool and might be useful if other objects are restricted by policy. 
-      It essentially provides another path for lateral movement through the DCOM interface.
+  - title:
+      en: impacket-dcomexec - use ShellBrowserWindow object
+      tr: impacket-dcomexec - ShellBrowserWindow nesnesi kullanma
+    desc:
+      en: |
+        Utilizes the ShellBrowserWindow DCOM object for command execution. 
+        This is one of the three supported objects in the tool and might be useful if other objects are restricted by policy. 
+        It essentially provides another path for lateral movement through the DCOM interface.
+      tr: |
+        Komutlar için ShellBrowserWindow DCOM nesnesini kullanır.
+        Diğer nesneler politikayla kısıtlıysa üç desteklenen nesneden biridir.
+        DCOM üzerinden yatay harekete alternatif yol sağlar.
     command: "impacket-dcomexec -object ShellBrowserWindow {{domain|.}}/{{username}}:{{password}}@{{target_ip}} '{{command}}'"
 
   # === EXECUTION MODES ===
-  - title: impacket-dcomexec - semi-interactive shell
-    desc: |
-      Launches a semi-interactive shell on the remote target by omitting the command argument. 
-      This allows the user to run multiple commands sequentially without re-authenticating for every single action. 
-      The tool manages the output by reading it from a temporary file on the ADMIN$ share by default.
+  - title:
+      en: impacket-dcomexec - semi-interactive shell
+      tr: impacket-dcomexec - yarı etkileşimli kabuk
+    desc:
+      en: |
+        Launches a semi-interactive shell on the remote target by omitting the command argument. 
+        This allows the user to run multiple commands sequentially without re-authenticating for every single action. 
+        The tool manages the output by reading it from a temporary file on the ADMIN$ share by default.
+      tr: |
+        Komut argümanı vermeden hedefte yarı etkileşimli kabuk açar.
+        Her komutta yeniden kimlik doğrulamadan art arda komut çalıştırmayı sağlar.
+        Çıktıyı varsayılan ADMIN paylaşımındaki geçici dosyadan okur.
     command: "impacket-dcomexec {{domain|.}}/{{username}}:{{password}}@{{target_ip}}"
 
-  - title: impacket-dcomexec - stealth mode (no output)
-    desc: |
-      Executes the command without establishing an SMB connection to retrieve the output. 
-      This is significantly more stealthy because it avoids creating files on the ADMIN$ share and reduces network traffic. 
-      It is ideal for executing reverse shells or "fire-and-forget" scripts where you do not need to see the command's stdout.
+  - title:
+      en: impacket-dcomexec - stealth mode (no output)
+      tr: impacket-dcomexec - gizli mod (çıktısız)
+    desc:
+      en: |
+        Executes the command without establishing an SMB connection to retrieve the output. 
+        This is significantly more stealthy because it avoids creating files on the ADMIN$ share and reduces network traffic. 
+        It is ideal for executing reverse shells or "fire-and-forget" scripts where you do not need to see the command's stdout.
+      tr: |
+        Çıktıyı almak için SMB bağlantısı kurmadan komutu çalıştırır.
+        ADMIN paylaşımında dosya oluşturmadığı ve ağ trafiğini azalttığı için çok daha gizlidir.
+        Ters kabuk veya ateşle-unut betikler gibi stdout gerekmeyen işlerde idealdir.
     command: "impacket-dcomexec -nooutput {{domain|.}}/{{username}}:{{password}}@{{target_ip}} '{{command}}'"
 
-  - title: impacket-dcomexec - silent command execution
-    desc: |
-      Executes the command directly without invoking 'cmd.exe /c'. 
-      This can help in bypassing simple command-line auditing or detection rules that look for cmd.exe execution patterns. 
-      Note that when using this flag, you cannot use built-in shell commands like 'dir' or 'cd' directly.
+  - title:
+      en: impacket-dcomexec - silent command execution
+      tr: impacket-dcomexec - sessiz komut çalıştırma
+    desc:
+      en: |
+        Executes the command directly without invoking 'cmd.exe /c'. 
+        This can help in bypassing simple command-line auditing or detection rules that look for cmd.exe execution patterns. 
+        Note that when using this flag, you cannot use built-in shell commands like 'dir' or 'cd' directly.
+      tr: |
+        Komutu cmd.exe /c sarmalamadan doğrudan çalıştırır.
+        cmd.exe desenlerini arayan basit komut satırı tespitlerini atlatmaya yardımcı olabilir.
+        Bu bayrakla dir veya cd gibi yerleşik kabuk komutları doğrudan kullanılamaz.
     command: "impacket-dcomexec -silentcommand {{domain|.}}/{{username}}:{{password}}@{{target_ip}} '{{command}}'"
 
   # === ADVANCED CONFIGURATION ===
-  - title: impacket-dcomexec - use powershell as shell type
-    desc: |
-      Forces the semi-interactive shell to use PowerShell as the command processor instead of the default cmd.exe. 
-      This is beneficial when the intended post-exploitation tasks require PowerShell's advanced scripting capabilities. 
-      Be aware that this may trigger AMSI or PowerShell Script Block Logging on modern Windows systems.
+  - title:
+      en: impacket-dcomexec - use powershell as shell type
+      tr: impacket-dcomexec - kabuk türü olarak powershell
+    desc:
+      en: |
+        Forces the semi-interactive shell to use PowerShell as the command processor instead of the default cmd.exe. 
+        This is beneficial when the intended post-exploitation tasks require PowerShell's advanced scripting capabilities. 
+        Be aware that this may trigger AMSI or PowerShell Script Block Logging on modern Windows systems.
+      tr: |
+        Yarı etkileşimli kabuğu cmd.exe yerine PowerShell kullanmaya zorlar.
+        Sonraki aşamalar PowerShell'in gelişmiş betik yeteneklerini gerektirdiğinde faydalı.
+        Modern Windows'ta AMSI veya Betik Bloğu Günlüğünü tetikleyebilir.
     command: "impacket-dcomexec -shell-type powershell {{domain|.}}/{{username}}:{{password}}@{{target_ip}}"
 
-  - title: impacket-dcomexec - custom output share
-    desc: |
-      Specifies a custom SMB share for retrieving command output instead of the default ADMIN$. 
-      This can be useful if the ADMIN$ share is restricted or if you want to use a less suspicious share name. 
-      The user must have write permissions to the specified share for output retrieval to function.
+  - title:
+      en: impacket-dcomexec - custom output share
+      tr: impacket-dcomexec - özel çıktı paylaşımı
+    desc:
+      en: |
+        Specifies a custom SMB share for retrieving command output instead of the default ADMIN$. 
+        This can be useful if the ADMIN$ share is restricted or if you want to use a less suspicious share name. 
+        The user must have write permissions to the specified share for output retrieval to function.
+      tr: |
+        Komut çıktısını almak için varsayılan ADMIN yerine özel SMB paylaşımı belirtir.
+        ADMIN kısıtlıysa veya daha az şüpheli ad isteniyorsa faydalı.
+        Çıktı alımı için paylaşımda yazma yetkisi gerekir.
     command: "impacket-dcomexec -share {{share_name|C$}} {{domain|.}}/{{username}}:{{password}}@{{target_ip}} '{{command}}'"
 
-  - title: impacket-dcomexec - kerberos with AES key
-    desc: |
-      Authenticates using Kerberos by providing the AES hex key (128 or 256 bits). 
-      This is useful in advanced scenarios where the AES key is known but the password or NTLM hash is not available. 
-      It provides a robust way to authenticate against modern Active Directory environments.
+  - title:
+      en: impacket-dcomexec - kerberos with AES key
+      tr: impacket-dcomexec - AES anahtarlı kerberos
+    desc:
+      en: |
+        Authenticates using Kerberos by providing the AES hex key (128 or 256 bits). 
+        This is useful in advanced scenarios where the AES key is known but the password or NTLM hash is not available. 
+        It provides a robust way to authenticate against modern Active Directory environments.
+      tr: |
+        AES hex anahtarıyla (128/256 bit) Kerberos kimlik doğrulaması yapar.
+        Parola veya NTLM hash bilinmiyor ancak AES anahtarı biliniyorsa gelişmiş senaryolarda kullanılır.
+        Modern AD ortamlarında sağlam kimlik doğrulama yolu sağlar.
     command: "impacket-dcomexec -aesKey {{aes_key}} -k -no-pass {{domain}}/{{username}}@{{target_hostname}}"

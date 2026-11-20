@@ -4,61 +4,116 @@ tags: [kubernetes, k8s, security, scanner, pentest, devops, enumeration, rbac]
 # === SCANNING OPERATIONS ===
 
 actions:
-  - title: k8scan - perform basic cluster scan
-    desc: |
-      Initiate a basic, read-only security scan across the entire Kubernetes cluster. This command identifies common misconfigurations and security risks without making changes to the environment. It is ideal for a quick overview of the cluster's current security posture. No administrative changes are made during this process.
+  - title:
+      en: k8scan - perform basic cluster scan
+      tr: k8scan - temel küme taraması yapma
+    desc:
+      en: |
+        Initiate a basic, read-only security scan across the entire Kubernetes cluster. This command identifies common misconfigurations and security risks without making changes to the environment. It is ideal for a quick overview of the cluster's current security posture. No administrative changes are made during this process.
+      tr: |
+        Tüm Kubernetes kümesinde temel, salt okunur bir güvenlik taraması başlatır. Bu komut, ortamda değişiklik yapmadan yaygın yanlış yapılandırmaları ve güvenlik risklerini belirler. Kümenin mevcut güvenlik durumu hakkında hızlı bir genel bakış için idealdir. Bu süreçte hiçbir yönetimsel değişiklik yapılmaz.
     command: "k8scan scan"
 
-  - title: k8scan - scan excluding system namespaces
-    desc: |
-      Run a security scan while skipping system-related namespaces like kube-system and kube-public. This helps focus on user-deployed applications and services where configuration errors are more common. Use this to reduce noise from infrastructure components that are often managed by cloud providers. It streamlines the remediation process for application developers.
+  - title:
+      en: k8scan - scan excluding system namespaces
+      tr: k8scan - sistem ad alanlarını hariç tutarak tarama
+    desc:
+      en: |
+        Run a security scan while skipping system-related namespaces like kube-system and kube-public. This helps focus on user-deployed applications and services where configuration errors are more common. Use this to reduce noise from infrastructure components that are often managed by cloud providers. It streamlines the remediation process for application developers.
+      tr: |
+        kube-system ve kube-public gibi sistemle ilgili ad alanlarını atlayarak bir güvenlik taraması çalıştırır. Yapılandırma hatalarının daha yaygın olduğu kullanıcı dağıtımlı uygulama ve hizmetlere odaklanmaya yardımcı olur. Genellikle bulut sağlayıcılarca yönetilen altyapı bileşenlerinden gelen gürültüyü azaltmak için kullanın. Uygulama geliştiriciler için düzeltme sürecini kolaylaştırır.
     command: "k8scan scan --exclude-system"
 
-  - title: k8scan - scan specific namespace
-    desc: |
-      Target a specific Kubernetes namespace for a focused security evaluation. This is particularly useful in multi-tenant clusters or when auditing a specific project's environment. Ensure you have the necessary RBAC permissions to read resources within the specified namespace. It prevents unnecessary processing of the entire cluster.
+  - title:
+      en: k8scan - scan specific namespace
+      tr: k8scan - belirli bir ad alanını tarama
+    desc:
+      en: |
+        Target a specific Kubernetes namespace for a focused security evaluation. This is particularly useful in multi-tenant clusters or when auditing a specific project's environment. Ensure you have the necessary RBAC permissions to read resources within the specified namespace. It prevents unnecessary processing of the entire cluster.
+      tr: |
+        Odaklı bir güvenlik değerlendirmesi için belirli bir Kubernetes ad alanını hedefler. Çok kiracılı kümelerde veya belirli bir projenin ortamını denetlerken özellikle faydalıdır. Belirtilen ad alandaki kaynakları okumak için gerekli RBAC izinlerine sahip olduğunuzdan emin olun. Tüm kümenin gereksiz işlenmesini önler.
     command: "k8scan scan --namespace {{namespace_name}}"
 
-  - title: k8scan - scan filtered by severity
-    desc: |
-      Filter the scan results to display only findings that match a specific severity level. Available levels usually include CRITICAL, HIGH, MEDIUM, LOW, and ALL. This allows security teams to prioritize remediation efforts on the most impactful vulnerabilities first. It is highly recommended for high-traffic production environments.
+  - title:
+      en: k8scan - scan filtered by severity
+      tr: k8scan - önem derecesine göre filtreli tarama
+    desc:
+      en: |
+        Filter the scan results to display only findings that match a specific severity level. Available levels usually include CRITICAL, HIGH, MEDIUM, LOW, and ALL. This allows security teams to prioritize remediation efforts on the most impactful vulnerabilities first. It is highly recommended for high-traffic production environments.
+      tr: |
+        Tarama sonuçlarını yalnızca belirli bir önem düzeyiyle eşleşen bulguları gösterecek şekilde filtreler. Kullanılabilir düzeyler genellikle CRITICAL, HIGH, MEDIUM, LOW ve ALL içerir. Güvenlik ekiplerinin düzeltme çabalarını önce en etkili zafiyetlere öncelik vererek planlamasına olanak tanır. Yoğun trafikli üretim ortamları için önemle önerilir.
     command: "k8scan scan --severity {{severity_level|CRITICAL}}"
 
-  - title: k8scan - scan specific security category
-    desc: |
-      Perform a scan focused on a specific category of security checks, such as RBAC or Secret Management. This helps in deep-diving into particular areas of concern without processing unrelated findings. Use the list-categories command to see all available audit types supported by the tool. This is useful for targeted compliance checks.
+  - title:
+      en: k8scan - scan specific security category
+      tr: k8scan - belirli bir güvenlik kategorisini tarama
+    desc:
+      en: |
+        Perform a scan focused on a specific category of security checks, such as RBAC or Secret Management. This helps in deep-diving into particular areas of concern without processing unrelated findings. Use the list-categories command to see all available audit types supported by the tool. This is useful for targeted compliance checks.
+      tr: |
+        RBAC veya Gizli Veri (Secret) Yönetimi gibi belirli bir güvenlik denetimi kategorisine odaklı tarama yapar. İlgisiz bulguları işlemeden belirli endişe alanlarına derinlemesine inmeye yardımcı olur. Aracın desteklediği tüm denetim türlerini görmek için list-categories komutunu kullanın. Hedefli uyumluluk denetimleri için faydalıdır.
     command: "k8scan scan --category {{category_name|RBAC}}"
 
-  - title: k8scan - show top findings
-    desc: |
-      Limit the output to only show the top N findings discovered during the scan. This is useful for quickly identifying the most glaring issues in a large cluster with many resources. Use this flag to keep the terminal output concise and actionable. It helps avoid "alert fatigue" during initial assessments.
+  - title:
+      en: k8scan - show top findings
+      tr: k8scan - en önemli bulguları gösterme
+    desc:
+      en: |
+        Limit the output to only show the top N findings discovered during the scan. This is useful for quickly identifying the most glaring issues in a large cluster with many resources. Use this flag to keep the terminal output concise and actionable. It helps avoid "alert fatigue" during initial assessments.
+      tr: |
+        Çıktıyı taramada bulunan yalnızca ilk N bulguyu gösterecek şekilde sınırlar. Çok kaynaklı büyük bir kümedeki en göze çarpan sorunları hızla belirlemek için faydalıdır. Terminal çıktısını öz ve eyleme geçirilebilir tutmak için bu bayrağı kullanın. İlk değerlendirmelerde "uyarı yorgunluğundan" kaçınmaya yardımcı olur.
     command: "k8scan scan --top {{finding_count|10}}"
 
 # === REPORTING AND OUTPUT ===
 
-  - title: k8scan - generate full audit report
-    desc: |
-      Generate comprehensive reports in multiple formats including HTML, JSON, and terminal output simultaneously. This is essential for creating documentation for compliance audits or sharing results with other teams. Custom filenames can be specified to organize periodic audit trails. Ensure you have write permissions in the target directory.
+  - title:
+      en: k8scan - generate full audit report
+      tr: k8scan - tam denetim raporu oluşturma
+    desc:
+      en: |
+        Generate comprehensive reports in multiple formats including HTML, JSON, and terminal output simultaneously. This is essential for creating documentation for compliance audits or sharing results with other teams. Custom filenames can be specified to organize periodic audit trails. Ensure you have write permissions in the target directory.
+      tr: |
+        HTML, JSON ve terminal çıktısı dahil birden çok biçimde kapsamlı raporları eş zamanlı oluşturur. Uyumluluk denetimleri için belge oluşturmak veya sonuçları diğer ekiplerle paylaşmak için gereklidir. Periyodik denetim izlerini düzenlemek için özel dosya adları belirtilebilir. Hedef dizinde yazma izinlerine sahip olduğunuzdan emin olun.
     command: "k8scan scan --output {{output_format|all}} -f {{filename|security-audit}}"
 
-  - title: k8scan - scan and serve report
-    desc: |
-      Run a full cluster scan and immediately launch the built-in web server to view the results. This provides a convenient way to interact with HTML reports without manually opening files. The server will host the report on a specified port, which defaults to 8000 if not provided. This is the fastest way to visualize findings in a browser.
+  - title:
+      en: k8scan - scan and serve report
+      tr: k8scan - tarama yapma ve raporu sunma
+    desc:
+      en: |
+        Run a full cluster scan and immediately launch the built-in web server to view the results. This provides a convenient way to interact with HTML reports without manually opening files. The server will host the report on a specified port, which defaults to 8000 if not provided. This is the fastest way to visualize findings in a browser.
+      tr: |
+        Tam bir küme taraması çalıştırır ve sonuçları görüntülemek için yerleşik web sunucusunu hemen başlatır. Dosyaları elle açmadan HTML raporlarıyla etkileşimin kolay bir yolunu sunar. Sunucu, belirtilmezse varsayılan 8000 portunda raporu barındırır. Bulguları tarayıcıda görselleştirmenin en hızlı yoludur.
     command: "k8scan scan --exclude-system --output html --serve --port {{port|9000}}"
 
 # === UTILITIES AND SERVING ===
 
-  - title: k8scan - serve existing report files
-    desc: |
-      Start a secure HTTP server to host previously generated report files. This command is useful for sharing audit results with colleagues over a network using a temporary endpoint. Note that the server automatically shuts down after 30 minutes for security purposes. You can specify multiple files to be served at once.
+  - title:
+      en: k8scan - serve existing report files
+      tr: k8scan - mevcut rapor dosyalarını sunma
+    desc:
+      en: |
+        Start a secure HTTP server to host previously generated report files. This command is useful for sharing audit results with colleagues over a network using a temporary endpoint. Note that the server automatically shuts down after 30 minutes for security purposes. You can specify multiple files to be served at once.
+      tr: |
+        Önceden üretilmiş rapor dosyalarını barındırmak için güvenli bir HTTP sunucusu başlatır. Bu komut, denetim sonuçlarını geçici bir uç nokta üzerinden ağda meslektaşlarla paylaşmak için faydalıdır. Sunucunun güvenlik amacıyla 30 dakika sonra otomatik kapandığını unutmayın. Aynı anda sunulacak birden çok dosya belirtebilirsiniz.
     command: "k8scan serve {{report_path|reports/security-audit.html}} --port {{port|8000}}"
 
-  - title: k8scan - list available scan categories
-    desc: |
-      Retrieve a list of all supported vulnerability and configuration categories that the tool can audit. This allows users to understand the scope of the scanner and identify specific modules for targeted scans. It is a helpful reference before running category-specific commands. No cluster connectivity is required for this informational command.
+  - title:
+      en: k8scan - list available scan categories
+      tr: k8scan - kullanılabilir tarama kategorilerini listeleme
+    desc:
+      en: |
+        Retrieve a list of all supported vulnerability and configuration categories that the tool can audit. This allows users to understand the scope of the scanner and identify specific modules for targeted scans. It is a helpful reference before running category-specific commands. No cluster connectivity is required for this informational command.
+      tr: |
+        Aracın denetleyebileceği tüm desteklenen zafiyet ve yapılandırma kategorilerinin listesini getirir. Kullanıcıların tarayıcının kapsamını anlamasına ve hedefli taramalar için belirli modülleri belirlemesine olanak tanır. Kategoriye özgü komutları çalıştırmadan önce faydalı bir referanstır. Bu bilgi amaçlı komut için küme bağlantısı gerekmez.
     command: "k8scan list-categories"
 
-  - title: k8scan - show usage examples
-    desc: |
-      Display a collection of practical command-line examples directly in the terminal output. This provides quick access to common usage patterns and advanced flag combinations for users who need a refresher. It is an excellent resource for learning the tool's capabilities without consulting external documentation.
+  - title:
+      en: k8scan - show usage examples
+      tr: k8scan - kullanım örneklerini gösterme
+    desc:
+      en: |
+        Display a collection of practical command-line examples directly in the terminal output. This provides quick access to common usage patterns and advanced flag combinations for users who need a refresher. It is an excellent resource for learning the tool's capabilities without consulting external documentation.
+      tr: |
+        Doğrudan terminal çıktısında pratik komut satırı örneklerinden oluşan bir derleme gösterir. Hatırlatmaya ihtiyaç duyan kullanıcılar için yaygın kullanım kalıplarına ve gelişmiş bayrak kombinasyonlarına hızlı erişim sağlar. Harici belgelere başvurmadan aracın yeteneklerini öğrenmek için mükemmel bir kaynaktır.
     command: "k8scan show-examples"

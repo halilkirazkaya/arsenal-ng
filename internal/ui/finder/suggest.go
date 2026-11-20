@@ -19,6 +19,7 @@ var CommonHints = []Hint{
 	{Name: "domain", Desc: "Target domain (e.g., corp.local)"},
 	{Name: "hash", Desc: "NTLM hash"},
 	{Name: "ip", Desc: "Target IP address (e.g., 10.10.10.10)"},
+	{Name: "language", Desc: "UI language (en, tr)"},
 	{Name: "lhost", Desc: "Local host (your IP)"},
 	{Name: "lport", Desc: "Local port (for reverse shell)"},
 	{Name: "output", Desc: "Output file name"},

@@ -34,7 +34,7 @@ func (m Model) View(variables map[string]string) string {
 
 	// The info box previews the highlighted cheat.
 	if len(m.Filtered) > 0 && m.Cursor >= 0 && m.Cursor < len(m.Filtered) {
-		b.WriteString(InfoBox(m.Filtered[m.Cursor], width))
+		b.WriteString(InfoBox(m.Filtered[m.Cursor], width, m.lang))
 		b.WriteString("\n\n")
 	}
 
@@ -64,5 +64,5 @@ func (m Model) Footer(varCount int) string {
 	if m.Cursor < 0 {
 		cursorPos = 0
 	}
-	return frame.Footer(cursorPos, len(m.Filtered), varCount)
+	return frame.Footer(cursorPos, len(m.Filtered), varCount, m.lang)
 }

@@ -3,85 +3,157 @@ tags: [network, tunneling, pivoting, proxy, security, pentest, port-forwarding, 
 
 actions:
   # === SERVER CONFIGURATION ===
-  - title: chisel - basic server listener
-    desc: |
-      Starts a basic Chisel server listening on a specific port. This command is 
-      typically run on the attacker's machine to receive connections from the victim. 
-      It creates the infrastructure for SSH-over-HTTP tunnels but does not allow 
-      reverse tunneling by default.
+  - title:
+      en: chisel - basic server listener
+      tr: chisel - temel sunucu dinleyicisi
+    desc:
+      en: |
+        Starts a basic Chisel server listening on a specific port. This command is 
+        typically run on the attacker's machine to receive connections from the victim. 
+        It creates the infrastructure for SSH-over-HTTP tunnels but does not allow 
+        reverse tunneling by default.
+      tr: |
+        Belirli bağlantı noktasında dinleyen temel Chisel sunucusu başlatır. Genellikle
+        kurbandan gelen bağlantıları karşılamak için saldırgan makinesinde çalıştırılır.
+        HTTP içinde taşınan SSH tünelleri için altyapı kurar, ancak varsayılan olarak tersine
+        tünellemeye izin vermez.
     command: "chisel server --port {{listen_port|8080}}"
 
-  - title: chisel - server with reverse tunneling
-    desc: |
-      Starts a Chisel server that allows clients to request reverse port forwarding. 
-      The --reverse flag is essential for most penetration testing scenarios where 
-      the attacker needs to reach services inside a private network. It enables 
-      the client to establish a tunnel that points back to its own network.
+  - title:
+      en: chisel - server with reverse tunneling
+      tr: chisel - tersine tünellemeli sunucu
+    desc:
+      en: |
+        Starts a Chisel server that allows clients to request reverse port forwarding. 
+        The --reverse flag is essential for most penetration testing scenarios where 
+        the attacker needs to reach services inside a private network. It enables 
+        the client to establish a tunnel that points back to its own network.
+      tr: |
+        İstemcilerin tersine bağlantı noktası yönlendirme istemesine izin veren Chisel sunucusu başlatır.
+        Saldırganın özel ağ içindeki servislere ulaşması gereken çoğu sızma testi senaryosunda
+        --reverse seçeneği vazgeçilmezdir. İstemcinin kendi ağına dönen tünel kurmasına olanak tanır.
     command: "chisel server --port {{listen_port|8080}} --reverse"
 
-  - title: chisel - authenticated server
-    desc: |
-      Runs a Chisel server requiring a username and password for all incoming connections. 
-      This is a critical security measure when exposing the Chisel server to the public 
-      internet to prevent unauthorized pivoting. The format for credentials is 
-      user:pass, and multiple users can be specified.
+  - title:
+      en: chisel - authenticated server
+      tr: chisel - kimlik doğrulamalı sunucu
+    desc:
+      en: |
+        Runs a Chisel server requiring a username and password for all incoming connections. 
+        This is a critical security measure when exposing the Chisel server to the public 
+        internet to prevent unauthorized pivoting. The format for credentials is 
+        user:pass, and multiple users can be specified.
+      tr: |
+        Gelen tüm bağlantılarda kullanıcı adı ve parola isteyen Chisel sunucusu çalıştırır.
+        Chisel sunucusunu herkese açık internete açarken yetkisiz yönlendirmeyi önlemek için
+        kritik güvenlik önlemidir. Kimlik bilgileri user:pass biçiminde verilir, birden fazla kullanıcı tanımlanabilir.
     command: "chisel server --port {{listen_port|8080}} --auth {{user:pass}} --reverse"
 
   # === CLIENT TUNNELING ===
-  - title: chisel - local port forwarding
-    desc: |
-      Connects to a Chisel server and maps a local port on the client machine to 
-      a destination reachable by the server. Traffic sent to the client's local 
-      port will be tunneled through Chisel to the target address via the server. 
-      This is useful for bypassing outbound firewalls to reach specific services.
+  - title:
+      en: chisel - local port forwarding
+      tr: chisel - yerel bağlantı noktası yönlendirme
+    desc:
+      en: |
+        Connects to a Chisel server and maps a local port on the client machine to 
+        a destination reachable by the server. Traffic sent to the client's local 
+        port will be tunneled through Chisel to the target address via the server. 
+        This is useful for bypassing outbound firewalls to reach specific services.
+      tr: |
+        Chisel sunucusuna bağlanır, istemci makinedeki yerel bağlantı noktasını sunucunun erişebildiği
+        hedefe eşler. İstemcideki yerel bağlantı noktasına gönderilen trafik Chisel üzerinden tünellenerek
+        sunucu aracılığıyla hedef adrese ulaşır. Dışa giden güvenlik duvarlarını aşıp belirli servislere
+        erişmek için yararlıdır.
     command: "chisel client {{server_ip}}:{{server_port}} {{local_port}}:{{remote_target}}:{{remote_port}}"
 
-  - title: chisel - remote port forwarding (reverse)
-    desc: |
-      Connects to a Chisel server and maps a port on the server machine back to 
-      a destination reachable by the client. This allows the attacker (server) 
-      to access services inside the victim's (client) network. Note that the 
-      server must be started with the --reverse flag for this to function.
+  - title:
+      en: chisel - remote port forwarding (reverse)
+      tr: chisel - uzak bağlantı noktası yönlendirme (tersine)
+    desc:
+      en: |
+        Connects to a Chisel server and maps a port on the server machine back to 
+        a destination reachable by the client. This allows the attacker (server) 
+        to access services inside the victim's (client) network. Note that the 
+        server must be started with the --reverse flag for this to function.
+      tr: |
+        Chisel sunucusuna bağlanır, sunucu makinedeki bağlantı noktasını istemcinin erişebildiği
+        hedefe eşler. Saldırganın (sunucu) kurban (istemci) ağındaki servislere erişmesine olanak tanır.
+        Çalışması için sunucunun --reverse seçeneğiyle başlatılması gerekir.
     command: "chisel client {{server_ip}}:{{server_port}} R:{{server_listen_port}}:{{target_addr}}:{{target_port}}"
 
   # === SOCKS PROXYING ===
-  - title: chisel - dynamic socks proxy
-    desc: |
-      Sets up a SOCKS5 proxy on the client machine that tunnels traffic through 
-      the Chisel server. This allows the client to use any tool (like a browser 
-      or proxychains) to route traffic through the server's network location. 
-      The default SOCKS port used in Chisel's internal logic is 1080.
+  - title:
+      en: chisel - dynamic socks proxy
+      tr: chisel - dinamik SOCKS vekili
+    desc:
+      en: |
+        Sets up a SOCKS5 proxy on the client machine that tunnels traffic through 
+        the Chisel server. This allows the client to use any tool (like a browser 
+        or proxychains) to route traffic through the server's network location. 
+        The default SOCKS port used in Chisel's internal logic is 1080.
+      tr: |
+        İstemci makinede trafiği Chisel sunucusu üzerinden tünelleyen SOCKS5 vekili kurar.
+        İstemcinin tarayıcı veya proxychains benzeri her aracıyla trafiği sunucunun bulunduğu ağ
+        üzerinden yönlendirmesine olanak tanır. Chisel iç mantığında varsayılan SOCKS bağlantı noktası 1080 sayıdır.
     command: "chisel client {{server_ip}}:{{server_port}} {{local_socks_port|1080}}:socks"
 
-  - title: chisel - reverse socks proxy
-    desc: |
-      Creates a SOCKS5 proxy on the server machine that routes traffic through 
-      the client machine into the client's internal network. This is the most 
-      common pivoting technique, allowing the attacker to reach the entire internal 
-      subnet of a compromised host. Requires the server to have --reverse enabled.
+  - title:
+      en: chisel - reverse socks proxy
+      tr: chisel - tersine SOCKS vekili
+    desc:
+      en: |
+        Creates a SOCKS5 proxy on the server machine that routes traffic through 
+        the client machine into the client's internal network. This is the most 
+        common pivoting technique, allowing the attacker to reach the entire internal 
+        subnet of a compromised host. Requires the server to have --reverse enabled.
+      tr: |
+        Sunucu makinede trafiği istemci makine üzerinden istemcinin iç ağına yönlendiren SOCKS5 vekili oluşturur.
+        Ele geçirilen makinenin tüm iç alt ağına ulaşmayı sağlayan en yaygın yönlendirme tekniğidir.
+        Sunucuda --reverse seçeneğinin açık olmasını gerektirir.
     command: "chisel client {{server_ip}}:{{server_port}} R:{{socks_port|1080}}:socks"
 
   # === SECURITY AND OPTIMIZATION ===
-  - title: chisel - secure client with fingerprint
-    desc: |
-      Connects to a server while verifying its TLS fingerprint to prevent 
-      Man-in-the-Middle (MITM) attacks. The fingerprint is displayed by the 
-      server when it starts up. This ensures that the client is only talking 
-      to the intended, authorized Chisel server.
+  - title:
+      en: chisel - secure client with fingerprint
+      tr: chisel - parmak iziyle güvenli istemci
+    desc:
+      en: |
+        Connects to a server while verifying its TLS fingerprint to prevent 
+        Man-in-the-Middle (MITM) attacks. The fingerprint is displayed by the 
+        server when it starts up. This ensures that the client is only talking 
+        to the intended, authorized Chisel server.
+      tr: |
+        Ortadaki adam (MITM) saldırılarını önlemek için sunucunun TLS parmak izini doğrulayarak bağlanır.
+        Parmak izi sunucu açılırken görüntülenir. İstemcinin yalnızca amaçlanan, yetkili Chisel sunucusuyla
+        konuştuğunu güvenceye alır.
     command: "chisel client --fingerprint {{fingerprint}} {{server_ip}}:{{server_port}} R:socks"
 
-  - title: chisel - optimized tunnel with compression
-    desc: |
-      Enables GZIP compression on the tunnel stream to reduce bandwidth usage. 
-      This is particularly useful when tunneling large amounts of data or 
-      operating over slow network connections. It may slightly increase CPU 
-      usage on both ends but usually results in better perceived performance.
+  - title:
+      en: chisel - optimized tunnel with compression
+      tr: chisel - sıkıştırmalı iyileştirilmiş tünel
+    desc:
+      en: |
+        Enables GZIP compression on the tunnel stream to reduce bandwidth usage. 
+        This is particularly useful when tunneling large amounts of data or 
+        operating over slow network connections. It may slightly increase CPU 
+        usage on both ends but usually results in better perceived performance.
+      tr: |
+        Bant genişliği tüketimini azaltmak için tünel akışında GZIP sıkıştırmayı açar.
+        Büyük veri aktarırken veya yavaş ağ bağlantılarında çalışırken özellikle yararlıdır.
+        Her iki uçta işlemci yükünü biraz artırabilir, ancak genellikle hissedilir başarımı iyileştirir.
     command: "chisel client {{server_ip}}:{{server_port}} --compress R:socks"
 
-  - title: chisel - persistent client connection
-    desc: |
-      Configures the client to attempt to reconnect indefinitely if the connection 
-      is lost. The --keepalive flag sends heartbeat packets to prevent firewall 
-      timeouts from closing the connection. This is vital for maintaining a 
-      stable foothold in a long-term engagement.
+  - title:
+      en: chisel - persistent client connection
+      tr: chisel - kalıcı istemci bağlantısı
+    desc:
+      en: |
+        Configures the client to attempt to reconnect indefinitely if the connection 
+        is lost. The --keepalive flag sends heartbeat packets to prevent firewall 
+        timeouts from closing the connection. This is vital for maintaining a 
+        stable foothold in a long-term engagement.
+      tr: |
+        Bağlantı koparsa istemciyi süresiz yeniden bağlanacak biçimde yapılandırır.
+        --keepalive seçeneği güvenlik duvarı zaman aşımlarının bağlantıyı kapatmasını önlemek için
+        kalp atışı paketleri gönderir. Uzun süreli çalışmada kararlı tutunma için hayati önem taşır.
     command: "chisel client --keepalive {{interval|30s}} {{server_ip}}:{{server_port}} R:socks"

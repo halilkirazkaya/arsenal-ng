@@ -4,87 +4,164 @@ tags: [recon, scanner, security, pentest, osint, enumeration, shodan, censys]
 actions:
 # === BASIC SEARCH OPERATIONS ===
 
- - title: uncover - basic query search
-   desc: |
-     Performs a basic search using the default engine (Shodan). This is the primary method for finding assets matching a specific dork or keyword across the internet. 
-     The tool requires valid API keys for the engines configured in its provider configuration file. 
-     By default, it returns results in 'ip:port' format.
+ - title:
+     en: uncover - basic query search
+     tr: uncover - temel sorgu araması
+   desc:
+     en: |
+       Performs a basic search using the default engine (Shodan). This is the primary method for finding assets matching a specific dork or keyword across the internet. 
+       The tool requires valid API keys for the engines configured in its provider configuration file. 
+       By default, it returns results in 'ip:port' format.
+     tr: |
+       Varsayılan motoru (Shodan) kullanarak temel bir arama gerçekleştirir. Bu, internette belirli bir dork veya anahtar kelimeyle eşleşen varlıkları bulmanın birincil yöntemidir.
+       Araç, sağlayıcı yapılandırma dosyasında ayarlanan API anahtarlarının geçerli olmasını gerektirir.
+       Varsayılan olarak sonuçları 'ip:port' biçiminde döndürür.
    command: "uncover -q {{query}}"
 
- - title: uncover - search with specific engines
-   desc: |
-     Queries specific search engines or a comma-separated list of engines using the engine flag. This allows you to aggregate data from multiple sources like Censys, FOFA, and Quake simultaneously. 
-     Useful when one engine might have indexed a target that others missed.
-     Common engine values include shodan, censys, fofa, zoomeye, and quake.
+ - title:
+     en: uncover - search with specific engines
+     tr: uncover - belirli motorlarla arama
+   desc:
+     en: |
+       Queries specific search engines or a comma-separated list of engines using the engine flag. This allows you to aggregate data from multiple sources like Censys, FOFA, and Quake simultaneously. 
+       Useful when one engine might have indexed a target that others missed.
+       Common engine values include shodan, censys, fofa, zoomeye, and quake.
+     tr: |
+       Motor bayrağını kullanarak belirli arama motorlarını veya virgülle ayrılmış motor listesini sorgular. Bu, Censys, FOFA ve Quake gibi birden fazla kaynaktan aynı anda veri toplamanıza olanak tanır.
+       Bir motorun gözden kaçırdığı hedefi diğerinin dizine eklemiş olması durumunda faydalıdır.
+       Geçerli motor değerleri arasında shodan, censys, fofa, zoomeye ve quake bulunur.
    command: "uncover -q {{query}} -e {{engine|shodan,censys,fofa}}"
 
- - title: uncover - limit result count
-   desc: |
-     Restricts the number of results returned from the search engine APIs. This is crucial for managing API credit usage and focusing on the most relevant targets. 
-     The default limit is 100, but it can be increased for broad reconnaissance or decreased for quick checks. 
-     Be mindful that high limits may consume significant API credits depending on the provider.
+ - title:
+     en: uncover - limit result count
+     tr: uncover - sonuç sayısı sınırlama
+   desc:
+     en: |
+       Restricts the number of results returned from the search engine APIs. This is crucial for managing API credit usage and focusing on the most relevant targets. 
+       The default limit is 100, but it can be increased for broad reconnaissance or decreased for quick checks. 
+       Be mindful that high limits may consume significant API credits depending on the provider.
+     tr: |
+       Arama motoru API'lerinden döndürülen sonuç sayısını kısıtlar. Bu, API kredisi kullanımını yönetmek ve en ilgili hedeflere odaklanmak için kritiktir.
+       Varsayılan limit 100'dür, ancak geniş keşif için artırılabilir veya hızlı kontroller için azaltılabilir.
+       Sağlayıcıya bağlı olarak yüksek limitlerin önemli miktarda API kredisi tüketebileceğini unutmayın.
    command: "uncover -q {{query}} -l {{limit|200}}"
 
 # === ADVANCED DISCOVERY ===
 
- - title: uncover - use awesome search queries
-   desc: |
-     Utilizes the "Awesome Search Queries" feature to discover exposed assets based on technology names. This abstraction layer allows you to search for 'jira' or 'grafana' without knowing the specific dorks for each engine. 
-     It automatically translates the keyword into the most effective query for the selected engines. 
-     This is highly effective for rapid technology fingerprinting during initial reconnaissance.
+ - title:
+     en: uncover - use awesome search queries
+     tr: uncover - hazır arama sorgularını kullanma
+   desc:
+     en: |
+       Utilizes the "Awesome Search Queries" feature to discover exposed assets based on technology names. This abstraction layer allows you to search for 'jira' or 'grafana' without knowing the specific dorks for each engine. 
+       It automatically translates the keyword into the most effective query for the selected engines. 
+       This is highly effective for rapid technology fingerprinting during initial reconnaissance.
+     tr: |
+       Teknoloji adlarına göre açığa çıkmış varlıkları keşfetmek için "Awesome Search Queries" özelliğini kullanır. Bu soyutlama katmanı, her motorun özel dorklarını bilmeden 'jira' veya 'grafana' aramanıza olanak tanır.
+       Anahtar kelimeyi seçili motorlar için en etkili sorguya otomatik olarak çevirir.
+       İlk keşif sırasında hızlı teknoloji parmak izi çıkarmada oldukça etkilidir.
    command: "uncover -asq {{technology_name|jenkins}}"
 
- - title: uncover - engine specific query flags
-   desc: |
-     Provides a way to pass engine-specific query strings directly using dedicated flags. This is useful when you want to utilize the native syntax of a specific engine like Shodan or ZoomEye directly. 
-     Each engine has its own flag (e.g., -s for Shodan, -ff for FOFA, -cs for Censys). 
-     This bypasses the general query flag for more granular control over engine-specific features.
+ - title:
+     en: uncover - engine specific query flags
+     tr: uncover - motora özel sorgu bayrakları
+   desc:
+     en: |
+       Provides a way to pass engine-specific query strings directly using dedicated flags. This is useful when you want to utilize the native syntax of a specific engine like Shodan or ZoomEye directly. 
+       Each engine has its own flag (e.g., -s for Shodan, -ff for FOFA, -cs for Censys). 
+       This bypasses the general query flag for more granular control over engine-specific features.
+     tr: |
+       Özel bayraklar kullanarak doğrudan motora özel sorgu dizeleri geçirme yolu sağlar. Bu, Shodan veya ZoomEye gibi belirli bir motorun yerel sözdizimini doğrudan kullanmak istediğinizde faydalıdır.
+       Her motorun kendi bayrağı vardır (örn. Shodan için -s, FOFA için -ff, Censys için -cs).
+       Bu, motora özel özellikler üzerinde daha ayrıntılı kontrol için genel sorgu bayrağını atlar.
    command: "uncover -s {{shodan_query|product:Apache}}"
 
 # === OUTPUT AND FORMATTING ===
 
- - title: uncover - filter output fields
-   desc: |
-     Customizes the output to display only specific pieces of information for each result. Supported fields include 'ip', 'port', and 'host'. 
-     Filtering for just 'ip' or 'host' is extremely useful when piping the output into other automation tools like httpx or nuclei. 
-     Multiple fields can be combined using commas if needed.
+ - title:
+     en: uncover - filter output fields
+     tr: uncover - çıktı alanlarını filtreleme
+   desc:
+     en: |
+       Customizes the output to display only specific pieces of information for each result. Supported fields include 'ip', 'port', and 'host'. 
+       Filtering for just 'ip' or 'host' is extremely useful when piping the output into other automation tools like httpx or nuclei. 
+       Multiple fields can be combined using commas if needed.
+     tr: |
+       Çıktıyı her sonuç için yalnızca belirli bilgi parçalarını gösterecek şekilde özelleştirir. Desteklenen alanlar arasında 'ip', 'port' ve 'host' bulunur.
+       Yalnızca 'ip' veya 'host' filtrelemek, çıktıyı httpx veya nuclei gibi diğer otomasyon araçlarına aktarırken son derece kullanışlıdır.
+       Gerekirse birden fazla alan virgülle birleştirilebilir.
    command: "uncover -q {{query}} -f {{field|ip}}"
 
- - title: uncover - save results to file
-   desc: |
-     Writes the findings to a specified output file for later analysis. This prevents losing results in the terminal buffer and facilitates documentation. 
-     It can be combined with other flags to save either the default text output or structured JSON data. 
-     Standard practice is to save results to a text file before starting vulnerability scanning.
+ - title:
+     en: uncover - save results to file
+     tr: uncover - sonuçları dosyaya kaydetme
+   desc:
+     en: |
+       Writes the findings to a specified output file for later analysis. This prevents losing results in the terminal buffer and facilitates documentation. 
+       It can be combined with other flags to save either the default text output or structured JSON data. 
+       Standard practice is to save results to a text file before starting vulnerability scanning.
+     tr: |
+       Bulguları daha sonra analiz etmek için belirtilen bir çıktı dosyasına yazar. Bu, sonuçların terminal arabelleğinde kaybolmasını önler ve dokümantasyonu kolaylaştırır.
+       Varsayılan metin çıktısını veya yapılandırılmış JSON verisini kaydetmek için diğer bayraklarla birleştirilebilir.
+       Standart uygulama, zafiyet taramasına başlamadan önce sonuçları bir metin dosyasına kaydetmektir.
    command: "uncover -q {{query}} -o {{output_file|results.txt}}"
 
- - title: uncover - export as JSON
-   desc: |
-     Outputs results in JSONL (JSON Lines) format, which provides more metadata than the standard text output. This format includes additional details provided by the API, such as organization, ISP, and full banner information. 
-     JSON output is ideal for programmatic processing, custom scripts, or importing into databases. 
-     Use this when you need the most comprehensive data possible for each asset.
+ - title:
+     en: uncover - export as JSON
+     tr: uncover - JSON olarak dışa aktarma
+   desc:
+     en: |
+       Outputs results in JSONL (JSON Lines) format, which provides more metadata than the standard text output. This format includes additional details provided by the API, such as organization, ISP, and full banner information. 
+       JSON output is ideal for programmatic processing, custom scripts, or importing into databases. 
+       Use this when you need the most comprehensive data possible for each asset.
+     tr: |
+       Sonuçları varsayılan metin çıktısından daha fazla meta veri sağlayan JSONL (JSON Satırları) biçiminde verir. Bu biçim, API'nin sağladığı kuruluş, ISS ve tam banner bilgileri gibi ek ayrıntılar içerir.
+       JSON çıktısı programatik işleme, özel betikler veya veritabanlarına aktarma için idealdir.
+       Her varlık için en kapsamlı veriye ihtiyaç duyduğunuzda kullanın.
    command: "uncover -q {{query}} -j -o {{output_file|results.json}}"
 
 # === NETWORK AND PERFORMANCE ===
 
- - title: uncover - rate limit and timeout
-   desc: |
-     Configures the request rate and timeout settings to prevent being blocked or timing out on slow connections. Setting a rate limit per second or minute helps in respecting API provider limitations and avoiding account suspension. 
-     The timeout flag ensures the tool doesn't hang indefinitely on unresponsive APIs. 
-     Adjust these settings based on your network conditions and the stability of the API provider.
+ - title:
+     en: uncover - rate limit and timeout
+     tr: uncover - hız limiti ve zaman aşımı
+   desc:
+     en: |
+       Configures the request rate and timeout settings to prevent being blocked or timing out on slow connections. Setting a rate limit per second or minute helps in respecting API provider limitations and avoiding account suspension. 
+       The timeout flag ensures the tool doesn't hang indefinitely on unresponsive APIs. 
+       Adjust these settings based on your network conditions and the stability of the API provider.
+     tr: |
+       Engellenmeyi veya yavaş bağlantılarda takılmayı önlemek için istek hızı ve zaman aşımı ayarlarını yapılandırır. Saniye veya dakika başına hız limiti belirlemek, API sağlayıcı limitlerine saygı göstermeye ve hesap askıya alınmalarından kaçınmaya yardımcı olur.
+       Zaman aşımı bayrağı aracın yanıt vermeyen API'lerde sonsuza kadar takılmamasını sağlar.
+       Bu ayarları ağ koşullarınıza ve API sağlayıcısının kararlılığına göre ayarlayın.
    command: "uncover -q {{query}} -rl {{rate_limit|10}} -timeout {{timeout|60}}"
 
- - title: uncover - proxy configuration
-   desc: |
-     Routes all outgoing API requests through a specified HTTP proxy. This is useful for bypassing regional restrictions, masking your source IP, or auditing traffic through tools like Burp Suite. 
-     Ensure the proxy URL is correctly formatted (e.g., http://127.0.0.1:8080). 
-     This is a vital feature for maintaining operational security during sensitive engagements.
+ - title:
+     en: uncover - proxy configuration
+     tr: uncover - proxy yapılandırması
+   desc:
+     en: |
+       Routes all outgoing API requests through a specified HTTP proxy. This is useful for bypassing regional restrictions, masking your source IP, or auditing traffic through tools like Burp Suite. 
+       Ensure the proxy URL is correctly formatted (e.g., http://127.0.0.1:8080). 
+       This is a vital feature for maintaining operational security during sensitive engagements.
+     tr: |
+       Tüm giden API isteklerini belirtilen bir HTTP proxy üzerinden yönlendirir. Bu, bölgesel kısıtlamaları aşmak, kaynak IP'nizi gizlemek veya trafiği Burp Suite gibi araçlarla denetlemek için kullanışlıdır.
+       Proxy URL'sinin doğru biçimlendirildiğinden emin olun (örn. http://127.0.0.1:8080).
+       Bu, hassas görevlerde operasyonel güvenlik için hayati bir özelliktir.
    command: "uncover -q {{query}} -proxy {{proxy_url}}"
 
 # === PIPING AND INPUT ===
 
- - title: uncover - process queries from stdin
-   desc: |
-     Reads queries from standard input (stdin), allowing for seamless integration with other command-line tools. You can pipe a list of dorks from a file or another command directly into uncover for batch processing. 
-     This enables powerful workflows, such as generating dorks dynamically and feeding them into the discovery engine. 
-     It is the most efficient way to handle large-scale reconnaissance tasks.
+ - title:
+     en: uncover - process queries from stdin
+     tr: uncover - girdileri stdin'den işleme
+   desc:
+     en: |
+       Reads queries from standard input (stdin), allowing for seamless integration with other command-line tools. You can pipe a list of dorks from a file or another command directly into uncover for batch processing. 
+       This enables powerful workflows, such as generating dorks dynamically and feeding them into the discovery engine. 
+       It is the most efficient way to handle large-scale reconnaissance tasks.
+     tr: |
+       Sorguları standart girdiden (stdin) okur ve diğer komut satırı araçlarıyla sorunsuz bütünleşmeye olanak tanır. Bir dosyadaki dork listesini veya başka bir komutun çıktısını doğrudan uncover'a aktarıp toplu işleyebilirsiniz.
+       Bu, dorkları dinamik olarak üretip keşif motoruna beslemek gibi güçlü iş akışlarına olanak tanır.
+       Büyük ölçekli keşif görevlerini yürütmenin en verimli yoludur.
    command: "cat {{query_list_file}} | uncover"

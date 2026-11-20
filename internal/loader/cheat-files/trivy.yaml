@@ -3,101 +3,192 @@ tags: [security, scanner, vulnerabilities, container, devops, kubernetes, pentes
 
 actions:
 # === IMAGE SCANNING ===
- - title: trivy - basic image scan
-   desc: |
-     Scan a container image for OS and library vulnerabilities. This is the most common starting point for 
-     securing containerized applications. It downloads the vulnerability database automatically if it is 
-     missing or outdated. Use this to get a quick summary of CVEs present in your target image.
+ - title:
+     en: trivy - basic image scan
+     tr: trivy - temel imaj taraması
+   desc:
+     en: |
+       Scan a container image for OS and library vulnerabilities. This is the most common starting point for 
+       securing containerized applications. It downloads the vulnerability database automatically if it is 
+       missing or outdated. Use this to get a quick summary of CVEs present in your target image.
+     tr: |
+       Bir konteyner imajını işletim sistemi ve kütüphane zafiyetlerine karşı tarar. Bu, konteynerli uygulamaların güvenliğini sağlamanın en yaygın başlangıç noktasıdır.
+       Eksik veya güncel değilse zafiyet veritabanını otomatik olarak indirir.
+       Hedef imajdaki CVE'lerin hızlı bir özetini almak için kullanın.
    command: "trivy image {{image_name}}"
 
- - title: trivy - scan image with severity filter
-   desc: |
-     Scan a container image while filtering results by specific severity levels. This allows security 
-     teams to focus on the most critical risks, such as HIGH and CRITICAL vulnerabilities, while 
-     ignoring lower-risk issues. It is highly recommended for CI/CD pipelines to fail builds only 
-     on high-risk findings.
+ - title:
+     en: trivy - scan image with severity filter
+     tr: trivy - önem derecesi filtreli imaj taraması
+   desc:
+     en: |
+       Scan a container image while filtering results by specific severity levels. This allows security 
+       teams to focus on the most critical risks, such as HIGH and CRITICAL vulnerabilities, while 
+       ignoring lower-risk issues. It is highly recommended for CI/CD pipelines to fail builds only 
+       on high-risk findings.
+     tr: |
+       Bir konteyner imajını tararken sonuçları belirli önem derecelerine göre filtreler.
+       Bu, güvenlik ekiplerinin düşük riskli sorunları göz ardı edip HIGH ve CRITICAL gibi en kritik risklere odaklanmasını sağlar.
+       Yalnızca yüksek riskli bulgularda derlemeleri başarısız kılmak için CI/CD hatlarında özellikle önerilir.
    command: "trivy image --severity {{severity|HIGH,CRITICAL}} {{image_name}}"
 
- - title: trivy - scan image from tar archive
-   desc: |
-     Scan a container image that has been saved as a tarball. This is particularly useful for 
-     air-gapped environments or when scanning images produced by build tools like Docker save or Skopeo. 
-     The tool will inspect the layers within the archive without needing a running Docker daemon.
+ - title:
+     en: trivy - scan image from tar archive
+     tr: trivy - tar arşivinden imaj taraması
+   desc:
+     en: |
+       Scan a container image that has been saved as a tarball. This is particularly useful for 
+       air-gapped environments or when scanning images produced by build tools like Docker save or Skopeo. 
+       The tool will inspect the layers within the archive without needing a running Docker daemon.
+     tr: |
+       Tarball olarak kaydedilmiş bir konteyner imajını tarar.
+       Bu, özellikle hava boşluklu ortamlarda veya Docker save ya da Skopeo gibi araçlarla üretilen imajları tararken kullanışlıdır.
+       Araç, çalışan bir Docker arka plan programına ihtiyaç duymadan arşiv içindeki katmanları inceler.
    command: "trivy image --input {{tar_file|image.tar}}"
 
 # === FILESYSTEM AND REPOSITORY SCANNING ===
- - title: trivy - local filesystem scan
-   desc: |
-     Scan a local directory or project root for vulnerabilities in dependency lock files. This command 
-     is used during development to identify vulnerable libraries before they are built into an image. 
-     It supports various package managers including npm, pip, cargo, and go.mod.
+ - title:
+     en: trivy - local filesystem scan
+     tr: trivy - yerel dosya sistemi taraması
+   desc:
+     en: |
+       Scan a local directory or project root for vulnerabilities in dependency lock files. This command 
+       is used during development to identify vulnerable libraries before they are built into an image. 
+       It supports various package managers including npm, pip, cargo, and go.mod.
+     tr: |
+       Bağımlılık kilit dosyalarındaki zafiyetler için yerel bir dizini veya proje kökünü tarar.
+       Bu komut geliştirme sırasında savunmasız kütüphaneleri imaja gömülmeden önce tespit etmek için kullanılır.
+       npm, pip, cargo ve go.mod dahil çeşitli paket yöneticilerini destekler.
    command: "trivy fs {{path|.}}"
 
- - title: trivy - remote repository scan
-   desc: |
-     Scan a remote Git repository for vulnerabilities and hard-coded secrets. This allows for 
-     security auditing of third-party or internal codebases without manually cloning them first. 
-     Trivy will temporarily clone the repository to perform the analysis.
+ - title:
+     en: trivy - remote repository scan
+     tr: trivy - uzak depo taraması
+   desc:
+     en: |
+       Scan a remote Git repository for vulnerabilities and hard-coded secrets. This allows for 
+       security auditing of third-party or internal codebases without manually cloning them first. 
+       Trivy will temporarily clone the repository to perform the analysis.
+     tr: |
+       Uzak bir Git deposunu zafiyetlere ve sabit kodlanmış sırlara karşı tarar.
+       Bu, üçüncü parti veya şirket içi kod tabanlarının önce elle klonlanmasına gerek kalmadan güvenlik denetimine olanak tanır.
+       Trivy analizi gerçekleştirmek için depoyu geçici olarak klonlar.
    command: "trivy repo {{repo_url}}"
 
 # === CONFIGURATION AND SECRET SCANNING ===
- - title: trivy - infrastructure as code scan
-   desc: |
-     Scan configuration files such as Terraform, Kubernetes manifests, and Dockerfiles for misconfigurations. 
-     This helps identify security gaps like running as root, missing resource limits, or open ports. 
-     It is a key component of DevSecOps to ensure compliance with security best practices.
+ - title:
+     en: trivy - infrastructure as code scan
+     tr: trivy - altyapı kodu taraması
+   desc:
+     en: |
+       Scan configuration files such as Terraform, Kubernetes manifests, and Dockerfiles for misconfigurations. 
+       This helps identify security gaps like running as root, missing resource limits, or open ports. 
+       It is a key component of DevSecOps to ensure compliance with security best practices.
+     tr: |
+       Terraform, Kubernetes manifestleri ve Dockerfile dosyaları gibi yapılandırma dosyalarını yanlış yapılandırmalara karşı tarar.
+       Bu, root olarak çalıştırma, eksik kaynak limitleri veya açık portlar gibi güvenlik açıklarının tespitine yardımcı olur.
+       Güvenlik en iyi uygulamalarına uyum için DevSecOps'un önemli bir parçasıdır.
    command: "trivy config {{config_path}}"
 
- - title: trivy - secret scanning in filesystem
-   desc: |
-     Scan the specified path specifically for hard-coded secrets, tokens, and API keys. 
-     Trivy uses a set of built-in rules to detect sensitive information that might have been 
-     accidentally committed. This is essential for preventing credential leaks in source code.
+ - title:
+     en: trivy - secret scanning in filesystem
+     tr: trivy - dosya sisteminde sır taraması
+   desc:
+     en: |
+       Scan the specified path specifically for hard-coded secrets, tokens, and API keys. 
+       Trivy uses a set of built-in rules to detect sensitive information that might have been 
+       accidentally committed. This is essential for preventing credential leaks in source code.
+     tr: |
+       Belirtilen yolu özellikle sabit kodlanmış sırlar, jetonlar ve API anahtarları için tarar.
+       Trivy, yanlışlıkla işlenmiş hassas bilgileri tespit etmek için yerleşik kurallar kullanır.
+       Bu, kaynak kodda kimlik bilgisi sızıntılarını önlemek için gereklidir.
    command: "trivy fs --scanners {{scanners|vuln,secret}} {{path|.}}"
 
 # === KUBERNETES SCANNING ===
- - title: trivy - kubernetes cluster scan
-   desc: |
-     Scan an entire Kubernetes cluster for vulnerabilities and misconfigurations in running workloads. 
-     This command requires valid kubeconfig credentials and sufficient permissions to list resources. 
-     It provides a high-level overview of the security posture of your active environment.
+ - title:
+     en: trivy - kubernetes cluster scan
+     tr: trivy - kubernetes küme taraması
+   desc:
+     en: |
+       Scan an entire Kubernetes cluster for vulnerabilities and misconfigurations in running workloads. 
+       This command requires valid kubeconfig credentials and sufficient permissions to list resources. 
+       It provides a high-level overview of the security posture of your active environment.
+     tr: |
+       Çalışan iş yüklerindeki zafiyetler ve yanlış yapılandırmalar için tüm Kubernetes kümesini tarar.
+       Bu komut geçerli kubeconfig kimlik bilgileri ve kaynakları listeleme yetkisi gerektirir.
+       Aktif ortamınızın güvenlik duruşuna genel bir bakış sunar.
    command: "trivy kubernetes {{context|cluster}}"
 
 # === OUTPUT AND REPORTING ===
- - title: trivy - generate report in specific format
-   desc: |
-     Export scan results into machine-readable formats like JSON, SARIF, or CycloneDX. 
-     This is necessary for integrating Trivy findings with other security platforms or CI/CD dashboards. 
-     The output file can then be parsed by automated scripts or uploaded to vulnerability management tools.
+ - title:
+     en: trivy - generate report in specific format
+     tr: trivy - belirli biçimde rapor oluşturma
+   desc:
+     en: |
+       Export scan results into machine-readable formats like JSON, SARIF, or CycloneDX. 
+       This is necessary for integrating Trivy findings with other security platforms or CI/CD dashboards. 
+       The output file can then be parsed by automated scripts or uploaded to vulnerability management tools.
+     tr: |
+       Tarama sonuçlarını JSON, SARIF veya CycloneDX gibi makine tarafından okunabilir biçimlerde dışa aktarır.
+       Bu, Trivy bulgularını diğer güvenlik platformları veya CI/CD panolarıyla bütünleştirmek için gereklidir.
+       Çıktı dosyası daha sonra otomatik betikler tarafından ayrıştırılabilir veya zafiyet yönetim araçlarına yüklenebilir.
    command: "trivy image --format {{format|json}} --output {{output_file|result.json}} {{image_name}}"
 
- - title: trivy - generate SBOM (Software Bill of Materials)
-   desc: |
-     Generate a Software Bill of Materials (SBOM) for an image or directory. 
-     An SBOM provides a comprehensive list of all components, libraries, and dependencies used in a project. 
-     This is increasingly required for compliance and supply chain security transparency.
+ - title:
+     en: trivy - generate SBOM (Software Bill of Materials)
+     tr: trivy - SBOM (Yazılım Malzeme Listesi) oluşturma
+   desc:
+     en: |
+       Generate a Software Bill of Materials (SBOM) for an image or directory. 
+       An SBOM provides a comprehensive list of all components, libraries, and dependencies used in a project. 
+       This is increasingly required for compliance and supply chain security transparency.
+     tr: |
+       Bir imaj veya dizin için Yazılım Malzeme Listesi (SBOM) oluşturur.
+       SBOM, bir projede kullanılan tüm bileşenlerin, kütüphanelerin ve bağımlılıkların kapsamlı bir listesini sunar.
+       Bu, uyumluluk ve tedarik zinciri güvenliği şeffaflığı için giderek daha fazla gereklidir.
    command: "trivy image --format {{sbom_format|cyclonedx}} --output {{output_file|sbom.json}} {{image_name}}"
 
 # === SERVER MODE ===
- - title: trivy - start in server mode
-   desc: |
-     Run Trivy as a persistent server to centralize the vulnerability database. 
-     In this mode, clients can send scan requests to the server, which avoids the need for 
-     each client to download and maintain its own copy of the database. This significantly 
-     speeds up scans in large-scale CI/CD environments.
+ - title:
+     en: trivy - start in server mode
+     tr: trivy - sunucu modunda başlatma
+   desc:
+     en: |
+       Run Trivy as a persistent server to centralize the vulnerability database. 
+       In this mode, clients can send scan requests to the server, which avoids the need for 
+       each client to download and maintain its own copy of the database. This significantly 
+       speeds up scans in large-scale CI/CD environments.
+     tr: |
+       Zafiyet veritabanını merkezileştirmek için Trivy'yi kalıcı bir sunucu olarak çalıştırır.
+       Bu modda istemciler tarama isteklerini sunucuya gönderir, böylece her istemcinin kendi veritabanı kopyasını indirip sürdürmesine gerek kalmaz.
+       Bu, büyük ölçekli CI/CD ortamlarında taramaları önemli ölçüde hızlandırır.
    command: "trivy server --listen {{listen_addr|0.0.0.0:4954}}"
 
- - title: trivy - scan using a remote server
-   desc: |
-     Perform a scan by connecting to a remote Trivy server. 
-     This client-side command offloads the processing and database management to the server. 
-     It is the most efficient way to run scans in environments with many distributed agents.
+ - title:
+     en: trivy - scan using a remote server
+     tr: trivy - uzak sunucu kullanarak tarama
+   desc:
+     en: |
+       Perform a scan by connecting to a remote Trivy server. 
+       This client-side command offloads the processing and database management to the server. 
+       It is the most efficient way to run scans in environments with many distributed agents.
+     tr: |
+       Uzak bir Trivy sunucusuna bağlanarak tarama gerçekleştirir.
+       Bu istemci tarafı komut, işlemeyi ve veritabanı yönetimini sunucuya devreder.
+       Dağınık çok sayıda aracının bulunduğu ortamlarda tarama yapmanın en verimli yoludur.
    command: "trivy image --server {{server_url|http://localhost:4954}} {{image_name}}"
 
 # === UTILITIES ===
- - title: trivy - clean cache
-   desc: |
-     Remove cached files, including the vulnerability database and image layers. 
-     Use this command if you encounter database corruption or if you want to reclaim disk space. 
-     Note that the next scan will take longer as it must re-download the database.
+ - title:
+     en: trivy - clean cache
+     tr: trivy - önbellek temizleme
+   desc:
+     en: |
+       Remove cached files, including the vulnerability database and image layers. 
+       Use this command if you encounter database corruption or if you want to reclaim disk space. 
+       Note that the next scan will take longer as it must re-download the database.
+     tr: |
+       Zafiyet veritabanı ve imaj katmanları dahil önbelleğe alınmış dosyaları kaldırır.
+       Veritabanı bozulmasıyla karşılaşırsanız veya disk alanı kazanmak isterseniz bu komutu kullanın.
+       Bir sonraki taramanın veritabanını yeniden indirmesi gerekeceği için daha uzun süreceğini unutmayın.
    command: "trivy clean --all"

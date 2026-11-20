@@ -28,10 +28,11 @@ cheat-files/*.yaml ──► loader ──► search ──► ui (TUI) ──�
 ```
 cmd/arsenal-ng/          Entry point: main + run + injectable deps
 internal/
-  config/                App identity: name, version, logo, UI defaults
+  config/                App identity: name, version, logo, UI defaults, languages
   frame/                 Shared TUI frame: header, footer, usable width
   highlight/             Fuzzy-match and command-syntax highlighting
   keys/                  Key binding strings and search-box command literals
+  language/              UI language preference store (language.json)
   loader/                Embedded YAML loading (cheat-files/ lives here)
   model/                 Cheat/Argument types, parsing, building, validation
   paths/                 OS config directory resolution
@@ -63,6 +64,8 @@ internal/
 
 - `internal/model/cheat.go` — `CheatFile`/`Action` (YAML shape) and the
   flattened runtime `Cheat` plus `Argument`.
+- `internal/model/text.go` — `Text`: scalar-or-map YAML decoding with
+  `Resolve(lang)` fallback (requested → default → any).
 - `internal/model/parse.go` — `{{arg}}` / `{{arg|default}}` extraction
   with first-appearance order and dedup.
 - `internal/model/build.go` — Single-pass placeholder substitution.
@@ -76,7 +79,8 @@ internal/
 - `internal/loader/loader.go` — `Load` reads the embedded tree;
   `loadFromFS` takes any `fs.FS` so error paths are testable.
 - `internal/loader/parse.go` — YAML bytes → `Cheat` values, `isYAMLFile`.
-- `internal/search/search.go` — `Query`: all-terms-must-match filter.
+- `internal/search/search.go` — `Query`: all-terms-must-match filter,
+  titles/descriptions resolved in the active language.
 - `internal/search/score.go` — Per-term field weights
   (tool 100 > tag 60 > title 40 > command 20 > desc 10) with
   exact ×4 / prefix ×2 / substring ×1 multipliers, summed across fields.
@@ -90,10 +94,13 @@ internal/
   values are never written to logs.
 - `internal/variables/file.go` — Atomic save (temp file + rename, 0600)
   and tolerant load (missing/empty/null).
-- `internal/paths/paths.go` — `ConfigDir`, `Variables`, `Log`;
+- `internal/language/` — `Store` mirroring variables for the UI language
+  (`Get`/`Set` with validation, atomic `language.json` save, 0644).
+- `internal/paths/paths.go` — `ConfigDir`, `Variables`, `Language`, `Log`;
   XDG on Linux, Application Support on macOS.
 - `internal/config/` — `AppName`, `Version` (ldflags-overridable),
-  ASCII `Logo`, terminal/input defaults.
+  ASCII `Logo`, terminal/input defaults, language definitions
+  (`DefaultLanguage`, `SupportedLanguages`, `NormalizeLanguage`).
 
 ### Terminal Output
 
@@ -117,7 +124,7 @@ internal/
 - `internal/ui/transitions.go` — `showVariables`, `showTools`,
   `showHelp`, `backToSearch`.
 - `internal/ui/variables.go` — `set`/`unset` command execution against
-  the store with status feedback.
+  the store with status feedback; `set language=` switches translations.
 - `internal/ui/tablex/` — `New`/`NewWide` styled tables, `Fit` stretches
   the last column, `Width`/`Height` size math.
 

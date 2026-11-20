@@ -4,106 +4,204 @@ tags: [active-directory, pentest, security, privilege-escalation, ldap, authenti
 actions:
 # === AUTHENTICATION METHODS ===
 
- - title: bloodyad - ntlm authentication
-   desc: |
-     Performs basic authentication using a domain, username, and cleartext password.
-     This is the primary method for interacting with the Domain Controller when credentials are known.
-     Ensure that the account is not subject to lockout policies before running multiple attempts.
+ - title:
+     en: bloodyad - ntlm authentication
+     tr: bloodyad - ntlm kimlik doğrulaması
+   desc:
+     en: |
+       Performs basic authentication using a domain, username, and cleartext password.
+       This is the primary method for interacting with the Domain Controller when credentials are known.
+       Ensure that the account is not subject to lockout policies before running multiple attempts.
+     tr: |
+       Etki alanı, kullanıcı adı ve açık parola kullanarak temel kimlik doğrulama yapar.
+       Kimlik bilgileri bilindiğinde Etki Alanı Denetleyicisiyle etkileşimin birincil yöntemidir.
+       Birden çok deneme çalıştırmadan önce hesabın kilitlenme ilkelerine tabi olmadığından emin olun.
    command: "bloodyAD -d {{domain}} -u {{username}} -p {{password}} --host {{dc_ip}} get info"
 
- - title: bloodyad - pass-the-hash
-   desc: |
-     Authenticates using an NTLM hash instead of a cleartext password.
-     This is useful in post-exploitation scenarios where hashes have been dumped from memory or SAM files.
-     The password parameter accepts the format LMHASH:NTHASH or just the NTHASH.
+ - title:
+     en: bloodyad - pass-the-hash
+     tr: bloodyad - hash geçişi
+   desc:
+     en: |
+       Authenticates using an NTLM hash instead of a cleartext password.
+       This is useful in post-exploitation scenarios where hashes have been dumped from memory or SAM files.
+       The password parameter accepts the format LMHASH:NTHASH or just the NTHASH.
+     tr: |
+       Açık parola yerine NTLM hash'iyle kimlik doğrular.
+       Bu, hash'lerin bellekten veya SAM dosyalarından döküldüğü sömürü sonrası senaryolarda yararlıdır.
+       Parola parametresi LMHASH:NTHASH biçimini veya yalnızca NTHASH'i kabul eder.
    command: "bloodyAD -d {{domain}} -u {{username}} -p {{nthash}} --host {{dc_ip}} get info"
 
- - title: bloodyad - kerberos authentication (ccache)
-   desc: |
-     Uses an existing Kerberos ticket (ccache file) for authentication.
-     This method is stealthier as it does not involve sending the password or NTLM hash over the wire.
-     Ensure the KRB5CCNAME environment variable is set or provide the path directly to the tool.
+ - title:
+     en: bloodyad - kerberos authentication (ccache)
+     tr: bloodyad - kerberos kimlik doğrulaması (ccache)
+   desc:
+     en: |
+       Uses an existing Kerberos ticket (ccache file) for authentication.
+       This method is stealthier as it does not involve sending the password or NTLM hash over the wire.
+       Ensure the KRB5CCNAME environment variable is set or provide the path directly to the tool.
+     tr: |
+       Kimlik doğrulama için mevcut bir Kerberos biletini (ccache dosyası) kullanır.
+       Bu yöntem, parolayı veya NTLM hash'ini hattan göndermediğinden daha gizlidir.
+       KRB5CCNAME ortam değişkeninin ayarlı olduğundan emin olun veya yolu doğrudan araca verin.
    command: "bloodyAD -d {{domain}} -k ccache={{path_to_ccache|/tmp/ticket.ccache}} --host {{dc_hostname}} get info"
 
- - title: bloodyad - ldaps (secure ldap)
-   desc: |
-     Connects to the Domain Controller using LDAP over TLS (LDAPS) on port 636.
-     This is often required for sensitive operations like password changes or when the environment enforces LDAP signing.
-     Use the -s flag to initiate the secure connection and ensure the hostname matches the certificate.
+ - title:
+     en: bloodyad - ldaps (secure ldap)
+     tr: bloodyad - ldaps (güvenli ldap)
+   desc:
+     en: |
+       Connects to the Domain Controller using LDAP over TLS (LDAPS) on port 636.
+       This is often required for sensitive operations like password changes or when the environment enforces LDAP signing.
+       Use the -s flag to initiate the secure connection and ensure the hostname matches the certificate.
+     tr: |
+       Etki Alanı Denetleyicisine 636. bağlantı noktasında TLS üzerinden LDAP (LDAPS) ile bağlanır.
+       Bu, parola değişiklikleri gibi hassas işlemler veya ortam LDAP imzalamayı zorunlu kıldığında sıkça gereklidir.
+       Güvenli bağlantıyı başlatmak için -s bayrağını kullanın ve host adının sertifikayla eşleştiğinden emin olun.
    command: "bloodyAD -d {{domain}} -u {{username}} -p {{password}} --host {{dc_hostname}} -s get info"
 
 # === ENUMERATION (GET) ===
 
- - title: bloodyad - get object information
-   desc: |
-     Retrieves detailed information and attributes for a specific Active Directory object.
-     It can be used to check user properties, computer details, or group memberships.
-     This is the fundamental command for identifying potential misconfigurations on a target object.
+ - title:
+     en: bloodyad - get object information
+     tr: bloodyad - nesne bilgisi alma
+   desc:
+     en: |
+       Retrieves detailed information and attributes for a specific Active Directory object.
+       It can be used to check user properties, computer details, or group memberships.
+       This is the fundamental command for identifying potential misconfigurations on a target object.
+     tr: |
+       Belirli bir Active Directory nesnesinin ayrıntılı bilgi ve özniteliklerini alır.
+       Kullanıcı özelliklerini, bilgisayar ayrıntılarını veya grup üyeliklerini denetlemek için kullanılabilir.
+       Bu, bir hedef nesnedeki olası yanlış yapılandırmaları belirlemenin temel komutudur.
    command: "bloodyAD -d {{domain}} -u {{username}} -p {{password}} --host {{dc_ip}} get object {{target_dn}}"
 
- - title: bloodyad - list group members
-   desc: |
-     Lists all users and sub-groups belonging to a specific Active Directory group.
-     This is critical for mapping out high-privilege groups like 'Domain Admins' or 'Enterprise Admins'.
-     Use this to identify which accounts you should target for lateral movement or privilege escalation.
+ - title:
+     en: bloodyad - list group members
+     tr: bloodyad - grup üyelerini listeleme
+   desc:
+     en: |
+       Lists all users and sub-groups belonging to a specific Active Directory group.
+       This is critical for mapping out high-privilege groups like 'Domain Admins' or 'Enterprise Admins'.
+       Use this to identify which accounts you should target for lateral movement or privilege escalation.
+     tr: |
+       Belirli bir Active Directory grubuna ait tüm kullanıcı ve alt grupları listeler.
+       Bu, 'Domain Admins' veya 'Enterprise Admins' gibi yüksek yetkili grupları haritalamada kritiktir.
+       Yatay hareket veya yetki yükseltme için hangi hesapları hedeflemeniz gerektiğini belirlemekte kullanın.
    command: "bloodyAD -d {{domain}} -u {{username}} -p {{password}} --host {{dc_ip}} get children {{group_dn}}"
 
- - title: bloodyad - search for specific attributes
-   desc: |
-     Searches the directory for objects that match a specific LDAP filter.
-     This is highly versatile for finding users with specific properties, such as those with 'ServicePrincipalName' set.
-     It allows for custom reconnaissance tailored to specific attack vectors like Kerberoasting or AS-REP Roasting.
+ - title:
+     en: bloodyad - search for specific attributes
+     tr: bloodyad - belirli öznitelikleri arama
+   desc:
+     en: |
+       Searches the directory for objects that match a specific LDAP filter.
+       This is highly versatile for finding users with specific properties, such as those with 'ServicePrincipalName' set.
+       It allows for custom reconnaissance tailored to specific attack vectors like Kerberoasting or AS-REP Roasting.
+     tr: |
+       Dizinde belirli bir LDAP filtresine uyan nesneleri arar.
+       Bu, 'ServicePrincipalName' ayarlı olanlar gibi belirli özellikli kullanıcıları bulmada oldukça çok yönlüdür.
+       Kerberoasting veya AS-REP Roasting gibi belirli saldırı vektörlerine uyarlanmış özel keşfe olanak tanır.
    command: "bloodyAD -d {{domain}} -u {{username}} -p {{password}} --host {{dc_ip}} get search '{{filter|(objectCategory=person)}}'"
 
 # === PRIVILEGE ESCALATION & MODIFICATION (SET/ADD) ===
 
- - title: bloodyad - add user to group
-   desc: |
-     Adds a target user to a specific group, such as Domain Admins.
-     This requires high privileges (e.g., GenericAll over the group or Account Operators membership).
-     Be aware that adding users to sensitive groups is highly noisy and will likely trigger security alerts.
+ - title:
+     en: bloodyad - add user to group
+     tr: bloodyad - kullanıcıyı gruba ekleme
+   desc:
+     en: |
+       Adds a target user to a specific group, such as Domain Admins.
+       This requires high privileges (e.g., GenericAll over the group or Account Operators membership).
+       Be aware that adding users to sensitive groups is highly noisy and will likely trigger security alerts.
+     tr: |
+       Hedef kullanıcıyı Domain Admins gibi belirli bir gruba ekler.
+       Bu, yüksek yetkiler gerektirir (ör. grup üzerinde GenericAll veya Hesap Operatörleri üyeliği).
+       Kullanıcıları hassas gruplara eklemenin çok gürültülü olduğunu ve büyük olasılıkla güvenlik alarmlarını tetikleyeceğini unutmayın.
    command: "bloodyAD -d {{domain}} -u {{username}} -p {{password}} --host {{dc_ip}} add groupMember {{group_dn}} {{user_dn}}"
 
- - title: bloodyad - set user password
-   desc: |
-     Forces a password reset for a specific user account.
-     This operation requires the 'Reset Password' permission or 'GenericAll' rights over the target object.
-     Usually requires a secure connection (-s) to the Domain Controller to succeed.
+ - title:
+     en: bloodyad - set user password
+     tr: bloodyad - kullanıcı parolası ayarlama
+   desc:
+     en: |
+       Forces a password reset for a specific user account.
+       This operation requires the 'Reset Password' permission or 'GenericAll' rights over the target object.
+       Usually requires a secure connection (-s) to the Domain Controller to succeed.
+     tr: |
+       Belirli bir kullanıcı hesabı için parola sıfırlamayı zorlar.
+       Bu işlem hedef nesne üzerinde 'Reset Password' izni veya 'GenericAll' hakkı gerektirir.
+       Başarılı olması için genellikle Etki Alanı Denetleyicisine güvenli bağlantı (-s) gerekir.
    command: "bloodyAD -d {{domain}} -u {{username}} -p {{password}} --host {{dc_ip}} -s set password {{target_dn}} {{new_password}}"
 
- - title: bloodyad - shadow credentials (msDS-KeyCredentialLink)
-   desc: |
-     Adds a new Key Credential to a target object to facilitate a Shadow Credentials attack.
-     This allows an attacker to take over an account by requesting a TGT using a certificate.
-     Requires 'WriteProperty' permissions over the 'msDS-KeyCredentialLink' attribute of the target.
+ - title:
+     en: bloodyad - shadow credentials (msDS-KeyCredentialLink)
+     tr: bloodyad - gölge kimlik bilgileri (msDS-KeyCredentialLink)
+   desc:
+     en: |
+       Adds a new Key Credential to a target object to facilitate a Shadow Credentials attack.
+       This allows an attacker to take over an account by requesting a TGT using a certificate.
+       Requires 'WriteProperty' permissions over the 'msDS-KeyCredentialLink' attribute of the target.
+     tr: |
+       Shadow Credentials saldırısını kolaylaştırmak için hedef nesneye yeni bir Anahtar Kimlik Bilgisi ekler.
+       Bu, saldırganın sertifika kullanarak TGT isteyip hesabı ele geçirmesine olanak tanır.
+       Hedefin 'msDS-KeyCredentialLink' özniteliği üzerinde 'WriteProperty' izni gerektirir.
    command: "bloodyAD -d {{domain}} -u {{username}} -p {{password}} --host {{dc_ip}} add shadowCredentials {{target_dn}}"
 
- - title: bloodyad - resource-based constrained delegation (RBCD)
-   desc: |
-     Configures Resource-Based Constrained Delegation by setting the 'msDS-AllowedToDelegateTo' attribute.
-     This is a common method for privilege escalation when you control a computer account.
-     It allows the controlled computer to impersonate any user (including Domain Admins) to the target machine.
+ - title:
+     en: bloodyad - resource-based constrained delegation (RBCD)
+     tr: bloodyad - kaynak tabanlı kısıtlı temsil (RBCD)
+   desc:
+     en: |
+       Configures Resource-Based Constrained Delegation by setting the 'msDS-AllowedToDelegateTo' attribute.
+       This is a common method for privilege escalation when you control a computer account.
+       It allows the controlled computer to impersonate any user (including Domain Admins) to the target machine.
+     tr: |
+       'msDS-AllowedToDelegateTo' özniteliğini ayarlayarak Kaynak Tabanlı Kısıtlı Temsili yapılandırır.
+       Bu, bir bilgisayar hesabını denetlediğinizde yaygın bir yetki yükseltme yöntemidir.
+       Denetlenen bilgisayarın hedef makineye karşı herhangi bir kullanıcıyı (Domain Admins dahil) taklit etmesine olanak tanır.
    command: "bloodyAD -d {{domain}} -u {{username}} -p {{password}} --host {{dc_ip}} set rbcd {{target_dn}} {{attacker_dn}}"
 
- - title: bloodyad - grant genericall permissions
-   desc: |
-     Assigns 'GenericAll' permissions for one object over another.
-     GenericAll gives full control over the target object, including the ability to change its password or modify its attributes.
-     This is a powerful persistence or escalation primitive if you already have the rights to modify DACLs.
+ - title:
+     en: bloodyad - grant genericall permissions
+     tr: bloodyad - genericall izni verme
+   desc:
+     en: |
+       Assigns 'GenericAll' permissions for one object over another.
+       GenericAll gives full control over the target object, including the ability to change its password or modify its attributes.
+       This is a powerful persistence or escalation primitive if you already have the rights to modify DACLs.
+     tr: |
+       Bir nesneye diğeri üzerinde 'GenericAll' izinleri atar.
+       GenericAll, parolasını değiştirme veya özniteliklerini düzenleme dahil hedef nesne üzerinde tam denetim verir.
+       DACL'leri değiştirme hakkınız varsa güçlü bir kalıcılık veya yükseltme ilkelidir.
    command: "bloodyAD -d {{domain}} -u {{username}} -p {{password}} --host {{dc_ip}} add genericAll {{target_dn}} {{grantee_dn}}"
 
 # === CLEANUP (REMOVE) ===
 
- - title: bloodyad - remove user from group
-   desc: |
-     Removes a user from a specified group to revert changes made during exploitation.
-     This is part of the cleanup process to minimize the footprint left on the domain.
-     Always ensure you have recorded the original state before making modifications.
+ - title:
+     en: bloodyad - remove user from group
+     tr: bloodyad - kullanıcıyı gruptan çıkarma
+   desc:
+     en: |
+       Removes a user from a specified group to revert changes made during exploitation.
+       This is part of the cleanup process to minimize the footprint left on the domain.
+       Always ensure you have recorded the original state before making modifications.
+     tr: |
+       Sömürü sırasında yapılan değişiklikleri geri almak için kullanıcıyı belirtilen gruptan çıkarır.
+       Bu, etki alanında bırakılan izi en aza indirmek için temizlik sürecinin parçasıdır.
+       Değişiklik yapmadan önce özgün durumu kaydettiğinizden her zaman emin olun.
    command: "bloodyAD -d {{domain}} -u {{username}} -p {{password}} --host {{dc_ip}} remove groupMember {{group_dn}} {{user_dn}}"
 
- - title: bloodyad - remove shadow credentials
-   desc: |
-     Clears the 'msDS-KeyCredentialLink' attribute from a target object.
-     Use this to clean up after a Shadow Credentials attack to prevent detection.
-     Be careful not to delete legitimate key credentials if they were already present.
+ - title:
+     en: bloodyad - remove shadow credentials
+     tr: bloodyad - gölge kimlik bilgilerini kaldırma
+   desc:
+     en: |
+       Clears the 'msDS-KeyCredentialLink' attribute from a target object.
+       Use this to clean up after a Shadow Credentials attack to prevent detection.
+       Be careful not to delete legitimate key credentials if they were already present.
+     tr: |
+       Hedef nesnedeki 'msDS-KeyCredentialLink' özniteliğini temizler.
+       Tespitten kaçınmak için Shadow Credentials saldırısı sonrası temizlikte kullanın.
+       Zaten mevcut meşru anahtar kimlik bilgilerini silmemeye dikkat edin.
    command: "bloodyAD -d {{domain}} -u {{username}} -p {{password}} --host {{dc_ip}} remove shadowCredentials {{target_dn}}"

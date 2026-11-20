@@ -3,71 +3,161 @@ tags: [recon, reconnaissance, web, discovery, enumeration, urls, pentest]
 
 actions:
   # === BASIC USAGE ===
-  - title: urlfinder - basic domain enumeration
-    desc: |
-      Perform a basic discovery of URLs associated with a specific target domain. This is the most common starting point for reconnaissance to build a list of endpoints for further security testing. It queries various sources to find archived or indexed links that may still be active or contain sensitive data.
+  - title:
+      en: urlfinder - basic domain enumeration
+      tr: urlfinder - temel alan adı numaralandırma
+    desc:
+      en: |
+        Perform a basic discovery of URLs associated with a specific target domain. This is the most common starting point for reconnaissance to build a list of endpoints for further security testing. It queries various sources to find archived or indexed links that may still be active or contain sensitive data.
+      tr: |
+        Belirli bir hedef alan adıyla ilişkili URL'lerin temel keşfini gerçekleştirir. Güvenlik testleri için uç nokta listesi oluşturmak üzere keşfin en yaygın başlangıç noktası budur.
+        Hâlâ aktif olabilecek veya hassas veri içerebilecek arşivlenmiş ya da dizine eklenmiş bağlantıları bulmak için çeşitli kaynakları sorgular.
     command: "urlfinder -d {{domain}}"
 
-  - title: urlfinder - list-based enumeration
-    desc: |
-      Enumerate URLs for multiple domains stored in a text file simultaneously. This is highly efficient when performing reconnaissance on a large attack surface with multiple root domains or subdomains. Ensure the input file contains one domain per line to avoid parsing errors.
+  - title:
+      en: urlfinder - list-based enumeration
+      tr: urlfinder - liste tabanlı numaralandırma
+    desc:
+      en: |
+        Enumerate URLs for multiple domains stored in a text file simultaneously. This is highly efficient when performing reconnaissance on a large attack surface with multiple root domains or subdomains. Ensure the input file contains one domain per line to avoid parsing errors.
+      tr: |
+        Bir metin dosyasında saklanan birden fazla alan adının URL'lerini aynı anda numaralandırır.
+        Birden fazla kök alan adı veya alt alan adıyla geniş bir saldırı yüzeyinde keşif yaparken oldukça verimlidir.
+        Ayrıştırma hatalarını önlemek için girdi dosyasının satır başına bir alan adı içerdiğinden emin olun.
     command: "urlfinder -list {{input_file|domains.txt}}"
 
   # === SOURCE MANAGEMENT ===
-  - title: urlfinder - exhaustive discovery using all sources
-    desc: |
-      Use every available data source to find URLs, which significantly increases the thoroughness of the discovery. While this is the most comprehensive mode, it may be slower than the default configuration. It is recommended for deep reconnaissance phases where identifying every possible endpoint is critical.
+  - title:
+      en: urlfinder - exhaustive discovery using all sources
+      tr: urlfinder - tüm kaynaklarla kapsamlı keşif
+    desc:
+      en: |
+        Use every available data source to find URLs, which significantly increases the thoroughness of the discovery. While this is the most comprehensive mode, it may be slower than the default configuration. It is recommended for deep reconnaissance phases where identifying every possible endpoint is critical.
+      tr: |
+        URL bulmak için mevcut her veri kaynağını kullanır, bu da keşfin kapsamını önemli ölçüde artırır.
+        En kapsamlı mod olmasına rağmen varsayılan yapılandırmadan daha yavaş olabilir.
+        Her olası uç noktayı belirlemenin kritik olduğu derin keşif aşamaları için önerilir.
     command: "urlfinder -d {{domain}} -all"
 
-  - title: urlfinder - filter by specific sources
-    desc: |
-      Limit the URL discovery process to specific providers such as AlienVault or CommonCrawl. This helps in reducing execution time by ignoring slower sources or focusing on providers known to have better coverage for the target. You can view the list of all available source names by using the -ls flag.
+  - title:
+      en: urlfinder - filter by specific sources
+      tr: urlfinder - belirli kaynaklarla filtreleme
+    desc:
+      en: |
+        Limit the URL discovery process to specific providers such as AlienVault or CommonCrawl. This helps in reducing execution time by ignoring slower sources or focusing on providers known to have better coverage for the target. You can view the list of all available source names by using the -ls flag.
+      tr: |
+        URL keşif sürecini AlienVault veya CommonCrawl gibi belirli sağlayıcılarla sınırlar.
+        Bu, yavaş kaynakları atlayarak yürütme süresini kısaltmaya veya hedef için daha iyi kapsama sahip olduğu bilinen sağlayıcılara odaklanmaya yardımcı olur.
+        Mevcut tüm kaynak adlarının listesini -ls bayrağıyla görüntüleyebilirsiniz.
     command: "urlfinder -d {{domain}} -s {{sources|alienvault,commoncrawl}}"
 
-  - title: urlfinder - exclude specific sources
-    desc: |
-      Exclude specific providers from the discovery process. This is useful if a particular source is providing redundant data or is experiencing high latency that slows down the tool. It allows for a more streamlined search without losing the benefits of other default sources.
+  - title:
+      en: urlfinder - exclude specific sources
+      tr: urlfinder - belirli kaynakları hariç tutma
+    desc:
+      en: |
+        Exclude specific providers from the discovery process. This is useful if a particular source is providing redundant data or is experiencing high latency that slows down the tool. It allows for a more streamlined search without losing the benefits of other default sources.
+      tr: |
+        Keşif sürecinden belirli sağlayıcıları çıkarır.
+        Bu, bir kaynak gereksiz veri sağlıyorsa veya aracı yavaşlatan yüksek gecikme yaşıyorsa kullanışlıdır.
+        Diğer varsayılan kaynakların avantajlarından vazgeçmeden daha akıcı bir aramaya olanak tanır.
     command: "urlfinder -d {{domain}} -es {{exclude_sources|waybackarchive}}"
 
   # === FILTERING AND SCOPE ===
-  - title: urlfinder - pattern-based matching
-    desc: |
-      Filter the results to include only URLs that match specific keywords or patterns. For example, you might want to isolate URLs related to administrative interfaces or shopping carts. Multiple patterns can be provided as a comma-separated list or via a file.
+  - title:
+      en: urlfinder - pattern-based matching
+      tr: urlfinder - desen tabanlı eşleştirme
+    desc:
+      en: |
+        Filter the results to include only URLs that match specific keywords or patterns. For example, you might want to isolate URLs related to administrative interfaces or shopping carts. Multiple patterns can be provided as a comma-separated list or via a file.
+      tr: |
+        Sonuçları yalnızca belirli anahtar kelimeler veya desenlerle eşleşen URL'leri içerecek şekilde filtreler.
+        Örneğin, yönetim arayüzleri veya sepetlerle ilgili URL'leri ayıklamak isteyebilirsiniz.
+        Birden fazla desen virgülle ayrılmış liste veya dosya yoluyla verilebilir.
     command: "urlfinder -d {{domain}} -m {{match_pattern|admin,login,api}}"
 
-  - title: urlfinder - exclude specific patterns
-    desc: |
-      Filter out URLs that match specific unwanted patterns or file extensions. This is helpful for removing noise such as CSS files, images, or legal policies from your results. Using this flag helps keep the output focused on functional application endpoints.
+  - title:
+      en: urlfinder - exclude specific patterns
+      tr: urlfinder - belirli desenleri hariç tutma
+    desc:
+      en: |
+        Filter out URLs that match specific unwanted patterns or file extensions. This is helpful for removing noise such as CSS files, images, or legal policies from your results. Using this flag helps keep the output focused on functional application endpoints.
+      tr: |
+        Belirli istenmeyen desenler veya dosya uzantılarıyla eşleşen URL'leri filtreler.
+        Bu, CSS dosyaları, resimler veya yasal uyarılar gibi gürültüyü sonuçlardan temizlemeye yardımcı olur.
+        Bu bayrağı kullanmak çıktıyı işlevsel uygulama uç noktalarına odaklar.
     command: "urlfinder -d {{domain}} -f {{filter_pattern|png,jpg,css,privacy}}"
 
-  - title: urlfinder - field-based scoping
-    desc: |
-      Define the scope of discovery based on the domain name (dn), root domain (rdn), or fully qualified domain name (fqdn). By default, the tool uses "rdn" to catch subdomains, but changing it to "fqdn" makes the search much more restrictive. This prevents the tool from returning URLs belonging to external third-party services that might be linked.
+  - title:
+      en: urlfinder - field-based scoping
+      tr: urlfinder - alan tabanlı kapsam belirleme
+    desc:
+      en: |
+        Define the scope of discovery based on the domain name (dn), root domain (rdn), or fully qualified domain name (fqdn). By default, the tool uses "rdn" to catch subdomains, but changing it to "fqdn" makes the search much more restrictive. This prevents the tool from returning URLs belonging to external third-party services that might be linked.
+      tr: |
+        Keşif kapsamını alan adı (dn), kök alan adı (rdn) veya tam nitelikli alan adı (fqdn) temelinde tanımlar.
+        Araç varsayılan olarak alt alan adlarını yakalamak için "rdn" kullanır, ancak "fqdn" olarak değiştirmek aramayı çok daha kısıtlayıcı hale getirir.
+        Bu, bağlantılı harici üçüncü parti servislere ait URL'lerin döndürülmesini engeller.
     command: "urlfinder -d {{domain}} -fs {{scope_field|fqdn}}"
 
   # === OUTPUT MANAGEMENT ===
-  - title: urlfinder - save results to file
-    desc: |
-      Write the discovered URLs to a specific output file for documentation and further analysis. Saving to a file is essential for maintaining an audit trail during a professional penetration test. This prevents the loss of data if the terminal session is closed or if the output is too large for the buffer.
+  - title:
+      en: urlfinder - save results to file
+      tr: urlfinder - sonuçları dosyaya kaydetme
+    desc:
+      en: |
+        Write the discovered URLs to a specific output file for documentation and further analysis. Saving to a file is essential for maintaining an audit trail during a professional penetration test. This prevents the loss of data if the terminal session is closed or if the output is too large for the buffer.
+      tr: |
+        Bulunan URL'leri dokümantasyon ve ileri analiz için belirli bir çıktı dosyasına yazar.
+        Dosyaya kaydetmek, profesyonel bir sızma testi sırasında denetim izi tutmak için gereklidir.
+        Bu, terminal oturumu kapatılırsa veya çıktı arabellek için çok büyükse veri kaybını önler.
     command: "urlfinder -d {{domain}} -o {{output_file|results.txt}}"
 
-  - title: urlfinder - structured JSONL output
-    desc: |
-      Generate output in JSON Lines format, which includes detailed metadata like the discovery source for each URL. This structured format is ideal for programmatic processing and integration into automated vulnerability scanning pipelines. Each line in the output file represents a complete, valid JSON object.
+  - title:
+      en: urlfinder - structured JSONL output
+      tr: urlfinder - yapılandırılmış JSONL çıktısı
+    desc:
+      en: |
+        Generate output in JSON Lines format, which includes detailed metadata like the discovery source for each URL. This structured format is ideal for programmatic processing and integration into automated vulnerability scanning pipelines. Each line in the output file represents a complete, valid JSON object.
+      tr: |
+        Her URL için keşif kaynağı gibi ayrıntılı meta veriler içeren JSON Satırları biçiminde çıktı üretir.
+        Bu yapılandırılmış biçim, programatik işleme ve otomatik zafiyet tarama hatlarına bütünleşme için idealdir.
+        Çıktı dosyasındaki her satır eksiksiz, geçerli bir JSON nesnesini temsil eder.
     command: "urlfinder -d {{domain}} -j -o {{output_file|results.jsonl}}"
 
   # === OPTIMIZATION AND AUTOMATION ===
-  - title: urlfinder - silent mode for automation
-    desc: |
-      Run the tool in silent mode, which suppresses all banners and progress information, outputting only the found URLs. This is particularly useful when piping the output directly into other command-line tools like 'httpx' or 'nuclei'. It ensures the resulting data stream is clean and ready for immediate consumption by other scripts.
+  - title:
+      en: urlfinder - silent mode for automation
+      tr: urlfinder - otomasyon için sessiz mod
+    desc:
+      en: |
+        Run the tool in silent mode, which suppresses all banners and progress information, outputting only the found URLs. This is particularly useful when piping the output directly into other command-line tools like 'httpx' or 'nuclei'. It ensures the resulting data stream is clean and ready for immediate consumption by other scripts.
+      tr: |
+        Aracı başlık ve ilerleme bilgisi göstermeden yalnızca bulunan URL'leri veren sessiz modda çalıştırır.
+        Bu, çıktıyı doğrudan 'httpx' veya 'nuclei' gibi diğer komut satırı araçlarına aktarırken özellikle kullanışlıdır.
+        Ortaya çıkan veri akışının temiz olmasını ve diğer betikler tarafından hemen tüketilebilmesini sağlar.
     command: "urlfinder -d {{domain}} -silent"
 
-  - title: urlfinder - set global rate limits
-    desc: |
-      Control the speed of the discovery by setting a maximum number of HTTP requests allowed per second. This is important to avoid triggering Web Application Firewalls (WAF) or hitting API rate limits on the data providers. Use a conservative value if you notice connection timeouts or being blocked by sources.
+  - title:
+      en: urlfinder - set global rate limits
+      tr: urlfinder - genel hız limitleri belirleme
+    desc:
+      en: |
+        Control the speed of the discovery by setting a maximum number of HTTP requests allowed per second. This is important to avoid triggering Web Application Firewalls (WAF) or hitting API rate limits on the data providers. Use a conservative value if you notice connection timeouts or being blocked by sources.
+      tr: |
+        Saniye başına izin verilen maksimum HTTP isteği sayısını belirleyerek keşif hızını kontrol eder.
+        Bu, Web Uygulama Güvenlik Duvarlarını (WAF) tetiklemekten veya veri sağlayıcıların API hız limitlerine takılmaktan kaçınmak için önemlidir.
+        Bağlantı zaman aşımları veya kaynaklar tarafından engellenme fark ederseniz muhafazakar bir değer kullanın.
     command: "urlfinder -d {{domain}} -rl {{rate_limit|10}}"
 
-  - title: urlfinder - set enumeration timeout
-    desc: |
-      Specify the maximum amount of time in minutes that the enumeration process is allowed to run. This prevents the tool from hanging on extremely large domains or slow sources indefinitely. It is a vital setting for automated workflows where time slots are strictly allocated.
+  - title:
+      en: urlfinder - set enumeration timeout
+      tr: urlfinder - numaralandırma zaman aşımı belirleme
+    desc:
+      en: |
+        Specify the maximum amount of time in minutes that the enumeration process is allowed to run. This prevents the tool from hanging on extremely large domains or slow sources indefinitely. It is a vital setting for automated workflows where time slots are strictly allocated.
+      tr: |
+        Numaralandırma sürecinin çalışmasına izin verilen maksimum süreyi dakika cinsinden belirtir.
+        Bu, aracın aşırı büyük alan adlarında veya yavaş kaynaklarda sonsuza kadar takılmasını önler.
+        Zaman dilimlerinin sıkı şekilde tahsis edildiği otomatik iş akışları için hayati bir ayardır.
     command: "urlfinder -d {{domain}} -max-time {{minutes|5}}"

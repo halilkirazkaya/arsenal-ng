@@ -3,111 +3,215 @@ tags: [web, scanner, fuzzer, pentest, enumeration, security, reconnaissance]
 
 actions:
   # === DIRECTORY AND FILE ENUMERATION ===
-  - title: ffuf - basic directory discovery
-    desc: |
-      Perform a basic directory brute-force attack against a target URL. 
-      The keyword 'FUZZ' is used as a placeholder in the URL where wordlist entries will be injected.
-      This is the most common entry point for web reconnaissance to find unlinked content.
-      Be aware that high thread counts might trigger rate limiting or Web Application Firewalls (WAF).
+  - title:
+      en: ffuf - basic directory discovery
+      tr: ffuf - temel dizin keşfi
+    desc:
+      en: |
+        Perform a basic directory brute-force attack against a target URL. 
+        The keyword 'FUZZ' is used as a placeholder in the URL where wordlist entries will be injected.
+        This is the most common entry point for web reconnaissance to find unlinked content.
+        Be aware that high thread counts might trigger rate limiting or Web Application Firewalls (WAF).
+      tr: |
+        Hedef URL'ye karşı temel bir dizin kaba kuvvet saldırısı yapın.
+        'FUZZ' anahtar sözcüğü, URL'de wordlist girdilerinin enjekte edileceği yer tutucu olarak kullanılır.
+        Bağlantısız içeriği bulmak için web keşfinin en yaygın giriş noktasıdır.
+        Yüksek iş parçacığı sayılarının hız sınırlama veya Web Uygulama Güvenlik Duvarlarını (WAF) tetikleyebileceğini unutmayın.
     command: "ffuf -u {{url}}/FUZZ -w {{wordlist|/usr/share/wordlists/dirb/common.txt}}"
 
-  - title: ffuf - file discovery with extensions
-    desc: |
-      Search for specific files by appending a list of extensions to each wordlist entry.
-      The -e flag takes a comma-separated list of extensions like .php, .html, or .txt.
-      This is essential when looking for backup files (e.g., .bak, .old) or configuration files.
-      Ensure the FUZZ keyword is placed at the end of the path without an extension if you use -e.
+  - title:
+      en: ffuf - file discovery with extensions
+      tr: ffuf - uzantılarla dosya keşfi
+    desc:
+      en: |
+        Search for specific files by appending a list of extensions to each wordlist entry.
+        The -e flag takes a comma-separated list of extensions like .php, .html, or .txt.
+        This is essential when looking for backup files (e.g., .bak, .old) or configuration files.
+        Ensure the FUZZ keyword is placed at the end of the path without an extension if you use -e.
+      tr: |
+        Her wordlist girdisine bir uzantı listesi ekleyerek belirli dosyaları arayın.
+        -e bayrağı .php, .html veya .txt gibi virgülle ayrılmış bir uzantı listesi alır.
+        Yedek dosyaları (örn. .bak, .old) veya yapılandırma dosyaları ararken gereklidir.
+        -e kullanıyorsanız FUZZ anahtar sözcüğünün uzantısız olarak yolun sonunda olduğundan emin olun.
     command: "ffuf -u {{url}}/FUZZ -w {{wordlist}} -e {{extensions|.php,.txt,.html,.bak}}"
 
-  - title: ffuf - recursive directory scanning
-    desc: |
-      Enable recursive scanning to automatically fuzz newly discovered directories.
-      The -recursion flag allows ffuf to start a new scan job for every directory it finds that matches the matchers.
-      You must define the maximum depth with -recursion-depth to prevent infinite loops.
-      Note that the URL must end with the FUZZ keyword for recursion to work properly.
+  - title:
+      en: ffuf - recursive directory scanning
+      tr: ffuf - özyineli dizin taraması
+    desc:
+      en: |
+        Enable recursive scanning to automatically fuzz newly discovered directories.
+        The -recursion flag allows ffuf to start a new scan job for every directory it finds that matches the matchers.
+        You must define the maximum depth with -recursion-depth to prevent infinite loops.
+        Note that the URL must end with the FUZZ keyword for recursion to work properly.
+      tr: |
+        Yeni keşfedilen dizinleri otomatik bulanıklaştırmak için özyineli taramayı etkinleştirin.
+        -recursion bayrağı, ffuf'in eşleşen her dizin için yeni bir tarama işi başlatmasını sağlar.
+        Sonsuz döngüleri önlemek için maksimum derinliği -recursion-depth ile tanımlamalısınız.
+        Özyinelemenin düzgün çalışması için URL'nin FUZZ anahtar sözcüğüyle bitmesi gerektiğini unutmayın.
     command: "ffuf -u {{url}}/FUZZ -w {{wordlist}} -recursion -recursion-depth {{depth|2}}"
 
   # === SUBDOMAIN AND VHOST DISCOVERY ===
-  - title: ffuf - virtual host (vhost) fuzzing
-    desc: |
-      Fuzz the 'Host' header to identify virtual hosts configured on the target IP or domain.
-      This technique is vital for finding internal or hidden subdomains that don't have public DNS records.
-      Since most servers return a default page for invalid hosts, you should combine this with filtering (like -fs) to remove noise.
-      It helps in identifying development, staging, or administrative interfaces hosted on the same infrastructure.
+  - title:
+      en: ffuf - virtual host (vhost) fuzzing
+      tr: ffuf - sanal host (vhost) bulanıklaştırma
+    desc:
+      en: |
+        Fuzz the 'Host' header to identify virtual hosts configured on the target IP or domain.
+        This technique is vital for finding internal or hidden subdomains that don't have public DNS records.
+        Since most servers return a default page for invalid hosts, you should combine this with filtering (like -fs) to remove noise.
+        It helps in identifying development, staging, or administrative interfaces hosted on the same infrastructure.
+      tr: |
+        Hedef IP veya alan adında yapılandırılmış sanal hostları tespit etmek için 'Host' başlığını bulanıklaştırın.
+        Bu teknik, genel DNS kaydı olmayan iç veya gizli subdomain'leri bulmak için hayati önem taşır.
+        Çoğu sunucu geçersiz hostlara varsayılan sayfa döndürdüğünden gürültüyü elemek için bunu filtrelemeyle (ör. -fs) birleştirmelisiniz.
+        Aynı altyapıda barındırılan geliştirme, test veya yönetim arayüzlerini belirlemeye yardımcı olur.
     command: "ffuf -u http://{{target_ip}} -H \"Host: FUZZ.{{domain}}\" -w {{wordlist}}"
 
   # === PARAMETER AND DATA FUZZING ===
-  - title: ffuf - GET parameter fuzzing
-    desc: |
-      Discover hidden GET parameters by fuzzing the parameter names in the query string.
-      This is useful for finding administrative flags (e.g., ?debug=true) or undocumented API features.
-      The command matches all responses by default, so using auto-calibration (-ac) is recommended to filter out constant responses.
-      Parameter fuzzing can often lead to the discovery of vulnerabilities like IDOR, SQLi, or XSS.
+  - title:
+      en: ffuf - GET parameter fuzzing
+      tr: ffuf - GET parametresi bulanıklaştırma
+    desc:
+      en: |
+        Discover hidden GET parameters by fuzzing the parameter names in the query string.
+        This is useful for finding administrative flags (e.g., ?debug=true) or undocumented API features.
+        The command matches all responses by default, so using auto-calibration (-ac) is recommended to filter out constant responses.
+        Parameter fuzzing can often lead to the discovery of vulnerabilities like IDOR, SQLi, or XSS.
+      tr: |
+        Sorgu dizesindeki parametre adlarını bulanıklaştırarak gizli GET parametrelerini keşfedin.
+        Yönetimsel bayrakları (örn. ?debug=true) veya belgelenmemiş API özelliklerini bulmak için kullanışlıdır.
+        Komut varsayılan olarak tüm yanıtları eşleştirir; sabit yanıtları elemek için otomatik kalibrasyon (-ac) önerilir.
+        Parametre bulanıklaştırma çoğunlukla IDOR, SQLi veya XSS gibi zafiyetlerin keşfine yol açabilir.
     command: "ffuf -u {{url}}/page.php?FUZZ=1 -w {{wordlist}} -ac"
 
-  - title: ffuf - POST data fuzzing
-    desc: |
-      Fuzz data sent in the body of a POST request.
-      The -X flag specifies the HTTP method, and the -d flag contains the data with the FUZZ placeholder.
-      Commonly used for brute-forcing login forms, finding hidden API fields, or testing JSON inputs.
-      Remember to set the appropriate 'Content-Type' header if the application expects a specific format like JSON or XML.
+  - title:
+      en: ffuf - POST data fuzzing
+      tr: ffuf - POST verisi bulanıklaştırma
+    desc:
+      en: |
+        Fuzz data sent in the body of a POST request.
+        The -X flag specifies the HTTP method, and the -d flag contains the data with the FUZZ placeholder.
+        Commonly used for brute-forcing login forms, finding hidden API fields, or testing JSON inputs.
+        Remember to set the appropriate 'Content-Type' header if the application expects a specific format like JSON or XML.
+      tr: |
+        POST isteğinin gövdesinde gönderilen veriyi bulanıklaştırın.
+        -X bayrağı HTTP yöntemini belirtir, -d bayrağı FUZZ yer tutuculu veriyi içerir.
+        Genellikle giriş formu kaba kuvvetinde, gizli API alanlarını bulmada veya JSON girdilerini testte kullanılır.
+        Uygulama JSON veya XML gibi belirli bir biçim bekliyorsa uygun 'Content-Type' başlığını ayarlamayı unutmayın.
     command: "ffuf -u {{url}} -X POST -d \"username=FUZZ&password=password123\" -w {{wordlist}} -H \"Content-Type: application/x-www-form-urlencoded\""
 
-  - title: ffuf - multiple wordlist fuzzing (Clusterbomb)
-    desc: |
-      Use multiple wordlists to fuzz multiple locations simultaneously using the 'clusterbomb' mode.
-      In this mode, ffuf tries every combination of all wordlists (Cartesian product).
-      Assign custom keywords to each wordlist using the colon syntax (e.g., -w list:KEYWORD).
-      This is extremely powerful for credential stuffing attacks or multi-parameter testing but generates a very high number of requests.
+  - title:
+      en: ffuf - multiple wordlist fuzzing (Clusterbomb)
+      tr: ffuf - çoklu wordlist bulanıklaştırma (Clusterbomb)
+    desc:
+      en: |
+        Use multiple wordlists to fuzz multiple locations simultaneously using the 'clusterbomb' mode.
+        In this mode, ffuf tries every combination of all wordlists (Cartesian product).
+        Assign custom keywords to each wordlist using the colon syntax (e.g., -w list:KEYWORD).
+        This is extremely powerful for credential stuffing attacks or multi-parameter testing but generates a very high number of requests.
+      tr: |
+        'clusterbomb' kipiyle birden çok konumu aynı anda bulanıklaştırmak için birden çok wordlist kullanın.
+        Bu kipte ffuf tüm wordlist'lerin her kombinasyonunu (kartezyen çarpım) dener.
+        İki nokta sözdizimiyle her wordlist'e özel anahtar sözcük atayın (örn. -w liste:ANAHTAR).
+        Kimlik bilgisi doldurma saldırıları veya çok parametreli testler için son derece güçlüdür ancak çok yüksek sayıda istek üretir.
     command: "ffuf -w {{user_list}}:USER -w {{pass_list}}:PASS -u {{url}} -X POST -d \"user=USER&pass=PASS\" -mode clusterbomb"
 
   # === FILTERING AND MATCHING ===
-  - title: ffuf - filter by response size and code
-    desc: |
-      Filter out specific response sizes and HTTP status codes to clean up the output.
-      The -fc flag filters status codes (e.g., 404, 403), while -fs filters based on the response content length.
-      Filtering is crucial when the server returns a standard length page for "Not Found" or "Unauthorized" errors.
-      You can provide comma-separated values or ranges (e.g., 100-200) to both flags.
+  - title:
+      en: ffuf - filter by response size and code
+      tr: ffuf - yanıt boyutu ve koduna göre filtreleme
+    desc:
+      en: |
+        Filter out specific response sizes and HTTP status codes to clean up the output.
+        The -fc flag filters status codes (e.g., 404, 403), while -fs filters based on the response content length.
+        Filtering is crucial when the server returns a standard length page for "Not Found" or "Unauthorized" errors.
+        You can provide comma-separated values or ranges (e.g., 100-200) to both flags.
+      tr: |
+        Çıktıyı temizlemek için belirli yanıt boyutlarını ve HTTP durum kodlarını eleyin.
+        -fc bayrağı durum kodlarını (örn. 404, 403) filtrelerken -fs yanıt içerik uzunluğuna göre filtreler.
+        Sunucu "Bulunamadı" veya "Yetkisiz" hataları için standart uzunlukta sayfa döndürdüğünde filtreleme kritiktir.
+        İki bayrağa da virgülle ayrılmış değerler veya aralıklar (örn. 100-200) verebilirsiniz.
     command: "ffuf -u {{url}}/FUZZ -w {{wordlist}} -fc 404,403 -fs {{size_to_ignore}}"
 
-  - title: ffuf - auto-calibration
-    desc: |
-      Automatically calibrate filtering options based on the server's behavior.
-      The -ac flag sends a few initial requests to determine the standard response size and line count for non-existent pages.
-      It then automatically filters out these common patterns from your final results.
-      This is highly recommended for modern web applications that return "200 OK" for custom error pages.
+  - title:
+      en: ffuf - auto-calibration
+      tr: ffuf - otomatik kalibrasyon
+    desc:
+      en: |
+        Automatically calibrate filtering options based on the server's behavior.
+        The -ac flag sends a few initial requests to determine the standard response size and line count for non-existent pages.
+        It then automatically filters out these common patterns from your final results.
+        This is highly recommended for modern web applications that return "200 OK" for custom error pages.
+      tr: |
+        Sunucunun davranışına göre filtreleme seçeneklerini otomatik kalibre edin.
+        -ac bayrağı, var olmayan sayfalar için standart yanıt boyutunu ve satır sayısını belirlemek üzere birkaç ilk istek gönderir.
+        Ardından bu yaygın kalıpları nihai sonuçlarınızdan otomatik olarak eler.
+        Özel hata sayfaları için "200 OK" döndüren modern web uygulamalarında şiddetle önerilir.
     command: "ffuf -u {{url}}/FUZZ -w {{wordlist}} -ac"
 
   # === AUTHENTICATION AND ADVANCED HTTP ===
-  - title: ffuf - authenticated fuzzing with cookies
-    desc: |
-      Perform fuzzing while maintaining a session by providing session cookies.
-      The -b flag allows you to pass cookie strings exactly as they appear in the browser's Request headers.
-      This is necessary for discovering directories or parameters that are only accessible to authenticated users.
-      Ensure your session token remains valid during the duration of the scan to avoid false negatives.
+  - title:
+      en: ffuf - authenticated fuzzing with cookies
+      tr: ffuf - çerezlerle kimlik doğrulamalı bulanıklaştırma
+    desc:
+      en: |
+        Perform fuzzing while maintaining a session by providing session cookies.
+        The -b flag allows you to pass cookie strings exactly as they appear in the browser's Request headers.
+        This is necessary for discovering directories or parameters that are only accessible to authenticated users.
+        Ensure your session token remains valid during the duration of the scan to avoid false negatives.
+      tr: |
+        Oturum çerezleri vererek oturumu sürdürürken bulanıklaştırma yapın.
+        -b bayrağı, çerez dizelerini tarayıcının Request başlıklarında göründüğü gibi aktarmanıza olanak tanır.
+        Yalnızca kimliği doğrulanmış kullanıcıların erişebildiği dizin veya parametreleri keşfetmek için gereklidir.
+        Yanlış negatiflerden kaçınmak için oturum jetonunuzun tarama süresince geçerli kaldığından emin olun.
     command: "ffuf -u {{url}}/FUZZ -w {{wordlist}} -b \"{{cookie_name}}={{value}}; {{session_id}}=xyz\""
 
-  - title: ffuf - using a raw request file
-    desc: |
-      Import an entire HTTP request from a file, similar to the '-r' flag in SQLMap.
-      This is useful when dealing with complex requests involving many headers, cookies, and multi-line POST data.
-      Save the request from a proxy like Burp Suite, replace the target value with FUZZ, and point ffuf to it using -request.
-      You must also specify the protocol (http/https) using -request-proto if it differs from the default.
+  - title:
+      en: ffuf - using a raw request file
+      tr: ffuf - ham istek dosyası kullanma
+    desc:
+      en: |
+        Import an entire HTTP request from a file, similar to the '-r' flag in SQLMap.
+        This is useful when dealing with complex requests involving many headers, cookies, and multi-line POST data.
+        Save the request from a proxy like Burp Suite, replace the target value with FUZZ, and point ffuf to it using -request.
+        You must also specify the protocol (http/https) using -request-proto if it differs from the default.
+      tr: |
+        SQLMap'teki '-r' bayrağına benzer şekilde bir dosyadan tüm bir HTTP isteğini içe aktarın.
+        Çok sayıda başlık, çerez ve çok satırlı POST verisi içeren karmaşık isteklerle uğraşırken kullanışlıdır.
+        İsteği Burp Suite gibi bir vekilden kaydedin, hedef değeri FUZZ ile değiştirin ve -request ile ffuf'i ona yöneltin.
+        Varsayılandan farklıysa -request-proto ile protokolü de (http/https) belirtmelisiniz.
     command: "ffuf -request {{request_file}} -request-proto http -w {{wordlist}}"
 
   # === OUTPUT AND PROXYING ===
-  - title: ffuf - saving output to file
-    desc: |
-      Save the scan results to a file in a structured format for later analysis.
-      The -o flag defines the output filename, and -of specifies the format (json, md, csv, html, or all).
-      JSON output is particularly useful for piping into other tools or custom scripts in a pipeline.
-      Using '-of all' will generate reports in every supported format simultaneously.
+  - title:
+      en: ffuf - saving output to file
+      tr: ffuf - çıktıyı dosyaya kaydetme
+    desc:
+      en: |
+        Save the scan results to a file in a structured format for later analysis.
+        The -o flag defines the output filename, and -of specifies the format (json, md, csv, html, or all).
+        JSON output is particularly useful for piping into other tools or custom scripts in a pipeline.
+        Using '-of all' will generate reports in every supported format simultaneously.
+      tr: |
+        Tarama sonuçlarını sonradan analiz için yapısal bir biçimde dosyaya kaydedin.
+        -o bayrağı çıktı dosya adını, -of biçimi (json, md, csv, html veya all) belirtir.
+        JSON çıktısı, bir hatta başka araçlara veya özel betiklere aktarmak için özellikle kullanışlıdır.
+        '-of all' kullanmak desteklenen her biçimde aynı anda rapor üretir.
     command: "ffuf -u {{url}}/FUZZ -w {{wordlist}} -o {{output_file}}.json -of json"
 
-  - title: ffuf - proxying through Burp Suite
-    desc: |
-      Send all ffuf requests through a proxy like Burp Suite or OWASP ZAP.
-      This allows you to inspect the fuzzing traffic, use Burp's extensions, or log the requests for documentation.
-      Be careful when using high thread counts (-t) through a proxy as it can easily overwhelm the proxy application.
-      Use -replay-proxy instead of -x if you only want to send *matched* results to the proxy.
+  - title:
+      en: ffuf - proxying through Burp Suite
+      tr: ffuf - Burp Suite üzerinden vekil kullanma
+    desc:
+      en: |
+        Send all ffuf requests through a proxy like Burp Suite or OWASP ZAP.
+        This allows you to inspect the fuzzing traffic, use Burp's extensions, or log the requests for documentation.
+        Be careful when using high thread counts (-t) through a proxy as it can easily overwhelm the proxy application.
+        Use -replay-proxy instead of -x if you only want to send *matched* results to the proxy.
+      tr: |
+        Tüm ffuf isteklerini Burp Suite veya OWASP ZAP gibi bir vekilden geçirin.
+        Bu, bulanıklaştırma trafiğini incelemenizi, Burp eklentilerini kullanmanızı veya istekleri belgeleme için kaydetmenizi sağlar.
+        Vekil uygulamasını kolayca yorabileceğinden vekil üzerinden yüksek iş parçacığı sayısı (-t) kullanırken dikkatli olun.
+        Vekile yalnızca *eşleşen* sonuçları göndermek istiyorsanız -x yerine -replay-proxy kullanın.
     command: "ffuf -u {{url}}/FUZZ -w {{wordlist}} -x http://127.0.0.1:8080"

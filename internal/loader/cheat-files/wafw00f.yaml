@@ -3,74 +3,144 @@ tags: [web, security, pentest, enumeration, reconnaissance, waf, firewall]
 
 actions:
   # === RECONNAISSANCE & IDENTIFICATION ===
-  - title: wafw00f - basic WAF detection
-    desc: |
-      Identify the Web Application Firewall (WAF) protecting a specific URL. 
-      This command sends a series of probes to analyze HTTP responses and header fingerprints. 
-      It is the most common starting point during the reconnaissance phase of a web assessment.
+  - title:
+      en: wafw00f - basic WAF detection
+      tr: wafw00f - temel WAF tespiti
+    desc:
+      en: |
+        Identify the Web Application Firewall (WAF) protecting a specific URL. 
+        This command sends a series of probes to analyze HTTP responses and header fingerprints. 
+        It is the most common starting point during the reconnaissance phase of a web assessment.
+      tr: |
+        Belirli bir URL'yi koruyan Web Uygulama Güvenlik Duvarını (WAF) tespit eder.
+        Bu komut, HTTP yanıtlarını ve başlık parmak izlerini analiz etmek için bir dizi sonda gönderir.
+        Bir web değerlendirmesinin keşif aşamasındaki en yaygın başlangıç noktasıdır.
     command: "wafw00f {{url}}"
 
-  - title: wafw00f - list supported WAFs
-    desc: |
-      Display all WAF products that the tool is currently capable of detecting. 
-      This is useful for verifying if a specific vendor's signature is included in the tool's database. 
-      Run this command before performing targeted tests to ensure the desired WAF is supported.
+  - title:
+      en: wafw00f - list supported WAFs
+      tr: wafw00f - desteklenen WAF'leri listeleme
+    desc:
+      en: |
+        Display all WAF products that the tool is currently capable of detecting. 
+        This is useful for verifying if a specific vendor's signature is included in the tool's database. 
+        Run this command before performing targeted tests to ensure the desired WAF is supported.
+      tr: |
+        Aracın o anda tespit edebildiği tüm WAF ürünlerini gösterir.
+        Bu, belirli bir satıcının imzasının aracın veritabanında yer alıp almadığını doğrulamak için kullanışlıdır.
+        Hedeflenen testler yapmadan önce istenen WAF'in desteklendiğinden emin olmak için bu komutu çalıştırın.
     command: "wafw00f -l"
 
-  - title: wafw00f - verbose detection
-    desc: |
-      Increase the verbosity of the output to see technical details about the detection process. 
-      This helps in understanding which specific response characteristics triggered a WAF identification. 
-      You can use multiple 'v' flags (e.g., -vv or -vvv) for even more granular logging of requests and responses.
+  - title:
+      en: wafw00f - verbose detection
+      tr: wafw00f - ayrıntılı tespit
+    desc:
+      en: |
+        Increase the verbosity of the output to see technical details about the detection process. 
+        This helps in understanding which specific response characteristics triggered a WAF identification. 
+        You can use multiple 'v' flags (e.g., -vv or -vvv) for even more granular logging of requests and responses.
+      tr: |
+        Tespit süreci hakkındaki teknik ayrıntıları görmek için çıktının ayrıntı düzeyini artırır.
+        Bu, hangi belirli yanıt özelliklerinin bir WAF tespitini tetiklediğini anlamaya yardımcı olur.
+        İstek ve yanıtların daha da ayrıntılı günlüğü için birden fazla 'v' bayrağı (örn. -vv veya -vvv) kullanabilirsiniz.
     command: "wafw00f {{url}} -v"
 
-  - title: wafw00f - exhaustive search
-    desc: |
-      Continue testing even after a WAF is identified to see if multiple layers of protection exist. 
-      By default, wafw00f stops after the first successful match to save time. 
-      This is particularly useful for complex enterprise environments where a CDN-based WAF might sit in front of an on-premise appliance.
+  - title:
+      en: wafw00f - exhaustive search
+      tr: wafw00f - kapsamlı arama
+    desc:
+      en: |
+        Continue testing even after a WAF is identified to see if multiple layers of protection exist. 
+        By default, wafw00f stops after the first successful match to save time. 
+        This is particularly useful for complex enterprise environments where a CDN-based WAF might sit in front of an on-premise appliance.
+      tr: |
+        Bir WAF tespit edildikten sonra bile birden fazla koruma katmanı olup olmadığını görmek için test etmeye devam eder.
+        wafw00f varsayılan olarak zamandan kazanmak için ilk başarılı eşleşmeden sonra durur.
+        Bu, CDN tabanlı bir WAF'in şirket içi bir cihazın önünde durduğu karmaşık kurumsal ortamlarda özellikle kullanışlıdır.
     command: "wafw00f {{url}} -a"
 
-  - title: wafw00f - test for specific WAF
-    desc: |
-      Target a specific WAF product signature directly to see if it is present on the destination server. 
-      This is efficient when you have prior knowledge of the target's infrastructure or suspect a specific technology. 
-      It skips the general automated discovery sequence and focuses only on the specified signature.
+  - title:
+      en: wafw00f - test for specific WAF
+      tr: wafw00f - belirli WAF testi
+    desc:
+      en: |
+        Target a specific WAF product signature directly to see if it is present on the destination server. 
+        This is efficient when you have prior knowledge of the target's infrastructure or suspect a specific technology. 
+        It skips the general automated discovery sequence and focuses only on the specified signature.
+      tr: |
+        Hedef sunucuda bulunup bulunmadığını görmek için belirli bir WAF ürün imzasını doğrudan hedefler.
+        Bu, hedefin altyapısı hakkında önceden bilginiz varsa veya belirli bir teknolojiden şüpheleniyorsanız verimlidir.
+        Genel otomatik keşif dizisini atlar ve yalnızca belirtilen imzaya odaklanır.
     command: "wafw00f {{url}} -t {{waf_name|Cloudflare}}"
 
   # === BATCH OPERATIONS & OUTPUT ===
-  - title: wafw00f - batch scan from file
-    desc: |
-      Read multiple target URLs from a local file for automated batch processing. 
-      The input file can be in text, CSV, or JSON format, allowing for easy integration with other tool outputs. 
-      This is the preferred method for scanning large IP ranges or extensive lists of subdomains.
+  - title:
+      en: wafw00f - batch scan from file
+      tr: wafw00f - dosyadan toplu tarama
+    desc:
+      en: |
+        Read multiple target URLs from a local file for automated batch processing. 
+        The input file can be in text, CSV, or JSON format, allowing for easy integration with other tool outputs. 
+        This is the preferred method for scanning large IP ranges or extensive lists of subdomains.
+      tr: |
+        Otomatik toplu işlem için yerel bir dosyadan birden fazla hedef URL okur.
+        Girdi dosyası metin, CSV veya JSON biçiminde olabilir ve diğer araç çıktılarıyla kolay bütünleşmeye olanak tanır.
+        Geniş IP aralıklarını veya uzun alt alan adı listelerini taramanın tercih edilen yöntemidir.
     command: "wafw00f -i {{input_file|targets.txt}}"
 
-  - title: wafw00f - save results to file
-    desc: |
-      Write the detection results to a structured file for later analysis or reporting. 
-      The tool determines the output format (CSV, JSON, or Text) based on the file extension provided. 
-      This is essential for maintaining an audit trail and sharing findings with a security team.
+  - title:
+      en: wafw00f - save results to file
+      tr: wafw00f - sonuçları dosyaya kaydetme
+    desc:
+      en: |
+        Write the detection results to a structured file for later analysis or reporting. 
+        The tool determines the output format (CSV, JSON, or Text) based on the file extension provided. 
+        This is essential for maintaining an audit trail and sharing findings with a security team.
+      tr: |
+        Tespit sonuçlarını daha sonra analiz veya raporlama için yapılandırılmış bir dosyaya yazar.
+        Araç, verilen dosya uzantısına göre çıktı biçimini (CSV, JSON veya Metin) belirler.
+        Bu, denetim izi tutmak ve bulguları güvenlik ekibiyle paylaşmak için gereklidir.
     command: "wafw00f {{url}} -o {{output_file|results.json}}"
 
   # === ADVANCED CONFIGURATION ===
-  - title: wafw00f - scan via proxy
-    desc: |
-      Route all detection requests through an HTTP or SOCKS proxy server. 
-      This can be used to bypass IP-based rate limiting or to mask the source of the scanning activity. 
-      The tool supports various proxy strings including socks5:// and authenticated http:// proxies.
+  - title:
+      en: wafw00f - scan via proxy
+      tr: wafw00f - proxy ile tarama
+    desc:
+      en: |
+        Route all detection requests through an HTTP or SOCKS proxy server. 
+        This can be used to bypass IP-based rate limiting or to mask the source of the scanning activity. 
+        The tool supports various proxy strings including socks5:// and authenticated http:// proxies.
+      tr: |
+        Tüm tespit isteklerini bir HTTP veya SOCKS proxy sunucusu üzerinden yönlendirir.
+        Bu, IP tabanlı hız sınırlamasını aşmak veya tarama etkinliğinin kaynağını gizlemek için kullanılabilir.
+        Araç, socks5:// ve kimlik doğrulamalı http:// proxy dizeleri dahil çeşitli vekil dizelerini destekler.
     command: "wafw00f {{url}} -p {{proxy_url|http://127.0.0.1:8080}}"
 
-  - title: wafw00f - use custom headers
-    desc: |
-      Pass a text file containing custom HTTP headers to be sent with every request probe. 
-      This is useful when the target application requires specific User-Agents, Cookies, or Authorization headers to respond normally. 
-      Using custom headers can help bypass simple access controls that might otherwise block the tool's traffic.
+  - title:
+      en: wafw00f - use custom headers
+      tr: wafw00f - özel başlıklar kullanma
+    desc:
+      en: |
+        Pass a text file containing custom HTTP headers to be sent with every request probe. 
+        This is useful when the target application requires specific User-Agents, Cookies, or Authorization headers to respond normally. 
+        Using custom headers can help bypass simple access controls that might otherwise block the tool's traffic.
+      tr: |
+        Her istek sondasıyla birlikte gönderilecek özel HTTP başlıkları içeren bir metin dosyası geçirir.
+        Bu, hedef uygulamanın normal yanıt vermesi için belirli User-Agent, Çerez veya Yetkilendirme başlıkları gerektirdiğinde kullanışlıdır.
+        Özel başlıklar, aracın trafiğini engelleyebilecek basit erişim kontrollerini aşmaya yardımcı olabilir.
     command: "wafw00f {{url}} -H {{headers_file|headers.txt}}"
 
-  - title: wafw00f - disable redirects and set timeout
-    desc: |
-      Prevent the tool from following HTTP 3xx redirects and define a custom network timeout. 
-      Disabling redirects is important when you want to analyze the security of the entry point specifically without being sent to an external domain. 
-      Adjusting the timeout is helpful when scanning high-latency targets or unstable network environments.
+  - title:
+      en: wafw00f - disable redirects and set timeout
+      tr: wafw00f - yönlendirmeleri devre dışı bırakma ve zaman aşımı
+    desc:
+      en: |
+        Prevent the tool from following HTTP 3xx redirects and define a custom network timeout. 
+        Disabling redirects is important when you want to analyze the security of the entry point specifically without being sent to an external domain. 
+        Adjusting the timeout is helpful when scanning high-latency targets or unstable network environments.
+      tr: |
+        Aracın HTTP 3xx yönlendirmelerini izlemesini engeller ve özel bir ağ zaman aşımı tanımlar.
+        Yönlendirmeleri devre dışı bırakmak, harici bir alan adına yönlendirilmeden giriş noktasının güvenliğini analiz etmek istediğinizde önemlidir.
+        Zaman aşımını ayarlamak, yüksek gecikmeli hedefleri veya kararsız ağ ortamlarını tararken yardımcı olur.
     command: "wafw00f {{url}} -r -T {{seconds|15}}"

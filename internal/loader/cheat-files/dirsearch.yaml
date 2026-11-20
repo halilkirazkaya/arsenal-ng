@@ -3,113 +3,217 @@ tags: [web, pentest, reconnaissance, enumeration, scanner, security, brute-force
 
 actions:
   # === BASIC USAGE ===
-  - title: dirsearch - basic scan
-    desc: |
-      Perform a basic directory search against a single target URL using specific extensions.
-      This is the most common starting point for discovering hidden files and directories on a web server.
-      Providing extensions like php, asp, or html helps the tool narrow down the search to relevant file types for the target environment.
-      Always ensure you have permission to scan the target to avoid legal issues.
+  - title:
+      en: dirsearch - basic scan
+      tr: dirsearch - temel tarama
+    desc:
+      en: |
+        Perform a basic directory search against a single target URL using specific extensions.
+        This is the most common starting point for discovering hidden files and directories on a web server.
+        Providing extensions like php, asp, or html helps the tool narrow down the search to relevant file types for the target environment.
+        Always ensure you have permission to scan the target to avoid legal issues.
+      tr: |
+        Belirli uzantılarla tek hedef adrese yönelik temel dizin araması yapar.
+        Web sunucusundaki gizli dosya ile dizinleri bulmaya yönelik en yaygın başlangıç noktasıdır.
+        php, asp, html gibi uzantıları vermek aracın hedef ortama ilişkin dosya türlerine odaklanmasını sağlar.
+        Hukuki sorunlardan kaçınmak adına hedefi tarama izniniz olduğundan her zaman emin olun.
     command: "dirsearch -u {{url}} -e {{extensions|php,html,js,txt}}"
 
-  - title: dirsearch - scan list of urls
-    desc: |
-      Scan multiple target URLs simultaneously by providing a text file containing one URL per line.
-      This is highly efficient when performing reconnaissance across a large infrastructure or multiple subdomains.
-      The tool will iterate through each URL using the same configuration and extension settings provided.
-      Be cautious of system resource usage when scanning a large list of targets with many threads.
+  - title:
+      en: dirsearch - scan list of urls
+      tr: dirsearch - adres listesi tarama
+    desc:
+      en: |
+        Scan multiple target URLs simultaneously by providing a text file containing one URL per line.
+        This is highly efficient when performing reconnaissance across a large infrastructure or multiple subdomains.
+        The tool will iterate through each URL using the same configuration and extension settings provided.
+        Be cautious of system resource usage when scanning a large list of targets with many threads.
+      tr: |
+        Satır başına bir adres barındıran metin dosyası vererek çoklu hedef adresi eşzamanlı tarar.
+        Geniş altyapı ya da çoklu alt alan adı genelinde keşif yaparken oldukça verimlidir.
+        Aynı yapılandırma ile uzantı ayarlarını kullanarak her adresi sırayla işler.
+        Pek çok iş parçacığıyla uzun hedef listesi tararken sistem kaynağı tüketimine dikkat edin.
     command: "dirsearch -l {{url_file_path}} -e {{extensions|*}}"
 
   # === DICTIONARY & WORDLIST SETTINGS ===
-  - title: dirsearch - custom wordlist
-    desc: |
-      Use a specific wordlist for the directory brute-forcing process instead of the default internal list.
-      This is useful when you have technology-specific wordlists or high-quality discovery lists like SecLists.
-      You can provide multiple wordlists separated by commas to combine different sets of potential paths.
-      Ensure the wordlist path is correct and accessible by the user running the command.
+  - title:
+      en: dirsearch - custom wordlist
+      tr: dirsearch - özel kelime listesi
+    desc:
+      en: |
+        Use a specific wordlist for the directory brute-forcing process instead of the default internal list.
+        This is useful when you have technology-specific wordlists or high-quality discovery lists like SecLists.
+        You can provide multiple wordlists separated by commas to combine different sets of potential paths.
+        Ensure the wordlist path is correct and accessible by the user running the command.
+      tr: |
+        Dizin kaba zorlama sürecinde dahili varsayılan liste yerine belirli kelime listesi kullanır.
+        Teknolojiye özgü kelime listeleri ya da SecLists gibi nitelikli keşif listeleri elinizdeyken yararlıdır.
+        Farklı olası yol kümelerini birleştirmek adına virgülle ayrılmış çoklu kelime listesi verebilirsiniz.
+        Kelime listesi yolunun doğru olduğundan ve komutu çalıştıran kullanıcıca erişilebildiğinden emin olun.
     command: "dirsearch -u {{url}} -e {{extensions|*}} -w {{wordlist_path|/usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt}}"
 
-  - title: dirsearch - prefixes and suffixes
-    desc: |
-      Append custom prefixes or suffixes to every entry in the wordlist during the scan.
-      This is particularly helpful for finding backup files (e.g., .bak, .old) or environment-specific hidden folders.
-      Prefixes are added to the beginning of the wordlist entry, while suffixes are added to the end.
-      Using this feature can significantly increase the total number of requests sent to the server.
+  - title:
+      en: dirsearch - prefixes and suffixes
+      tr: dirsearch - ön ek ve son ekler
+    desc:
+      en: |
+        Append custom prefixes or suffixes to every entry in the wordlist during the scan.
+        This is particularly helpful for finding backup files (e.g., .bak, .old) or environment-specific hidden folders.
+        Prefixes are added to the beginning of the wordlist entry, while suffixes are added to the end.
+        Using this feature can significantly increase the total number of requests sent to the server.
+      tr: |
+        Tarama sırasında kelime listesindeki her girdiye özel ön ek ya da son ek ekler.
+        .bak, .old türü yedek dosyaları ya da ortama özgü gizli klasörleri bulmakta özellikle yardımcıdır.
+        Ön ekler kelime listesi girdisinin başına, son ekler sonuna eklenir.
+        Sunucuya gönderilen toplam istek sayısını belirgin ölçüde artırabilir.
     command: "dirsearch -u {{url}} -e {{extensions|php}} --prefixes {{prefixes|_,backup-}} --suffixes {{suffixes|~,.swp}}"
 
   # === FILTERING & STATUS CODES ===
-  - title: dirsearch - filter status codes
-    desc: |
-      Include or exclude specific HTTP status codes from the results to reduce noise.
-      By default, dirsearch shows many codes, but you might only be interested in 200 (OK) or 301 (Redirect).
-      Excluding codes like 403 (Forbidden) or 500 (Internal Server Error) helps focus on accessible resources.
-      You can specify individual codes or ranges, such as 200-299, separated by commas.
+  - title:
+      en: dirsearch - filter status codes
+      tr: dirsearch - durum kodlarını süzme
+    desc:
+      en: |
+        Include or exclude specific HTTP status codes from the results to reduce noise.
+        By default, dirsearch shows many codes, but you might only be interested in 200 (OK) or 301 (Redirect).
+        Excluding codes like 403 (Forbidden) or 500 (Internal Server Error) helps focus on accessible resources.
+        You can specify individual codes or ranges, such as 200-299, separated by commas.
+      tr: |
+        Gürültüyü azaltmak adına sonuçlara belirli HTTP durum kodlarını alır ya da dışlar.
+        dirsearch öntanımlı olarak pek çok kod gösterir; oysa yalnız 200 (OK) ya da 301 (Yönlendirme) ilginizi çekebilir.
+        403 (Forbidden) ya da 500 (Dahili Sunucu Hatası) türü kodları dışlamak erişilebilir kaynaklara odaklanmaya yardımcı olur.
+        Virgülle ayrılmış tekil kodlar ya da 200-299 örneğindeki gibi aralıklar belirtebilirsiniz.
     command: "dirsearch -u {{url}} -e {{extensions|*}} -i {{include_codes|200,301}} -x {{exclude_codes|400,403,500-599}}"
 
-  - title: dirsearch - filter by size or text
-    desc: |
-      Exclude responses based on their body size or the presence of specific text/regex.
-      This is extremely useful for filtering out "fake" 200 OK pages or custom error pages that all return the same size.
-      If a server returns a specific message for all non-existent pages, you can use --exclude-text to hide them.
-      This helps in identifying unique responses that might actually represent valid hidden files.
+  - title:
+      en: dirsearch - filter by size or text
+      tr: dirsearch - boyut ya da metne göre süzme
+    desc:
+      en: |
+        Exclude responses based on their body size or the presence of specific text/regex.
+        This is extremely useful for filtering out "fake" 200 OK pages or custom error pages that all return the same size.
+        If a server returns a specific message for all non-existent pages, you can use --exclude-text to hide them.
+        This helps in identifying unique responses that might actually represent valid hidden files.
+      tr: |
+        Yanıtları gövde boyutu ya da belirli metin/desen varlığına dayanarak dışlar.
+        Tamamı aynı boyutu döndüren sahte 200 OK sayfaları ya da özel hata sayfalarını elemekte son derece yararlıdır.
+        Sunucu var olmayan bütün sayfalara aynı iletiyi döndürüyorsa bunları gizlemek adına --exclude-text kullanabilirsiniz.
+        Gerçekten geçerli gizli dosyaları yansıtması muhtemel benzersiz yanıtları belirlemeye yardımcı olur.
     command: "dirsearch -u {{url}} -e {{extensions|*}} --exclude-sizes {{sizes|0B,123B}} --exclude-text {{text|'Page Not Found'}}"
 
   # === RECURSION ===
-  - title: dirsearch - recursive scan
-    desc: |
-      Automatically initiate a new scan for every directory discovered during the initial brute-force.
-      This allows for deep exploration of the web application's directory structure without manual intervention.
-      You should set a maximum recursion depth to prevent the scan from running indefinitely on complex sites.
-      Recursive scanning significantly increases the time required for the scan to complete.
+  - title:
+      en: dirsearch - recursive scan
+      tr: dirsearch - özyinelemeli tarama
+    desc:
+      en: |
+        Automatically initiate a new scan for every directory discovered during the initial brute-force.
+        This allows for deep exploration of the web application's directory structure without manual intervention.
+        You should set a maximum recursion depth to prevent the scan from running indefinitely on complex sites.
+        Recursive scanning significantly increases the time required for the scan to complete.
+      tr: |
+        İlk kaba zorlama sırasında bulunan her dizine yönelik kendiliğinden yeni tarama başlatır.
+        Elle müdahaleye gerek kalmadan web uygulamasının dizin yapısının derinlemesine incelenmesini sağlar.
+        Taramayı karmaşık sitelerde sonsuz çalışmaktan korumak adına en yüksek özyineleme derinliği belirlemelisiniz.
+        Özyinelemeli tarama işlemin tamamlanması adına gereken süreyi belirgin ölçüde uzatır.
     command: "dirsearch -u {{url}} -e {{extensions|php}} -r -R {{max_depth|3}}"
 
   # === REQUEST CUSTOMIZATION ===
-  - title: dirsearch - authenticated scan
-    desc: |
-      Perform a scan using specific authentication credentials or session cookies.
-      This is essential for discovering files and directories located within authenticated areas of a web application.
-      You can specify the authentication type such as basic, digest, or bearer depending on the server's requirements.
-      Make sure the session remains active; if the cookie expires, you will likely only see 302 or 403 responses.
+  - title:
+      en: dirsearch - authenticated scan
+      tr: dirsearch - kimlik doğrulamalı tarama
+    desc:
+      en: |
+        Perform a scan using specific authentication credentials or session cookies.
+        This is essential for discovering files and directories located within authenticated areas of a web application.
+        You can specify the authentication type such as basic, digest, or bearer depending on the server's requirements.
+        Make sure the session remains active; if the cookie expires, you will likely only see 302 or 403 responses.
+      tr: |
+        Belirli kimlik doğrulama bilgileri ya da oturum çerezleriyle tarama yapar.
+        Web uygulamasının kimlik doğrulamalı bölümlerindeki dosya ile dizinleri bulmakta vazgeçilmezdir.
+        Sunucunun gereksinimine dayanarak temel, digest, bearer gibi kimlik doğrulama türünü belirtebilirsiniz.
+        Oturumun etkin kaldığından emin olun; çerez süresi dolarsa çoğunlukla yalnız 302 ya da 403 yanıtları görürsünüz.
     command: "dirsearch -u {{url}} -e {{extensions|php}} --cookie \"{{cookie_string}}\" --auth {{credentials|user:password}} --auth-type {{auth_type|basic}}"
 
-  - title: dirsearch - custom http method and headers
-    desc: |
-      Change the default GET method to other HTTP verbs like POST, PUT, or HEAD.
-      Adding custom headers can help bypass some Web Application Firewalls (WAFs) or simulate specific client environments.
-      For example, adding an 'X-Forwarded-For' header might trick the server into thinking the request is coming from a trusted local IP.
-      This is also useful for API fuzzing where specific 'Content-Type' or 'Accept' headers are mandatory.
+  - title:
+      en: dirsearch - custom http method and headers
+      tr: dirsearch - özel HTTP yöntemi ve başlıklar
+    desc:
+      en: |
+        Change the default GET method to other HTTP verbs like POST, PUT, or HEAD.
+        Adding custom headers can help bypass some Web Application Firewalls (WAFs) or simulate specific client environments.
+        For example, adding an 'X-Forwarded-For' header might trick the server into thinking the request is coming from a trusted local IP.
+        This is also useful for API fuzzing where specific 'Content-Type' or 'Accept' headers are mandatory.
+      tr: |
+        Varsayılan GET yöntemini POST, PUT, HEAD gibi öteki HTTP fiillerine çevirir.
+        Özel başlık eklemek bazı web uygulaması güvenlik duvarlarını (WAF) atlatmaya ya da belirli istemci ortamını taklit etmeye yardımcı olabilir.
+        Örneğin X-Forwarded-For başlığı eklemek sunucunun isteği güvenilen yerel IP adresinden geliyor sanmasını sağlayabilir.
+        Belirli Content-Type ya da Accept başlıklarının zorunlu olduğu API bulanıklaştırma işinde yararlıdır.
     command: "dirsearch -u {{url}} -e {{extensions|*}} -m {{method|POST}} -H \"{{header_name|X-Forwarded-For}}: {{header_value|127.0.0.1}}\""
 
   # === CONNECTION & PERFORMANCE ===
-  - title: dirsearch - performance tuning
-    desc: |
-      Adjust the number of threads and the delay between requests to optimize the scan's speed and stealth.
-      Increasing threads will speed up the process but may cause a Denial of Service (DoS) or trigger rate-limiting.
-      Adding a delay is recommended when dealing with targets that have aggressive Intrusion Detection Systems (IDS).
-      A balanced approach is usually best to ensure accuracy while maintaining a reasonable scanning speed.
+  - title:
+      en: dirsearch - performance tuning
+      tr: dirsearch - performans ayarlama
+    desc:
+      en: |
+        Adjust the number of threads and the delay between requests to optimize the scan's speed and stealth.
+        Increasing threads will speed up the process but may cause a Denial of Service (DoS) or trigger rate-limiting.
+        Adding a delay is recommended when dealing with targets that have aggressive Intrusion Detection Systems (IDS).
+        A balanced approach is usually best to ensure accuracy while maintaining a reasonable scanning speed.
+      tr: |
+        Taramanın hız ile gizlilik dengesini iyileştirmek adına iş parçacığı sayısı ile istek arası gecikmeyi ayarlar.
+        İş parçacığı artırmak işlemi hızlandırır ancak hizmet dışı bırakmaya (DoS) yol açabilir ya da hız sınırlamayı tetikleyebilir.
+        Agresif saldırı tespit sistemleri (IDS) barındıran hedeflerde gecikme eklemek önerilir.
+        Doğruluk ile makul tarama hızını korumak adına çoğunlukla dengeli yaklaşım en iyisidir.
     command: "dirsearch -u {{url}} -e {{extensions|*}} -t {{threads|50}} --delay {{delay|0.1}} --max-rate {{rate|20}}"
 
-  - title: dirsearch - scan via proxy or tor
-    desc: |
-      Route all scanning traffic through a proxy server or the Tor network to mask your original IP address.
-      This is a common practice in red teaming to avoid being blocked by the target's firewall or to bypass Geo-IP restrictions.
-      When using the --tor flag, ensure the Tor service is running locally on your machine.
-      Using proxies may slow down the scan significantly depending on the proxy's bandwidth and latency.
+  - title:
+      en: dirsearch - scan via proxy or tor
+      tr: dirsearch - vekil ya da Tor üzerinden tarama
+    desc:
+      en: |
+        Route all scanning traffic through a proxy server or the Tor network to mask your original IP address.
+        This is a common practice in red teaming to avoid being blocked by the target's firewall or to bypass Geo-IP restrictions.
+        When using the --tor flag, ensure the Tor service is running locally on your machine.
+        Using proxies may slow down the scan significantly depending on the proxy's bandwidth and latency.
+      tr: |
+        Tarama trafiğinin tamamını özgün IP adresinizi gizlemek adına vekil sunucu ya da Tor ağı üzerinden yöneltir.
+        Hedefin güvenlik duvarına takılmaktan kaçınmak ya da coğrafi IP kısıtlarını atlatmak adına kırmızı takım çalışmalarında yaygın uygulamadır.
+        --tor bayrağını kullanırken Tor hizmetinin makinenizde yerel olarak çalıştığından emin olun.
+        Vekilin bant genişliği ile gecikmesine bağlı olarak vekiller taramayı belirgin ölçüde yavaşlatabilir.
     command: "dirsearch -u {{url}} -e {{extensions|*}} --proxy {{proxy_url|http://127.0.0.1:8080}} --tor"
 
   # === OUTPUT & LOGGING ===
-  - title: dirsearch - save output to file
-    desc: |
-      Export the discovery results into a formatted file for documentation or further automated analysis.
-      Supported formats include JSON, XML, HTML, CSV, and Markdown, making it easy to integrate with other tools.
-      Saving results is highly recommended for long-running scans to ensure data is not lost if the terminal closes.
-      The JSON format is particularly useful for piping results into custom scripts or databases.
+  - title:
+      en: dirsearch - save output to file
+      tr: dirsearch - çıktıyı dosyaya kaydetme
+    desc:
+      en: |
+        Export the discovery results into a formatted file for documentation or further automated analysis.
+        Supported formats include JSON, XML, HTML, CSV, and Markdown, making it easy to integrate with other tools.
+        Saving results is highly recommended for long-running scans to ensure data is not lost if the terminal closes.
+        The JSON format is particularly useful for piping results into custom scripts or databases.
+      tr: |
+        Keşif sonuçlarını belgelendirme ya da ileri otomatik çözümleme adına biçimli dosyaya aktarır.
+        JSON, XML, HTML, CSV, Markdown desteklenir; öteki araçlarla bütünleşmeyi kolaylaştırır.
+        Uçbirim kapanınca veri yitmemesi adına uzun süren taramalarda sonuç kaydetmek şiddetle önerilir.
+        JSON biçimi sonuçları özel betik ya da veritabanlarına aktarmakta özellikle yararlıdır.
     command: "dirsearch -u {{url}} -e {{extensions|*}} -o {{output_path|results.json}} --format {{format|json}}"
 
   # === ADVANCED FEATURES ===
-  - title: dirsearch - crawl for new paths
-    desc: |
-      Enable the crawler to find new paths by parsing the HTML responses of discovered pages.
-      This combines traditional wordlist-based brute-forcing with spidering capabilities for better coverage.
-      The crawler will extract links from tags like <a>, <script>, and <img> to find valid endpoints.
-      This feature is effective for discovering paths that are not present in standard wordlists.
+  - title:
+      en: dirsearch - crawl for new paths
+      tr: dirsearch - yeni yollar adına tarama
+    desc:
+      en: |
+        Enable the crawler to find new paths by parsing the HTML responses of discovered pages.
+        This combines traditional wordlist-based brute-forcing with spidering capabilities for better coverage.
+        The crawler will extract links from tags like <a>, <script>, and <img> to find valid endpoints.
+        This feature is effective for discovering paths that are not present in standard wordlists.
+      tr: |
+        Keşfedilen sayfaların HTML yanıtlarını çözümleyerek yeni yollar bulan tarayıcıyı etkinleştirir.
+        Geleneksel kelime listesi tabanlı kaba zorlamayla örümcek yeteneklerini daha iyi kapsama adına birleştirir.
+        Tarayıcı geçerli uç noktaları bulmak adına bağlantı, betik, görsel etiketlerindeki adresleri çıkarır.
+        Standart kelime listelerinde bulunmayan yolları keşfetmekte etkilidir.
     command: "dirsearch -u {{url}} -e {{extensions|*}} --crawl"

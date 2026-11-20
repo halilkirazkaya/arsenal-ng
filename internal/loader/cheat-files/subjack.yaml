@@ -3,68 +3,124 @@ tags: [security, pentest, reconnaissance, subdomain-takeover, dns, bug-bounty]
 
 actions:
   # === BASIC SCANNING ===
-  - title: subjack - basic wordlist scan
-    desc: |
-      Perform a basic scan against a list of subdomains provided in a text file. This is the standard 
-      method for identifying potential takeover vulnerabilities by checking CNAME records against known 
-      vulnerable service fingerprints. Always ensure the wordlist is clean and contains one domain per line.
+  - title:
+      en: subjack - basic wordlist scan
+      tr: subjack - temel wordlist taraması
+    desc:
+      en: |
+        Perform a basic scan against a list of subdomains provided in a text file. This is the standard 
+        method for identifying potential takeover vulnerabilities by checking CNAME records against known 
+        vulnerable service fingerprints. Always ensure the wordlist is clean and contains one domain per line.
+      tr: |
+        Metin dosyasında verilen alt alan adları listesine karşı temel tarama yapar.
+        CNAME kayıtlarını bilinen zafiyetli servis imzalarıyla karşılaştırarak devralma zafiyetlerini belirlemenin standart yöntemidir.
+        Wordlist'in temiz ve satır başına bir alan adı içerdiğinden emin olun.
     command: "subjack -w {{wordlist}}"
 
-  - title: subjack - scan single domain
-    desc: |
-      Check a specific target domain for takeover possibilities without needing a full wordlist. This 
-      is useful for ad-hoc testing when a specific subdomain has been identified as suspicious during 
-      manual reconnaissance. It provides a quick way to verify if the domain's CNAME points to an 
-      unclaimed service.
+  - title:
+      en: subjack - scan single domain
+      tr: subjack - tek alan adı taraması
+    desc:
+      en: |
+        Check a specific target domain for takeover possibilities without needing a full wordlist. This 
+        is useful for ad-hoc testing when a specific subdomain has been identified as suspicious during 
+        manual reconnaissance. It provides a quick way to verify if the domain's CNAME points to an 
+        unclaimed service.
+      tr: |
+        Tam wordlist olmadan belirli bir hedef alan adının devralınabilirliğini denetler.
+        Manuel keşifte şüpheli görülen belirli bir alt alan adı için geçici testlerde yararlıdır.
+        Alan adının CNAME kaydının sahipsiz bir servise işaret edip etmediğini hızlı doğrular.
     command: "subjack -d {{domain}}"
 
   # === ADVANCED CONFIGURATION ===
-  - title: subjack - custom fingerprint file
-    desc: |
-      Specify a custom configuration file containing service signatures used for identification. Using 
-      a custom fingerprints.json file allows you to detect new or private cloud services not included 
-      in the default tool installation. This is critical for staying up to date with the latest 
-      subdomain takeover techniques.
+  - title:
+      en: subjack - custom fingerprint file
+      tr: subjack - özel imza dosyası
+    desc:
+      en: |
+        Specify a custom configuration file containing service signatures used for identification. Using 
+        a custom fingerprints.json file allows you to detect new or private cloud services not included 
+        in the default tool installation. This is critical for staying up to date with the latest 
+        subdomain takeover techniques.
+      tr: |
+        Kimlik belirlemede kullanılan servis imzalarını içeren özel yapılandırma dosyası belirtir.
+        Özel fingerprints.json dosyası, varsayılan kurulumda olmayan yeni veya özel bulut servislerini tespit etmenizi sağlar.
+        En güncel alt alan adı devralma tekniklerini takip etmek için kritiktir.
     command: "subjack -w {{wordlist}} -c {{config_file|/usr/share/subjack/fingerprints.json}}"
 
-  - title: subjack - secure scan with output
-    desc: |
-      Force the tool to use HTTPS for all requests to increase accuracy and ensure secure communication 
-      with target servers. The results are saved to a file, which will be formatted as JSON if the 
-      filename ends with a .json extension. This is recommended for professional reporting and 
-      automated processing of results.
+  - title:
+      en: subjack - secure scan with output
+      tr: subjack - çıktılı güvenli tarama
+    desc:
+      en: |
+        Force the tool to use HTTPS for all requests to increase accuracy and ensure secure communication 
+        with target servers. The results are saved to a file, which will be formatted as JSON if the 
+        filename ends with a .json extension. This is recommended for professional reporting and 
+        automated processing of results.
+      tr: |
+        Hedef sunucularla güvenli iletişim için tüm isteklerde HTTPS kullanmaya zorlar.
+        Sonuçlar dosyaya kaydedilir; dosya adı .json uzantısıyla biterse JSON biçimlenir.
+        Profesyonel raporlama ve sonuçların otomatik işlenmesi için önerilir.
     command: "subjack -w {{wordlist}} -ssl -o {{output_file|results.txt}}"
 
   # === PERFORMANCE & AGGRESSIVE SCANNING ===
-  - title: subjack - fast concurrent scanning
-    desc: |
-      Increase the number of concurrent threads and adjust the timeout settings for faster scanning 
-      of large datasets. This is essential for mass-reconnaissance tasks during bug bounty hunting 
-      where thousands of subdomains need to be processed quickly. Be aware that very high thread 
-      counts may lead to network instability or rate limiting by the target.
+  - title:
+      en: subjack - fast concurrent scanning
+      tr: subjack - hızlı eşzamanlı tarama
+    desc:
+      en: |
+        Increase the number of concurrent threads and adjust the timeout settings for faster scanning 
+        of large datasets. This is essential for mass-reconnaissance tasks during bug bounty hunting 
+        where thousands of subdomains need to be processed quickly. Be aware that very high thread 
+        counts may lead to network instability or rate limiting by the target.
+      tr: |
+        Büyük veri kümelerini hızlı taramak için eşzamanlı iş parçacığı sayısını artırır ve zaman aşımını ayarlar.
+        Binlerce alt alan adının hızla işlenmesi gereken kitlesel keşif ve bug bounty avında gereklidir.
+        Çok yüksek iş parçacığı sayısının ağ dengesizliğine veya hedefte hız sınırlamasına yol açabileceğini unutmayın.
     command: "subjack -w {{wordlist}} -t {{threads|50}} -timeout {{timeout|10}}"
 
-  - title: subjack - aggressive mode scanning
-    desc: |
-      Send requests to every URL in the provided wordlist regardless of whether a CNAME record is 
-      initially identified. This "hidden gem" mode can find vulnerabilities that the default logic 
-      might skip, providing a more thorough assessment of the infrastructure. Note that this will 
-      generate significantly more network traffic than a standard scan.
+  - title:
+      en: subjack - aggressive mode scanning
+      tr: subjack - agresif kip taraması
+    desc:
+      en: |
+        Send requests to every URL in the provided wordlist regardless of whether a CNAME record is 
+        initially identified. This "hidden gem" mode can find vulnerabilities that the default logic 
+        might skip, providing a more thorough assessment of the infrastructure. Note that this will 
+        generate significantly more network traffic than a standard scan.
+      tr: |
+        Başlangıçta CNAME kaydı bulunamasa bile verilen listedeki her URL'ye istek gönderir.
+        Varsayılan mantığın atlayabileceği bulguları yakalayabilen daha kapsamlı değerlendirme sunar.
+        Standart taramadan belirgin ölçüde fazla ağ trafiği üreteceğini unutmayın.
     command: "subjack -w {{wordlist}} -a"
 
   # === ENUMERATION & VERBOSITY ===
-  - title: subjack - check for dead records
-    desc: |
-      Flag the presence of dead records that still have a valid CNAME entry in the DNS configuration. 
-      This mode is specifically designed to find subdomains that are pointing to services that no 
-      longer exist, making them prime candidates for hijacking. It helps in identifying cleanup 
-      tasks for IT administrators to improve DNS hygiene.
+  - title:
+      en: subjack - check for dead records
+      tr: subjack - ölü kayıt denetimi
+    desc:
+      en: |
+        Flag the presence of dead records that still have a valid CNAME entry in the DNS configuration. 
+        This mode is specifically designed to find subdomains that are pointing to services that no 
+        longer exist, making them prime candidates for hijacking. It helps in identifying cleanup 
+        tasks for IT administrators to improve DNS hygiene.
+      tr: |
+        DNS yapılandırmasında hâlâ geçerli CNAME girdisi olan ölü kayıtların varlığını işaretler.
+        Artık var olmayan servislere işaret eden ve ele geçirilmeye aday alt alan adlarını bulmaya yöneliktir.
+        BT yöneticilerinin DNS hijyenini iyileştirme temizlik işlerini belirlemeye yardımcı olur.
     command: "subjack -w {{wordlist}} -m -v"
 
-  - title: subjack - verbose scanning
-    desc: |
-      Enable verbose output to display more detailed information for every request made during the 
-      scanning process. This is extremely helpful for debugging why a certain domain might be failing 
-      or to understand the underlying HTTP responses from the targets. Use this when you need to 
-      verify the logic the tool is using for its findings.
+  - title:
+      en: subjack - verbose scanning
+      tr: subjack - ayrıntılı tarama
+    desc:
+      en: |
+        Enable verbose output to display more detailed information for every request made during the 
+        scanning process. This is extremely helpful for debugging why a certain domain might be failing 
+        or to understand the underlying HTTP responses from the targets. Use this when you need to 
+        verify the logic the tool is using for its findings.
+      tr: |
+        Tarama sırasında yapılan her istek için daha ayrıntılı bilgi göstermek üzere ayrıntılı çıktıyı etkinleştirir.
+        Belirli bir alan adının neden başarısız olduğunu ayıklamak veya hedeflerden gelen ham HTTP yanıtlarını anlamak için oldukça yararlıdır.
+        Aracın bulgularında kullandığı mantığı doğrulamanız gerektiğinde kullanın.
     command: "subjack -w {{wordlist}} -v"

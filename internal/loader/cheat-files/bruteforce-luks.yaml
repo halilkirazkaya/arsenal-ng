@@ -3,54 +3,103 @@ tags: [security, pentest, encryption, luks, bruteforce, forensics, cracking]
 
 actions:
   # === BASIC USAGE ===
-  - title: bruteforce-luks - basic brute force
-    desc: |
-      Performs a brute-force attack on a LUKS-encrypted volume within a specified length range. 
-      Use this when the password length is known or bounded to a small range to avoid excessive computation time. 
-      This method generates passwords on the fly using the default alphanumeric character set.
+  - title:
+      en: bruteforce-luks - basic brute force
+      tr: bruteforce-luks - temel kaba kuvvet
+    desc:
+      en: |
+        Performs a brute-force attack on a LUKS-encrypted volume within a specified length range. 
+        Use this when the password length is known or bounded to a small range to avoid excessive computation time. 
+        This method generates passwords on the fly using the default alphanumeric character set.
+      tr: |
+        Belirtilen uzunluk aralığında LUKS şifreli birimde kaba kuvvet saldırısı yapar.
+        Aşırı işlem süresinden kaçınmak için parola uzunluğu bilindiğinde veya küçük bir aralıkla sınırlı olduğunda kullanın.
+        Bu yöntem, varsayılan alfasayısal karakter kümesiyle parolaları anında üretir.
     command: "bruteforce-luks -l {{min_length|1}} -m {{max_length|6}} {{volume_path}}"
 
-  - title: bruteforce-luks - wordlist attack
-    desc: |
-      Attempts to decrypt the LUKS volume using passwords provided in an external text file. 
-      This is generally much faster and more efficient than brute-forcing if you have a high-quality dictionary or leaked password list. 
-      Each line in the specified file is treated as a single password candidate for the decryption attempt.
+  - title:
+      en: bruteforce-luks - wordlist attack
+      tr: bruteforce-luks - kelime listesi saldırısı
+    desc:
+      en: |
+        Attempts to decrypt the LUKS volume using passwords provided in an external text file. 
+        This is generally much faster and more efficient than brute-forcing if you have a high-quality dictionary or leaked password list. 
+        Each line in the specified file is treated as a single password candidate for the decryption attempt.
+      tr: |
+        Harici bir metin dosyasındaki parolalarla LUKS biriminin şifresini çözmeye çalışır.
+        Kaliteli bir sözlüğünüz veya sızmış parola listeniz varsa kaba kuvvetten genellikle çok daha hızlı ve verimlidir.
+        Belirtilen dosyadaki her satır şifre çözme denemesi için tek bir parola adayı sayılır.
     command: "bruteforce-luks -f {{wordlist_path}} {{volume_path}}"
 
   # === OPTIMIZATION AND PERFORMANCE ===
-  - title: bruteforce-luks - multi-threaded performance
-    desc: |
-      Increases the speed of the attack by utilizing multiple CPU cores simultaneously. 
-      Use this option on modern hardware to significantly reduce the time required to process password candidates. 
-      Ensure the number of threads does not exceed your hardware capabilities to maintain system stability during the process.
+  - title:
+      en: bruteforce-luks - multi-threaded performance
+      tr: bruteforce-luks - çok iş parçacıklı performans
+    desc:
+      en: |
+        Increases the speed of the attack by utilizing multiple CPU cores simultaneously. 
+        Use this option on modern hardware to significantly reduce the time required to process password candidates. 
+        Ensure the number of threads does not exceed your hardware capabilities to maintain system stability during the process.
+      tr: |
+        Birden çok CPU çekirdeğini eşzamanlı kullanarak saldırının hızını artırır.
+        Parola adaylarını işleme süresini belirgin kısaltmak için modern donanımda bu seçeneği kullanın.
+        Süreçte sistem kararlılığını korumak için iş parçacığı sayısının donanım kapasitenizi aşmadığından emin olun.
     command: "bruteforce-luks -t {{thread_count|4}} {{volume_path}}"
 
-  - title: bruteforce-luks - verbose progress reporting
-    desc: |
-      Prints progress information to the console at a regular time interval. 
-      This is useful for monitoring the current status and speed of the attack, ensuring the process has not stalled. 
-      The interval is defined in seconds, allowing you to control how often the terminal updates.
+  - title:
+      en: bruteforce-luks - verbose progress reporting
+      tr: bruteforce-luks - ayrıntılı ilerleme raporu
+    desc:
+      en: |
+        Prints progress information to the console at a regular time interval. 
+        This is useful for monitoring the current status and speed of the attack, ensuring the process has not stalled. 
+        The interval is defined in seconds, allowing you to control how often the terminal updates.
+      tr: |
+        Düzenli zaman aralıklarıyla konsola ilerleme bilgisi yazdırır.
+        Bu, saldırının güncel durum ve hızını izlemek ve sürecin takılmadığından emin olmak için yararlıdır.
+        Aralık saniye cinsinden tanımlanır; terminalin ne sıklıkla güncelleneceğini denetlemenize olanak tanır.
     command: "bruteforce-luks -v {{seconds|5}} {{volume_path}}"
 
   # === TARGETED SEARCH ===
-  - title: bruteforce-luks - custom character set
-    desc: |
-      Defines a specific set of characters to be used during the brute-force generation process. 
-      Use this when you know the password only contains certain types of characters, such as numeric digits or lowercase letters. 
-      Limiting the charset prevents the tool from wasting time on irrelevant character combinations and speeds up the search.
+  - title:
+      en: bruteforce-luks - custom character set
+      tr: bruteforce-luks - özel karakter kümesi
+    desc:
+      en: |
+        Defines a specific set of characters to be used during the brute-force generation process. 
+        Use this when you know the password only contains certain types of characters, such as numeric digits or lowercase letters. 
+        Limiting the charset prevents the tool from wasting time on irrelevant character combinations and speeds up the search.
+      tr: |
+        Kaba kuvvet üretim sürecinde kullanılacak belirli bir karakter kümesi tanımlar.
+        Parolanın yalnızca sayısal rakamlar veya küçük harfler gibi belirli karakter türleri içerdiğini bildiğinizde kullanın.
+        Karakter kümesini sınırlamak aracın ilgisiz kombinasyonlarda zaman harcamasını engeller ve aramayı hızlandırır.
     command: "bruteforce-luks -s {{charset|0123456789}} {{volume_path}}"
 
-  - title: bruteforce-luks - prefix and suffix attack
-    desc: |
-      Targets passwords where parts of the string are already known, such as a common company prefix or a year-based suffix. 
-      This drastically reduces the search space and time required for a successful crack by only brute-forcing the middle section. 
-      It is particularly useful in scenarios where partial password patterns or corporate naming conventions are identified.
+  - title:
+      en: bruteforce-luks - prefix and suffix attack
+      tr: bruteforce-luks - ön ek ve son ek saldırısı
+    desc:
+      en: |
+        Targets passwords where parts of the string are already known, such as a common company prefix or a year-based suffix. 
+        This drastically reduces the search space and time required for a successful crack by only brute-forcing the middle section. 
+        It is particularly useful in scenarios where partial password patterns or corporate naming conventions are identified.
+      tr: |
+        Yaygın şirket ön eki veya yıl tabanlı son ek gibi dizesinin bir kısmı zaten bilinen parolaları hedefler.
+        Bu, yalnızca orta bölümü kaba kuvvetleyerek başarılı kırma için gereken arama alanını ve süreyi büyük ölçüde azaltır.
+        Kısmi parola kalıpları veya kurumsal adlandırma kurallarının belirlendiği senaryolarda özellikle yararlıdır.
     command: "bruteforce-luks -b {{prefix|pass}} -e {{suffix|2023}} {{volume_path}}"
 
   # === SESSION MANAGEMENT ===
-  - title: bruteforce-luks - save and resume session
-    desc: |
-      Saves the current progress of the attack to a file so it can be resumed later if the process is interrupted. 
-      This is essential for long-running brute-force tasks that might span several days or require system reboots. 
-      The state file is updated approximately every minute, ensuring that minimal progress is lost in the event of a crash.
+  - title:
+      en: bruteforce-luks - save and resume session
+      tr: bruteforce-luks - oturumu kaydet ve sürdür
+    desc:
+      en: |
+        Saves the current progress of the attack to a file so it can be resumed later if the process is interrupted. 
+        This is essential for long-running brute-force tasks that might span several days or require system reboots. 
+        The state file is updated approximately every minute, ensuring that minimal progress is lost in the event of a crash.
+      tr: |
+        Süreç kesintiye uğrarsa sonra sürdürülebilmesi için saldırının güncel ilerlemesini dosyaya kaydeder.
+        Bu, günlerce sürebilecek veya sistem yeniden başlatma gerektirebilecek uzun kaba kuvvet görevleri için gereklidir.
+        Durum dosyası yaklaşık her dakika güncellenir; çökmede en az ilerleme kaybı sağlar.
     command: "bruteforce-luks -w {{state_file|session.state}} {{volume_path}}"

@@ -3,76 +3,148 @@ tags: [network, security, forensics, pentest, sniffer, analysis, credentials, pa
 
 actions:
   # === FILE ANALYSIS ===
-  - title: brutesharkcli - analyze specific pcap file
-    desc: |
-      Analyzes a single or multiple specific PCAP files to extract metadata and network information. 
-      This is the standard approach for offline forensic analysis of previously captured network traffic. 
-      Multiple files can be provided by separating them with a comma. 
-      The results will be saved to the specified output directory for further review.
+  - title:
+      en: brutesharkcli - analyze specific pcap file
+      tr: brutesharkcli - belirli pcap dosyasını analiz etme
+    desc:
+      en: |
+        Analyzes a single or multiple specific PCAP files to extract metadata and network information. 
+        This is the standard approach for offline forensic analysis of previously captured network traffic. 
+        Multiple files can be provided by separating them with a comma. 
+        The results will be saved to the specified output directory for further review.
+      tr: |
+        Üstveri ve ağ bilgisini çıkarmak için tek veya birden çok belirli PCAP dosyasını analiz eder.
+        Bu, önceden yakalanmış ağ trafiğinin çevrimdışı adli analizi için standart yaklaşımdır.
+        Birden çok dosya virgülle ayrılarak verilebilir.
+        Sonuçlar ileri inceleme için belirtilen çıktı dizinine kaydedilir.
     command: "brutesharkcli -i {{input_file}} -o {{output_dir|./results}}"
 
-  - title: brutesharkcli - analyze directory of pcap files
-    desc: |
-      Processes all network capture files found within a specified directory recursively. 
-      This is highly efficient when dealing with large datasets or multiple capture segments from long-duration monitoring. 
-      It automates the ingestion process instead of requiring individual file paths. 
-      Ensure the directory contains valid capture formats like .pcap or .pcapng.
+  - title:
+      en: brutesharkcli - analyze directory of pcap files
+      tr: brutesharkcli - pcap dosyası dizinini analiz etme
+    desc:
+      en: |
+        Processes all network capture files found within a specified directory recursively. 
+        This is highly efficient when dealing with large datasets or multiple capture segments from long-duration monitoring. 
+        It automates the ingestion process instead of requiring individual file paths. 
+        Ensure the directory contains valid capture formats like .pcap or .pcapng.
+      tr: |
+        Belirtilen dizindeki tüm ağ yakalama dosyalarını özyinelemeli işler.
+        Bu, büyük veri kümeleri veya uzun süreli izlemeden gelen birden çok yakalama bölümüyle uğraşırken oldukça verimlidir.
+        Tekil dosya yolları gerektirmek yerine içeri alma sürecini otomatikleştirir.
+        Dizinin .pcap veya .pcapng gibi geçerli yakalama biçimleri içerdiğinden emin olun.
     command: "brutesharkcli -d {{input_dir}} -o {{output_dir|./results}}"
 
   # === MODULE SPECIFIC ANALYSIS ===
-  - title: brutesharkcli - extract credentials from traffic
-    desc: |
-      Uses the Credentials module to specifically target and extract usernames and passwords from the traffic. 
-      This module analyzes protocols such as HTTP, FTP, Telnet, and SMTP that may transmit sensitive data in plain text or weak encryption. 
-      It is an essential tool for post-exploitation or credential harvesting during a penetration test. 
-      The extracted data is organized by protocol and source/destination in the output folder.
+  - title:
+      en: brutesharkcli - extract credentials from traffic
+      tr: brutesharkcli - trafikten kimlik bilgisi çıkarma
+    desc:
+      en: |
+        Uses the Credentials module to specifically target and extract usernames and passwords from the traffic. 
+        This module analyzes protocols such as HTTP, FTP, Telnet, and SMTP that may transmit sensitive data in plain text or weak encryption. 
+        It is an essential tool for post-exploitation or credential harvesting during a penetration test. 
+        The extracted data is organized by protocol and source/destination in the output folder.
+      tr: |
+        Trafikten kullanıcı adı ve parolaları hedefli çıkarıp almak için Credentials modülünü kullanır.
+        Bu modül, hassas veriyi açık metin veya zayıf şifrelemeyle iletebilen HTTP, FTP, Telnet ve SMTP gibi protokolleri analiz eder.
+        Sızma testinde sömürü sonrası veya kimlik bilgisi toplamada gerekli araçtır.
+        Çıkarılan veri çıktı klasöründe protokol ile kaynak/hedefe göre düzenlenir.
     command: "brutesharkcli -i {{input_file}} -m Credentials -o {{output_dir|./credentials_output}}"
 
-  - title: brutesharkcli - build network map
-    desc: |
-      Analyzes traffic to identify all communicating hosts and their relationships to generate a network map. 
-      This helps the user understand the network topology, discover hidden segments, and identify unauthorized devices. 
-      It visualizes the flow of data between different IP addresses and MAC addresses found in the capture. 
-      This is particularly useful for initial reconnaissance of an unfamiliar network environment.
+  - title:
+      en: brutesharkcli - build network map
+      tr: brutesharkcli - ağ haritası oluşturma
+    desc:
+      en: |
+        Analyzes traffic to identify all communicating hosts and their relationships to generate a network map. 
+        This helps the user understand the network topology, discover hidden segments, and identify unauthorized devices. 
+        It visualizes the flow of data between different IP addresses and MAC addresses found in the capture. 
+        This is particularly useful for initial reconnaissance of an unfamiliar network environment.
+      tr: |
+        Ağ haritası üretmek için trafiği analiz ederek iletişimdeki tüm host'ları ve ilişkilerini belirler.
+        Bu, kullanıcının ağ topolojisini anlamasına, gizli bölümleri keşfetmesine ve yetkisiz cihazları belirlemesine yardımcı olur.
+        Yakalamada bulunan farklı IP ve MAC adresleri arasındaki veri akışını görselleştirir.
+        Bu, yabancı bir ağ ortamının ilk keşfi için özellikle yararlıdır.
     command: "brutesharkcli -i {{input_file}} -m NetworkMap -o {{output_dir|./map_output}}"
 
-  - title: brutesharkcli - extract files from traffic
-    desc: |
-      Utilizes the FileExtracting module to reconstruct and save files transferred over the network protocols. 
-      It can carve files out of protocols like HTTP or SMB, allowing investigators to see exactly what data was moved. 
-      This is critical for malware analysis to see what payloads were downloaded or for investigating data exfiltration. 
-      Extracted files are saved into a specific subfolder within the output directory.
+  - title:
+      en: brutesharkcli - extract files from traffic
+      tr: brutesharkcli - trafikten dosya çıkarma
+    desc:
+      en: |
+        Utilizes the FileExtracting module to reconstruct and save files transferred over the network protocols. 
+        It can carve files out of protocols like HTTP or SMB, allowing investigators to see exactly what data was moved. 
+        This is critical for malware analysis to see what payloads were downloaded or for investigating data exfiltration. 
+        Extracted files are saved into a specific subfolder within the output directory.
+      tr: |
+        Ağ protokolleri üzerinden aktarılan dosyaları yeniden oluşturup kaydetmek için FileExtracting modülünü kullanır.
+        HTTP veya SMB gibi protokollerden dosya çıkarabilir; araştırmacıların tam olarak hangi verinin taşındığını görmesine olanak tanır.
+        Bu, indirilen yükleri görmek için kötü amaçlı yazılım analizinde veya veri sızdırma incelemesinde kritiktir.
+        Çıkarılan dosyalar çıktı dizinindeki belirli bir alt klasöre kaydedilir.
     command: "brutesharkcli -i {{input_file}} -m FileExtracting -o {{output_dir|./extracted_files}}"
 
-  - title: brutesharkcli - dns and voip analysis
-    desc: |
-      Focuses the analysis on DNS queries and VoIP (Voice over IP) traffic patterns. 
-      The DNS module helps identify suspicious domain lookups or Command and Control (C2) communication patterns. 
-      The VoIP module can extract call metadata and signaling information, which is useful for auditing telecommunication security. 
-      Both modules can be run simultaneously by separating them with a comma in the command line.
+  - title:
+      en: brutesharkcli - dns and voip analysis
+      tr: brutesharkcli - dns ve voip analizi
+    desc:
+      en: |
+        Focuses the analysis on DNS queries and VoIP (Voice over IP) traffic patterns. 
+        The DNS module helps identify suspicious domain lookups or Command and Control (C2) communication patterns. 
+        The VoIP module can extract call metadata and signaling information, which is useful for auditing telecommunication security. 
+        Both modules can be run simultaneously by separating them with a comma in the command line.
+      tr: |
+        Analizi DNS sorguları ve VoIP (IP Üzerinden Ses) trafik kalıplarına odaklar.
+        DNS modülü şüpheli alan adı sorgularını veya Komuta Kontrol (C2) iletişim kalıplarını belirlemeye yardımcı olur.
+        VoIP modülü arama üstverisi ve sinyal bilgisini çıkarabilir; telekomünikasyon güvenliğini denetlemede yararlıdır.
+        İki modül komut satırında virgülle ayrılarak eşzamanlı çalıştırılabilir.
     command: "brutesharkcli -i {{input_file}} -m DNS,Voip -o {{output_dir|./dns_voip_output}}"
 
   # === LIVE CAPTURE ===
-  - title: brutesharkcli - live network capture and analysis
-    desc: |
-      Starts a live capture session on the default network interface and processes packets in real-time. 
-      This mode is ideal for active monitoring of network threats or live troubleshooting of connectivity issues. 
-      Note that running live captures typically requires superuser (root) or administrator privileges to access the network stack. 
-      The tool will continuously update the output directory as new data is analyzed.
+  - title:
+      en: brutesharkcli - live network capture and analysis
+      tr: brutesharkcli - canlı ağ yakalama ve analizi
+    desc:
+      en: |
+        Starts a live capture session on the default network interface and processes packets in real-time. 
+        This mode is ideal for active monitoring of network threats or live troubleshooting of connectivity issues. 
+        Note that running live captures typically requires superuser (root) or administrator privileges to access the network stack. 
+        The tool will continuously update the output directory as new data is analyzed.
+      tr: |
+        Varsayılan ağ arayüzünde canlı yakalama oturumu başlatıp paketleri gerçek zamanlı işler.
+        Bu kip, ağ tehditlerinin etkin izlenmesi veya bağlantı sorunlarının canlı giderilmesi için idealdir.
+        Canlı yakalamaların ağ yığınına erişmek için genellikle superuser (root) veya yönetici yetkisi gerektirdiğini unutmayın.
+        Araç, yeni veri analiz edildikçe çıktı dizinini sürekli günceller.
     command: "brutesharkcli -l -o {{output_dir|./live_results}}"
 
-  - title: brutesharkcli - live capture in promiscuous mode
-    desc: |
-      Enables promiscuous mode during a live capture session to intercept all traffic on the network segment. 
-      Normally, an interface only processes packets directed to its own MAC address; this mode bypasses that restriction. 
-      This is necessary for comprehensive sniffing in environments where a network tap or port mirroring is used. 
-      Elevated privileges are mandatory for this operation on most operating systems.
+  - title:
+      en: brutesharkcli - live capture in promiscuous mode
+      tr: brutesharkcli - karışık kipte canlı yakalama
+    desc:
+      en: |
+        Enables promiscuous mode during a live capture session to intercept all traffic on the network segment. 
+        Normally, an interface only processes packets directed to its own MAC address; this mode bypasses that restriction. 
+        This is necessary for comprehensive sniffing in environments where a network tap or port mirroring is used. 
+        Elevated privileges are mandatory for this operation on most operating systems.
+      tr: |
+        Ağ bölümündeki tüm trafiği yakalamak için canlı yakalama oturumunda karışık (promiscuous) kipi etkinleştirir.
+        Normalde bir arayüz yalnızca kendi MAC adresine yönelen paketleri işler; bu kip bu kısıtlamayı aşar.
+        Bu, ağ musluğu veya bağlantı noktası yansıtma kullanılan ortamlarda kapsamlı dinleme için gereklidir.
+        Çoğu işletim sisteminde bu işlem için yükseltilmiş yetkiler zorunludur.
     command: "brutesharkcli -l -p -o {{output_dir|./live_promisc_results}}"
 
-  - title: brutesharkcli - filtered live capture (BPF)
-    desc: |
-      Applies a Berkeley Packet Filter (BPF) to a live capture session to focus only on specific traffic. 
-      Using filters like 'tcp port 80' or 'host 192.168.1.1' significantly reduces the processing overhead and noise. 
-      This allows the analyst to target specific protocols or suspicious hosts without capturing irrelevant background traffic. 
-      The filter string must follow standard BPF syntax used by tools like Tcpdump or Wireshark.
+  - title:
+      en: brutesharkcli - filtered live capture (BPF)
+      tr: brutesharkcli - filtreli canlı yakalama (BPF)
+    desc:
+      en: |
+        Applies a Berkeley Packet Filter (BPF) to a live capture session to focus only on specific traffic. 
+        Using filters like 'tcp port 80' or 'host 192.168.1.1' significantly reduces the processing overhead and noise. 
+        This allows the analyst to target specific protocols or suspicious hosts without capturing irrelevant background traffic. 
+        The filter string must follow standard BPF syntax used by tools like Tcpdump or Wireshark.
+      tr: |
+        Yalnızca belirli trafiğe odaklanmak için canlı yakalama oturumuna Berkeley Paket Filtresi (BPF) uygular.
+        'tcp port 80' veya 'host 192.168.1.1' gibi filtreler işlem yükünü ve gürültüyü belirgin azaltır.
+        Bu, analistin ilgisiz arka plan trafiğini yakalamadan belirli protokolleri veya şüpheli host'ları hedeflemesine olanak tanır.
+        Filtre dizesi, Tcpdump veya Wireshark gibi araçların kullandığı standart BPF sözdizimini izlemelidir.
     command: "brutesharkcli -l -f \"{{bpf_filter|tcp port 80}}\" -o {{output_dir|./filtered_results}}"

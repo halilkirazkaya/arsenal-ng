@@ -18,8 +18,9 @@ import (
 // Query filters cheats based on a query string.
 // Multi-word queries require all terms to match somewhere, and results are
 // ranked by match location (see score.go). Search covers tool name, tags,
-// title, command, and description.
-func Query(cheats []*model.Cheat, query string) []*model.Cheat {
+// title, command, and description, with titles and descriptions resolved
+// in lang.
+func Query(cheats []*model.Cheat, query string, lang string) []*model.Cheat {
 	if query == "" {
 		return cheats
 	}
@@ -27,5 +28,5 @@ func Query(cheats []*model.Cheat, query string) []*model.Cheat {
 	query = strings.ToLower(query)
 	terms := strings.Fields(query)
 
-	return rank(cheats, terms)
+	return rank(cheats, terms, lang)
 }

@@ -38,7 +38,7 @@ func Header() string {
 }
 
 // Footer renders status counts plus key hints at the bottom.
-func Footer(cursorPos, total, varCount int) string {
+func Footer(cursorPos, total, varCount int, lang string) string {
 	// Position readout anchors the left edge of the footer.
 	status := theme.StatusBar.Render(fmt.Sprintf(" %d/%d ", cursorPos, total))
 
@@ -48,8 +48,14 @@ func Footer(cursorPos, total, varCount int) string {
 		varInfo = theme.VarCount.Render(fmt.Sprintf("│ active variable count: %d ", varCount))
 	}
 
+	// Language badge shows the active translation when known.
+	langInfo := ""
+	if lang != "" {
+		langInfo = theme.VarCount.Render(fmt.Sprintf("│ lang: %s ", lang))
+	}
+
 	// Key hints close the footer with the available actions.
 	help := theme.StatusBar.Render("│ ↑/↓: nav │ set key=value │ unset key │ variables │ tools │ help │ esc: quit")
 
-	return status + varInfo + help
+	return status + varInfo + langInfo + help
 }

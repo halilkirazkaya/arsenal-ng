@@ -3,117 +3,229 @@ tags: [active-directory, ldap, enumeration, pentest, security, authentication]
 
 actions:
   # === AUTHENTICATION & IDENTITY ===
-  - title: ldeep - verify current identity
-    desc: |
-      Verify the identity of the user currently authenticated against the LDAP server. 
-      This is useful to confirm that the provided credentials or Kerberos tickets are valid before running more intensive commands.
-      It returns the Distinguished Name (DN) and SID of the authenticated account.
+  - title:
+      en: ldeep - verify current identity
+      tr: ldeep - geçerli kimliği doğrulama
+    desc:
+      en: |
+        Verify the identity of the user currently authenticated against the LDAP server. 
+        This is useful to confirm that the provided credentials or Kerberos tickets are valid before running more intensive commands.
+        It returns the Distinguished Name (DN) and SID of the authenticated account.
+      tr: |
+        LDAP sunucusuna karşı o anda kimliği doğrulanmış kullanıcının kimliğini doğrulayın.
+        Daha yoğun komutlar çalıştırmadan önce verilen kimlik bilgilerinin veya Kerberos biletlerinin geçerli olduğunu onaylamak için kullanışlıdır.
+        Kimliği doğrulanmış hesabın Ayırt Edici Adını (DN) ve SID değerini döndürür.
     command: "ldeep ldap -u {{username}} -p {{password}} -d {{domain}} -s {{ldap_server}} whoami"
 
-  - title: ldeep - authenticate with NTLM hash
-    desc: |
-      Perform LDAP enumeration by authenticating with an NTLM hash instead of a plaintext password.
-      This technique, known as Pass-the-Hash, is essential when a user's password is unknown but their hash has been recovered.
-      The hash must be provided in the LM:NT or just NT format.
+  - title:
+      en: ldeep - authenticate with NTLM hash
+      tr: ldeep - NTLM karmasıyla kimlik doğrulama
+    desc:
+      en: |
+        Perform LDAP enumeration by authenticating with an NTLM hash instead of a plaintext password.
+        This technique, known as Pass-the-Hash, is essential when a user's password is unknown but their hash has been recovered.
+        The hash must be provided in the LM:NT or just NT format.
+      tr: |
+        Düz metin parola yerine bir NTLM karmasıyla kimlik doğrulayarak LDAP numaralandırma gerçekleştirin.
+        Pass-the-Hash olarak bilinen bu teknik, kullanıcının parolası bilinmiyorsa ancak karması ele geçirilmişse gereklidir.
+        Karma LM:NT biçiminde veya yalnızca NT biçiminde verilmelidir.
     command: "ldeep ldap -u {{username}} -H {{ntlm_hash}} -d {{domain}} -s {{ldap_server}} users"
 
-  - title: ldeep - authenticate with Kerberos
-    desc: |
-      Use Kerberos authentication to query the LDAP server.
-      This requires a valid Kerberos ticket (TGT) to be present in the environment, usually pointed to by the KRB5CCNAME variable.
-      This method is stealthier as it avoids sending passwords or hashes over the network.
+  - title:
+      en: ldeep - authenticate with Kerberos
+      tr: ldeep - Kerberos ile kimlik doğrulama
+    desc:
+      en: |
+        Use Kerberos authentication to query the LDAP server.
+        This requires a valid Kerberos ticket (TGT) to be present in the environment, usually pointed to by the KRB5CCNAME variable.
+        This method is stealthier as it avoids sending passwords or hashes over the network.
+      tr: |
+        LDAP sunucusunu sorgulamak için Kerberos kimlik doğrulaması kullanın.
+        Bu, ortamda genellikle KRB5CCNAME değişkeniyle işaret edilen geçerli bir Kerberos bileti (TGT) bulunmasını gerektirir.
+        Bu yöntem ağ üzerinden parola veya karma göndermekten kaçındığı için daha gizlidir.
     command: "ldeep ldap -k -d {{domain}} -s {{ldap_server}} users"
 
   # === ENUMERATION ===
-  - title: ldeep - comprehensive domain dump
-    desc: |
-      Collect and store a wide variety of Active Directory information in a single run.
-      This command gathers users, groups, computers, GPOs, organizational units, and trust relationships.
-      The results are saved into the specified output directory for offline analysis using the cache mode.
+  - title:
+      en: ldeep - comprehensive domain dump
+      tr: ldeep - kapsamlı etki alanı dökümü
+    desc:
+      en: |
+        Collect and store a wide variety of Active Directory information in a single run.
+        This command gathers users, groups, computers, GPOs, organizational units, and trust relationships.
+        The results are saved into the specified output directory for offline analysis using the cache mode.
+      tr: |
+        Tek çalıştırmada çok çeşitli Active Directory bilgilerini toplayıp saklayın.
+        Bu komut kullanıcıları, grupları, bilgisayarları, GPO'ları, organizasyon birimlerini ve güven ilişkilerini toplar.
+        Sonuçlar, önbellek modu kullanılarak çevrimdışı analiz için belirtilen çıktı dizinine kaydedilir.
     command: "ldeep ldap -u {{username}} -p {{password}} -d {{domain}} -s {{ldap_server}} all {{output_path|./backup}}"
 
-  - title: ldeep - list domain users
-    desc: |
-      Retrieve a list of all users within the Active Directory domain.
-      This is a fundamental step in reconnaissance to identify potential targets for password spraying or social engineering.
-      By default, it returns basic user attributes, but you can use verbose flags for more detail.
+  - title:
+      en: ldeep - list domain users
+      tr: ldeep - etki alanı kullanıcılarını listeleme
+    desc:
+      en: |
+        Retrieve a list of all users within the Active Directory domain.
+        This is a fundamental step in reconnaissance to identify potential targets for password spraying or social engineering.
+        By default, it returns basic user attributes, but you can use verbose flags for more detail.
+      tr: |
+        Active Directory etki alanındaki tüm kullanıcıların listesini getirin.
+        Parola püskürtme veya sosyal mühendislik için potansiyel hedefleri belirlemek amacıyla keşifte temel bir adımdır.
+        Varsayılan olarak temel kullanıcı özniteliklerini döndürür, ancak daha fazla ayrıntı için ayrıntılı bayraklar kullanabilirsiniz.
     command: "ldeep ldap -u {{username}} -p {{password}} -d {{domain}} -s {{ldap_server}} users"
 
-  - title: ldeep - enumerate group memberships
-    desc: |
-      List all the groups that a specific account belongs to.
-      This helps in understanding the privileges and access levels assigned to a particular user or computer.
-      Use this when you have compromised an account and want to see what resources it can access.
+  - title:
+      en: ldeep - enumerate group memberships
+      tr: ldeep - grup üyeliklerini numaralandırma
+    desc:
+      en: |
+        List all the groups that a specific account belongs to.
+        This helps in understanding the privileges and access levels assigned to a particular user or computer.
+        Use this when you have compromised an account and want to see what resources it can access.
+      tr: |
+        Belirli bir hesabın üyesi olduğu tüm grupları listeleyin.
+        Bu, belirli bir kullanıcıya veya bilgisayara atanan yetkileri ve erişim düzeylerini anlamaya yardımcı olur.
+        Bir hesabı ele geçirdiğinizde ve hangi kaynaklara erişebildiğini görmek istediğinizde bunu kullanın.
     command: "ldeep ldap -u {{username}} -p {{password}} -d {{domain}} -s {{ldap_server}} memberships {{target_account}}"
 
-  - title: ldeep - list group members
-    desc: |
-      Retrieve a list of all members belonging to a specific Active Directory group.
-      This is particularly useful for identifying high-privileged users by auditing groups like 'Domain Admins' or 'Enterprise Admins'.
-      It provides a clear view of which accounts inherit the permissions of the target group.
+  - title:
+      en: ldeep - list group members
+      tr: ldeep - grup üyelerini listeleme
+    desc:
+      en: |
+        Retrieve a list of all members belonging to a specific Active Directory group.
+        This is particularly useful for identifying high-privileged users by auditing groups like 'Domain Admins' or 'Enterprise Admins'.
+        It provides a clear view of which accounts inherit the permissions of the target group.
+      tr: |
+        Belirli bir Active Directory grubuna ait tüm üyelerin listesini getirin.
+        Bu, 'Domain Admins' veya 'Enterprise Admins' gibi grupları denetleyerek yüksek yetkili kullanıcıları belirlemek için özellikle kullanışlıdır.
+        Hangi hesapların hedef grubun izinlerini devraldığına dair net bir görünüm sağlar.
     command: "ldeep ldap -u {{username}} -p {{password}} -d {{domain}} -s {{ldap_server}} membersof {{group_name|Domain Admins}}"
 
-  - title: ldeep - discover constrained and unconstrained delegations
-    desc: |
-      Search for accounts configured with any form of Kerberos delegation.
-      Delegation settings (Unconstrained, Constrained, or Resource-Based Constrained Delegation) are primary targets for privilege escalation.
-      This command identifies misconfigurations that could allow an attacker to impersonate other users.
+  - title:
+      en: ldeep - discover constrained and unconstrained delegations
+      tr: ldeep - kısıtlı ve kısıtsız temsilleri keşfetme
+    desc:
+      en: |
+        Search for accounts configured with any form of Kerberos delegation.
+        Delegation settings (Unconstrained, Constrained, or Resource-Based Constrained Delegation) are primary targets for privilege escalation.
+        This command identifies misconfigurations that could allow an attacker to impersonate other users.
+      tr: |
+        Herhangi bir Kerberos temsil biçimiyle yapılandırılmış hesapları arayın.
+        Temsil ayarları (Kısıtsız, Kısıtlı veya Kaynak Tabanlı Kısıtlı Temsil) yetki yükseltme için birincil hedeflerdir.
+        Bu komut, saldırganın diğer kullanıcıları taklit etmesine olanak tanıyabilecek yanlış yapılandırmaları belirler.
     command: "ldeep ldap -u {{username}} -p {{password}} -d {{domain}} -s {{ldap_server}} delegations"
 
-  - title: ldeep - extract LAPS passwords
-    desc: |
-      Retrieve Local Administrator Password Solution (LAPS) passwords for domain computers.
-      This command only works if the authenticated user has the necessary permissions to read the 'ms-MCS-AdmPwd' attribute.
-      It is a high-value action during internal pentests to gain local administrative access to workstations and servers.
+  - title:
+      en: ldeep - extract LAPS passwords
+      tr: ldeep - LAPS parolalarını çıkarma
+    desc:
+      en: |
+        Retrieve Local Administrator Password Solution (LAPS) passwords for domain computers.
+        This command only works if the authenticated user has the necessary permissions to read the 'ms-MCS-AdmPwd' attribute.
+        It is a high-value action during internal pentests to gain local administrative access to workstations and servers.
+      tr: |
+        Etki alanı bilgisayarları için Yerel Yönetici Parola Çözümü (LAPS) parolalarını getirin.
+        Bu komut yalnızca kimliği doğrulanmış kullanıcı 'ms-MCS-AdmPwd' özniteliğini okumak için gerekli izinlere sahipse çalışır.
+        İş istasyonları ve sunuculara yerel yönetici erişimi kazanmak için iç sızma testlerinde yüksek değerli bir eylemdir.
     command: "ldeep ldap -u {{username}} -p {{password}} -d {{domain}} -s {{ldap_server}} laps"
 
-  - title: ldeep - list domain trusts
-    desc: |
-      Enumerate the trust relationships between the current domain and other domains or forests.
-      Understanding trusts is crucial for cross-domain or cross-forest lateral movement.
-      The output details the trust direction and type, identifying potential paths to other environments.
+  - title:
+      en: ldeep - list domain trusts
+      tr: ldeep - etki alanı güvenlerini listeleme
+    desc:
+      en: |
+        Enumerate the trust relationships between the current domain and other domains or forests.
+        Understanding trusts is crucial for cross-domain or cross-forest lateral movement.
+        The output details the trust direction and type, identifying potential paths to other environments.
+      tr: |
+        Geçerli etki alanı ile diğer etki alanları veya ormanlar arasındaki güven ilişkilerini numaralandırın.
+        Güvenleri anlamak, etki alanları veya ormanlar arası yatay hareket için kritik öneme sahiptir.
+        Çıktı, güven yönünü ve türünü ayrıntılandırarak diğer ortamlara giden potansiyel yolları belirler.
     command: "ldeep ldap -u {{username}} -p {{password}} -d {{domain}} -s {{ldap_server}} trusts"
 
-  - title: ldeep - extract BitLocker recovery keys
-    desc: |
-      Query Active Directory for BitLocker recovery passwords stored in computer objects.
-      Accessing these keys requires specific administrative permissions within the domain.
-      This is useful for forensic purposes or for gaining access to encrypted drives on domain-joined machines.
+  - title:
+      en: ldeep - extract BitLocker recovery keys
+      tr: ldeep - BitLocker kurtarma anahtarlarını çıkarma
+    desc:
+      en: |
+        Query Active Directory for BitLocker recovery passwords stored in computer objects.
+        Accessing these keys requires specific administrative permissions within the domain.
+        This is useful for forensic purposes or for gaining access to encrypted drives on domain-joined machines.
+      tr: |
+        Bilgisayar nesnelerinde saklanan BitLocker kurtarma parolaları için Active Directory'yi sorgulayın.
+        Bu anahtarlara erişmek etki alanı içinde belirli yönetici izinleri gerektirir.
+        Adli amaçlar veya etki alanına katılmış makinelerdeki şifreli sürücülere erişim için kullanışlıdır.
     command: "ldeep ldap -u {{username}} -p {{password}} -d {{domain}} -s {{ldap_server}} bitlockerkeys"
 
-  - title: ldeep - list FSMO roles
-    desc: |
-      Identify the Flexible Single Master Operation (FSMO) role holders in the domain.
-      This tells you which Domain Controllers are responsible for specific critical tasks like schema updates or password changes.
-      Identifying the PDC Emulator, for example, is vital for certain types of advanced AD attacks.
+  - title:
+      en: ldeep - list FSMO roles
+      tr: ldeep - FSMO rollerini listeleme
+    desc:
+      en: |
+        Identify the Flexible Single Master Operation (FSMO) role holders in the domain.
+        This tells you which Domain Controllers are responsible for specific critical tasks like schema updates or password changes.
+        Identifying the PDC Emulator, for example, is vital for certain types of advanced AD attacks.
+      tr: |
+        Etki alanındaki Esnek Tek Yönetici İşlemi (FSMO) rol sahiplerini belirleyin.
+        Bu, şema güncellemeleri veya parola değişiklikleri gibi belirli kritik görevlerden hangi Alan Denetleyicilerinin sorumlu olduğunu gösterir.
+        Örneğin PDC Öykünücüsünü belirlemek, belirli gelişmiş AD saldırıları için hayati öneme sahiptir.
     command: "ldeep ldap -u {{username}} -p {{password}} -d {{domain}} -s {{ldap_server}} fsmo"
 
   # === MODIFICATION & EXPLOITATION ===
-  - title: ldeep - unlock a user account
-    desc: |
-      Attempt to unlock a user account that has been locked out due to too many failed login attempts.
-      This action requires administrative privileges or specific delegated rights over the target user object.
-      It is useful during operations to restore access to a compromised account that was accidentally locked.
+  - title:
+      en: ldeep - unlock a user account
+      tr: ldeep - kullanıcı hesabı kilidi açma
+    desc:
+      en: |
+        Attempt to unlock a user account that has been locked out due to too many failed login attempts.
+        This action requires administrative privileges or specific delegated rights over the target user object.
+        It is useful during operations to restore access to a compromised account that was accidentally locked.
+      tr: |
+        Çok fazla başarısız oturum açma denemesi nedeniyle kilitlenmiş bir kullanıcı hesabının kilidini açmayı deneyin.
+        Bu eylem yönetici yetkileri veya hedef kullanıcı nesnesi üzerinde belirli temsilci hakları gerektirir.
+        Yanlışlıkla kilitlenen ele geçirilmiş bir hesaba erişimi geri yüklemek için operasyonlar sırasında kullanışlıdır.
     command: "ldeep ldap -u {{username}} -p {{password}} -d {{domain}} -s {{ldap_server}} unlock {{target_user}}"
 
-  - title: ldeep - add user to a group
-    desc: |
-      Add a specified user to a target Active Directory group.
-      This is a direct way to escalate privileges if you have administrative control over the LDAP directory.
-      Exercise caution as this leaves a significant trail in the Windows Security event logs.
+  - title:
+      en: ldeep - add user to a group
+      tr: ldeep - kullanıcıyı gruba ekleme
+    desc:
+      en: |
+        Add a specified user to a target Active Directory group.
+        This is a direct way to escalate privileges if you have administrative control over the LDAP directory.
+        Exercise caution as this leaves a significant trail in the Windows Security event logs.
+      tr: |
+        Belirtilen bir kullanıcıyı hedef bir Active Directory grubuna ekleyin.
+        LDAP dizini üzerinde yönetici denetiminiz varsa yetkileri yükseltmenin doğrudan bir yoludur.
+        Windows Güvenlik olay günlüklerinde önemli bir iz bıraktığından dikkatli olun.
     command: "ldeep ldap -u {{username}} -p {{password}} -d {{domain}} -s {{ldap_server}} add_to_group {{target_user}} {{target_group}}"
 
-  - title: ldeep - modify user password
-    desc: |
-      Change the password for a specific user account directly via LDAP.
-      This typically requires the 'Reset Password' permission or full administrative rights over the user object.
-      This is often used as a last resort for persistence or to regain control over an account.
+  - title:
+      en: ldeep - modify user password
+      tr: ldeep - kullanıcı parolası değiştirme
+    desc:
+      en: |
+        Change the password for a specific user account directly via LDAP.
+        This typically requires the 'Reset Password' permission or full administrative rights over the user object.
+        This is often used as a last resort for persistence or to regain control over an account.
+      tr: |
+        Belirli bir kullanıcı hesabının parolasını doğrudan LDAP üzerinden değiştirin.
+        Bu genellikle 'Parola Sıfırlama' izni veya kullanıcı nesnesi üzerinde tam yönetici hakları gerektirir.
+        Bu genellikle kalıcılık için veya bir hesabın denetimini geri kazanmak için son çare olarak kullanılır.
     command: "ldeep ldap -u {{username}} -p {{password}} -d {{domain}} -s {{ldap_server}} modify_password {{target_user}} {{new_password}}"
 
   # === CACHE MODE ===
-  - title: ldeep - query offline cache
-    desc: |
-      Query data previously saved using the 'all' command from the local filesystem.
-      This allows you to perform enumeration and analysis without generating further traffic to the target Domain Controller.
-      It is an excellent way to maintain a low profile and work in a disconnected environment.
+  - title:
+      en: ldeep - query offline cache
+      tr: ldeep - çevrimdışı önbellek sorgulama
+    desc:
+      en: |
+        Query data previously saved using the 'all' command from the local filesystem.
+        This allows you to perform enumeration and analysis without generating further traffic to the target Domain Controller.
+        It is an excellent way to maintain a low profile and work in a disconnected environment.
+      tr: |
+        'all' komutuyla önceden yerel dosya sistemine kaydedilmiş verileri sorgulayın.
+        Bu, hedef Alan Denetleyicisine ek trafik üretmeden numaralandırma ve analiz yapmanızı sağlar.
+        Düşük profil sürdürmek ve bağlantısız bir ortamda çalışmak için mükemmel bir yoldur.
     command: "ldeep cache -d {{backup_directory}} -p {{project_name}} users"

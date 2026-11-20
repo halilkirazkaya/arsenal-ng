@@ -3,53 +3,101 @@ tags: [recon, web, security, pentest, enumeration, discovery, bugbounty, paramet
 
 actions:
   # === BASIC RECONNAISSANCE ===
-  - title: paramspider - basic domain scan
-    desc: |
-      Perform a basic parameter discovery scan against a single target domain. 
-      This command queries archival sources to find historical URLs that contain parameters. 
-      It is the most common starting point for identifying potential attack vectors like XSS, SQLi, or SSRF. 
-      The results are typically saved to a text file in the results directory.
+  - title:
+      en: paramspider - basic domain scan
+      tr: paramspider - temel alan adı taraması
+    desc:
+      en: |
+        Perform a basic parameter discovery scan against a single target domain. 
+        This command queries archival sources to find historical URLs that contain parameters. 
+        It is the most common starting point for identifying potential attack vectors like XSS, SQLi, or SSRF. 
+        The results are typically saved to a text file in the results directory.
+      tr: |
+        Tek bir hedef alan adına karşı temel parametre keşif taraması gerçekleştirir.
+        Bu komut, parametre içeren geçmiş URL'leri bulmak için arşiv kaynaklarını sorgular.
+        XSS, SQLi veya SSRF gibi potansiyel saldırı vektörlerini belirlemek için en yaygın başlangıç noktasıdır.
+        Sonuçlar genellikle results dizinindeki bir metin dosyasına kaydedilir.
     command: "paramspider -d {{domain}}"
 
-  - title: paramspider - bulk domain discovery
-    desc: |
-      Scan multiple domains simultaneously by providing a list from a local file. 
-      This is highly efficient for large-scale reconnaissance or when working on bug bounty programs with expansive scopes. 
-      Ensure the input file contains one domain per line without protocol prefixes. 
-      This helps in automating the discovery phase across an entire organization's infrastructure.
+  - title:
+      en: paramspider - bulk domain discovery
+      tr: paramspider - toplu alan adı keşfi
+    desc:
+      en: |
+        Scan multiple domains simultaneously by providing a list from a local file. 
+        This is highly efficient for large-scale reconnaissance or when working on bug bounty programs with expansive scopes. 
+        Ensure the input file contains one domain per line without protocol prefixes. 
+        This helps in automating the discovery phase across an entire organization's infrastructure.
+      tr: |
+        Yerel bir dosyadan alınan listeyle birden fazla alan adını aynı anda tarar.
+        Kapsamı geniş bug bounty programlarında veya büyük ölçekli keşif çalışmalarında oldukça verimlidir.
+        Girdi dosyasının protokol öneki olmadan, satır başına bir alan adı içerdiğinden emin olun.
+        Bu, bir kuruluşun tüm altyapısında keşif aşamasını otomatikleştirmeye yardımcı olur.
     command: "paramspider -l {{file_path}}"
 
   # === OUTPUT AND STREAMING ===
-  - title: paramspider - stream results to terminal
-    desc: |
-      Enable streaming mode to print discovered URLs directly to the terminal output. 
-      By default, the tool might focus on file generation, but the stream flag allows for real-time monitoring. 
-      This is particularly useful when you want to pipe the output into other command-line tools like 'grep', 'httpx', or 'nuclei'. 
-      Use this for building complex automation pipelines in your terminal.
+  - title:
+      en: paramspider - stream results to terminal
+      tr: paramspider - sonuçları terminale aktarma
+    desc:
+      en: |
+        Enable streaming mode to print discovered URLs directly to the terminal output. 
+        By default, the tool might focus on file generation, but the stream flag allows for real-time monitoring. 
+        This is particularly useful when you want to pipe the output into other command-line tools like 'grep', 'httpx', or 'nuclei'. 
+        Use this for building complex automation pipelines in your terminal.
+      tr: |
+        Keşfedilen URL'leri doğrudan terminal çıktısına yazdırmak için akış modunu etkinleştirir.
+        Araç varsayılan olarak dosya oluşturmaya odaklanır, ancak stream bayrağı gerçek zamanlı izlemeye olanak tanır.
+        Çıktıyı 'grep', 'httpx' veya 'nuclei' gibi diğer komut satırı araçlarına aktarmak istediğinizde özellikle kullanışlıdır.
+        Terminalde karmaşık otomasyon hatları kurmak için bunu kullanın.
     command: "paramspider -d {{domain}} -s"
 
   # === ADVANCED CONFIGURATION ===
-  - title: paramspider - scan via custom proxy
-    desc: |
-      Route all outgoing web requests through a specified proxy server. 
-      This is essential when you need to monitor the discovery traffic via tools like Burp Suite or OWASP ZAP. 
-      It can also be used to route traffic through SOCKS or HTTP proxies to bypass IP-based rate limiting or regional restrictions. 
-      Ensure the proxy URL is provided in the format 'IP:PORT'.
+  - title:
+      en: paramspider - scan via custom proxy
+      tr: paramspider - özel proxy ile tarama
+    desc:
+      en: |
+        Route all outgoing web requests through a specified proxy server. 
+        This is essential when you need to monitor the discovery traffic via tools like Burp Suite or OWASP ZAP. 
+        It can also be used to route traffic through SOCKS or HTTP proxies to bypass IP-based rate limiting or regional restrictions. 
+        Ensure the proxy URL is provided in the format 'IP:PORT'.
+      tr: |
+        Tüm giden web isteklerini belirtilen bir proxy sunucusu üzerinden yönlendirir.
+        Keşif trafiğini Burp Suite veya OWASP ZAP gibi araçlarla izlemeniz gerektiğinde vazgeçilmezdir.
+        IP tabanlı hız sınırlamalarını veya bölgesel kısıtlamaları aşmak için SOCKS veya HTTP proxy'leri üzerinden trafik yönlendirmede de kullanılabilir.
+        Proxy URL'sinin 'IP:PORT' biçiminde verildiğinden emin olun.
     command: "paramspider -d {{domain}} --proxy {{proxy_url|127.0.0.1:8080}}"
 
-  - title: paramspider - custom parameter placeholder
-    desc: |
-      Set a custom placeholder value for discovered URL parameters. 
-      While the tool defaults to 'FUZZ', you can change this to specific reflection strings or vulnerability payloads. 
-      This prepares the discovered URLs for immediate use in automated scanners or manual testing tools. 
-      Using a unique string helps in identifying where your input is reflected in the web application's response.
+  - title:
+      en: paramspider - custom parameter placeholder
+      tr: paramspider - özel parametre yer tutucusu
+    desc:
+      en: |
+        Set a custom placeholder value for discovered URL parameters. 
+        While the tool defaults to 'FUZZ', you can change this to specific reflection strings or vulnerability payloads. 
+        This prepares the discovered URLs for immediate use in automated scanners or manual testing tools. 
+        Using a unique string helps in identifying where your input is reflected in the web application's response.
+      tr: |
+        Keşfedilen URL parametreleri için özel bir yer tutucu değeri belirler.
+        Araç varsayılan olarak 'FUZZ' kullanır, ancak bunu belirli yansıma dizgileri veya zafiyet yükleriyle değiştirebilirsiniz.
+        Bu, keşfedilen URL'leri otomatik tarayıcılarda veya manuel test araçlarında hemen kullanıma hazırlar.
+        Benzersiz bir dizgi kullanmak, girdinizin web uygulamasının yanıtında nerede yansıdığını belirlemeye yardımcı olur.
     command: "paramspider -d {{domain}} -p {{placeholder|FUZZ}}"
 
   # === PIPELINE INTEGRATION ===
-  - title: paramspider - filter and save results
-    desc: |
-      Combine streaming with output redirection to filter specific parameters. 
-      This example shows how to stream the output and then use standard Unix tools to isolate specific extensions or keywords. 
-      It allows for more granular control over what data is ultimately saved for the exploitation phase. 
-      This approach is recommended for cleaning up noise from large archival datasets.
+  - title:
+      en: paramspider - filter and save results
+      tr: paramspider - sonuçları filtreleme ve kaydetme
+    desc:
+      en: |
+        Combine streaming with output redirection to filter specific parameters. 
+        This example shows how to stream the output and then use standard Unix tools to isolate specific extensions or keywords. 
+        It allows for more granular control over what data is ultimately saved for the exploitation phase. 
+        This approach is recommended for cleaning up noise from large archival datasets.
+      tr: |
+        Belirli parametreleri filtrelemek için akış modunu çıktı yönlendirmeyle birleştirir.
+        Bu örnek, çıktının nasıl akışa alınıp ardından belirli uzantıları veya anahtar sözcükleri ayıklamak için standart Unix araçlarıyla kullanılabileceğini gösterir.
+        Sömürü aşaması için kaydedilecek veri üzerinde daha hassas denetim sağlar.
+        Büyük arşiv veri kümelerindeki gürültüyü temizlemek için bu yaklaşım önerilir.
     command: "paramspider -d {{domain}} -s | grep {{keyword|php}} > {{output_file|results.txt}}"

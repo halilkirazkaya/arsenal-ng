@@ -3,81 +3,159 @@ tags: [file-transfer, network, security, ssh, linux, sysadmin, pentest, authenti
 
 actions:
 # === BASIC FILE TRANSFERS ===
- - title: scp - copy local file to remote
-   desc: |
-     Securely transfers a file from your local machine to a remote server. This is the 
-     most common way to move files over an encrypted SSH connection. You must have write 
-     permissions on the destination directory on the remote host.
+ - title:
+     en: scp - copy local file to remote
+     tr: scp - yerel dosyayı uzağa kopyalama
+   desc:
+     en: |
+       Securely transfers a file from your local machine to a remote server. This is the 
+       most common way to move files over an encrypted SSH connection. You must have write 
+       permissions on the destination directory on the remote host.
+     tr: |
+       Yerel makinendeki bir dosyayı güvenli şekilde uzak sunucuya aktarır. Bu,
+       şifreli bir SSH bağlantısı üzerinden dosya taşımanın en yaygın yoludur. Uzak
+       hosttaki hedef dizinde yazma iznine sahip olmalısın.
    command: "scp {{local_file}} {{user}}@{{remote_host}}:{{remote_path}}"
 
- - title: scp - download remote file to local
-   desc: |
-     Pulls a specific file from a remote server to your local filesystem. It requires 
-     valid credentials or SSH keys to authenticate with the remote host. Provide the 
-     full path on the remote machine to ensure the correct file is retrieved.
+ - title:
+     en: scp - download remote file to local
+     tr: scp - uzak dosyayı yerele indirme
+   desc:
+     en: |
+       Pulls a specific file from a remote server to your local filesystem. It requires 
+       valid credentials or SSH keys to authenticate with the remote host. Provide the 
+       full path on the remote machine to ensure the correct file is retrieved.
+     tr: |
+       Uzak sunucudaki belirli bir dosyayı yerel dosya sistemine çeker. Uzak
+       hostta kimlik doğrulaması için geçerli kimlik bilgileri veya SSH anahtarları
+       gerektirir. Doğru dosyanın alındığından emin olmak için uzak makinedeki tam yolu ver.
    command: "scp {{user}}@{{remote_host}}:{{remote_path}} {{local_destination|.}}"
 
- - title: scp - copy directory recursively
-   desc: |
-     Transfers an entire directory and all its sub-contents to a remote location. 
-     The -r flag is mandatory for directory structures or the command will fail. 
-     Be cautious with large directories as this can consume significant bandwidth.
+ - title:
+     en: scp - copy directory recursively
+     tr: scp - dizini özyinelemeli kopyalama
+   desc:
+     en: |
+       Transfers an entire directory and all its sub-contents to a remote location. 
+       The -r flag is mandatory for directory structures or the command will fail. 
+       Be cautious with large directories as this can consume significant bandwidth.
+     tr: |
+       Bir dizinin tamamını ve tüm alt içeriklerini uzak konuma aktarır.
+       Dizin yapıları için -r bayrağı zorunludur; yoksa komut başarısız olur.
+       Önemli bant genişliği tüketebileceği için büyük dizinlerde dikkatli ol.
    command: "scp -r {{local_directory}} {{user}}@{{remote_host}}:{{remote_path}}"
 
 # === AUTHENTICATION AND CONNECTION ===
- - title: scp - transfer using custom port
-   desc: |
-     Connects to a remote server listening on a non-standard SSH port. This is frequently 
-     used when servers hide SSH on a different port to mitigate automated brute-force attacks. 
-     Note that the -P flag must be uppercase, distinguishing it from the lowercase -p used in ssh.
+ - title:
+     en: scp - transfer using custom port
+     tr: scp - özel port ile aktarım
+   desc:
+     en: |
+       Connects to a remote server listening on a non-standard SSH port. This is frequently 
+       used when servers hide SSH on a different port to mitigate automated brute-force attacks. 
+       Note that the -P flag must be uppercase, distinguishing it from the lowercase -p used in ssh.
+     tr: |
+       Standart dışı bir SSH portunu dinleyen uzak sunucuya bağlanır. Bu, otomatik
+       kaba kuvvet saldırılarını azaltmak için SSH'yi farklı bir portta gizleyen
+       sunucularda sıkça kullanılır. -P bayrağının büyük harf olması gerektiğini unutma;
+       bu onu ssh'teki küçük harfli -p'den ayırır.
    command: "scp -P {{port|2222}} {{local_file}} {{user}}@{{remote_host}}:{{remote_path}}"
 
- - title: scp - authenticate with identity file
-   desc: |
-     Uses a specific SSH private key file for authentication instead of a standard password. 
-     This is essential for automated scripts or when connecting to servers that disable 
-     password authentication. Ensure the private key file has secure permissions (chmod 600).
+ - title:
+     en: scp - authenticate with identity file
+     tr: scp - kimlik dosyasıyla kimlik doğrulama
+   desc:
+     en: |
+       Uses a specific SSH private key file for authentication instead of a standard password. 
+       This is essential for automated scripts or when connecting to servers that disable 
+       password authentication. Ensure the private key file has secure permissions (chmod 600).
+     tr: |
+       Standart parola yerine kimlik doğrulama için belirli bir SSH özel anahtar dosyası kullanır.
+       Bu, otomatik betikler veya parola kimlik doğrulamasını devre dışı bırakan sunuculara
+       bağlanırken gereklidir. Özel anahtar dosyasının güvenli izinlere sahip olduğundan emin ol (chmod 600).
    command: "scp -i {{identity_file|~/.ssh/id_rsa}} {{local_file}} {{user}}@{{remote_host}}:{{remote_path}}"
 
- - title: scp - transfer through jump host
-   desc: |
-     Transfers files to a target server that is only accessible through an intermediate jump server. 
-     The -J flag establishes the secure tunnel through the bastion host automatically. 
-     This is common in enterprise environments where internal servers are not directly exposed.
+ - title:
+     en: scp - transfer through jump host
+     tr: scp - jump host üzerinden aktarım
+   desc:
+     en: |
+       Transfers files to a target server that is only accessible through an intermediate jump server. 
+       The -J flag establishes the secure tunnel through the bastion host automatically. 
+       This is common in enterprise environments where internal servers are not directly exposed.
+     tr: |
+       Dosyaları, yalnızca ara bir jump sunucusu üzerinden erişilebilen hedef sunucuya aktarır.
+       -J bayrağı bastion host üzerinden güvenli tüneli otomatik olarak kurar.
+       Bu, iç sunucuların doğrudan dışa açık olmadığı kurumsal ortamlarda yaygındır.
    command: "scp -J {{jump_user}}@{{jump_host}} {{local_file}} {{user}}@{{remote_host}}:{{remote_path}}"
 
 # === ADVANCED OPERATIONS ===
- - title: scp - copy between two remote hosts
-   desc: |
-     Transfers files between two different remote servers by routing the traffic through 
-     your local machine. Use the -3 flag to enable this "three-way" transfer behavior. 
-     This is useful when the two remote servers cannot communicate with each other directly.
+ - title:
+     en: scp - copy between two remote hosts
+     tr: scp - iki uzak host arasında kopyalama
+   desc:
+     en: |
+       Transfers files between two different remote servers by routing the traffic through 
+       your local machine. Use the -3 flag to enable this "three-way" transfer behavior. 
+       This is useful when the two remote servers cannot communicate with each other directly.
+     tr: |
+       Trafiği yerel makinen üzerinden yönlendirerek iki farklı uzak sunucu arasında dosya aktarır.
+       Bu "three-way" aktarım davranışını etkinleştirmek için -3 bayrağını kullan.
+       İki uzak sunucunun birbiriyle doğrudan iletişim kuramadığı durumlarda faydalıdır.
    command: "scp -3 {{user1}}@{{host1}}:{{path1}} {{user2}}@{{host2}}:{{path2}}"
 
- - title: scp - preserve file attributes
-   desc: |
-     Ensures that modification times, access times, and modes from the original file are kept. 
-     Without this flag, the destination file will be assigned the timestamp of the transfer time. 
-     This is critical for maintaining integrity during backups or system migrations.
+ - title:
+     en: scp - preserve file attributes
+     tr: scp - dosya özniteliklerini koruma
+   desc:
+     en: |
+       Ensures that modification times, access times, and modes from the original file are kept. 
+       Without this flag, the destination file will be assigned the timestamp of the transfer time. 
+       This is critical for maintaining integrity during backups or system migrations.
+     tr: |
+       Orijinal dosyadaki değiştirilme zamanları, erişim zamanları ve modların korunmasını sağlar.
+       Bu bayrak olmadan hedef dosyaya aktarım zamanının damgası atanır.
+       Yedeklemeler veya sistem geçişleri sırasında bütünlüğü korumak için kritiktir.
    command: "scp -p {{local_file}} {{user}}@{{remote_host}}:{{remote_path}}"
 
- - title: scp - limit transfer bandwidth
-   desc: |
-     Constrains the bandwidth used by the scp command to a specific limit, specified in Kbit/s. 
-     Use this to prevent large file transfers from saturating the network for other users. 
-     Setting a logical default helps maintain network stability during large data migrations.
+ - title:
+     en: scp - limit transfer bandwidth
+     tr: scp - aktarım bant genişliğini sınırlama
+   desc:
+     en: |
+       Constrains the bandwidth used by the scp command to a specific limit, specified in Kbit/s. 
+       Use this to prevent large file transfers from saturating the network for other users. 
+       Setting a logical default helps maintain network stability during large data migrations.
+     tr: |
+       scp komutunun kullandığı bant genişliğini Kbit/s cinsinden belirtilen belirli bir sınırla kısıtlar.
+       Büyük dosya aktarımlarının diğer kullanıcılar için ağı doyurmasını engellemek için bunu kullan.
+       Mantıklı bir varsayılan ayarlamak büyük veri geçişlerinde ağ kararlılığını korumaya yardımcı olur.
    command: "scp -l {{limit_kbits|1000}} {{local_file}} {{user}}@{{remote_host}}:{{remote_path}}"
 
- - title: scp - compress data during transfer
-   desc: |
-     Enables GZIP compression for the file transfer process to speed up data movement over slow links. 
-     The -C flag is most effective for text-based files or uncompressed data formats. 
-     Note that for already compressed files (like .zip or .jpg), this may actually increase CPU usage.
+ - title:
+     en: scp - compress data during transfer
+     tr: scp - aktarım sırasında veriyi sıkıştırma
+   desc:
+     en: |
+       Enables GZIP compression for the file transfer process to speed up data movement over slow links. 
+       The -C flag is most effective for text-based files or uncompressed data formats. 
+       Note that for already compressed files (like .zip or .jpg), this may actually increase CPU usage.
+     tr: |
+       Yavaş bağlantılarda veri hareketini hızlandırmak için dosya aktarımı sürecinde GZIP sıkıştırmayı etkinleştirir.
+       -C bayrağı metin tabanlı dosyalarda veya sıkıştırılmamış veri biçimlerinde en etkilidir.
+       Zaten sıkıştırılmış dosyalarda (.zip veya .jpg gibi) bunun aslında CPU kullanımını artırabileceğini unutma.
    command: "scp -C {{local_file}} {{user}}@{{remote_host}}:{{remote_path}}"
 
- - title: scp - use specific cipher
-   desc: |
-     Forces the use of a specific encryption cipher for the data transfer session. 
-     This can be used to improve performance on hardware with specific acceleration or 
-     to comply with security policies. Check supported ciphers on your system using 'ssh -Q cipher'.
+ - title:
+     en: scp - use specific cipher
+     tr: scp - belirli cipher kullanma
+   desc:
+     en: |
+       Forces the use of a specific encryption cipher for the data transfer session. 
+       This can be used to improve performance on hardware with specific acceleration or 
+       to comply with security policies. Check supported ciphers on your system using 'ssh -Q cipher'.
+     tr: |
+       Veri aktarım oturumu için belirli bir şifreleme cipher kullanılmasını zorlar.
+       Bu, belirli donanım hızlandırmalı sistemlerde performansı iyileştirmek veya
+       güvenlik politikalarına uymak için kullanılabilir. Sisteminde desteklenen cipher'ları 'ssh -Q cipher' ile denetle.
    command: "scp -c {{cipher|aes128-ctr}} {{local_file}} {{user}}@{{remote_host}}:{{remote_path}}"

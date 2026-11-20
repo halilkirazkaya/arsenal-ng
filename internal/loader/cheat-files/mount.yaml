@@ -3,86 +3,166 @@ tags: [system, storage, linux, unix, filesystem, security, pentest]
 
 actions:
   # === BASIC OPERATIONS ===
-  - title: mount - basic mount
-    desc: |
-      Attach a physical or logical device to a specific point in the directory tree. 
-      This is the primary method for accessing external drives, partitions, or network storage. 
-      Superuser privileges are typically required to perform this operation. 
-      Ensure the target mount point directory exists before executing the command.
+  - title:
+      en: mount - basic mount
+      tr: mount - temel bağlama
+    desc:
+      en: |
+        Attach a physical or logical device to a specific point in the directory tree. 
+        This is the primary method for accessing external drives, partitions, or network storage. 
+        Superuser privileges are typically required to perform this operation. 
+        Ensure the target mount point directory exists before executing the command.
+      tr: |
+        Fiziksel veya mantıksal bir aygıtı dizin ağacındaki belirli bir noktaya bağlayın.
+        Harici sürücülere, bölümlere veya ağ depolamasına erişmenin birincil yöntemidir.
+        Bu işlemi gerçekleştirmek için genellikle süper kullanıcı yetkileri gerekir.
+        Komutu çalıştırmadan önce hedef bağlama noktası dizininin mevcut olduğundan emin olun.
     command: "mount {{device}} {{mount_point}}"
 
-  - title: mount - specify filesystem type
-    desc: |
-      Explicitly define the filesystem type of the device being mounted. 
-      This is useful when the operating system fails to auto-detect the format or when using specific drivers. 
-      Common types include ext4, xfs, ntfs-3g, or nfs. 
-      Using the correct type prevents data corruption and mounting errors.
+  - title:
+      en: mount - specify filesystem type
+      tr: mount - dosya sistemi türü belirtme
+    desc:
+      en: |
+        Explicitly define the filesystem type of the device being mounted. 
+        This is useful when the operating system fails to auto-detect the format or when using specific drivers. 
+        Common types include ext4, xfs, ntfs-3g, or nfs. 
+        Using the correct type prevents data corruption and mounting errors.
+      tr: |
+        Bağlanan aygıtın dosya sistemi türünü açıkça tanımlayın.
+        İşletim sistemi biçimi otomatik algılayamadığında veya belirli sürücüler kullanılırken kullanışlıdır.
+        Yaygın türler ext4, xfs, ntfs-3g veya nfs içerir.
+        Doğru türü kullanmak veri bozulmasını ve bağlama hatalarını önler.
     command: "mount -t {{fs_type|ext4}} {{device}} {{mount_point}}"
 
-  - title: mount - list mounted filesystems
-    desc: |
-      Display all currently mounted filesystems on the system along with their options. 
-      This command is essential for verifying where devices are attached and what permissions they have. 
-      It provides details such as the device path, mount point, filesystem type, and mount flags (ro, rw, etc.). 
-      No special privileges are required to view the list of mounts.
+  - title:
+      en: mount - list mounted filesystems
+      tr: mount - bağlı dosya sistemlerini listeleme
+    desc:
+      en: |
+        Display all currently mounted filesystems on the system along with their options. 
+        This command is essential for verifying where devices are attached and what permissions they have. 
+        It provides details such as the device path, mount point, filesystem type, and mount flags (ro, rw, etc.). 
+        No special privileges are required to view the list of mounts.
+      tr: |
+        Sistemde o anda bağlı tüm dosya sistemlerini seçenekleriyle birlikte görüntüleyin.
+        Bu komut aygıtların nereye bağlı olduğunu ve hangi izinlere sahip olduğunu doğrulamak için gereklidir.
+        Aygıt yolu, bağlama noktası, dosya sistemi türü ve bağlama bayrakları (ro, rw vb.) gibi ayrıntılar sağlar.
+        Bağlama listesini görüntülemek için özel yetki gerekmez.
     command: "mount"
 
   # === SYSTEM OPERATIONS ===
-  - title: mount - mount all from fstab
-    desc: |
-      Mount all filesystems listed in the /etc/fstab configuration file. 
-      This command is typically used after making changes to the fstab file to apply them without a system reboot. 
-      It will ignore entries marked with the 'noauto' option. 
-      This is a common step during system initialization or after adding new persistent storage.
+  - title:
+      en: mount - mount all from fstab
+      tr: mount - fstab'deki tümünü bağlama
+    desc:
+      en: |
+        Mount all filesystems listed in the /etc/fstab configuration file. 
+        This command is typically used after making changes to the fstab file to apply them without a system reboot. 
+        It will ignore entries marked with the 'noauto' option. 
+        This is a common step during system initialization or after adding new persistent storage.
+      tr: |
+        /etc/fstab yapılandırma dosyasında listelenen tüm dosya sistemlerini bağlayın.
+        Bu komut genellikle fstab dosyasında değişiklik yaptıktan sonra sistem yeniden başlatmadan uygulamak için kullanılır.
+        'noauto' seçeneğiyle işaretlenmiş girdileri yoksayar.
+        Sistem başlatma sırasında veya yeni kalıcı depolama ekledikten sonra yaygın bir adımdır.
     command: "mount -a"
 
-  - title: mount - remount as read-only or read-write
-    desc: |
-      Change the mount options of an already attached filesystem without unmounting it first. 
-      This is frequently used during system recovery to change a read-only root partition to read-write mode. 
-      It can also be used to quickly lock a partition to prevent further modifications. 
-      Note that some processes holding open files may prevent a successful remount.
+  - title:
+      en: mount - remount as read-only or read-write
+      tr: mount - salt okunur veya okunur-yazılır yeniden bağlama
+    desc:
+      en: |
+        Change the mount options of an already attached filesystem without unmounting it first. 
+        This is frequently used during system recovery to change a read-only root partition to read-write mode. 
+        It can also be used to quickly lock a partition to prevent further modifications. 
+        Note that some processes holding open files may prevent a successful remount.
+      tr: |
+        Zaten bağlı bir dosya sisteminin bağlama seçeneklerini önce bağlantısını kesmeden değiştirin.
+        Sistem kurtarma sırasında salt okunur kök bölümünü okunur-yazılır moda çevirmek için sık kullanılır.
+        Bir bölümü başka değişiklikleri önlemek için hızlıca kilitlemek amacıyla da kullanılabilir.
+        Açık dosya tutan bazı süreçlerin başarılı yeniden bağlamayı engelleyebileceğini unutmayın.
     command: "mount -o remount,{{mode|rw}} {{mount_point}}"
 
   # === ADVANCED MOUNTING ===
-  - title: mount - bind mount
-    desc: |
-      Mount an existing directory onto another directory, creating an alias in the filesystem. 
-      This allows the same content to be accessible from two different locations simultaneously. 
-      It is a powerful tool for configuring chroot environments or managing container volumes. 
-      The contents of the target directory are hidden by the source directory until unmounted.
+  - title:
+      en: mount - bind mount
+      tr: mount - bind bağlama
+    desc:
+      en: |
+        Mount an existing directory onto another directory, creating an alias in the filesystem. 
+        This allows the same content to be accessible from two different locations simultaneously. 
+        It is a powerful tool for configuring chroot environments or managing container volumes. 
+        The contents of the target directory are hidden by the source directory until unmounted.
+      tr: |
+        Mevcut bir dizini başka bir dizine bağlayarak dosya sisteminde bir takma ad oluşturun.
+        Aynı içeriğe iki farklı konumdan aynı anda erişilebilmesini sağlar.
+        Chroot ortamları yapılandırmak veya kapsayıcı birimlerini yönetmek için güçlü bir araçtır.
+        Bağlantı kesilene kadar hedef dizinin içeriği kaynak dizin tarafından gizlenir.
     command: "mount --bind {{source_dir}} {{target_dir}}"
 
-  - title: mount - mount ISO or disk image
-    desc: |
-      Mount a filesystem image file using a loop device. 
-      This enables you to browse and interact with the contents of an ISO file or raw disk image as if it were a physical disk. 
-      This is highly useful for software installation from media images or forensic analysis of disk dumps. 
-      The system automatically handles the loop device attachment in most modern distributions.
+  - title:
+      en: mount - mount ISO or disk image
+      tr: mount - ISO veya disk imajı bağlama
+    desc:
+      en: |
+        Mount a filesystem image file using a loop device. 
+        This enables you to browse and interact with the contents of an ISO file or raw disk image as if it were a physical disk. 
+        This is highly useful for software installation from media images or forensic analysis of disk dumps. 
+        The system automatically handles the loop device attachment in most modern distributions.
+      tr: |
+        Bir döngü (loop) aygıtı kullanarak bir dosya sistemi imaj dosyasını bağlayın.
+        Bir ISO dosyasının veya ham disk imajının içeriğine fiziksel diskmiş gibi göz atmanızı ve etkileşim kurmanızı sağlar.
+        Ortam imajlarından yazılım kurulumu veya disk dökümlerinin adli analizi için oldukça kullanışlıdır.
+        Çoğu modern dağıtımda sistem döngü aygıtı bağlanmasını otomatik yönetir.
     command: "mount -o loop {{image_file}} {{mount_point}}"
 
   # === SECURITY & RESTRICTIONS ===
-  - title: mount - security restricted mount
-    desc: |
-      Mount a device with specific flags to restrict the execution of binaries and the use of special files. 
-      The 'noexec' flag prevents scripts and binaries from running, while 'nosuid' ignores set-user-identifier bits. 
-      This is a critical hardening technique for world-writable partitions like /tmp or user-controlled media. 
-      It significantly reduces the risk of privilege escalation attacks from those partitions.
+  - title:
+      en: mount - security restricted mount
+      tr: mount - güvenlik kısıtlı bağlama
+    desc:
+      en: |
+        Mount a device with specific flags to restrict the execution of binaries and the use of special files. 
+        The 'noexec' flag prevents scripts and binaries from running, while 'nosuid' ignores set-user-identifier bits. 
+        This is a critical hardening technique for world-writable partitions like /tmp or user-controlled media. 
+        It significantly reduces the risk of privilege escalation attacks from those partitions.
+      tr: |
+        İkillerin çalıştırılmasını ve özel dosyaların kullanımını kısıtlamak için belirli bayraklarla bir aygıt bağlayın.
+        'noexec' bayrağı betik ve ikillerin çalışmasını engellerken 'nosuid' set-user-identifier bitlerini yoksayar.
+        Bu, /tmp gibi herkesçe yazılabilir bölümler veya kullanıcı denetimli ortamlar için kritik bir sıkılaştırma tekniğidir.
+        Bu bölümlerden yetki yükseltme saldırısı riskini önemli ölçüde azaltır.
     command: "mount -o noexec,nosuid,nodev {{device}} {{mount_point}}"
 
-  - title: mount - read-only mount
-    desc: |
-      Mount a device in read-only mode to prevent any data modification. 
-      This is the safest way to examine potentially compromised or failing hardware. 
-      It ensures that no write operations, including metadata updates like access times, occur on the media. 
-      This is standard practice during digital forensics and incident response.
+  - title:
+      en: mount - read-only mount
+      tr: mount - salt okunur bağlama
+    desc:
+      en: |
+        Mount a device in read-only mode to prevent any data modification. 
+        This is the safest way to examine potentially compromised or failing hardware. 
+        It ensures that no write operations, including metadata updates like access times, occur on the media. 
+        This is standard practice during digital forensics and incident response.
+      tr: |
+        Herhangi bir veri değişikliğini önlemek için bir aygıtı salt okunur modda bağlayın.
+        Ele geçirilmiş veya arızalanan donanımı incelemenin en güvenli yoludur.
+        Ortamda erişim zamanları gibi üstveri güncellemeleri dahil hiçbir yazma işleminin olmamasını sağlar.
+        Dijital adli bilişim ve olay müdahalesi sırasında standart uygulamadır.
     command: "mount -r {{device}} {{mount_point}}"
 
   # === NETWORK FILESYSTEMS ===
-  - title: mount - mount NFS share
-    desc: |
-      Connect to a remote Network File System (NFS) export. 
-      This allows you to access files over the network as if they were stored on your local machine. 
-      You must ensure the nfs-common or nfs-utils package is installed on the client. 
-      Check network connectivity and firewall settings if the connection times out.
+  - title:
+      en: mount - mount NFS share
+      tr: mount - NFS paylaşımı bağlama
+    desc:
+      en: |
+        Connect to a remote Network File System (NFS) export. 
+        This allows you to access files over the network as if they were stored on your local machine. 
+        You must ensure the nfs-common or nfs-utils package is installed on the client. 
+        Check network connectivity and firewall settings if the connection times out.
+      tr: |
+        Uzak bir Ağ Dosya Sistemi (NFS) dışa aktarımına bağlanın.
+        Ağ üzerindeki dosyalara yerel makinenizde saklanıyormuş gibi erişmenizi sağlar.
+        İstemcide nfs-common veya nfs-utils paketinin kurulu olduğundan emin olmalısınız.
+        Bağlantı zaman aşımına uğrarsa ağ bağlantısını ve güvenlik duvarı ayarlarını denetleyin.
     command: "mount -t nfs {{server_ip}}:{{remote_path}} {{mount_point}}"

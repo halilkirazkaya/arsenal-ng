@@ -3,94 +3,182 @@ tags: [password-cracking, wordlist, security, pentest, brute-force, reconnaissan
 
 actions:
   # === BASIC GENERATION ===
-  - title: crunch - basic wordlist generation
-    desc: |
-      Generates a wordlist based on a specific length range using the default lowercase alphabet.
-      The first number is the minimum length and the second is the maximum length.
-      This is useful for creating simple brute-force lists when no specific character set is known.
-      Be cautious as the file size grows exponentially with the length.
+  - title:
+      en: crunch - basic wordlist generation
+      tr: crunch - temel kelime listesi oluşturma
+    desc:
+      en: |
+        Generates a wordlist based on a specific length range using the default lowercase alphabet.
+        The first number is the minimum length and the second is the maximum length.
+        This is useful for creating simple brute-force lists when no specific character set is known.
+        Be cautious as the file size grows exponentially with the length.
+      tr: |
+        Varsayılan küçük harf dizisini kullanarak belirli uzunluk aralığına göre kelime listesi üretir.
+        İlk sayı en küçük uzunluğu, ikinci sayı en büyük uzunluğu belirtir.
+        Belirli bir karakter kümesi bilinmediğinde yalın kaba kuvvet listeleri hazırlamak amacıyla kullanışlıdır.
+        Uzunluk arttıkça dosya boyutu katlanarak büyüdüğünden dikkatli olunmalıdır.
     command: "crunch {{min|1}} {{max|3}}"
 
-  - title: crunch - custom character set
-    desc: |
-      Create a wordlist using a specific set of characters provided in the command line.
-      Crunch will use only the characters you specify to generate all possible combinations within the min/max range.
-      The characters should be entered as a single string immediately after the max length.
-      This is ideal when you know the target password only contains certain letters or numbers.
+  - title:
+      en: crunch - custom character set
+      tr: crunch - özel karakter kümesi
+    desc:
+      en: |
+        Create a wordlist using a specific set of characters provided in the command line.
+        Crunch will use only the characters you specify to generate all possible combinations within the min/max range.
+        The characters should be entered as a single string immediately after the max length.
+        This is ideal when you know the target password only contains certain letters or numbers.
+      tr: |
+        Komut satırında verilen belirli karakter kümesini kullanarak kelime listesi hazırlar.
+        Crunch en küçük ile en büyük uzunluk aralığındaki tüm olası birleşimleri yalnızca belirttiğiniz karakterlerle üretir.
+        Karakterler en büyük uzunluktan hemen sonra tek dize biçiminde yazılmalıdır.
+        Hedef parolanın yalnızca belirli harf veya rakamlardan oluştuğu bilindiğinde idealdir.
     command: "crunch {{min|4}} {{max|4}} {{characters|0123456789ABCDEF}}"
 
-  - title: crunch - output to file
-    desc: |
-      Saves the generated wordlist to a specified text file instead of printing to the terminal.
-      Using the -o flag is the standard way to prepare wordlists for tools like Hashcat or John the Ripper.
-      Crunch will provide an estimate of the file size and the number of lines before starting.
-      Ensure you have enough disk space as complex wordlists can easily reach several gigabytes.
+  - title:
+      en: crunch - output to file
+      tr: crunch - çıktıyı dosyaya yazma
+    desc:
+      en: |
+        Saves the generated wordlist to a specified text file instead of printing to the terminal.
+        Using the -o flag is the standard way to prepare wordlists for tools like Hashcat or John the Ripper.
+        Crunch will provide an estimate of the file size and the number of lines before starting.
+        Ensure you have enough disk space as complex wordlists can easily reach several gigabytes.
+      tr: |
+        Üretilen kelime listesini uçbirime yazdırmak yerine belirtilen metin dosyasına kaydeder.
+        -o seçeneği Hashcat veya John the Ripper benzeri araçlara yönelik liste hazırlamanın standart yoludur.
+        Crunch başlamadan önce dosya boyutu ile satır sayısına ilişkin tahmin sunar.
+        Karmaşık listeler birkaç gigabayta kolayca ulaşabildiğinden yeterli disk alanı ayrılmalıdır.
     command: "crunch {{min|4}} {{max|6}} -o {{output_file|wordlist.txt}}"
 
   # === ADVANCED CHARACTER SETS ===
-  - title: crunch - using predefined charset files
-    desc: |
-      Utilizes the standard charset.lst file included with crunch to select specific character groups.
-      Common groups include 'mixalpha-numeric', 'numeric', or 'unicode-upper'.
-      The path to charset.lst is usually /usr/share/crunch/charset.lst on Kali Linux.
-      This method is more efficient than manually typing out long character strings.
+  - title:
+      en: crunch - using predefined charset files
+      tr: crunch - hazır karakter kümesi dosyaları kullanma
+    desc:
+      en: |
+        Utilizes the standard charset.lst file included with crunch to select specific character groups.
+        Common groups include 'mixalpha-numeric', 'numeric', or 'unicode-upper'.
+        The path to charset.lst is usually /usr/share/crunch/charset.lst on Kali Linux.
+        This method is more efficient than manually typing out long character strings.
+      tr: |
+        Belirli karakter gruplarını seçmek amacıyla crunch ile gelen standart charset.lst dosyasından yararlanır.
+        Yaygın gruplar arasında 'mixalpha-numeric', 'numeric' veya 'unicode-upper' bulunur.
+        charset.lst yolu Kali Linux üzerinde çoğunlukla /usr/share/crunch/charset.lst konumundadır.
+        Uzun karakter dizilerini elle yazmaktan daha verimli bir yöntemdir.
     command: "crunch {{min|8}} {{max|8}} -f {{charset_file|/usr/share/crunch/charset.lst}} {{charset_name|mixalpha-numeric}}"
 
   # === PATTERN BASED GENERATION ===
-  - title: crunch - pattern matching (masks)
-    desc: |
-      Generates words matching a specific pattern using the -t flag.
-      Placeholders include @ (lowercase), , (uppercase), % (numbers), and ^ (symbols).
-      This is extremely powerful for targeted attacks where part of the password (like a year or a name) is known.
-      Any other characters in the pattern will be treated as literal constants.
+  - title:
+      en: crunch - pattern matching (masks)
+      tr: crunch - kalıp eşleşmeli üretim
+    desc:
+      en: |
+        Generates words matching a specific pattern using the -t flag.
+        Placeholders include @ (lowercase), , (uppercase), % (numbers), and ^ (symbols).
+        This is extremely powerful for targeted attacks where part of the password (like a year or a name) is known.
+        Any other characters in the pattern will be treated as literal constants.
+      tr: |
+        -t seçeneğini kullanarak belirli kalıba uyan sözcükler üretir.
+        Yer tutucular şunlardır: @ küçük harf, virgül büyük harf, % rakam, ^ simge anlamına gelir.
+        Parolanın bir bölümünün (yıl veya isim benzeri) bilindiği hedefli saldırılarda son derece güçlüdür.
+        Kalıptaki diğer karakterler değişmez sabit değer kabul edilir.
     command: "crunch {{length|6}} {{length|6}} -t {{pattern|@@202%}} -o {{output_file|pattern_list.txt}}"
 
-  - title: crunch - literal character escape in patterns
-    desc: |
-      Allows you to use the placeholder characters (@, , % ^) as literals in a pattern.
-      The -l flag tells crunch which character in the -t pattern should be treated as a literal instead of a placeholder.
-      This is necessary if the target password actually contains a symbol like '%' or '@'.
-      Specify the exact character from the pattern that should not be interpreted as a mask.
+  - title:
+      en: crunch - literal character escape in patterns
+      tr: crunch - kalıplarda değişmez karakter kullanımı
+    desc:
+      en: |
+        Allows you to use the placeholder characters (@, , % ^) as literals in a pattern.
+        The -l flag tells crunch which character in the -t pattern should be treated as a literal instead of a placeholder.
+        This is necessary if the target password actually contains a symbol like '%' or '@'.
+        Specify the exact character from the pattern that should not be interpreted as a mask.
+      tr: |
+        Kalıp içindeki yer tutucu imleri (@, virgül, % ^) değişmez değer biçiminde kullanmaya olanak tanır.
+        -l seçeneği -t kalıbındaki hangi imin yer tutucu değil değişmez sayılacağını crunch tarafına bildirir.
+        Hedef parola '%' veya '@' benzeri simge içerdiğinde gereklidir.
+        Kalıp içinde maske biçiminde yorumlanmaması gereken im açıkça belirtilmelidir.
     command: "crunch {{length|5}} {{length|5}} -t {{pattern|pass%}}"
 
   # === PERMUTATIONS AND COMBINATIONS ===
-  - title: crunch - permutation of specific words
-    desc: |
-      Generates a wordlist by shuffling the order of specific words or characters provided.
-      The -p flag ignores the min/max length parameters and instead focuses on permutations.
-      This is useful for "social engineering" wordlists where you combine known keywords like pet names or birthdays.
-      Crunch will generate every possible order for the strings you provide.
+  - title:
+      en: crunch - permutation of specific words
+      tr: crunch - belirli sözcüklerle devirleme
+    desc:
+      en: |
+        Generates a wordlist by shuffling the order of specific words or characters provided.
+        The -p flag ignores the min/max length parameters and instead focuses on permutations.
+        This is useful for "social engineering" wordlists where you combine known keywords like pet names or birthdays.
+        Crunch will generate every possible order for the strings you provide.
+      tr: |
+        Verilen belirli sözcük veya karakterlerin sırasını karıştırarak kelime listesi üretir.
+        -p seçeneği en küçük ile en büyük uzunluk değerlerini yok sayarak devirlemelere odaklanır.
+        Bilinen anahtar sözcüklerin (evcil hayvan adı veya doğum günü benzeri) birleştirildiği sosyal mühendislik listeleri amacıyla kullanışlıdır.
+        Crunch verdiğiniz dizelerle kurulabilecek tüm sıralamaları üretir.
     command: "crunch 1 1 -p {{word1}} {{word2}} {{word3}}"
 
   # === FILE AND RESOURCE MANAGEMENT ===
-  - title: crunch - split wordlist by size
-    desc: |
-      Automatically splits the generated wordlist into multiple files based on size.
-      The -b flag accepts parameters like 'kb', 'mb', or 'gb' to define the maximum size of each segment.
-      The output filename must be set to 'START' or another placeholder to enable auto-numbering.
-      This is helpful when dealing with file system limitations or when transferring lists between machines.
+  - title:
+      en: crunch - split wordlist by size
+      tr: crunch - kelime listesini boyuta göre bölme
+    desc:
+      en: |
+        Automatically splits the generated wordlist into multiple files based on size.
+        The -b flag accepts parameters like 'kb', 'mb', or 'gb' to define the maximum size of each segment.
+        The output filename must be set to 'START' or another placeholder to enable auto-numbering.
+        This is helpful when dealing with file system limitations or when transferring lists between machines.
+      tr: |
+        Üretilen kelime listesini boyuta göre kendiliğinden birden fazla dosyaya böler.
+        -b seçeneği her parçanın en büyük boyutunu belirlemek amacıyla 'kb', 'mb' veya 'gb' benzeri değerler alır.
+        Otomatik numaralandırmayı açmak amacıyla çıktı dosya adı 'START' veya başka yer tutucu olmalıdır.
+        Dosya sistemi sınırlarıyla uğraşırken veya listeleri makineler arasında taşırken kolaylık sağlar.
     command: "crunch {{min|4}} {{max|8}} -b {{size|20mb}} -o START"
 
-  - title: crunch - split wordlist by line count
-    desc: |
-      Divides the output into multiple files containing a specific number of lines each.
-      Use the -c flag followed by the number of lines per file.
-      Similar to the -b flag, the output filename should be specified as 'START'.
-      This is useful for parallelizing brute-force attacks across multiple instances of a tool.
+  - title:
+      en: crunch - split wordlist by line count
+      tr: crunch - kelime listesini satır sayısına göre bölme
+    desc:
+      en: |
+        Divides the output into multiple files containing a specific number of lines each.
+        Use the -c flag followed by the number of lines per file.
+        Similar to the -b flag, the output filename should be specified as 'START'.
+        This is useful for parallelizing brute-force attacks across multiple instances of a tool.
+      tr: |
+        Çıktıyı her dosyada belirli satır sayısı bulunacak biçimde birden fazla dosyaya böler.
+        Dosya başına düşen satır sayısıyla birlikte -c seçeneği kullanılmalıdır.
+        -b seçeneğine benzer biçimde çıktı dosya adı 'START' biçiminde belirtilmelidir.
+        Kaba kuvvet saldırılarını bir aracın birden fazla kopyası arasında paylaştırmak amacıyla kullanışlıdır.
     command: "crunch {{min|5}} {{max|5}} -c {{line_count|1000}} -o START"
 
-  - title: crunch - compressed wordlist generation
-    desc: |
-      Compresses the output wordlist on the fly using gzip, bzip2, or lzma.
-      The -z flag followed by the compression type (e.g., gzip) significantly reduces disk space usage.
-      Many modern cracking tools can read compressed wordlists directly without manual extraction.
-      This is highly recommended for massive wordlists that would otherwise exceed storage limits.
+  - title:
+      en: crunch - compressed wordlist generation
+      tr: crunch - sıkıştırılmış kelime listesi oluşturma
+    desc:
+      en: |
+        Compresses the output wordlist on the fly using gzip, bzip2, or lzma.
+        The -z flag followed by the compression type (e.g., gzip) significantly reduces disk space usage.
+        Many modern cracking tools can read compressed wordlists directly without manual extraction.
+        This is highly recommended for massive wordlists that would otherwise exceed storage limits.
+      tr: |
+        Çıktı kelime listesini gzip, bzip2 veya lzma kullanarak anında sıkıştırır.
+        Sıkıştırma türüyle birlikte kullanılan -z seçeneği (örneğin gzip) disk alanı kullanımını belirgin biçimde azaltır.
+        Güncel kırma araçlarının çoğu sıkıştırılmış listeleri elle açmaya gerek kalmadan doğrudan okuyabilir.
+        Depolama sınırlarını aşabilecek devasa listelerde şiddetle önerilir.
     command: "crunch {{min|1}} {{max|10}} -o {{file|list.txt}} -z {{compression|gzip}}"
 
-  - title: crunch - resume interrupted generation
-    desc: |
-      Resumes a wordlist generation process from a specific starting string.
-      The -s flag allows you to specify the exact word where crunch should begin.
-      This is a lifesaver if your system crashed or you needed to stop a long-running generation task.
-      Make sure the min/max and character set parameters match the original command.
+  - title:
+      en: crunch - resume interrupted generation
+      tr: crunch - yarım kalan üretime devam etme
+    desc:
+      en: |
+        Resumes a wordlist generation process from a specific starting string.
+        The -s flag allows you to specify the exact word where crunch should begin.
+        This is a lifesaver if your system crashed or you needed to stop a long-running generation task.
+        Make sure the min/max and character set parameters match the original command.
+      tr: |
+        Kelime listesi üretim sürecini belirli başlangıç dizesinden sürdürür.
+        -s seçeneği crunch tarafının başlayacağı sözcüğü tam biçimiyle belirtmeye olanak tanır.
+        Sistem çöktüğünde veya uzun süren üretim görevini durdurmak gerektiğinde kurtarıcıdır.
+        En küçük ile en büyük uzunluk ve karakter kümesi değerlerinin özgün komutla eşleşmesine dikkat edilmelidir.
     command: "crunch {{min|5}} {{max|5}} -s {{start_string|abc12}}"

@@ -3,33 +3,61 @@ tags: [network, security, pentest, icmp, reconnaissance, impacket, ping, network
 
 actions:
   # === BASIC CONNECTIVITY ===
-  - title: impacket-ping - Basic ICMP echo request
-    desc: |
-      Sends a standard ICMP Echo Request from a specified source IP to a destination IP.
-      This tool is part of the Impacket library and is used to verify network reachability between two points.
-      It is particularly useful for testing raw socket communication and ensuring that the Impacket framework can correctly craft and receive ICMP packets on the current system.
+  - title:
+      en: impacket-ping - Basic ICMP echo request
+      tr: impacket-ping - temel ICMP yankı isteği
+    desc:
+      en: |
+        Sends a standard ICMP Echo Request from a specified source IP to a destination IP.
+        This tool is part of the Impacket library and is used to verify network reachability between two points.
+        It is particularly useful for testing raw socket communication and ensuring that the Impacket framework can correctly craft and receive ICMP packets on the current system.
+      tr: |
+        Belirtilen kaynak IP'den hedef IP'ye standart bir ICMP Yankı İsteği gönderir.
+        Bu araç Impacket kütüphanesinin parçasıdır; iki nokta arası ağ erişilebilirliğini doğrulamak için kullanılır.
+        Ham soket iletişimini test etmek ve Impacket'in geçerli sistemde ICMP paketlerini doğru oluşturup alabildiğini doğrulamak için özellikle kullanışlıdır.
     command: "impacket-ping {{src_ip}} {{dst_ip}}"
 
   # === NETWORK TROUBLESHOOTING ===
-  - title: impacket-ping - Source-specific connectivity test
-    desc: |
-      Verifies if a specific source address on the local machine can communicate with a target host.
-      This is highly effective when working with multiple network interfaces or virtual private networks (VPNs) to ensure traffic is routed through the correct path.
-      Users should ensure they have the necessary privileges (usually root/sudo) to create raw sockets required for this operation.
+  - title:
+      en: impacket-ping - Source-specific connectivity test
+      tr: impacket-ping - kaynağa özgü bağlantı testi
+    desc:
+      en: |
+        Verifies if a specific source address on the local machine can communicate with a target host.
+        This is highly effective when working with multiple network interfaces or virtual private networks (VPNs) to ensure traffic is routed through the correct path.
+        Users should ensure they have the necessary privileges (usually root/sudo) to create raw sockets required for this operation.
+      tr: |
+        Yerel makinedeki belirli bir kaynak adresin hedef makineyle iletişim kurabildiğini doğrular.
+        Birden çok ağ arayüzü veya sanal özel ağlarla (VPN) çalışırken trafiğin doğru yoldan aktığını doğrulamak için oldukça etkilidir.
+        Bu işlem için gereken ham soketleri oluşturma yetkilerine (genellikle kök/sudo) sahip olmalısınız.
     command: "impacket-ping {{local_interface_ip}} {{target_ip}}"
 
   # === RECONNAISSANCE & ENUMERATION ===
-  - title: impacket-ping - Active host discovery
-    desc: |
-      Checks if a remote target is active by requesting an ICMP Echo Reply.
-      In a penetration testing scenario, this serves as a basic reconnaissance step to map out live hosts within a subnet.
-      Be aware that many modern firewalls and EDR solutions may block or rate-limit ICMP traffic, potentially leading to false negatives.
+  - title:
+      en: impacket-ping - Active host discovery
+      tr: impacket-ping - aktif makine keşfi
+    desc:
+      en: |
+        Checks if a remote target is active by requesting an ICMP Echo Reply.
+        In a penetration testing scenario, this serves as a basic reconnaissance step to map out live hosts within a subnet.
+        Be aware that many modern firewalls and EDR solutions may block or rate-limit ICMP traffic, potentially leading to false negatives.
+      tr: |
+        ICMP Yankı Yanıtı isteyerek uzak hedefin aktif olup olmadığını denetler.
+        Sızma testi senaryosunda alt ağdaki canlı makineleri haritalamak için temel bir keşif adımıdır.
+        Birçok modern güvenlik duvarı ve EDR çözümünün ICMP trafiğini engelleyip hız sınırlayabileceğini ve bunun yanlış negatiflere yol açabileceğini unutmayın.
     command: "impacket-ping {{gateway_ip}} {{remote_host_ip}}"
 
   # === SEGMENTATION TESTING ===
-  - title: impacket-ping - Network boundary validation
-    desc: |
-      Tests the isolation between different network segments by attempting to ping across boundaries.
-      This command helps security auditors verify if firewall rules are correctly preventing or allowing ICMP traffic between sensitive zones.
-      If the command receives a reply, it indicates that ICMP traffic is permitted between the specified source and destination IPs.
+  - title:
+      en: impacket-ping - Network boundary validation
+      tr: impacket-ping - ağ sınırı doğrulama
+    desc:
+      en: |
+        Tests the isolation between different network segments by attempting to ping across boundaries.
+        This command helps security auditors verify if firewall rules are correctly preventing or allowing ICMP traffic between sensitive zones.
+        If the command receives a reply, it indicates that ICMP traffic is permitted between the specified source and destination IPs.
+      tr: |
+        Farklı ağ segmentleri arası izolasyonu sınırlar arası ping atarak test eder.
+        Bu komut, güvenlik duvarı kurallarının hassas bölgeler arası ICMP trafiğini doğru engelleyip geçirmediğini denetleyen güvenlik denetçilerine yardımcı olur.
+        Komut yanıt alırsa belirtilen kaynak ve hedef IP'ler arası ICMP trafiğine izin verildiğini gösterir.
     command: "impacket-ping {{internal_source_ip}} {{dmz_target_ip}}"

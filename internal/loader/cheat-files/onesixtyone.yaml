@@ -3,77 +3,149 @@ tags: [network, snmp, scanner, pentest, reconnaissance, enumeration, information
 
 actions:
   # === BASIC SCANNING ===
-  - title: onesixtyone - basic single target scan
-    desc: |
-      Performs a simple SNMP scan against a single IP address using a specific community string.
-      This command is primarily used to verify if a device responds to standard SNMP requests by fetching the sysDescr OID.
-      It is an essential first step in network reconnaissance to identify the hardware and OS version of a target.
-      By default, it uses the community string provided in the command line (e.g., public).
+  - title:
+      en: onesixtyone - basic single target scan
+      tr: onesixtyone - temel tek hedef taraması
+    desc:
+      en: |
+        Performs a simple SNMP scan against a single IP address using a specific community string.
+        This command is primarily used to verify if a device responds to standard SNMP requests by fetching the sysDescr OID.
+        It is an essential first step in network reconnaissance to identify the hardware and OS version of a target.
+        By default, it uses the community string provided in the command line (e.g., public).
+      tr: |
+        Belirli bir community dizgisi kullanarak tek bir IP adresine basit bir SNMP taraması gerçekleştirir.
+        Bu komut, sysDescr OID değerini çekerek cihazın standart SNMP isteklerine yanıt verip vermediğini doğrulamak için kullanılır.
+        Hedefin donanım ve işletim sistemi sürümünü belirlemek üzere ağ keşfinde atılan temel ilk adımdır.
+        Varsayılan olarak komut satırında verilen community dizgisini kullanır (ör. public).
     command: "onesixtyone {{target}} {{community|public}}"
 
-  - title: onesixtyone - scan a network range
-    desc: |
-      Scans an entire CIDR network range to discover active SNMP-enabled devices.
-      This is highly efficient for large-scale discovery because the tool sends requests asynchronously.
-      The output will list all responding IP addresses along with their system descriptions.
-      It is particularly useful during internal penetration tests to map out infrastructure quickly.
+  - title:
+      en: onesixtyone - scan a network range
+      tr: onesixtyone - ağ aralığı taraması
+    desc:
+      en: |
+        Scans an entire CIDR network range to discover active SNMP-enabled devices.
+        This is highly efficient for large-scale discovery because the tool sends requests asynchronously.
+        The output will list all responding IP addresses along with their system descriptions.
+        It is particularly useful during internal penetration tests to map out infrastructure quickly.
+      tr: |
+        Tüm CIDR ağ aralığını tarayarak aktif SNMP destekli cihazları keşfeder.
+        Araç istekleri eşzamansız gönderdiği için geniş ölçekli keşiflerde oldukça verimlidir.
+        Çıktı, yanıt veren tüm IP adreslerini sistem açıklamalarıyla birlikte listeler.
+        İç ağ sızma testlerinde altyapıyı hızlıca haritalamak için özellikle kullanışlıdır.
     command: "onesixtyone {{network_range|192.168.1.0/24}} {{community|public}}"
 
   # === ENUMERATION & BRUTE FORCE ===
-  - title: onesixtyone - community string brute force
-    desc: |
-      Attempts to find valid SNMP community strings by using a dictionary file against a target.
-      Since many administrators change default strings for security, using a wordlist is crucial for discovery.
-      The tool iterates through the file and reports any successful "handshakes" that return data.
-      Note that while SNMP v1/v2c doesn't usually have lockout policies, high-frequency attempts might be logged by IDS.
+  - title:
+      en: onesixtyone - community string brute force
+      tr: onesixtyone - community dizgisi kaba kuvveti
+    desc:
+      en: |
+        Attempts to find valid SNMP community strings by using a dictionary file against a target.
+        Since many administrators change default strings for security, using a wordlist is crucial for discovery.
+        The tool iterates through the file and reports any successful "handshakes" that return data.
+        Note that while SNMP v1/v2c doesn't usually have lockout policies, high-frequency attempts might be logged by IDS.
+      tr: |
+        Hedefe karşı bir sözlük dosyası kullanarak geçerli SNMP community dizgilerini bulmayı dener.
+        Birçok yönetici güvenlik için varsayılan dizgileri değiştirdiğinden, keşif için kelime listesi kullanmak kritiktir.
+        Araç dosyayı satır satır dener ve veri döndüren başarılı "el sıkışmaları" raporlar.
+        SNMP v1/v2c'de genellikle kilitlenme politikası olmasa da yüksek sıklıktaki denemeler IDS tarafından kaydedilebilir.
     command: "onesixtyone -c {{wordlist|/usr/share/doc/onesixtyone/dict.txt}} {{target}}"
 
-  - title: onesixtyone - multi-target scan from file
-    desc: |
-      Reads a list of target IP addresses or network ranges from an input file and scans them.
-      This allows for more organized testing when you have a pre-filtered list of hosts from other tools like Nmap.
-      You can combine this with a community wordlist to perform mass enumeration across different segments.
-      It is an efficient way to automate the discovery process across multiple disparate targets.
+  - title:
+      en: onesixtyone - multi-target scan from file
+      tr: onesixtyone - dosyadan çoklu hedef taraması
+    desc:
+      en: |
+        Reads a list of target IP addresses or network ranges from an input file and scans them.
+        This allows for more organized testing when you have a pre-filtered list of hosts from other tools like Nmap.
+        You can combine this with a community wordlist to perform mass enumeration across different segments.
+        It is an efficient way to automate the discovery process across multiple disparate targets.
+      tr: |
+        Hedef IP adresleri veya ağ aralıklarının listesini bir girdi dosyasından okuyup tarar.
+        Nmap gibi diğer araçlardan alınan önceden filtrelenmiş host listeleriyle daha düzenli test yapılmasını sağlar.
+        Farklı ağ bölümlerinde toplu numaralandırma için bir community kelime listesiyle birlikte kullanılabilir.
+        Birbirinden bağımsız çok sayıda hedefte keşif sürecini otomatikleştirmenin verimli bir yoludur.
     command: "onesixtyone -i {{input_file}} -c {{wordlist|dict.txt}}"
 
   # === ADVANCED CONFIGURATION ===
-  - title: onesixtyone - adjust packet delay for stealth or stability
-    desc: |
-      Sets the waiting interval in milliseconds between sending packets to the target(s).
-      Increasing the delay (default is 10ms) can help bypass simple rate-limiting or prevent network congestion.
-      It is recommended to use a higher value like 100ms when scanning sensitive industrial control systems (ICS).
-      Slower scans are also less likely to trigger high-load alerts on older networking hardware.
+  - title:
+      en: onesixtyone - adjust packet delay for stealth or stability
+      tr: onesixtyone - gizlilik/kararlılık için paket gecikmesi
+    desc:
+      en: |
+        Sets the waiting interval in milliseconds between sending packets to the target(s).
+        Increasing the delay (default is 10ms) can help bypass simple rate-limiting or prevent network congestion.
+        It is recommended to use a higher value like 100ms when scanning sensitive industrial control systems (ICS).
+        Slower scans are also less likely to trigger high-load alerts on older networking hardware.
+      tr: |
+        Hedefe paket gönderimleri arasındaki bekleme süresini milisaniye cinsinden ayarlar.
+        Gecikmeyi artırmak (varsayılan 10ms), basit hız sınırlamalarını atlatmaya veya ağ tıkanıklığını önlemeye yardımcı olur.
+        Hassas endüstriyel kontrol sistemlerini (ICS) tararken 100ms gibi daha yüksek bir değer kullanılması önerilir.
+        Daha yavaş taramaların eski ağ donanımlarında yüksek yük uyarılarını tetikleme olasılığı da düşüktür.
     command: "onesixtyone -w {{delay|100}} -i {{input_file}} -c {{wordlist}}"
 
-  - title: onesixtyone - scan on a custom snmp port
-    desc: |
-      Targets a non-standard port for SNMP discovery instead of the default UDP port 161.
-      Administrators occasionally move SNMP to different ports to avoid automated discovery and basic scans.
-      This command is useful when initial scans fail but you suspect an SNMP service is hidden elsewhere.
-      Ensure your firewall rules allow outgoing traffic on the specified custom port.
+  - title:
+      en: onesixtyone - scan on a custom snmp port
+      tr: onesixtyone - özel SNMP portunda tarama
+    desc:
+      en: |
+        Targets a non-standard port for SNMP discovery instead of the default UDP port 161.
+        Administrators occasionally move SNMP to different ports to avoid automated discovery and basic scans.
+        This command is useful when initial scans fail but you suspect an SNMP service is hidden elsewhere.
+        Ensure your firewall rules allow outgoing traffic on the specified custom port.
+      tr: |
+        SNMP keşfi için varsayılan UDP 161 portu yerine standart dışı bir portu hedefler.
+        Yöneticiler otomatik keşif ve temel taramalardan kaçınmak için SNMP'yi zaman zaman farklı portlara taşır.
+        İlk taramalar başarısız olduğunda ancak SNMP hizmetinin başka bir yerde gizlendiğinden şüphelenildiğinde kullanışlıdır.
+        Belirtilen özel portta giden trafiğe izin veren güvenlik duvarı kurallarınız olduğundan emin olun.
     command: "onesixtyone -p {{port|16161}} {{target}} {{community|public}}"
 
   # === OUTPUT MANAGEMENT ===
-  - title: onesixtyone - log results to a file
-    desc: |
-      Saves the scan results to a specified output file for later analysis and documentation.
-      This is vital for professional engagements where you must provide proof of discovery and findings.
-      The tool will log the IP address, the community string that worked, and the system description.
-      Using this with the quiet mode (-q) is common when you only want the file as a record without terminal clutter.
+  - title:
+      en: onesixtyone - log results to a file
+      tr: onesixtyone - sonuçları dosyaya kaydetme
+    desc:
+      en: |
+        Saves the scan results to a specified output file for later analysis and documentation.
+        This is vital for professional engagements where you must provide proof of discovery and findings.
+        The tool will log the IP address, the community string that worked, and the system description.
+        Using this with the quiet mode (-q) is common when you only want the file as a record without terminal clutter.
+      tr: |
+        Tarama sonuçlarını daha sonra analiz ve belgeleme için belirtilen çıktı dosyasına kaydeder.
+        Keşif ve bulgulara dair kanıt sunmanız gereken profesyonel çalışmalarda hayati önem taşır.
+        Araç IP adresini, işe yarayan community dizgisini ve sistem açıklamasını kaydeder.
+        Yalnızca dosya kaydı istenip terminal kalabalığı istenmediğinde sessiz mod (-q) ile birlikte kullanımı yaygındır.
     command: "onesixtyone -o {{output_file|results.log}} {{target}} {{community|public}}"
 
-  - title: onesixtyone - short output mode
-    desc: |
-      Displays only the IP addresses of the responding hosts without the full system description.
-      This "short mode" is perfect for piping the output into other command-line tools or scripts.
-      It allows for quick extraction of "live" SNMP targets for further processing with tools like snmp-check or snmpwalk.
-      It simplifies the terminal view when scanning very large network ranges.
+  - title:
+      en: onesixtyone - short output mode
+      tr: onesixtyone - kısa çıktı modu
+    desc:
+      en: |
+        Displays only the IP addresses of the responding hosts without the full system description.
+        This "short mode" is perfect for piping the output into other command-line tools or scripts.
+        It allows for quick extraction of "live" SNMP targets for further processing with tools like snmp-check or snmpwalk.
+        It simplifies the terminal view when scanning very large network ranges.
+      tr: |
+        Yanıt veren hostların yalnızca IP adreslerini, tam sistem açıklaması olmadan görüntüler.
+        Bu "kısa mod", çıktıyı diğer komut satırı araçlarına veya betiklere aktarmak (pipe) için idealdir.
+        snmp-check veya snmpwalk gibi araçlarla ileri işlem için "canlı" SNMP hedeflerinin hızlıca çıkarılmasını sağlar.
+        Çok büyük ağ aralıkları taranırken terminal görünümünü sadeleştirir.
     command: "onesixtyone -s {{target}} {{community|public}}"
 
-  - title: onesixtyone - debug and verbose mode
-    desc: |
-      Enables debug mode to provide more information about the packets being sent and received.
-      Using the flag twice (-d -d) increases the verbosity further, showing detailed packet processing.
-      This is primarily used for troubleshooting connectivity issues or verifying if the tool is working correctly.
-      It can help identify why certain hosts are not responding even if they appear to be up.
+  - title:
+      en: onesixtyone - debug and verbose mode
+      tr: onesixtyone - hata ayıklama ve ayrıntılı mod
+    desc:
+      en: |
+        Enables debug mode to provide more information about the packets being sent and received.
+        Using the flag twice (-d -d) increases the verbosity further, showing detailed packet processing.
+        This is primarily used for troubleshooting connectivity issues or verifying if the tool is working correctly.
+        It can help identify why certain hosts are not responding even if they appear to be up.
+      tr: |
+        Gönderilen ve alınan paketler hakkında daha fazla bilgi için hata ayıklama modunu etkinleştirir.
+        Bayrağın iki kez kullanılması (-d -d) ayrıntı düzeyini artırarak paket işlemeyi ayrıntılı gösterir.
+        Başlıca bağlantı sorunlarını gidermek veya aracın doğru çalışıp çalışmadığını doğrulamak için kullanılır.
+        Bir host çalışıyor göründüğü halde yanıt vermiyorsa nedenini belirlemeye yardımcı olur.
     command: "onesixtyone -d {{target}} {{community|public}}"

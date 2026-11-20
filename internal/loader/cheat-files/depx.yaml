@@ -4,103 +4,194 @@ tags: [security, supply-chain, audit, malware, pentest, enumeration, dependencie
 actions:
 # === INTELLIGENCE FEED & DASHBOARD ===
 
- - title: depx - intelligence dashboard
-   desc: |
-     Display the intelligence dashboard for recently disclosed malicious packages. 
-     This view provides a high-level summary of threats detected within a specific time window, defaulting to the last 3 days. 
-     It is the primary way to stay updated on emerging supply-chain attacks across various ecosystems like npm, PyPI, and Go.
+ - title:
+     en: depx - intelligence dashboard
+     tr: depx - istihbarat paneli
+   desc:
+     en: |
+       Display the intelligence dashboard for recently disclosed malicious packages. 
+       This view provides a high-level summary of threats detected within a specific time window, defaulting to the last 3 days. 
+       It is the primary way to stay updated on emerging supply-chain attacks across various ecosystems like npm, PyPI, and Go.
+     tr: |
+       Son günlerde açıklanan zararlı paketlere ilişkin istihbarat panosunu görüntüler.
+       Belirli bir zaman aralığında yakalanan tehditlerin üst düzey özetini verir; öntanımlı pencere son 3 gündür.
+       npm, PyPI, Go gibi ekosistemlerde ortaya çıkan tedarik zinciri saldırılarını izlemenin birincil yoludur.
    command: "depx --since {{time_window|3d}}"
 
- - title: depx - ecosystem filtered feed
-   desc: |
-     View a filtered list of malicious packages for a specific ecosystem. 
-     This is useful when you only care about threats relevant to your specific tech stack, such as npm or Python. 
-     The --list flag simplifies the output to a single header line per result for easier skimming.
+ - title:
+     en: depx - ecosystem filtered feed
+     tr: depx - ekosistem filtreli akış
+   desc:
+     en: |
+       View a filtered list of malicious packages for a specific ecosystem. 
+       This is useful when you only care about threats relevant to your specific tech stack, such as npm or Python. 
+       The --list flag simplifies the output to a single header line per result for easier skimming.
+     tr: |
+       Belirli bir ekosisteme ait zararlı paket listesini süzülmüş biçimde gösterir.
+       Yalnızca kullandığınız teknoloji yığınına ilişkin tehditlere odaklanmak istediğinizde yararlıdır; npm ya da Python örneği buna girer.
+       --list bayrağı her sonuca tek başlık satırı ayırarak çıktıyı taramayı kolaylaştırır.
    command: "depx feed -e {{ecosystem|npm}} --list"
 
 # === LOCAL AUDITING ===
 
- - title: depx - sweep home directory
-   desc: |
-     Perform a broad audit of the current user's home directory for malicious dependencies. 
-     The tool automatically searches for lockfiles and project trees (npm, PyPI, Go, Cargo, etc.) and compares them against a local index. 
-     This is a highly efficient way to check all local development projects and global installs for supply-chain risks.
+ - title:
+     en: depx - sweep home directory
+     tr: depx - ev dizini denetimi
+   desc:
+     en: |
+       Perform a broad audit of the current user's home directory for malicious dependencies. 
+       The tool automatically searches for lockfiles and project trees (npm, PyPI, Go, Cargo, etc.) and compares them against a local index. 
+       This is a highly efficient way to check all local development projects and global installs for supply-chain risks.
+     tr: |
+       Geçerli kullanıcının ev dizinindeki bağımlılıkları geniş kapsamlı denetler.
+       npm, PyPI, Go, Cargo gibi kilit dosyaları ile proje ağaçlarını kendiliğinden bulup yerel dizinle karşılaştırır.
+       Yerel geliştirme projeleri ile genel kurulumlardaki tedarik zinciri risklerini yoklamak bakımından oldukça verimlidir.
    command: "depx audit"
 
- - title: depx - audit specific project
-   desc: |
-     Scan a specific project directory or a single SBOM/lockfile for known malicious packages. 
-     You can point this command at a folder containing a package-lock.json or a standalone CycloneDX/SPDX file. 
-     It is the standard method for verifying the safety of a specific application's dependency tree before deployment.
+ - title:
+     en: depx - audit specific project
+     tr: depx - belirli proje denetimi
+   desc:
+     en: |
+       Scan a specific project directory or a single SBOM/lockfile for known malicious packages. 
+       You can point this command at a folder containing a package-lock.json or a standalone CycloneDX/SPDX file. 
+       It is the standard method for verifying the safety of a specific application's dependency tree before deployment.
+     tr: |
+       Belirli bir proje dizinini ya da tek bir SBOM/kilit dosyasını bilinen zararlı paketlere karşı tarar.
+       package-lock.json barındıran klasörü ya da bağımsız CycloneDX/SPDX dosyasını hedef gösterebilirsiniz.
+       Dağıtım öncesinde belirli bir uygulamanın bağımlılık ağacının güvenliğini doğrulamanın standart yöntemidir.
    command: "depx audit {{target_path}}"
 
- - title: depx - audit with exclusions
-   desc: |
-     Scan a project while ignoring specific packages known to be safe or internal. 
-     The exclusion file should contain "ecosystem:package" entries to prevent false positives from halting your workflow. 
-     Use this when your organization uses internal tools that might share names with flagged packages or when a specific finding has been manually triaged.
+ - title:
+     en: depx - audit with exclusions
+     tr: depx - hariç tutmalı denetim
+   desc:
+     en: |
+       Scan a project while ignoring specific packages known to be safe or internal. 
+       The exclusion file should contain "ecosystem:package" entries to prevent false positives from halting your workflow. 
+       Use this when your organization uses internal tools that might share names with flagged packages or when a specific finding has been manually triaged.
+     tr: |
+       Güvenli ya da kurum içine ait olduğu bilinen paketleri yok sayarak proje tarar.
+       Hariç tutma dosyasında yanlış alarm üretmemesi adına ekosistem:paket biçiminde girdiler bulunmalıdır.
+       Kurum araçları işaretli paketlerle ad çakışması yaşadığında ya da belirli bir bulgu elle ayıklandığında kullanın.
    command: "depx audit {{target_path}} --exclude-pkg {{ignore_file|.depxignore}}"
 
 # === CI/CD & PIPELINE INTEGRATION ===
 
- - title: depx - CI gate audit
-   desc: |
-     Run a dependency audit that fails the build if any malicious package is discovered. 
-     The --require-clean flag ensures the process exits with a non-zero code upon finding a threat, making it perfect for CI/CD pipelines. 
-     Pairing this with JSON output allows for automated processing of the security findings by other tools in your pipeline.
+ - title:
+     en: depx - CI gate audit
+     tr: depx - CI geçit denetimi
+   desc:
+     en: |
+       Run a dependency audit that fails the build if any malicious package is discovered. 
+       The --require-clean flag ensures the process exits with a non-zero code upon finding a threat, making it perfect for CI/CD pipelines. 
+       Pairing this with JSON output allows for automated processing of the security findings by other tools in your pipeline.
+     tr: |
+       Zararlı paket bulgusunda derlemeyi durduran bağımlılık denetimi çalıştırır.
+       --require-clean bayrağı tehdit yakalanınca sıfır dışı çıkış kodu üreterek CI/CD hattına kusursuz uyar.
+       JSON çıktısıyla eşleştirildiğinde güvenlik bulgularının hattaki öteki araçlarla kendiliğinden işlenmesini sağlar.
    command: "depx audit {{project_path}} --require-clean -j"
 
- - title: depx - export audit reports
-   desc: |
-     Generate detailed security reports in multiple formats including JSON, CSV, and SARIF. 
-     SARIF exports are particularly useful for integrating findings into GitHub Code Scanning or other vulnerability management platforms. 
-     You can also generate an audited SBOM (Software Bill of Materials) for compliance and documentation purposes.
+ - title:
+     en: depx - export audit reports
+     tr: depx - denetim raporlarını dışa aktarma
+   desc:
+     en: |
+       Generate detailed security reports in multiple formats including JSON, CSV, and SARIF. 
+       SARIF exports are particularly useful for integrating findings into GitHub Code Scanning or other vulnerability management platforms. 
+       You can also generate an audited SBOM (Software Bill of Materials) for compliance and documentation purposes.
+     tr: |
+       JSON, CSV, SARIF gibi çeşitli biçimlerde ayrıntılı güvenlik raporu üretir.
+       SARIF dışa aktarımı bulguları GitHub kod tarama ya da benzeri zafiyet yönetim ortamlarına taşımakta özellikle yararlıdır.
+       Uyumluluk ile belgelendirme amacıyla denetlenmiş SBOM de üretebilirsiniz.
    command: "depx audit {{target}} --output {{output_name|report}} --output-format {{format|json,csv}} --sarif-export {{sarif_path|results.sarif}}"
 
 # === GITHUB REPOSITORY AUDITING ===
 
- - title: depx - audit GitHub repository
-   desc: |
-     Scan a public or private GitHub repository using the GitHub Dependency Graph API. 
-     This allows you to check remote projects for malicious dependencies without cloning the code locally. 
-     Ensure the GITHUB_TOKEN environment variable is set to access private repositories or to avoid rate-limiting issues.
+ - title:
+     en: depx - audit GitHub repository
+     tr: depx - GitHub deposu denetimi
+   desc:
+     en: |
+       Scan a public or private GitHub repository using the GitHub Dependency Graph API. 
+       This allows you to check remote projects for malicious dependencies without cloning the code locally. 
+       Ensure the GITHUB_TOKEN environment variable is set to access private repositories or to avoid rate-limiting issues.
+     tr: |
+       GitHub bağımlılık çizge arayüzü üzerinden herkese açık ya da özel depoyu tarar.
+       Uzak projelerdeki zararlı bağımlılıkları kodu yerele kopyalamadan denetlemeyi sağlar.
+       Özel depolara erişmek ya da hız sınırına takılmamak adına GITHUB_TOKEN ortam değişkenini tanımlayın.
    command: "depx github {{owner_repo|projectdiscovery/depx}}"
 
- - title: depx - audit GitHub organization
-   desc: |
-     Perform a bulk audit of all repositories within a specific GitHub organization or user account. 
-     This is an essential command for security teams looking to monitor the supply-chain health of an entire organization's codebase. 
-     By default, it scans a limited number of repositories unless a higher limit is specified with the -n flag.
+ - title:
+     en: depx - audit GitHub organization
+     tr: depx - GitHub kuruluşu denetimi
+   desc:
+     en: |
+       Perform a bulk audit of all repositories within a specific GitHub organization or user account. 
+       This is an essential command for security teams looking to monitor the supply-chain health of an entire organization's codebase. 
+       By default, it scans a limited number of repositories unless a higher limit is specified with the -n flag.
+     tr: |
+       Belirli GitHub kuruluşu ya da kullanıcı hesabındaki bütün depoları toplu denetler.
+       Kuruluşun kod tabanındaki tedarik zinciri sağlığını izleyen güvenlik ekiplerinin vazgeçilmez komutudur.
+       Öntanımlı tarama sınırlı depo kapsar; -n bayrağıyla daha yüksek sınır belirtebilirsiniz.
    command: "depx github {{org_name}} -n {{limit|100}}"
 
 # === SEARCH & LOOKUP ===
 
- - title: depx - search malicious packages
-   desc: |
-     Search the local malicious package index for specific package names or keywords. 
-     This is helpful for checking if a package you are considering using has a known history of malicious activity. 
-     The search covers all supported ecosystems unless restricted by global flags.
+ - title:
+     en: depx - search malicious packages
+     tr: depx - zararlı paket arama
+   desc:
+     en: |
+       Search the local malicious package index for specific package names or keywords. 
+       This is helpful for checking if a package you are considering using has a known history of malicious activity. 
+       The search covers all supported ecosystems unless restricted by global flags.
+     tr: |
+       Yerel zararlı paket dizininde belirli paket adlarını ya da anahtar sözcükleri arar.
+       Kullanmayı düşündüğünüz paketin geçmişte zararlı etkinlik gösterip göstermediğini yoklamakta yararlıdır.
+       Genel bayraklarla kısıtlanmadıkça bütün desteklenen ekosistemleri kapsar.
    command: "depx search {{query}}"
 
- - title: depx - lookup specific package
-   desc: |
-     Check a specific package name and ecosystem to see if it is flagged as malicious. 
-     The input format should be "ecosystem:package_name" to ensure the lookup is precise. 
-     It provides immediate feedback on whether the package is currently considered clean or malicious in the database.
+ - title:
+     en: depx - lookup specific package
+     tr: depx - belirli paket sorgulama
+   desc:
+     en: |
+       Check a specific package name and ecosystem to see if it is flagged as malicious. 
+       The input format should be "ecosystem:package_name" to ensure the lookup is precise. 
+       It provides immediate feedback on whether the package is currently considered clean or malicious in the database.
+     tr: |
+       Belirli paket adı ile ekosistemi zararlı kaydı bakımından denetler.
+       Girdi ekosistem:paket_adı biçiminde olmalı; sorgulamanın isabetini bu biçim sağlar.
+       Paketin veritabanında halen temiz ya da zararlı sayıldığına dair doğrudan geri bildirim verir.
    command: "depx {{ecosystem_package|npm:lodash}}"
 
- - title: depx - lookup advisory ID
-   desc: |
-     Retrieve detailed information about a specific security advisory using its ID (e.g., MAL ID). 
-     This is useful for investigating the specifics of a threat, such as the publication date and the nature of the malicious code. 
-     Use the --raw flag if you need the original OSV record for programmatic analysis.
+ - title:
+     en: depx - lookup advisory ID
+     tr: depx - danışma kaydı sorgulama
+   desc:
+     en: |
+       Retrieve detailed information about a specific security advisory using its ID (e.g., MAL ID). 
+       This is useful for investigating the specifics of a threat, such as the publication date and the nature of the malicious code. 
+       Use the --raw flag if you need the original OSV record for programmatic analysis.
+     tr: |
+       Belirli güvenlik danışma kaydının ayrıntılarını kimliği üzerinden getirir; MAL kimliği buna örnektir.
+       Tehdidin yayımlanma tarihi ile zararlı kodun niteliği gibi ayrıntıları araştırmakta yararlıdır.
+       Otomatik çözümleme adına özgün OSV kaydı gerekiyorsa --raw bayrağını kullanın.
    command: "depx id {{advisory_id}}"
 
 # === MAINTENANCE ===
 
- - title: depx - update tool and database
-   desc: |
-     Update the depx binary and its local malicious package index to the latest available version. 
-     Regular updates are critical because new malicious packages are discovered and added to the database daily. 
-     Running this command ensures your audits are performed against the most current threat intelligence.
+ - title:
+     en: depx - update tool and database
+     tr: depx - araç ve veritabanı güncelleme
+   desc:
+     en: |
+       Update the depx binary and its local malicious package index to the latest available version. 
+       Regular updates are critical because new malicious packages are discovered and added to the database daily. 
+       Running this command ensures your audits are performed against the most current threat intelligence.
+     tr: |
+       depx çalıştırılabilir dosyasını ve yereldeki zararlı paket dizinini en güncel sürüme yükseltir.
+       Veritabanına her gün yeni zararlı paket eklendiğinden düzenli güncelleme kritik önem taşır.
+       Denetimlerin güncel tehdit istihbaratına dayanmasını bu komut güvence altına alır.
    command: "depx update"

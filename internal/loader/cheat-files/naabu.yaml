@@ -4,106 +4,204 @@ tags: [network, scanner, security, pentest, enumeration, reconnaissance, port-sc
 actions:
 # === BASIC SCANNING ===
 
- - title: naabu - basic scan of a single host
-   desc: |
-     Performs a basic port scan on a single target host. By default, it scans the top 100 most common ports. 
-     This is the most straightforward way to quickly check for common services on a target. 
-     It is ideal for a quick initial reconnaissance phase.
+ - title:
+     en: naabu - basic scan of a single host
+     tr: naabu - tek hedef temel taraması
+   desc:
+     en: |
+       Performs a basic port scan on a single target host. By default, it scans the top 100 most common ports. 
+       This is the most straightforward way to quickly check for common services on a target. 
+       It is ideal for a quick initial reconnaissance phase.
+     tr: |
+       Tek bir hedef makinede temel bir port taraması gerçekleştirir. Varsayılan olarak en yaygın 100 portu tarar.
+       Hedefteki yaygın hizmetleri hızla denetlemenin en doğrudan yoludur.
+       Hızlı bir ilk keşif aşaması için idealdir.
    command: "naabu -host {{target}}"
 
- - title: naabu - scan multiple hosts from a list
-   desc: |
-     Reads a list of targets from a file and performs port scanning on all of them. 
-     The input file should contain one host, IP, or CIDR per line. 
-     This is highly efficient for large-scale infrastructure scanning projects.
+ - title:
+     en: naabu - scan multiple hosts from a list
+     tr: naabu - listeden birden fazla hedef tarama
+   desc:
+     en: |
+       Reads a list of targets from a file and performs port scanning on all of them. 
+       The input file should contain one host, IP, or CIDR per line. 
+       This is highly efficient for large-scale infrastructure scanning projects.
+     tr: |
+       Hedef listesini bir dosyadan okur ve tümünde port taraması gerçekleştirir.
+       Girdi dosyası satır başına bir makine, IP veya CIDR içermelidir.
+       Büyük ölçekli altyapı tarama projeleri için oldukça verimlidir.
    command: "naabu -list {{file|targets.txt}}"
 
- - title: naabu - scan specific ports or ranges
-   desc: |
-     Scans specific ports or a range of ports defined by the user. 
-     You can provide individual ports separated by commas or define a range using a hyphen. 
-     Useful when you are looking for specific services like web servers (80, 443) or databases (3306, 5432).
+ - title:
+     en: naabu - scan specific ports or ranges
+     tr: naabu - belirli port veya aralıkları tarama
+   desc:
+     en: |
+       Scans specific ports or a range of ports defined by the user. 
+       You can provide individual ports separated by commas or define a range using a hyphen. 
+       Useful when you are looking for specific services like web servers (80, 443) or databases (3306, 5432).
+     tr: |
+       Kullanıcı tanımlı belirli portları veya bir port aralığını tarar.
+       Virgülle ayrılmış tekil portlar verebilir veya tire ile aralık tanımlayabilirsiniz.
+       Web sunucuları (80, 443) veya veritabanları (3306, 5432) gibi belirli hizmetleri ararken kullanışlıdır.
    command: "naabu -p {{ports|80,443,1000-2000}}"
 
- - title: naabu - scan top ports
-   desc: |
-     Scans the most common ports based on frequency. 
-     Supported values are '100', '1000', or 'full' (all 65535 ports). 
-     Using 'full' takes significantly longer but ensures no hidden services are missed.
+ - title:
+     en: naabu - scan top ports
+     tr: naabu - popüler portları tarama
+   desc:
+     en: |
+       Scans the most common ports based on frequency. 
+       Supported values are '100', '1000', or 'full' (all 65535 ports). 
+       Using 'full' takes significantly longer but ensures no hidden services are missed.
+     tr: |
+       Sıklığa göre en yaygın portları tarar.
+       Desteklenen değerler '100', '1000' veya 'full' (65535 portun tümü) şeklindedir.
+       'full' kullanmak önemli ölçüde daha uzun sürer ancak gizli hizmetlerin kaçırılmamasını sağlar.
    command: "naabu -top-ports {{count|1000}}"
 
 # === DISCOVERY & TYPES ===
 
- - title: naabu - passive port scanning
-   desc: |
-     Retrieves port information using the Shodan InternetDB API instead of sending packets to the target. 
-     This is a completely stealthy method as no direct connection is made to the target infrastructure. 
-     It is extremely fast but may contain slightly outdated information depending on Shodan's last crawl.
+ - title:
+     en: naabu - passive port scanning
+     tr: naabu - pasif port taraması
+   desc:
+     en: |
+       Retrieves port information using the Shodan InternetDB API instead of sending packets to the target. 
+       This is a completely stealthy method as no direct connection is made to the target infrastructure. 
+       It is extremely fast but may contain slightly outdated information depending on Shodan's last crawl.
+     tr: |
+       Hedefe paket göndermek yerine Shodan InternetDB API kullanarak port bilgisini getirir.
+       Hedef altyapıya doğrudan bağlantı kurulmadığından tamamen gizli bir yöntemdir.
+       Son derece hızlıdır ancak Shodan'ın son taramasına göre biraz eskimiş bilgi içerebilir.
    command: "naabu -host {{target}} -passive"
 
- - title: naabu - connect scan (TCP)
-   desc: |
-     Forces the use of a TCP Connect scan instead of the default SYN scan. 
-     Connect scans complete the three-way handshake and are generally slower and more visible in logs. 
-     Use this mode if you do not have raw socket permissions (non-root user) or if SYN scans are being dropped by a firewall.
+ - title:
+     en: naabu - connect scan (TCP)
+     tr: naabu - bağlantılı tarama (TCP)
+   desc:
+     en: |
+       Forces the use of a TCP Connect scan instead of the default SYN scan. 
+       Connect scans complete the three-way handshake and are generally slower and more visible in logs. 
+       Use this mode if you do not have raw socket permissions (non-root user) or if SYN scans are being dropped by a firewall.
+     tr: |
+       Varsayılan SYN taraması yerine TCP Connect taraması kullanmaya zorlar.
+       Connect taramaları üçlü el sıkışmayı tamamlar ve genellikle daha yavaş olup günlüklerde daha görünürdür.
+       Ham soket izinleriniz yoksa (root olmayan kullanıcı) veya SYN taramaları güvenlik duvarında düşürülüyorsa bu modu kullanın.
    command: "naabu -host {{target}} -scan-type c"
 
- - title: naabu - service discovery and versioning
-   desc: |
-     Attempts to identify the service running on the open ports and determine its version. 
-     This adds a layer of fingerprinting to the fast port scanning process. 
-     It helps in identifying vulnerable software versions immediately after finding an open port.
+ - title:
+     en: naabu - service discovery and versioning
+     tr: naabu - hizmet keşfi ve sürüm belirleme
+   desc:
+     en: |
+       Attempts to identify the service running on the open ports and determine its version. 
+       This adds a layer of fingerprinting to the fast port scanning process. 
+       It helps in identifying vulnerable software versions immediately after finding an open port.
+     tr: |
+       Açık portlarda çalışan hizmeti belirlemeye ve sürümünü tespit etmeye çalışır.
+       Bu, hızlı port tarama sürecine bir parmak izi katmanı ekler.
+       Açık port bulunduktan hemen sonra zafiyetli yazılım sürümlerini belirlemeye yardımcı olur.
    command: "naabu -host {{target}} -sV"
 
- - title: naabu - skip host discovery (Pn)
-   desc: |
-     Treats all hosts as online and skips the initial host discovery phase. 
-     This is useful when targets are protected by firewalls that block ICMP (ping) requests. 
-     Ensures that the tool attempts to scan ports even if the host doesn't respond to pings.
+ - title:
+     en: naabu - skip host discovery (Pn)
+     tr: naabu - makine keşfini atlama (Pn)
+   desc:
+     en: |
+       Treats all hosts as online and skips the initial host discovery phase. 
+       This is useful when targets are protected by firewalls that block ICMP (ping) requests. 
+       Ensures that the tool attempts to scan ports even if the host doesn't respond to pings.
+     tr: |
+       Tüm makineleri çevrimiçi kabul eder ve ilk makine keşif aşamasını atlar.
+       Hedefler ICMP (ping) isteklerini engelleyen güvenlik duvarlarıyla korunduğunda kullanışlıdır.
+       Makine ping'lere yanıt vermese bile aracın portları taramayı denemesini sağlar.
    command: "naabu -host {{target}} -Pn"
 
 # === OPTIMIZATION & PERFORMANCE ===
 
- - title: naabu - rate limited scan
-   desc: |
-     Controls the speed of the scan by limiting the number of packets sent per second. 
-     Setting a lower rate helps in avoiding network congestion and bypassing some basic rate-limiting IDS/IPS. 
-     Default is 1000, but it can be adjusted based on the stability of the target network.
+ - title:
+     en: naabu - rate limited scan
+     tr: naabu - hız sınırlı tarama
+   desc:
+     en: |
+       Controls the speed of the scan by limiting the number of packets sent per second. 
+       Setting a lower rate helps in avoiding network congestion and bypassing some basic rate-limiting IDS/IPS. 
+       Default is 1000, but it can be adjusted based on the stability of the target network.
+     tr: |
+       Saniyede gönderilen paket sayısını sınırlayarak tarama hızını denetler.
+       Daha düşük hız ayarlamak ağ tıkanıklığından kaçınmaya ve bazı temel hız sınırlı IDS/IPS'leri aşmaya yardımcı olur.
+       Varsayılan 1000'dir ancak hedef ağın kararlılığına göre ayarlanabilir.
    command: "naabu -host {{target}} -rate {{rate|500}}"
 
- - title: naabu - exclude CDN and WAF ports
-   desc: |
-     Automatically skips full port scans for hosts identified as belonging to a CDN or WAF. 
-     When enabled, it typically only scans ports 80 and 443 for these hosts to save time. 
-     This prevents wasting resources on infrastructure like Cloudflare or Akamai where most ports are closed or filtered.
+ - title:
+     en: naabu - exclude CDN and WAF ports
+     tr: naabu - CDN ve WAF portlarını hariç tutma
+   desc:
+     en: |
+       Automatically skips full port scans for hosts identified as belonging to a CDN or WAF. 
+       When enabled, it typically only scans ports 80 and 443 for these hosts to save time. 
+       This prevents wasting resources on infrastructure like Cloudflare or Akamai where most ports are closed or filtered.
+     tr: |
+       CDN veya WAF'e ait olduğu belirlenen makineler için tam port taramalarını otomatik atlar.
+       Etkinleştirildiğinde zaman kazanmak için bu makinelerde genellikle yalnızca 80 ve 443 portlarını tarar.
+       Bu, çoğu portun kapalı veya filtreli olduğu Cloudflare veya Akamai gibi altyapılarda kaynak israfını önler.
    command: "naabu -host {{target}} -exclude-cdn"
 
- - title: naabu - scan all IPs associated with DNS
-   desc: |
-     Scans every IP address associated with a single hostname. 
-     Many large websites use multiple IP addresses for load balancing. 
-     This ensures that you check the security posture of every underlying server in the cluster.
+ - title:
+     en: naabu - scan all IPs associated with DNS
+     tr: naabu - DNS ile ilişkili tüm IP'leri tarama
+   desc:
+     en: |
+       Scans every IP address associated with a single hostname. 
+       Many large websites use multiple IP addresses for load balancing. 
+       This ensures that you check the security posture of every underlying server in the cluster.
+     tr: |
+       Tek bir makine adıyla ilişkili her IP adresini tarar.
+       Birçok büyük web sitesi yük dengeleme için birden fazla IP adresi kullanır.
+       Bu, kümedeki her altyapı sunucusunun güvenlik durumunu denetlemenizi sağlar.
    command: "naabu -host {{target}} -scan-all-ips"
 
 # === INTEGRATION & OUTPUT ===
 
- - title: naabu - pipe to nmap for advanced analysis
-   desc: |
-     Uses naabu for fast port discovery and then automatically triggers nmap for detailed versioning and scripting. 
-     This is the "best of both worlds" approach: speed of Go-based scanning combined with Nmap's powerful NSE engine. 
-     Requires nmap to be installed on the local system.
+ - title:
+     en: naabu - pipe to nmap for advanced analysis
+     tr: naabu - gelişmiş analiz için nmap'e aktarma
+   desc:
+     en: |
+       Uses naabu for fast port discovery and then automatically triggers nmap for detailed versioning and scripting. 
+       This is the "best of both worlds" approach: speed of Go-based scanning combined with Nmap's powerful NSE engine. 
+       Requires nmap to be installed on the local system.
+     tr: |
+       Hızlı port keşfi için naabu kullanır ve ardından ayrıntılı sürüm belirleme ve betikleme için nmap'i otomatik tetikler.
+       Bu "iki dünyanın en iyisi" yaklaşımıdır: Go tabanlı taramanın hızı ile Nmap'in güçlü NSE motorunun birleşimi.
+       Yerel sistemde nmap kurulu olmasını gerektirir.
    command: "naabu -host {{target}} -nmap-cli 'nmap -sV -sC -oN nmap_output.txt'"
 
- - title: naabu - json output for automation
-   desc: |
-     Saves the scan results in a JSON lines format. 
-     This is ideal for integrating naabu into automated pipelines or custom scripts. 
-     Each line in the output file will be a valid JSON object containing host, port, and protocol info.
+ - title:
+     en: naabu - json output for automation
+     tr: naabu - otomasyon için json çıktısı
+   desc:
+     en: |
+       Saves the scan results in a JSON lines format. 
+       This is ideal for integrating naabu into automated pipelines or custom scripts. 
+       Each line in the output file will be a valid JSON object containing host, port, and protocol info.
+     tr: |
+       Tarama sonuçlarını JSON satırları biçiminde kaydeder.
+       Naabu'yu otomatik işlem hatlarına veya özel betiklere entegre etmek için idealdir.
+       Çıktı dosyasındaki her satır makine, port ve protokol bilgisi içeren geçerli bir JSON nesnesi olur.
    command: "naabu -host {{target}} -json -o {{output_file|results.json}}"
 
- - title: naabu - exclude specific hosts or ports
-   desc: |
-     Excludes certain hosts or ports from the current scan. 
-     Useful for avoiding sensitive production systems or noisy ports that you've already investigated. 
-     Supports comma-separated lists for both hosts and ports.
+ - title:
+     en: naabu - exclude specific hosts or ports
+     tr: naabu - belirli makine veya portları hariç tutma
+   desc:
+     en: |
+       Excludes certain hosts or ports from the current scan. 
+       Useful for avoiding sensitive production systems or noisy ports that you've already investigated. 
+       Supports comma-separated lists for both hosts and ports.
+     tr: |
+       Geçerli taramadan belirli makineleri veya portları hariç tutar.
+       Hassas üretim sistemlerinden veya zaten incelediğiniz gürültülü portlardan kaçınmak için kullanışlıdır.
+       Makineler ve portlar için virgülle ayrılmış listeleri destekler.
    command: "naabu -list {{file}} -exclude-hosts {{bad_ips}} -exclude-ports {{noisy_ports|80,443}}"

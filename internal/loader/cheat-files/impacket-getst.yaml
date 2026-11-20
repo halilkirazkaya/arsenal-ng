@@ -4,70 +4,134 @@ tags: [active-directory, kerberos, pentest, exploitation, security, authenticati
 actions:
 # === BASIC AUTHENTICATION SCENARIOS ===
 
- - title: impacket-getST - Request ST using cleartext password
-   desc: |
-     Requests a Kerberos Service Ticket (ST) for a specific SPN using a valid domain username and password. 
-     This is the most basic usage of the tool when you have acquired credentials and need to access a remote service. 
-     The resulting ticket is saved as a .ccache file in the current directory, which can then be used with other tools by setting the KRB5CCNAME environment variable. 
-     Ensure the SPN is valid and reachable within the domain environment.
+ - title:
+     en: impacket-getST - Request ST using cleartext password
+     tr: impacket-getST - açık parolayla ST isteme
+   desc:
+     en: |
+       Requests a Kerberos Service Ticket (ST) for a specific SPN using a valid domain username and password. 
+       This is the most basic usage of the tool when you have acquired credentials and need to access a remote service. 
+       The resulting ticket is saved as a .ccache file in the current directory, which can then be used with other tools by setting the KRB5CCNAME environment variable. 
+       Ensure the SPN is valid and reachable within the domain environment.
+     tr: |
+       Geçerli bir etki alanı kullanıcı adı ve parolasıyla belirli bir SPN için Kerberos Hizmet Bileti (ST) ister.
+       Kimlik bilgileri ele geçirildiğinde uzak bir hizmete erişmek için aracın en temel kullanımıdır.
+       Oluşan bilet, geçerli dizinde bir .ccache dosyası olarak kaydedilir; KRB5CCNAME ortam değişkeniyle diğer araçlarda kullanılabilir.
+       SPN'in etki alanı ortamında geçerli ve erişilebilir olduğundan emin olun.
    command: "impacket-getST {{domain}}/{{username}}:{{password}} -spn {{spn|cifs/target.domain.com}} -dc-ip {{dc_ip}}"
 
- - title: impacket-getST - Request ST using NTLM hash (Pass-the-Hash)
-   desc: |
-     Obtains a Service Ticket by performing a Pass-the-Hash (PtH) authentication. 
-     This is useful in scenarios where the cleartext password is unknown but the NTLM hash has been extracted from memory or a SAM database. 
-     The hash must be provided in the LMHASH:NTHASH format; if the LM hash is unknown, use 32 zeros. 
-     This command facilitates lateral movement without needing the actual user password.
+ - title:
+     en: impacket-getST - Request ST using NTLM hash (Pass-the-Hash)
+     tr: impacket-getST - NTLM hash'iyle ST isteme (Pass-the-Hash)
+   desc:
+     en: |
+       Obtains a Service Ticket by performing a Pass-the-Hash (PtH) authentication. 
+       This is useful in scenarios where the cleartext password is unknown but the NTLM hash has been extracted from memory or a SAM database. 
+       The hash must be provided in the LMHASH:NTHASH format; if the LM hash is unknown, use 32 zeros. 
+       This command facilitates lateral movement without needing the actual user password.
+     tr: |
+       Pass-the-Hash (PtH) kimlik doğrulamasıyla Hizmet Bileti alır.
+       Açık parola bilinmediğinde ancak NTLM hash'i bellekten veya SAM veritabanından çıkarıldığında kullanışlıdır.
+       Hash, LMHASH:NTHASH biçiminde verilmeli; LM hash'i bilinmiyorsa 32 sıfır kullanın.
+       Bu komut, gerçek kullanıcı parolasına gerek kalmadan yanal hareketi kolaylaştırır.
    command: "impacket-getST {{domain}}/{{username}} -hashes {{hash}} -spn {{spn|cifs/target.domain.com}} -dc-ip {{dc_ip}}"
 
- - title: impacket-getST - Request ST using AES Key
-   desc: |
-     Uses an AES128 or AES256 key for Kerberos authentication instead of a password or NTLM hash. 
-     This method is often more "stealthy" or required in environments where DES or NTLM is disabled and only AES is supported. 
-     The AES key is typically recovered from the LSASS process or a NTDS.dit file. 
-     Providing the AES key allows the tool to perform the initial AS-REQ/AS-REP exchange to get a TGT before requesting the specific ST.
+ - title:
+     en: impacket-getST - Request ST using AES Key
+     tr: impacket-getST - AES anahtarıyla ST isteme
+   desc:
+     en: |
+       Uses an AES128 or AES256 key for Kerberos authentication instead of a password or NTLM hash. 
+       This method is often more "stealthy" or required in environments where DES or NTLM is disabled and only AES is supported. 
+       The AES key is typically recovered from the LSASS process or a NTDS.dit file. 
+       Providing the AES key allows the tool to perform the initial AS-REQ/AS-REP exchange to get a TGT before requesting the specific ST.
+     tr: |
+       Parola veya NTLM hash'i yerine Kerberos kimlik doğrulaması için AES128 veya AES256 anahtarı kullanır.
+       Bu yöntem genellikle daha gizlidir; DES veya NTLM'nin devre dışı olup yalnızca AES'in desteklendiği ortamlarda gereklidir.
+       AES anahtarı genellikle LSASS sürecinden veya NTDS.dit dosyasından kurtarılır.
+       Sağlanan AES anahtarı, araca belirli ST'yi istemeden önce TGT almak için ilk AS-REQ/AS-REP alışverişini yapma olanağı verir.
    command: "impacket-getST {{domain}}/{{username}} -aesKey {{aes_key}} -spn {{spn|cifs/target.domain.com}} -dc-ip {{dc_ip}}"
 
 # === DELEGATION AND IMPERSONATION ===
 
- - title: impacket-getST - S4U2Self Impersonation
-   desc: |
-     Uses the Service-for-User-to-Self (S4U2Self) extension to request a service ticket for a target user. 
-     This is typically used when an account has constrained delegation configured or when performing specific Kerberos attacks. 
-     The impersonated user is usually a high-privileged account like 'Administrator'. 
-     Note that this only works if the identity providing the credentials is allowed to delegate to the specified SPN or is performing a self-query.
+ - title:
+     en: impacket-getST - S4U2Self Impersonation
+     tr: impacket-getST - S4U2Self kimliğe bürünme
+   desc:
+     en: |
+       Uses the Service-for-User-to-Self (S4U2Self) extension to request a service ticket for a target user. 
+       This is typically used when an account has constrained delegation configured or when performing specific Kerberos attacks. 
+       The impersonated user is usually a high-privileged account like 'Administrator'. 
+       Note that this only works if the identity providing the credentials is allowed to delegate to the specified SPN or is performing a self-query.
+     tr: |
+       Hedef kullanıcı için hizmet bileti istemek üzere Service-for-User-to-Self (S4U2Self) uzantısını kullanır.
+       Genellikle bir hesapta kısıtlı temsil (constrained delegation) yapılandırıldığında veya belirli Kerberos saldırılarında kullanılır.
+       Kimliğe bürünülen kullanıcı genellikle 'Administrator' gibi yüksek yetkili bir hesaptır.
+       Bunun çalışması için kimlik bilgilerini sağlayan kimliğin belirtilen SPN'e temsil yetkisi olması veya öz sorgu yapması gerektiğini unutmayın.
    command: "impacket-getST {{domain}}/{{username}}:{{password}} -spn {{spn|cifs/target.domain.com}} -impersonate {{target_user|Administrator}} -dc-ip {{dc_ip}}"
 
- - title: impacket-getST - Constrained Delegation (S4U2Proxy)
-   desc: |
-     Performs a full S4U2Proxy request to obtain a ticket for a service on behalf of another user. 
-     This requires the initial account to have the 'Trusted to authenticate for delegation' attribute (Constrained Delegation). 
-     It is a common technique for lateral movement where a compromised service account is used to impersonate a Domain Admin to another service. 
-     The tool handles the complex multi-step Kerberos exchange automatically.
+ - title:
+     en: impacket-getST - Constrained Delegation (S4U2Proxy)
+     tr: impacket-getST - kısıtlı temsil (S4U2Proxy)
+   desc:
+     en: |
+       Performs a full S4U2Proxy request to obtain a ticket for a service on behalf of another user. 
+       This requires the initial account to have the 'Trusted to authenticate for delegation' attribute (Constrained Delegation). 
+       It is a common technique for lateral movement where a compromised service account is used to impersonate a Domain Admin to another service. 
+       The tool handles the complex multi-step Kerberos exchange automatically.
+     tr: |
+       Başka bir kullanıcı adına bir hizmet için bilet almak üzere tam S4U2Proxy isteği yapar.
+       Başlangıç hesabının 'temsil için kimlik doğrulamaya güvenilir' (Constrained Delegation) özniteliğine sahip olması gerekir.
+       Ele geçirilmiş bir hizmet hesabıyla başka bir hizmete Domain Admin olarak kimliğe bürünerek yanal hareket için yaygın bir tekniktir.
+       Araç, karmaşık çok adımlı Kerberos alışverişini otomatik yönetir.
    command: "impacket-getST {{domain}}/{{username}}:{{password}} -spn {{spn|cifs/target.domain.com}} -impersonate {{target_user|Administrator}} -dc-ip {{dc_ip}}"
 
- - title: impacket-getST - Resource-Based Constrained Delegation (RBCD)
-   desc: |
-     Exploits Resource-Based Constrained Delegation by providing an additional service ticket. 
-     In RBCD, the 'msDS-AllowedToDelegateTo' attribute is set on the target resource rather than the delegating account. 
-     This command requires an additional ticket (usually a TGT or ST) of the account that has permissions to delegate to the target. 
-     This is a powerful technique for escalating privileges from a computer account to a full administrative session on a target server.
+ - title:
+     en: impacket-getST - Resource-Based Constrained Delegation (RBCD)
+     tr: impacket-getST - kaynağa dayalı kısıtlı temsil (RBCD)
+   desc:
+     en: |
+       Exploits Resource-Based Constrained Delegation by providing an additional service ticket. 
+       In RBCD, the 'msDS-AllowedToDelegateTo' attribute is set on the target resource rather than the delegating account. 
+       This command requires an additional ticket (usually a TGT or ST) of the account that has permissions to delegate to the target. 
+       This is a powerful technique for escalating privileges from a computer account to a full administrative session on a target server.
+     tr: |
+       Ek bir hizmet bileti sağlayarak Kaynağa Dayalı Kısıtlı Temsili (RBCD) sömürür.
+       RBCD'de 'msDS-AllowedToDelegateTo' özniteliği temsil eden hesap yerine hedef kaynakta ayarlanır.
+       Bu komut, hedefe temsil yetkisi olan hesabın ek bir biletini (genellikle TGT veya ST) gerektirir.
+       Bilgisayar hesabından hedef sunucuda tam yönetici oturumuna yetki yükseltmek için güçlü bir tekniktir.
    command: "impacket-getST {{domain}}/{{username}}:{{password}} -spn {{spn|cifs/target.domain.com}} -impersonate {{target_user|Administrator}} -additional-ticket {{ticket_path|ticket.ccache}} -dc-ip {{dc_ip}}"
 
 # === ADVANCED EXPLOITATION ===
 
- - title: impacket-getST - Bronze Bit Attack (CVE-2020-17049)
-   desc: |
-     Exploits the Bronze Bit vulnerability by forcing the service ticket to be forwardable. 
-     This allows an attacker to bypass the 'Kerberos-only' restriction in constrained delegation, which normally prevents S4U2Proxy from working if the user didn't use Kerberos. 
-     The -force-forwardable flag flips the forwardable bit in the ticket encrypted with the service's key. 
-     For best results, provide the hashes or AES keys of the service account to ensure the tool can re-encrypt the ticket properly.
+ - title:
+     en: impacket-getST - Bronze Bit Attack (CVE-2020-17049)
+     tr: impacket-getST - Bronze Bit saldırısı (CVE-2020-17049)
+   desc:
+     en: |
+       Exploits the Bronze Bit vulnerability by forcing the service ticket to be forwardable. 
+       This allows an attacker to bypass the 'Kerberos-only' restriction in constrained delegation, which normally prevents S4U2Proxy from working if the user didn't use Kerberos. 
+       The -force-forwardable flag flips the forwardable bit in the ticket encrypted with the service's key. 
+       For best results, provide the hashes or AES keys of the service account to ensure the tool can re-encrypt the ticket properly.
+     tr: |
+       Hizmet biletini iletilebilir olmaya zorlayarak Bronze Bit açığını sömürür.
+       Bu, kısıtlı temsildeki 'yalnızca Kerberos' kısıtını atlatır; normalde kullanıcının Kerberos kullanmaması S4U2Proxy'yi engeller.
+       -force-forwardable bayrağı, hizmetin anahtarıyla şifrelenmiş biletteki iletilebilir biti çevirir.
+       En iyi sonuç için aracın bileti yeniden şifreleyebilmesi adına hizmet hesabının hash veya AES anahtarlarını sağlayın.
    command: "impacket-getST {{domain}}/{{username}} -hashes :{{nt_hash}} -spn {{spn|cifs/target.domain.com}} -impersonate {{target_user|Administrator}} -force-forwardable -dc-ip {{dc_ip}}"
 
- - title: impacket-getST - Bypassing SPN restrictions with AltService
-   desc: |
-     Requests a ticket for one SPN but changes the service name (sname) in the resulting ticket using the -altservice flag. 
-     This is useful when you have delegation rights to a specific service (e.g., 'http/host.com') but you actually want to access a different service (e.g., 'cifs/host.com'). 
-     While the ticket is requested for the authorized service, the final .ccache will contain the 'altservice' name. 
-     This may fail if the target application server performs strict validation of the ticket's SPN field.
+ - title:
+     en: impacket-getST - Bypassing SPN restrictions with AltService
+     tr: impacket-getST - AltService ile SPN kısıtlarını atlatma
+   desc:
+     en: |
+       Requests a ticket for one SPN but changes the service name (sname) in the resulting ticket using the -altservice flag. 
+       This is useful when you have delegation rights to a specific service (e.g., 'http/host.com') but you actually want to access a different service (e.g., 'cifs/host.com'). 
+       While the ticket is requested for the authorized service, the final .ccache will contain the 'altservice' name. 
+       This may fail if the target application server performs strict validation of the ticket's SPN field.
+     tr: |
+       Bir SPN için bilet ister ancak -altservice bayrağıyla oluşan biletteki hizmet adını (sname) değiştirir.
+       Belirli bir hizmete (ör. 'http/host.com') temsil yetkiniz varken aslında farklı bir hizmete (ör. 'cifs/host.com') erişmek istediğinizde kullanışlıdır.
+       Bilet yetkili hizmet için istense de son .ccache 'altservice' adını taşır.
+       Hedef uygulama sunucusu biletin SPN alanını sıkı doğrularsa bu başarısız olabilir.
    command: "impacket-getST {{domain}}/{{username}}:{{password}} -spn {{spn|http/web.domain.com}} -altservice {{alt_spn|cifs}} -dc-ip {{dc_ip}}"

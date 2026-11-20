@@ -3,109 +3,213 @@ tags: [network, scanner, discovery, icmp, security, pentest, enumeration]
 
 actions:
 # === BASIC CONNECTIVITY ===
- - title: fping - ping single target
-   desc: |
-     Sends a basic ICMP echo request to a single specified target host or IP address.
-     This is the fundamental usage of the tool to verify if a specific host is reachable.
-     It provides a quick status update on whether the target is alive or unreachable.
-     Note that ICMP traffic might be filtered by local or network firewalls.
+ - title:
+     en: fping - ping single target
+     tr: fping - tek hedefe ping
+   desc:
+     en: |
+       Sends a basic ICMP echo request to a single specified target host or IP address.
+       This is the fundamental usage of the tool to verify if a specific host is reachable.
+       It provides a quick status update on whether the target is alive or unreachable.
+       Note that ICMP traffic might be filtered by local or network firewalls.
+     tr: |
+       Belirtilen tek bir hedef hosta veya IP adresine temel bir ICMP yankı isteği gönderir.
+       Belirli bir hostun erişilebilir olduğunu doğrulamak için aracın temel kullanımıdır.
+       Hedefin canlı mı erişilemez mi olduğuna dair hızlı bir durum bilgisi verir.
+       ICMP trafiğinin yerel veya ağ güvenlik duvarlarınca filtrelenebileceğini unutmayın.
    command: "fping {{target}}"
 
- - title: fping - ping multiple targets
-   desc: |
-     Pings multiple targets simultaneously by listing them as command line arguments.
-     This is useful for checking the status of a small group of known servers or workstations.
-     Unlike standard ping, fping does not wait for one target to timeout before pinging the next.
-     The output will list the status of each target in the order they were provided.
+ - title:
+     en: fping - ping multiple targets
+     tr: fping - birden çok hedefe ping
+   desc:
+     en: |
+       Pings multiple targets simultaneously by listing them as command line arguments.
+       This is useful for checking the status of a small group of known servers or workstations.
+       Unlike standard ping, fping does not wait for one target to timeout before pinging the next.
+       The output will list the status of each target in the order they were provided.
+     tr: |
+       Komut satırı argümanı olarak listeleyerek birden çok hedefe aynı anda ping atar.
+       Bilinen küçük bir sunucu veya iş istasyonu grubunun durumunu denetlemek için kullanışlıdır.
+       Standart ping'den farklı olarak fping, sonrakine ping atmadan önce bir hedefin zaman aşımını beklemez.
+       Çıktı, her hedefin durumunu verildikleri sırayla listeler.
    command: "fping {{target_1}} {{target_2}} {{target_3}}"
 
- - title: fping - show only alive hosts
-   desc: |
-     Filters the output to display only the hosts that respond to ICMP echo requests.
-     This is particularly useful when scanning large networks to identify active systems quickly.
-     It suppresses the "unreachable" messages that normally clutter the terminal output.
-     Use this when you need a clean list of active IP addresses for further processing.
+ - title:
+     en: fping - show only alive hosts
+     tr: fping - yalnızca canlı hostları gösterme
+   desc:
+     en: |
+       Filters the output to display only the hosts that respond to ICMP echo requests.
+       This is particularly useful when scanning large networks to identify active systems quickly.
+       It suppresses the "unreachable" messages that normally clutter the terminal output.
+       Use this when you need a clean list of active IP addresses for further processing.
+     tr: |
+       Çıktıyı, yalnızca ICMP yankı isteklerine yanıt veren hostları gösterecek şekilde filtreler.
+       Aktif sistemleri hızlıca belirlemek için geniş ağları tararken özellikle kullanışlıdır.
+       Terminal çıktısını dolduran "erişilemez" iletilerini bastırır.
+       İleri işlem için temiz bir aktif IP listesine ihtiyaç duyduğunuzda kullanın.
    command: "fping -a {{target_network}}"
 
- - title: fping - show only unreachable hosts
-   desc: |
-     Filters the output to display only the hosts that did not respond to the ping.
-     This command is helpful for identifying gaps in a network range or detecting downed systems.
-     It is the inverse of the alive flag and helps focused troubleshooting on unresponsive nodes.
-     This can be paired with output redirection to create a list of IP addresses requiring investigation.
+ - title:
+     en: fping - show only unreachable hosts
+     tr: fping - yalnızca erişilemez hostları gösterme
+   desc:
+     en: |
+       Filters the output to display only the hosts that did not respond to the ping.
+       This command is helpful for identifying gaps in a network range or detecting downed systems.
+       It is the inverse of the alive flag and helps focused troubleshooting on unresponsive nodes.
+       This can be paired with output redirection to create a list of IP addresses requiring investigation.
+     tr: |
+       Çıktıyı, ping'e yanıt vermeyen hostları gösterecek şekilde filtreler.
+       Bu komut, ağ aralığındaki boşlukları belirlemek veya çökmüş sistemleri tespit için yararlıdır.
+       Canlı bayrağının tersidir ve yanıt vermeyen düğümlerde odaklı sorun gidermeye yardımcı olur.
+       İncelenmesi gereken IP adreslerinin listesini oluşturmak için çıktı yönlendirmeyle birleştirilebilir.
    command: "fping -u {{target_network}}"
 
 # === NETWORK ENUMERATION ===
- - title: fping - scan network range using CIDR
-   desc: |
-     Generates and pings a list of targets based on a specified CIDR network notation.
-     This is an efficient way to scan an entire subnet, such as a /24 or /23, for active hosts.
-     The -g flag allows the tool to calculate the range of IP addresses automatically.
-     Ensure you have permission to scan the network to avoid triggering intrusion detection systems.
+ - title:
+     en: fping - scan network range using CIDR
+     tr: fping - CIDR ile ağ aralığı tarama
+   desc:
+     en: |
+       Generates and pings a list of targets based on a specified CIDR network notation.
+       This is an efficient way to scan an entire subnet, such as a /24 or /23, for active hosts.
+       The -g flag allows the tool to calculate the range of IP addresses automatically.
+       Ensure you have permission to scan the network to avoid triggering intrusion detection systems.
+     tr: |
+       Belirtilen CIDR ağ gösterimine göre hedef listesi üretip ping atar.
+       /24 veya /23 gibi tüm bir alt ağı aktif hostlara karşı taramanın verimli bir yoludur.
+       -g bayrağı aracın IP adresi aralığını otomatik hesaplamasını sağlar.
+       Saldırı tespit sistemlerini tetiklememek için ağı tarama izniniz olduğundan emin olun.
    command: "fping -g {{network_cidr|192.168.1.0/24}}"
 
- - title: fping - scan IP range by start and end
-   desc: |
-     Pings a specific range of IP addresses by providing the start and end values.
-     This method is useful when you only want to scan a specific subset of a larger network.
-     It uses the generate flag to fill in the intermediate IP addresses between the two boundaries.
-     This is often preferred over CIDR when the target range does not align with standard subnet masks.
+ - title:
+     en: fping - scan IP range by start and end
+     tr: fping - başlangıç ve bitişle IP aralığı tarama
+   desc:
+     en: |
+       Pings a specific range of IP addresses by providing the start and end values.
+       This method is useful when you only want to scan a specific subset of a larger network.
+       It uses the generate flag to fill in the intermediate IP addresses between the two boundaries.
+       This is often preferred over CIDR when the target range does not align with standard subnet masks.
+     tr: |
+       Başlangıç ve bitiş değerlerini vererek belirli bir IP aralığına ping atar.
+       Daha büyük bir ağın yalnızca belirli bir alt kümesini taramak istediğinizde bu yöntem kullanışlıdır.
+       İki sınır arasındaki ara IP adreslerini doldurmak için üretme bayrağını kullanır.
+       Hedef aralık standart alt ağ maskeleriyle uyuşmadığında CIDR'a tercih edilir.
    command: "fping -g {{start_ip}} {{end_ip}}"
 
- - title: fping - reverse DNS lookup
-   desc: |
-     Performs a reverse DNS lookup for each target IP address and displays the hostname.
-     This provides context for the IP addresses discovered, making it easier to identify specific servers.
-     The -n flag is used to resolve the names of the IP addresses provided in the target list.
-     The speed of this command depends heavily on the responsiveness of the configured DNS server.
+ - title:
+     en: fping - reverse DNS lookup
+     tr: fping - ters DNS sorgusu
+   desc:
+     en: |
+       Performs a reverse DNS lookup for each target IP address and displays the hostname.
+       This provides context for the IP addresses discovered, making it easier to identify specific servers.
+       The -n flag is used to resolve the names of the IP addresses provided in the target list.
+       The speed of this command depends heavily on the responsiveness of the configured DNS server.
+     tr: |
+       Her hedef IP adresi için ters DNS sorgusu yapıp hostname'i gösterir.
+       Keşfedilen IP adresleri için bağlam sağlayarak belirli sunucuları belirlemeyi kolaylaştırır.
+       -n bayrağı, hedef listedeki IP adreslerinin adlarını çözümlemek için kullanılır.
+       Bu komutun hızı, yapılandırılmış DNS sunucusunun yanıt hızına büyük ölçüde bağlıdır.
    command: "fping -n {{target_network}}"
 
 # === FILE AND INPUT HANDLING ===
- - title: fping - read targets from file
-   desc: |
-     Reads a list of target IP addresses or hostnames from a specified text file.
-     This is the standard approach for scanning specific lists of assets generated by other tools.
-     Each target should be listed on a new line within the input file.
-     Using a file input is much cleaner than passing hundreds of arguments via the command line.
+ - title:
+     en: fping - read targets from file
+     tr: fping - hedefleri dosyadan okuma
+   desc:
+     en: |
+       Reads a list of target IP addresses or hostnames from a specified text file.
+       This is the standard approach for scanning specific lists of assets generated by other tools.
+       Each target should be listed on a new line within the input file.
+       Using a file input is much cleaner than passing hundreds of arguments via the command line.
+     tr: |
+       Hedef IP adresi veya hostname listesini belirtilen bir metin dosyasından okur.
+       Diğer araçlarca üretilen belirli varlık listelerini taramanın standart yoludur.
+       Her hedef girdi dosyasında yeni bir satırda listelenmelidir.
+       Dosya girdisi kullanmak, komut satırından yüzlerce argüman aktarmaktan çok daha temizdir.
    command: "fping -f {{input_file|targets.txt}}"
 
- - title: fping - read targets from stdin
-   desc: |
-     Accepts a list of targets directly from the standard input (stdin) using the pipe operator.
-     This allows you to pipe the output of other tools, like grep or awk, directly into fping.
-     The hyphen (-) passed to the -f flag tells fping to look for input from the stream.
-     This is a powerful way to chain network discovery tools together in a single command line.
+ - title:
+     en: fping - read targets from stdin
+     tr: fping - hedefleri stdin'den okuma
+   desc:
+     en: |
+       Accepts a list of targets directly from the standard input (stdin) using the pipe operator.
+       This allows you to pipe the output of other tools, like grep or awk, directly into fping.
+       The hyphen (-) passed to the -f flag tells fping to look for input from the stream.
+       This is a powerful way to chain network discovery tools together in a single command line.
+     tr: |
+       Kanal (pipe) işleciyle hedef listesini doğrudan standart girdiden (stdin) kabul eder.
+       Grep veya awk gibi araçların çıktısını doğrudan fping'e aktarmanızı sağlar.
+       -f bayrağına verilen tire (-), fping'e girdiyi akıştan aramasını söyler.
+       Ağ keşif araçlarını tek komut satırında zincirlemenin güçlü bir yoludur.
    command: "cat {{input_file}} | fping -f -"
 
 # === PERFORMANCE AND ANALYSIS ===
- - title: fping - count mode with statistics
-   desc: |
-     Sends a specific number of pings to each target and provides a summary of results.
-     The -c flag determines how many packets are sent per host, while -s provides final statistics.
-     This is excellent for measuring packet loss and average latency over a period of time.
-     The statistics include the number of targets, responses, and the total elapsed time.
+ - title:
+     en: fping - count mode with statistics
+     tr: fping - istatistikli sayım kipi
+   desc:
+     en: |
+       Sends a specific number of pings to each target and provides a summary of results.
+       The -c flag determines how many packets are sent per host, while -s provides final statistics.
+       This is excellent for measuring packet loss and average latency over a period of time.
+       The statistics include the number of targets, responses, and the total elapsed time.
+     tr: |
+       Her hedefe belirli sayıda ping gönderip sonuçların özetini sunar.
+       -c bayrağı host başına kaç paket gönderileceğini, -s nihai istatistikleri belirler.
+       Bir süre boyunca paket kaybını ve ortalama gecikmeyi ölçmek için mükemmeldir.
+       İstatistikler hedef sayısını, yanıtları ve toplam geçen süreyi içerir.
    command: "fping -c {{count|4}} -s {{target}}"
 
- - title: fping - continuous loop mode
-   desc: |
-     Pings the specified targets indefinitely until the user manually stops the process.
-     This is useful for long-term monitoring of a host's availability or testing for intermittent issues.
-     The output will continuously update with the latency of each packet returned.
-     Use Ctrl+C to terminate the loop and see the final summary of the session.
+ - title:
+     en: fping - continuous loop mode
+     tr: fping - sürekli döngü kipi
+   desc:
+     en: |
+       Pings the specified targets indefinitely until the user manually stops the process.
+       This is useful for long-term monitoring of a host's availability or testing for intermittent issues.
+       The output will continuously update with the latency of each packet returned.
+       Use Ctrl+C to terminate the loop and see the final summary of the session.
+     tr: |
+       Kullanıcı işlemi elle durdurana kadar belirtilen hedeflere süresiz ping atar.
+       Bir hostun erişilebilirliğini uzun süre izlemek veya aralıklı sorunları test etmek için kullanışlıdır.
+       Çıktı, dönen her paketin gecikmesiyle sürekli güncellenir.
+       Döngüyü sonlandırıp oturumun nihai özetini görmek için Ctrl+C kullanın.
    command: "fping -l {{target}}"
 
- - title: fping - customize ping intervals
-   desc: |
-     Adjusts the timing between sending packets to control the speed and intensity of the scan.
-     The -i flag sets the interval between sending pings to different targets, while -p sets the interval for the same target.
-     Decreasing these values makes the scan much faster but increases the risk of being blocked or causing congestion.
-     Be cautious with low intervals, as some systems might interpret high-speed ICMP as a flood attack.
+ - title:
+     en: fping - customize ping intervals
+     tr: fping - ping aralıklarını özelleştirme
+   desc:
+     en: |
+       Adjusts the timing between sending packets to control the speed and intensity of the scan.
+       The -i flag sets the interval between sending pings to different targets, while -p sets the interval for the same target.
+       Decreasing these values makes the scan much faster but increases the risk of being blocked or causing congestion.
+       Be cautious with low intervals, as some systems might interpret high-speed ICMP as a flood attack.
+     tr: |
+       Taramanın hızını ve yoğunluğunu denetlemek için paket gönderme zamanlamasını ayarlar.
+       -i bayrağı farklı hedeflere ping gönderme aralığını, -p aynı hedefe gönderme aralığını ayarlar.
+       Bu değerleri düşürmek taramayı çok hızlandırır ancak engellenme veya tıkanıklık riskini artırır.
+       Düşük aralıklarda dikkatli olun; bazı sistemler yüksek hızlı ICMP'yi sel saldırısı olarak yorumlayabilir.
    command: "fping -i {{interval_ms|10}} -p {{period_ms|500}} {{target_network}}"
 
- - title: fping - force IPv4 or IPv6
-   desc: |
-     Restricts the tool to use only a specific version of the Internet Protocol.
-     Use -4 to force IPv4 connections or -6 to force IPv6 connections when scanning dual-stack hosts.
-     This is helpful for troubleshooting connectivity issues that might be protocol-specific.
-     It ensures that the tool doesn't waste time attempting to resolve or ping versions you aren't interested in.
+ - title:
+     en: fping - force IPv4 or IPv6
+     tr: fping - IPv4 veya IPv6 dayatma
+   desc:
+     en: |
+       Restricts the tool to use only a specific version of the Internet Protocol.
+       Use -4 to force IPv4 connections or -6 to force IPv6 connections when scanning dual-stack hosts.
+       This is helpful for troubleshooting connectivity issues that might be protocol-specific.
+       It ensures that the tool doesn't waste time attempting to resolve or ping versions you aren't interested in.
+     tr: |
+       Aracı yalnızca belirli bir İnternet Protokolü sürümünü kullanmaya kısıtlar.
+       Çift yığınlı hostları tararken IPv4 bağlantıları için -4, IPv6 bağlantıları için -6 kullanın.
+       Protokole özgü olabilecek bağlantı sorunlarını gidermede yararlıdır.
+       Aracın ilgilenmediğiniz sürümleri çözümlemeye veya ping'lemeye zaman harcamamasını sağlar.
    command: "fping -{{version|4}} {{target}}"

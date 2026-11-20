@@ -3,118 +3,230 @@ tags: [web-security, xss, scanner, pentest, reconnaissance, vulnerability-assess
 
 actions:
   # === BASIC SCANNING ===
-  - title: xsstrike - basic GET scan
-    desc: |
-      Performs a basic reflected XSS scan on a target URL using GET parameters. 
-      This is the primary way to check for vulnerabilities in search queries or page IDs. 
-      The tool analyzes the response to detect reflection points and context to generate optimized payloads.
+  - title:
+      en: xsstrike - basic GET scan
+      tr: xsstrike - temel GET taraması
+    desc:
+      en: |
+        Performs a basic reflected XSS scan on a target URL using GET parameters. 
+        This is the primary way to check for vulnerabilities in search queries or page IDs. 
+        The tool analyzes the response to detect reflection points and context to generate optimized payloads.
+      tr: |
+        GET parametreleri kullanan bir hedef URL üzerinde temel bir yansıtılmış XSS taraması gerçekleştirir.
+        Bu, arama sorguları veya sayfa kimliklerindeki zafiyetleri denetlemenin birincil yoludur.
+        Araç yanıtı analiz ederek yansıma noktalarını ve bağlamı tespit edip optimize edilmiş yükler üretir.
     command: "xsstrike.py -u \"{{url}}\""
 
-  - title: xsstrike - POST data scan
-    desc: |
-      Scans a target that requires POST data for processing instead of URL parameters. 
-      Useful for testing login forms, contact forms, or data submission modules that don't expose parameters in the URI. 
-      Ensure the data string follows the standard key=value format for proper parsing.
+  - title:
+      en: xsstrike - POST data scan
+      tr: xsstrike - POST verisi taraması
+    desc:
+      en: |
+        Scans a target that requires POST data for processing instead of URL parameters. 
+        Useful for testing login forms, contact forms, or data submission modules that don't expose parameters in the URI. 
+        Ensure the data string follows the standard key=value format for proper parsing.
+      tr: |
+        İşlenmesi için URL parametreleri yerine POST verisi gerektiren bir hedefi tarar.
+        URI'de parametre göstermeyen giriş formlarını, iletişim formlarını veya veri gönderim modüllerini test etmek için kullanışlıdır.
+        Veri dizesinin standart anahtar=değer biçimini izlediğinden emin olun.
     command: "xsstrike.py -u \"{{url}}\" --data \"{{post_data}}\""
 
-  - title: xsstrike - URL path injection
-    desc: |
-      Injects payloads directly into the URL path components instead of standard parameters. 
-      This is essential for modern web applications using RESTful routes where parts of the path (e.g., /user/profile/name) might be reflected in the page. 
-      It helps identify vulnerabilities in SEO-friendly URLs that conventional scanners might miss.
+  - title:
+      en: xsstrike - URL path injection
+      tr: xsstrike - URL yolu enjeksiyonu
+    desc:
+      en: |
+        Injects payloads directly into the URL path components instead of standard parameters. 
+        This is essential for modern web applications using RESTful routes where parts of the path (e.g., /user/profile/name) might be reflected in the page. 
+        It helps identify vulnerabilities in SEO-friendly URLs that conventional scanners might miss.
+      tr: |
+        Yükleri standart parametreler yerine doğrudan URL yolu bileşenlerine enjekte eder.
+        Bu, yolun bir kısmının (örn. /user/profile/name) sayfaya yansıtıldığı RESTful yollar kullanan modern web uygulamaları için gereklidir.
+        Geleneksel tarayıcıların kaçırabileceği SEO uyumlu URL'lerdeki zafiyetleri belirlemeye yardımcı olur.
     command: "xsstrike.py -u \"{{url_with_path}}\" --path"
 
-  - title: xsstrike - JSON POST scan
-    desc: |
-      Treats the provided POST data as a JSON object for vulnerability testing. 
-      Modern APIs and Single Page Applications (SPAs) often communicate using JSON payloads, and this switch ensures the payloads are handled correctly within the JSON structure. 
-      This prevents breaking the JSON syntax while attempting to inject scripts.
+  - title:
+      en: xsstrike - JSON POST scan
+      tr: xsstrike - JSON POST taraması
+    desc:
+      en: |
+        Treats the provided POST data as a JSON object for vulnerability testing. 
+        Modern APIs and Single Page Applications (SPAs) often communicate using JSON payloads, and this switch ensures the payloads are handled correctly within the JSON structure. 
+        This prevents breaking the JSON syntax while attempting to inject scripts.
+      tr: |
+        Verilen POST verisini bir JSON nesnesi olarak işleyerek zafiyet testi yapar.
+        Modern API'ler ve Tek Sayfa Uygulamaları (SPA) genellikle JSON yükleriyle iletişim kurar ve bu anahtar yüklerin JSON yapısı içinde doğru işlenmesini sağlar.
+        Bu, betik enjekte etmeye çalışırken JSON sözdiziminin bozulmasını engeller.
     command: "xsstrike.py -u \"{{url}}\" --data '{{json_payload}}' --json"
 
   # === AUTOMATION AND CRAWLING ===
-  - title: xsstrike - crawl and scan
-    desc: |
-      Starts crawling from the target page to find internal links and automatically tests them for XSS. 
-      This is an efficient way to map out an entire application's attack surface without manual URL discovery. 
-      It combines discovery and exploitation phases into a single automated workflow.
+  - title:
+      en: xsstrike - crawl and scan
+      tr: xsstrike - tarama ve keşif
+    desc:
+      en: |
+        Starts crawling from the target page to find internal links and automatically tests them for XSS. 
+        This is an efficient way to map out an entire application's attack surface without manual URL discovery. 
+        It combines discovery and exploitation phases into a single automated workflow.
+      tr: |
+        Hedef sayfadan başlayarak dahili bağlantıları bulmak için tarar ve bunları otomatik XSS için test eder.
+        Bu, manuel URL keşfi olmadan tüm bir uygulamanın saldırı yüzeyini haritalamanın verimli bir yoludur.
+        Keşif ve sömürü aşamalarını tek bir otomatik iş akışında birleştirir.
     command: "xsstrike.py -u \"{{url}}\" --crawl"
 
-  - title: xsstrike - crawl with custom depth
-    desc: |
-      Specifies how deep the crawler should go into the website's directory structure. 
-      A higher level allows for more extensive discovery but increases the scan time and resource consumption. 
-      The default depth is 2, which is generally sufficient for medium-sized websites.
+  - title:
+      en: xsstrike - crawl with custom depth
+      tr: xsstrike - özel derinlikle tarama
+    desc:
+      en: |
+        Specifies how deep the crawler should go into the website's directory structure. 
+        A higher level allows for more extensive discovery but increases the scan time and resource consumption. 
+        The default depth is 2, which is generally sufficient for medium-sized websites.
+      tr: |
+        Tarayıcının web sitesi dizin yapısında ne kadar derine ineceğini belirtir.
+        Daha yüksek düzey daha kapsamlı keşfe olanak tanır ancak tarama süresini ve kaynak tüketimini artırır.
+        Varsayılan derinlik 2'dir ve bu orta ölçekli web siteleri için genellikle yeterlidir.
     command: "xsstrike.py -u \"{{url}}\" --crawl -l {{depth|3}}"
 
-  - title: xsstrike - scan seeds from file
-    desc: |
-      Loads multiple URLs from a file to be used as seeds for crawling or direct testing. 
-      This is perfect for batch processing after a reconnaissance phase where multiple subdomains or endpoints have been discovered. 
-      The tool will process each entry in the file sequentially.
+  - title:
+      en: xsstrike - scan seeds from file
+      tr: xsstrike - dosyadan tohum tarama
+    desc:
+      en: |
+        Loads multiple URLs from a file to be used as seeds for crawling or direct testing. 
+        This is perfect for batch processing after a reconnaissance phase where multiple subdomains or endpoints have been discovered. 
+        The tool will process each entry in the file sequentially.
+      tr: |
+        Tarama veya doğrudan test için tohum olarak kullanılacak bir dosyadan birden fazla URL yükler.
+        Bu, keşif aşamasında birden fazla alt alan adı veya uç nokta keşfedildikten sonra toplu işlem için idealdir.
+        Araç dosyadaki her girdiyi sırayla işler.
     command: "xsstrike.py --seeds {{seeds_file}}"
 
   # === ADVANCED TESTING ===
-  - title: xsstrike - blind XSS testing
-    desc: |
-      Injects blind XSS payloads into every parameter of every discovered form during a crawl. 
-      Blind XSS occurs when the payload is stored and executed in a different context, such as an admin dashboard or log viewer. 
-      You must configure your callback/interactsh URL in the core/config.py file before running this.
+  - title:
+      en: xsstrike - blind XSS testing
+      tr: xsstrike - kör XSS testi
+    desc:
+      en: |
+        Injects blind XSS payloads into every parameter of every discovered form during a crawl. 
+        Blind XSS occurs when the payload is stored and executed in a different context, such as an admin dashboard or log viewer. 
+        You must configure your callback/interactsh URL in the core/config.py file before running this.
+      tr: |
+        Tarama sırasında bulunan her formun her parametresine kör XSS yükleri enjekte eder.
+        Kör XSS, yükün depolanıp farklı bir bağlamda (yönetici panosu veya günlük görüntüleyici gibi) çalıştırılmasıyla oluşur.
+        Bunu çalıştırmadan önce callback/interactsh URL'nizi core/config.py dosyasında yapılandırmalısınız.
     command: "xsstrike.py -u \"{{url}}\" --crawl --blind"
 
-  - title: xsstrike - WAF and filter fuzzing
-    desc: |
-      Uses the built-in fuzzer to test Web Application Firewalls (WAF) and complex filters. 
-      This mode is intentionally slow because it uses random delays to avoid triggering rate-limiting or IP bans. 
-      It is highly effective at identifying which characters or keywords are blocked by security mechanisms.
+  - title:
+      en: xsstrike - WAF and filter fuzzing
+      tr: xsstrike - WAF ve filtre bulanıklaştırma
+    desc:
+      en: |
+        Uses the built-in fuzzer to test Web Application Firewalls (WAF) and complex filters. 
+        This mode is intentionally slow because it uses random delays to avoid triggering rate-limiting or IP bans. 
+        It is highly effective at identifying which characters or keywords are blocked by security mechanisms.
+      tr: |
+        Web Uygulama Güvenlik Duvarlarını (WAF) ve karmaşık filtreleri test etmek için yerleşik bulanıklaştırıcıyı kullanır.
+        Bu mod, hız sınırlama veya IP yasaklarını tetiklemekten kaçınmak için rastgele gecikmeler kullandığından kasıtlı olarak yavaştır.
+        Hangi karakterlerin veya anahtar kelimelerin güvenlik mekanizmalarınca engellendiğini belirlemede oldukça etkilidir.
     command: "xsstrike.py -u \"{{url}}\" --fuzzer"
 
-  - title: xsstrike - skip DOM scanning
-    desc: |
-      Skips the DOM-based XSS scanning phase to speed up the overall execution. 
-      Use this when you are only interested in reflected XSS or when the target environment has heavy client-side scripts that slow down analysis. 
-      It is helpful for quick triage of large-scale targets.
+  - title:
+      en: xsstrike - skip DOM scanning
+      tr: xsstrike - DOM taramasını atlama
+    desc:
+      en: |
+        Skips the DOM-based XSS scanning phase to speed up the overall execution. 
+        Use this when you are only interested in reflected XSS or when the target environment has heavy client-side scripts that slow down analysis. 
+        It is helpful for quick triage of large-scale targets.
+      tr: |
+        Genel yürütmeyi hızlandırmak için DOM tabanlı XSS tarama aşamasını atlar.
+        Yalnızca yansıtılmış XSS ile ilgilendiğinizde veya hedef ortamda analizi yavaşlatan ağır istemci betikleri varsa kullanın.
+        Geniş ölçekli hedeflerin hızlı triyajı için yardımcıdır.
     command: "xsstrike.py -u \"{{url}}\" --skip-dom"
 
   # === EVASION AND PERFORMANCE ===
-  - title: xsstrike - multi-threaded crawling
-    desc: |
-      Specifies the number of concurrent threads to use while crawling and testing. 
-      Increasing threads speeds up the scan significantly but might overwhelm small servers or trigger security alerts. 
-      Use with caution and monitor the target's response for potential downtime.
+  - title:
+      en: xsstrike - multi-threaded crawling
+      tr: xsstrike - çok iş parçacıklı tarama
+    desc:
+      en: |
+        Specifies the number of concurrent threads to use while crawling and testing. 
+        Increasing threads speeds up the scan significantly but might overwhelm small servers or trigger security alerts. 
+        Use with caution and monitor the target's response for potential downtime.
+      tr: |
+        Tarama ve test sırasında kullanılacak eşzamanlı iş parçacığı sayısını belirtir.
+        İş parçacığı artırmak taramayı önemli ölçüde hızlandırır ancak küçük sunucuları zorlayabilir veya güvenlik uyarılarını tetikleyebilir.
+        Dikkatli kullanın ve hedefin yanıtını olası kesintilere karşı izleyin.
     command: "xsstrike.py -u \"{{url}}\" --crawl -t {{threads|10}}"
 
-  - title: xsstrike - stealth scan with delay
-    desc: |
-      Adds a specified delay between HTTP requests to bypass rate limits and remain stealthy. 
-      This is recommended when scanning production environments or sites with aggressive security monitoring. 
-      The delay value is in seconds.
+  - title:
+      en: xsstrike - stealth scan with delay
+      tr: xsstrike - gecikmeli gizli tarama
+    desc:
+      en: |
+        Adds a specified delay between HTTP requests to bypass rate limits and remain stealthy. 
+        This is recommended when scanning production environments or sites with aggressive security monitoring. 
+        The delay value is in seconds.
+      tr: |
+        Hız limitlerini aşmamak ve gizli kalmak için HTTP istekleri arasına belirtilen gecikmeyi ekler.
+        Bu, üretim ortamlarını veya agresif güvenlik izlemeli siteleri tararken önerilir.
+        Gecikme değeri saniye cinsindendir.
     command: "xsstrike.py -u \"{{url}}\" -d {{delay|2}}"
 
-  - title: xsstrike - custom headers and cookies
-    desc: |
-      Adds custom HTTP headers or authentication cookies to the outgoing requests. 
-      This is necessary for scanning pages that are behind a login or require specific User-Agents. 
-      Separate multiple headers using the \n newline character.
+  - title:
+      en: xsstrike - custom headers and cookies
+      tr: xsstrike - özel başlıklar ve çerezler
+    desc:
+      en: |
+        Adds custom HTTP headers or authentication cookies to the outgoing requests. 
+        This is necessary for scanning pages that are behind a login or require specific User-Agents. 
+        Separate multiple headers using the \n newline character.
+      tr: |
+        Giden isteklere özel HTTP başlıkları veya kimlik doğrulama çerezleri ekler.
+        Bu, giriş gerektiren veya belirli User-Agent isteyen sayfaları taramak için gereklidir.
+        Birden fazla başlığı \n yeni satır karakteriyle ayırın.
     command: "xsstrike.py -u \"{{url}}\" --headers \"{{headers|Cookie: session=xyz}}\""
 
-  - title: xsstrike - proxy configuration
-    desc: |
-      Routes all traffic through a specified proxy server. 
-      This is useful for anonymizing your IP address or for intercepting traffic in tools like Burp Suite for further manual analysis. 
-      Proxies should be pre-configured in the core/config.py file for best results.
+  - title:
+      en: xsstrike - proxy configuration
+      tr: xsstrike - proxy yapılandırması
+    desc:
+      en: |
+        Routes all traffic through a specified proxy server. 
+        This is useful for anonymizing your IP address or for intercepting traffic in tools like Burp Suite for further manual analysis. 
+        Proxies should be pre-configured in the core/config.py file for best results.
+      tr: |
+        Tüm trafiği belirtilen bir proxy sunucusu üzerinden yönlendirir.
+        Bu, IP adresinizi gizlemek veya trafiği Burp Suite gibi araçlarda yakalayıp elle analiz etmek için kullanışlıdır.
+        En iyi sonuç için proxy'ler core/config.py dosyasında önceden yapılandırılmalıdır.
     command: "xsstrike.py -u \"{{url}}\" --proxy"
 
   # === CUSTOMIZATION ===
-  - title: xsstrike - brute force payload file
-    desc: |
-      Loads a list of custom payloads from a local file and tests them against the target. 
-      In this mode, XSStrike skips its intelligent analysis and simply tries every entry in the list. 
-      This is useful when you have a specific bypass payload that you want to verify across multiple parameters.
+  - title:
+      en: xsstrike - brute force payload file
+      tr: xsstrike - kaba kuvvet yük dosyası
+    desc:
+      en: |
+        Loads a list of custom payloads from a local file and tests them against the target. 
+        In this mode, XSStrike skips its intelligent analysis and simply tries every entry in the list. 
+        This is useful when you have a specific bypass payload that you want to verify across multiple parameters.
+      tr: |
+        Yerel bir dosyadan özel yük listesi yükler ve bunları hedefe karşı test eder.
+        Bu modda XSStrike akıllı analiz yapmayı atlar ve listedeki her girdiyi doğrudan dener.
+        Bu, birden fazla parametrede doğrulamak istediğiniz belirli bir atlatma yükünüz olduğunda kullanışlıdır.
     command: "xsstrike.py -u \"{{url}}\" -f {{payload_file}}"
 
-  - title: xsstrike - payload encoding
-    desc: |
-      Automatically encodes the generated payloads to bypass basic signature-based filters. 
-      Currently supports base64 encoding which can be useful against specific WAF configurations. 
-      It helps in testing if the application decodes input before processing it.
+  - title:
+      en: xsstrike - payload encoding
+      tr: xsstrike - yük kodlama
+    desc:
+      en: |
+        Automatically encodes the generated payloads to bypass basic signature-based filters. 
+        Currently supports base64 encoding which can be useful against specific WAF configurations. 
+        It helps in testing if the application decodes input before processing it.
+      tr: |
+        Temel imza tabanlı filtreleri aşmak için üretilen yükleri otomatik kodlar.
+        Şu anda belirli WAF yapılandırmalarına karşı faydalı olabilen base64 kodlamayı destekler.
+        Uygulamanın girdiyi işlemeden önce kod çözüp çözmediğini test etmeye yardımcı olur.
     command: "xsstrike.py -u \"{{url}}\" -e {{encoding|base64}}"
